@@ -344,18 +344,18 @@ const bool OTLog::Init(const OTString & strThreadContext, const int & nLogLevel)
 		else // not global
 		{
 
-		pLogger->m_strLogFileName.Format("%s%s%s",LOGFILE_PRE, strThreadContext.Get(), LOGFILE_EXT);
+			pLogger->m_strLogFileName.Format("%s%s%s",LOGFILE_PRE, strThreadContext.Get(), LOGFILE_EXT);
 
-		OTSettings * pConfig(new OTSettings(OTPaths::GlobalConfigFile()));
+			OTSettings config = OTSettings(OTPaths::GlobalConfigFile());
 
-		pConfig->Reset();
-		if(!pConfig->Load()) { return false; };
-		
-		bool bIsNew(false);
-		if(!pConfig->CheckSet_str("logfile",strThreadContext,pLogger->m_strLogFileName,pLogger->m_strLogFileName,bIsNew)) { return false; }
+			config.Reset();
+			if(!config.Load()) { return false; };
 
-		if(!pConfig->Save()) { return false; };
-		pConfig->Reset();
+			bool bIsNew(false);
+			if(!config.CheckSet_str("logfile",strThreadContext,pLogger->m_strLogFileName,pLogger->m_strLogFileName,bIsNew)) { return false; }
+
+			if(!config.Save()) { return false; };
+			config.Reset();
 
 		}
 
@@ -690,7 +690,7 @@ int OTLog::Assert(const char * szFilename, int nLinenumber)
 	}
 
 	abort();
-	return -1;
+	//return -1;
 }
 
 

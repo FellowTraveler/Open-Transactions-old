@@ -158,7 +158,7 @@ class OTSettings
 {
 private:
 
-	CSimpleIniA * p_iniSimple;
+	CSimpleIniA * m_pIniSimple;
 
 	bool b_Loaded;
 

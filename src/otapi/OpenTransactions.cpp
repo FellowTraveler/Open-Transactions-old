@@ -872,24 +872,6 @@ bool OT_API::CleanupOTApp()
 #endif
 		// ------------------------------------
 
-		// NOTE: TODO: This shouldn't be here.
-		// Why not? Because InitOTAPI corresponds to CleanupOTAPI.
-		// But the PID init code is in OT_API::Init, NOT InitOTAPI. Therefore
-		// the PID cleanup code should likewise be in OT_API::Cleanup, NOT CleanupOTAPI.
-		// So then why is it here? Because OT_API::Cleanup doesn't exist yet...
-
-		// Data Path
-		OTString strDataPath;
-		const bool bGetDataFolderSuccess = OTDataFolder::Get(strDataPath);
-		if (bGetDataFolderSuccess)
-		{
-
-		}
-		else 
-		{
-			OTLog::vError("%s: Unable to get data folder, will not remove pid (we likely didn't create one)", __FUNCTION__);
-		}
-
 		return true;
 	}
 	else
@@ -2451,6 +2433,7 @@ const bool OT_API::Wallet_CanRemoveServer(const OTIdentifier & SERVER_ID)
 		OTIdentifier nymID;
 		bool bGetNym = OTAPI_Wrap::OTAPI()->GetNym(i, nymID, strName);
 
+		if(bGetNym)
 		if (OTAPI_Wrap::OTAPI()->IsNym_RegisteredAtServer(nymID, SERVER_ID))
 		{
 			OTString strNymID(nymID), strSERVER_ID(SERVER_ID);
@@ -2564,7 +2547,8 @@ const bool OT_API::Wallet_CanRemoveNym(const OTIdentifier & NYM_ID)
 	OTIdentifier	theID;
 	OTString		strName;
 	bool bGetServer = OTAPI_Wrap::OTAPI()->GetServer(i, theID, strName);
-        
+    
+	if (bGetServer)
 	if (!theID.IsEmpty())
         {
             const OTString strServerID(theID);
@@ -8122,6 +8106,7 @@ bool OT_API::RecordPayment(const OTIdentifier & SERVER_ID,
             pPaymentInbox->SaveContract();
             // -----------------------------------------------------
             const bool bSavedInbox = pPaymentInbox->SavePaymentInbox(); // todo: log failure
+			if (!bSavedInbox) OTLog::vOutput(0,"/n%s: Unable to Save PaymentInbox./n",__FUNCTION__);
         }
         else // outbox
         {

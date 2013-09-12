@@ -158,12 +158,12 @@ private:
 
 	EXPORT OTPaths();
 
-	static OTSettings * m_pSettings;
+	static OTSettings s_settings;
 
-	static OTString m_strAppDataFolder;
-	static OTString m_strGlobalConfigFile;
-	static OTString m_strPrefixFolder;
-	static OTString m_strScriptsFolder;
+	static OTString s_strAppDataFolder;
+	static OTString s_strGlobalConfigFile;
+	static OTString s_strPrefixFolder;
+	static OTString s_strScriptsFolder;
 
 public:
 
@@ -179,20 +179,20 @@ public:
 
 	EXPORT static const bool LoadSetPrefixFolder	// eg. /usr/local/  (cannot be relative);
 		(	
-		OTSettings * pConfig = m_pSettings, //optional
+		OTSettings & config = s_settings, //optional
 		const OTString & strPrefixFolder = ""	//optional
 		//const bool & bIsRelative = false
 		);
 
 	EXPORT static const bool LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 		(
-		OTSettings * pConfig = m_pSettings, //optional
+		OTSettings & config = s_settings, //optional
 		const OTString & strScriptsFolder = "",	//optional
 		const bool & bIsRelative = true			//optional
 		);
 
 	EXPORT static const bool Get(
-		OTSettings * pConfig,
+		OTSettings & config,
 		const				  OTString	  & strSection,
 		const				  OTString	  & strKey,
 							  OTString	  & out_strVar,
@@ -201,7 +201,7 @@ public:
 		);
 
 	EXPORT static const bool Set(
-		OTSettings * pConfig,
+		OTSettings & config,
 		const				  OTString	  & strSection,
 		const				  OTString	  & strKey,
 		const				  OTString	  & strValue,
@@ -311,20 +311,19 @@ private:
 
     static const bool GetSetAll();
 
-    static inline const bool GetSetFolderName(OTSettings * pConfig, const std::string strKeyName,
+    static inline const bool GetSetFolderName(OTSettings & config, const std::string strKeyName,
                                               const std::string strDefaultName, OTString & ret_strName)
     {
         if (ret_strName.Exists()) return true;
         else
         {
-            if (NULL == pConfig)                                    return false;
             if (strKeyName.empty()    || strDefaultName.empty())    return false;
             if (3 > strKeyName.size() || 3 > strDefaultName.size()) return false;
 
             OTString strResult("");
             bool bIsNew(false);
 
-            pConfig->CheckSet_str("folders",strKeyName,strDefaultName,strResult,bIsNew);
+            config.CheckSet_str("folders",strKeyName,strDefaultName,strResult,bIsNew);
 
             if (!bIsNew) ret_strName = strResult;
             else         ret_strName = strDefaultName.c_str();
