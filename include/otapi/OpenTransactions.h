@@ -288,6 +288,7 @@ public:
 
 
 
+extern bool OT_API_atexit_now; // (global) are we *now* running atexit? 
 void OT_API_atexit(int signal=-1); // for global signal handler - must be able to run in SIGNAL CONTEXT
 
 /**
@@ -311,7 +312,7 @@ public:
 	EXPORT  static	bool InitOTApp();	 // Once per run. calls OTLog::Init("client");
 	EXPORT	static	bool CleanupOTApp(); // As the application shuts down gracefully...
 
-	static void CleanupForAtexit(int signal=-1); // to be called onexit (ctrl-C etc.) - from global handler, in SIGNAL CONTEXT 
+	void CleanupForAtexit(int signal=-1); // to be called onexit (ctrl-C etc.) - from global handler, in SIGNAL CONTEXT 
 
 	// Member
 private:

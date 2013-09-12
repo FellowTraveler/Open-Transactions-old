@@ -221,8 +221,8 @@ OTAPI_Wrap * OTAPI_Wrap::p_Wrap = NULL;
 
 bool OTAPI_Wrap::bInitOTApp = false;
 bool OTAPI_Wrap::bCleanupOTApp = false;
+bool OTAPI_Wrap::bGoingDown = false;
 // ---------------------------------------------------------------
-
 
 OTAPI_Wrap::OTAPI_Wrap() : p_OTAPI(NULL)
 {
@@ -256,6 +256,12 @@ OTAPI_Wrap::~OTAPI_Wrap()
     if (NULL != p_OTAPI) delete p_OTAPI; p_OTAPI = NULL;
 }
 
+
+// **********************************************************************
+
+void OTAPI_Wrap::GoingDown() { 
+	bGoingDown=1;
+}
 
 // **********************************************************************
 
@@ -313,7 +319,8 @@ OTAPI_Wrap * OTAPI_Wrap::It(bool bLoadAPI/*=true*/)
 	{
 		if (NULL != OTAPI_Wrap::p_Wrap) return OTAPI_Wrap::p_Wrap;
 
-		if (!bLoadAPI) return false; // don't load API (for sighandler)
+		if (!bLoadAPI) return NULL; // don't load API (e.g. for sighandler)
+		if (OTAPI_Wrap::bGoingDown) return NULL; // don't load API - we are going down
 
 		OTAPI_Wrap * tmpWrap = new OTAPI_Wrap();
 		if (NULL != tmpWrap)
@@ -328,16 +335,16 @@ OTAPI_Wrap * OTAPI_Wrap::It(bool bLoadAPI/*=true*/)
 		}
 	}
 	// --------------------
-	// else:
-	//
-	assert(false);
+	// else
+	
+	if (bLoadAPI) assert(false); // we are in cleanup and it's not just a question - can't create object!
 	return NULL;
 }
 
 //static
-OT_API * OTAPI_Wrap::OTAPI()
+OT_API * OTAPI_Wrap::OTAPI(bool bLoadAPI/*=true*/)
 {
-	return OTAPI_Wrap::It()->p_OTAPI;
+	return OTAPI_Wrap::It(bLoadAPI)->p_OTAPI;
 }
 
 

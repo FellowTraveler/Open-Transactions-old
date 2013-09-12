@@ -765,24 +765,36 @@ bool OT_API::bInitOTApp = false;
 // static
 bool OT_API::bCleanupOTApp = false;
 
+// extern (global)
+bool OT_API_atexit_now = false; // are we *now* running atexit? 
+
+void OT_API_atexit() {
+	OT_API_atexit(-1); // we don't know the signal number because we are called from the actuall exit code, not directly from a signal handler
+}
 
 void OT_API_atexit(int signal) { // for global signal handler - must be able to run in SIGNAL CONTEXT
+	if (OT_API_atexit_now) {
+		std::cerr << "\nSignal("<<signal<<"): for-atexit: we got ANOTER signal while processing a signal - aborting!" << std::endl;
+		abort();
+	}
+	OT_API_atexit_now=1;
 	std::cerr << "Signal("<<signal<<"): for-atexit cleanup handler." << std::endl;
 
-	//	OTAPI_Wrap::deny_creation = true; // tell the wrapper that we are going down  // TODO
-	OT_API * ot_api = OTAPI_Wrap::It(false); // just check if OTAPI was even created yet? (and write down the address)
+	OTAPI_Wrap::GoingDown(); // tell the wrapper that we are going down to make sure it will not race to create one while we are checking
+
+	OT_API * ot_api = OTAPI_Wrap::OTAPI(false); // just check if OTAPI was even created yet? (and write down the address)
 	if (ot_api) { // OTAPI was created
 		std::cerr << "Signal("<<signal<<"): for-atexit: will ask existing OT_API object to cleanup." << std::endl;
-		ot_api->
-	}
+		ot_api->CleanupForAtexit();
+	} 
 
 	std::cerr << "Signal("<<signal<<"): for-atexit cleanup handler- DONE" << std::endl;
+	OT_API_atexit_now=0;
 }
 
 void OT_API::CleanupForAtexit(int signal) {
 	std::cerr << "Signal("<<signal<<"): for-atexit cleanup method." << std::endl;
-
-
+	m_refPid.ClosePid();
 	std::cerr << "Signal("<<signal<<"): for-atexit cleanup method- DONE" << std::endl;
 }
 
@@ -956,8 +968,27 @@ OT_API::Pid::~Pid()
 	// nothing for now
 }
 
+
+bool OT_API_atexit_installed=0;  // (global - in this cpp only) is the atexit installed yet?
+
+void OT_API_signalHanlder(int signal) {
+	std::cerr << "Got signal="<<signal<<", exiting"<<std::endl;
+	exit(signal);
+}
+
 void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 {
+	if (!OT_API_atexit_installed) {
+		std::cerr << "Installing signal handlers"<<std::endl; // TODO debug code
+		atexit(OT_API_atexit);
+		signal(SIGINT, OT_API_signalHanlder);  
+		signal(SIGTERM, OT_API_signalHanlder);
+		signal(SIGHUP, OT_API_signalHanlder);  
+		signal(SIGSTOP, OT_API_signalHanlder);  
+		OT_API_atexit_installed=1;
+	}
+
+
 	if (this->IsPidOpen()) { OTLog::sError("%s: Pid is OPEN, MUST CLOSE BEFORE OPENING A NEW ONE!\n",__FUNCTION__,"strPidFilePath"); OT_ASSERT(false); }
 
 	if (!strPidFilePath.Exists()) { OTLog::sError("%s: %s is Empty!\n",__FUNCTION__,"strPidFilePath"); OT_ASSERT(false); }

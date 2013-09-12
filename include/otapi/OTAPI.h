@@ -193,6 +193,7 @@ private :
 
 	static bool bInitOTApp;
 	static bool bCleanupOTApp;
+	static bool bGoingDown; // are we are going down (atexit/signals etc)
 
 	static OTAPI_Wrap * p_Wrap;
     
@@ -203,9 +204,10 @@ public :
 
     ~OTAPI_Wrap();
 
+	EXPORT static void GoingDown(); // tell wrapper to never spawn next OT_API e.g. because we are going down (atexit/signals etc)
 	EXPORT static OTAPI_Wrap * It(bool bLoadAPI=true);
 
-	EXPORT static OT_API * OTAPI();
+	EXPORT static OT_API * OTAPI(bool bLoadAPI=true);
 
 //	EXPORT static const bool & Cleanup();
 
