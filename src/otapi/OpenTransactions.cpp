@@ -774,6 +774,7 @@ void OT_API_atexit() {
 
 void OT_API_atexit(int signal) { // for global signal handler - must be able to run in SIGNAL CONTEXT
 	if (OT_API_atexit_now) {
+		std::cerr << "Got another atexit while processing an atexit (double signal?) so aborting" << std::endl;
 		abort();
 	}
 	OT_API_atexit_now=1;
@@ -789,7 +790,9 @@ void OT_API_atexit(int signal) { // for global signal handler - must be able to 
 }
 
 void OT_API::CleanupForAtexit(int signal) {
-	m_refPid.ClosePid();
+	if (m_refPid.IsPidOpen()) {
+		m_refPid.ClosePid();
+	}
 }
 
 // ------------------------------------
@@ -972,6 +975,7 @@ void OT_API_signalHanlder(int signal) {
 }
 
 
+#if defined(_WIN32)
 BOOL WINAPI OT_API::Pid::ConsoleHandler(DWORD dwType)
 {
     switch(dwType) {
@@ -989,22 +993,34 @@ BOOL WINAPI OT_API::Pid::ConsoleHandler(DWORD dwType)
     }
     return TRUE;
 }
+#endif
 
 
 void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 {
-#ifndef OT_SIGNAL_HANDLING
-#if !defined(_WIN32)
+
+#ifndef OT_SIGNAL_HANDLING // if debug is not taking over the signals
+#if defined(__unix__)
 	if (!OT_API_atexit_installed) {
 		std::cerr << "Installing signal handlers"<<std::endl;
-		atexit(OT_API_atexit);
-		signal(SIGINT, OT_API_signalHanlder);  
-		signal(SIGTERM, OT_API_signalHanlder);
-		signal(SIGHUP, OT_API_signalHanlder);  
-		signal(SIGSTOP, OT_API_signalHanlder);  
+		bool ok =  0== atexit(OT_API_atexit); // atexit install
+		if (!ok) {
+			std::cerr << "Unable to installer atexit handler!" << std::endl; 
+			assert(false);
+		}
+		
+		#define _local_add_handler(SIG) \
+		{ int sig=SIG;  sighandler_t ret = signal(sig, OT_API_signalHanlder);  if (ret==SIG_ERR) { std::cerr<<"skipping signal " << #SIG << std::endl; } }
+			_local_add_handler(SIGINT);
+			_local_add_handler(SIGTERM);
+			_local_add_handler(SIGHUP);
+			_local_add_handler(SIGSTOP);
+		#undef _local_add_handler
+
 		OT_API_atexit_installed=1;
 	}
-#else
+#endif
+#if defined(_WIN32)
     if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler,TRUE)) {
         fprintf(stderr, "Unable to install handler!\n");
         assert(false); //error!
@@ -1048,6 +1064,7 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 					"I found a PID (%lu) in the data lock file, located at: %s\n\n"
 					"If the OT process with PID %lu is truly not running anymore, "
 					"then just erase that file and restart.\n", lPID, this->m_strPidFilePath.Get(), lPID);
+				std::cerr << "Can not open pid now - pid already taken (already running?)" << std::endl;
 				this->m_bIsPidOpen = false;
 				return;
 			}
@@ -1075,10 +1092,12 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 			pid_outfile << the_pid;
 			pid_outfile.close();
 			this->m_bIsPidOpen = true;
+			std::cerr << "The pid file is created. the_pid="<<(the_pid)<<" file: " << (this->m_strPidFilePath.Get())<<std::endl;
 		}
 		else
 		{
 			OTLog::vError("Failed trying to open data locking file (to store PID %lu): %s\n", the_pid, this->m_strPidFilePath.Get());
+			std::cerr << "Can not open the pid file." << std::endl;
 			this->m_bIsPidOpen = false;
 		}
 	}
@@ -1086,6 +1105,10 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 
 void OT_API::Pid::ClosePid()
 {
+	if (OT_API_atexit_now) {
+		std::cerr << "Closing the pid file (emergency shutdown)" << std::endl;
+	}
+
 	if (!this->IsPidOpen()) { OTLog::sError("%s: Pid is CLOSED, WHY CLOSE A PID IF NONE IS OPEN!\n",__FUNCTION__,"strPidFilePath"); OT_ASSERT(false); }
 	if (!this->m_strPidFilePath.Exists()) { OTLog::sError("%s: %s is Empty!\n",__FUNCTION__,"m_strPidFilePath"); OT_ASSERT(false); }
 
