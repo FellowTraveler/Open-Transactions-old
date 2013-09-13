@@ -1023,7 +1023,6 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 			_local_add_handler(SIGINT);
 			_local_add_handler(SIGTERM);
 			_local_add_handler(SIGHUP);
-			_local_add_handler(SIGSTOP);
 		#undef _local_add_handler
 
 		OT_API_atexit_installed=1;
