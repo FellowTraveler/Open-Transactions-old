@@ -789,6 +789,24 @@ void OT_API_atexit(int signal) { // for global signal handler - must be able to 
 	OT_API_atexit_now=0;
 }
 
+// signals (unix version mainly)
+bool OT_API_atexit_installed=0;  // (global - in this cpp only) is the atexit installed yet?
+bool OT_API_signalHandler_now=0; // now running a signal handler
+
+void OT_API_signalHanlder(int signal) {
+	if (OT_API_signalHandler_now) {
+		std::cerr << "Got signal="<<signal<<" while already in signal - abort"<<std::endl;
+		abort();
+	}
+	OT_API_signalHandler_now=1;
+	std::cerr << "Got signal="<<signal<<" - will close and exit"<<std::endl;
+	OT_API_atexit(signal); // try to call it directly so it knows the signal that cuased it
+	exit(signal); // called also from here
+	OT_API_signalHandler_now=0; // dead code
+}
+
+// =====================================================================
+
 void OT_API::CleanupForAtexit(int signal) {
 	if (m_refPid.IsPidOpen()) {
 		m_refPid.ClosePid();
@@ -963,15 +981,6 @@ OT_API::Pid::Pid()
 OT_API::Pid::~Pid()
 {
 	// nothing for now
-}
-
-
-bool OT_API_atexit_installed=0;  // (global - in this cpp only) is the atexit installed yet?
-
-void OT_API_signalHanlder(int signal) {
-	std::cerr << "Got signal="<<signal<<" - will close and exit"<<std::endl;
-	OT_API_atexit(signal); // try to call it directly so it knows the signal that cuased it
-	exit(signal); // called also from here
 }
 
 
