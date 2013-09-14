@@ -786,10 +786,16 @@ void OT_API_atexit(int signal) { // for global signal handler - must be able to 
 
 	OT_API * ot_api = OTAPI_Wrap::OTAPI(false); // just check if OTAPI was even created yet? (and write down the address)
 	if (ot_api) { // OTAPI was created
+		const char *msg = "\n\nEmergency cleanup [unknown signal]\n";
+		if (signal==-1) msg = "\n\nEmergency cleanup [not-signal]\n";
+		if (signal==SIGINT)  msg = "\n\nEmergency cleanup [Ctrl-C detected, SIGINT]\n";
+		if (signal==SIGTERM) msg = "\n\nEmergency cleanup [kill detected, SIGTERM]\n";
+		if (signal==SIGHUP)  msg = "\n\nEmergency cleanup [terminal lost, SIGHUP]\n";
+		async_write_string(msg);
 		ot_api->CleanupForAtexit();
 	} 
 
-	OT_API_atexit_now=0;
+	// OT_API_atexit_now=0;
 }
 
 
@@ -800,15 +806,16 @@ bool OT_API_signalHandler_now=0; // now running a signal handler
 
 template <int T> 
 void OT_API_signalHanlder(int signal) {
+	async_write_string("\nsignal handler\n");
 	if (OT_API_signalHandler_now) {
 		async_write_string("Got signal while already in signal - abort!\n");
 		abort();
 	}
 	OT_API_signalHandler_now=1;
-	async_write_string("Got signal - will close and exit.\n");
+
 	OT_API_atexit(signal); // try to call it directly so it knows the signal that cuased it
-	exit(signal); // called also from here
-	OT_API_signalHandler_now=0; // dead code
+
+	abort(); // to make sure we will not do normal atexit like destructors etc now
 }
 
 // =====================================================================
@@ -1025,12 +1032,15 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 #ifndef OT_SIGNAL_HANDLING // if debug is not taking over the signals
 #if defined(__unix__)
 	if (!OT_API_atexit_installed) {
-		std::cerr << "Installing signal handlers"<<std::endl;
+		// std::cerr << "Installing signal handlers"<<std::endl;
+
+		#if 0
 		bool ok =  0== atexit(OT_API_atexit); // atexit install
 		if (!ok) {
 			std::cerr << "Unable to installer atexit handler!" << std::endl; 
 			assert(false);
 		}
+		#endif
 		
 		#define _local_add_handler(SIG) \
 		{ int sig=SIG;  sighandler_t ret = signal(sig, OT_API_signalHanlder<SIG>);  if (ret==SIG_ERR) { std::cerr<<"skipping signal " << #SIG << std::endl; } }
@@ -1049,6 +1059,8 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
     }
 #endif
 #endif
+	std::cerr << "Installing signal handlers - DONE"<<std::endl;
+	
 
 	if (this->IsPidOpen()) { OTLog::sError("%s: Pid is OPEN, MUST CLOSE BEFORE OPENING A NEW ONE!\n",__FUNCTION__,"strPidFilePath"); OT_ASSERT(false); }
 
@@ -1114,7 +1126,7 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 			pid_outfile << the_pid;
 			pid_outfile.close();
 			this->m_bIsPidOpen = true;
-			std::cerr << "The pid file is created. the_pid="<<(the_pid)<<" file: " << (this->m_strPidFilePath.Get())<<std::endl;
+			// std::cerr << "The pid file is created. the_pid="<<(the_pid)<<" file: " << (this->m_strPidFilePath.Get())<<std::endl;
 		}
 		else
 		{
@@ -1166,9 +1178,9 @@ void OT_API::Pid::ClosePid_asyncsafe() { // asynce-safe (can be used in signal h
 		this->m_bIsPidOpen = false;
 	}
 	else {
-		async_write_string("Warning (in async close) - failed trying to open data locking file (to wipe PID back to 0)\n");
 		this->m_bIsPidOpen = true;
 	}
+
 }
 
 const bool OT_API::Pid::IsPidOpen() const
