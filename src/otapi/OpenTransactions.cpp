@@ -1111,33 +1111,46 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 	}
 }
 
+#define async_write_string(str) { size_t len=0; const char* = str; while(*str){++str; ++len;} write(2,str,len); }
+
+// -------------------------------------------------------
+// PID -- Set it to 0 in the lock file so the next time we run OT, it knows there isn't
+// another copy already running (otherwise we might wind up with two copies trying to write
+// to the same data folder simultaneously, which could corrupt the data...)
 void OT_API::Pid::ClosePid()
 {
-	if (OT_API_atexit_now) {
-		std::cerr << "Closing the pid file (emergency shutdown)" << std::endl;
-	}
-
+	if (OT_API_atexit_now) { async_write_string("ERROR: Closing the pid file now (from signal) - with NOT SIGNAL SAFE FUNCTION - abort!\n"); abort(); }
 	if (!this->IsPidOpen()) { OTLog::sError("%s: Pid is CLOSED, WHY CLOSE A PID IF NONE IS OPEN!\n",__FUNCTION__,"strPidFilePath"); OT_ASSERT(false); }
 	if (!this->m_strPidFilePath.Exists()) { OTLog::sError("%s: %s is Empty!\n",__FUNCTION__,"m_strPidFilePath"); OT_ASSERT(false); }
 
-	// -------------------------------------------------------
-	// PID -- Set it to 0 in the lock file so the next time we run OT, it knows there isn't
-	// another copy already running (otherwise we might wind up with two copies trying to write
-	// to the same data folder simultaneously, which could corrupt the data...)
-	//
-
-	uint32_t the_pid = 0;
-
 	std::ofstream pid_outfile(this->m_strPidFilePath.Get());
-
-	if (pid_outfile.is_open())
-	{
-		pid_outfile << the_pid;
+	if (pid_outfile.is_open()) {
+		pid_outfile << 0; // the pid 0 signals that there is no pid running
 		pid_outfile.close();
-		m_bIsPidOpen = false;
+		this->m_bIsPidOpen = false;
 	}
 	else {
 		OTLog::vError("Failed trying to open data locking file (to wipe PID back to 0): %s\n",this->m_strPidFilePath.Get());
+		this->m_bIsPidOpen = true;
+	}
+}
+
+void OT_API::Pid::ClosePid_asyncsafe() { // asynce-safe (can be used in signal handler)
+	if (OT_API_atexit_now) { async_write_string("Closing the pid file now (from signal)\n"); }
+	else async_write_string("Warning (code error - fix it) using the asyncsafe close when not needed, why?\n");
+
+	if (!this->IsPidOpen()) async_write_string("Warning (code error - fix it) trying to close pid while not opened.\n");
+	// TODO check? if (!this->m_strPidFilePath.Exists()) { OTLog::sError("%s: %s is Empty!\n",__FUNCTION__,"m_strPidFilePath"); OT_ASSERT(false); }
+
+	std::ofstream pid_outfile(this->m_strPidFilePath.Get());
+	int fd = open( this->m_strPidFilePath.Get() , O_WRONLY|O_CREAT|O_TRUNC , 0600 ); // TODO string ; 0600 ? XXX ERROR
+	if (fd != -1) {
+		write(fd,"0",1); // 1 bytes: the '0'
+		fclose(fd);
+		this->m_bIsPidOpen = false;
+	}
+	else {
+		async_write_string("Warning (in async close) - failed trying to open data locking file (to wipe PID back to 0)\n");
 		this->m_bIsPidOpen = true;
 	}
 }

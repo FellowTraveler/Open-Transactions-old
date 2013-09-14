@@ -332,6 +332,7 @@ private:
 		~Pid();
 		void OpenPid(const OTString strPidFilePath);
 		void ClosePid();
+		void ClosePid_asyncsafe(); // asynce-safe (can be used in signal handler)
 		const bool IsPidOpen() const;
 	};
 
