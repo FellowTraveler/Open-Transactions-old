@@ -221,8 +221,8 @@ OTAPI_Wrap * OTAPI_Wrap::p_Wrap = NULL;
 
 bool OTAPI_Wrap::bInitOTApp = false;
 bool OTAPI_Wrap::bCleanupOTApp = false;
+bool OTAPI_Wrap::bGoingDown = false;
 // ---------------------------------------------------------------
-
 
 OTAPI_Wrap::OTAPI_Wrap() : p_OTAPI(NULL)
 {
@@ -256,6 +256,12 @@ OTAPI_Wrap::~OTAPI_Wrap()
     if (NULL != p_OTAPI) delete p_OTAPI; p_OTAPI = NULL;
 }
 
+
+// **********************************************************************
+
+void OTAPI_Wrap::GoingDown() { 
+	bGoingDown=1;
+}
 
 // **********************************************************************
 
@@ -307,11 +313,14 @@ bool OTAPI_Wrap::AppCleanup() // Call this ONLY ONCE, when your App is shutting 
 // **********************************************************************
 
 //static
-OTAPI_Wrap * OTAPI_Wrap::It()
+OTAPI_Wrap * OTAPI_Wrap::It(bool bLoadAPI/*=true*/)
 {
 	if (!OTAPI_Wrap::bCleanupOTApp)
 	{
 		if (NULL != OTAPI_Wrap::p_Wrap) return OTAPI_Wrap::p_Wrap;
+
+		if (!bLoadAPI) return NULL; // don't load API (e.g. for sighandler)
+		if (OTAPI_Wrap::bGoingDown) return NULL; // don't load API - we are going down
 
 		OTAPI_Wrap * tmpWrap = new OTAPI_Wrap();
 		if (NULL != tmpWrap)
@@ -326,16 +335,18 @@ OTAPI_Wrap * OTAPI_Wrap::It()
 		}
 	}
 	// --------------------
-    // else:
-    //
-    assert(false);
-    return NULL;
+	// else
+	
+	if (bLoadAPI) assert(false); // we are in cleanup and it's not just a question - can't create object!
+	return NULL;
 }
 
 //static
-OT_API * OTAPI_Wrap::OTAPI()
+OT_API * OTAPI_Wrap::OTAPI(bool bLoadAPI/*=true*/)
 {
-	return OTAPI_Wrap::It()->p_OTAPI;
+	OTAPI_Wrap *wrap = OTAPI_Wrap::It(bLoadAPI);
+	if (wrap) return wrap->p_OTAPI;
+	return NULL;
 }
 
 

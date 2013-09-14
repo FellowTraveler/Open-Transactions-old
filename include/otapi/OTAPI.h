@@ -179,6 +179,8 @@
 #include <OTPassword.h>
 #include <OTData.h>
 
+// for manuall file operations in signal handler:
+#include <fcntl.h> 
 
 class OT_API;
 class OTServerContract;
@@ -193,6 +195,7 @@ private :
 
 	static bool bInitOTApp;
 	static bool bCleanupOTApp;
+	static bool bGoingDown; // are we are going down (atexit/signals etc)
 
 	static OTAPI_Wrap * p_Wrap;
     
@@ -203,9 +206,10 @@ public :
 
     ~OTAPI_Wrap();
 
-	EXPORT static OTAPI_Wrap * It();
+	EXPORT static void GoingDown(); // tell wrapper to never spawn next OT_API e.g. because we are going down (atexit/signals etc)
+	EXPORT static OTAPI_Wrap * It(bool bLoadAPI=true);
 
-	EXPORT static OT_API * OTAPI();
+	EXPORT static OT_API * OTAPI(bool bLoadAPI=true);
 
 //	EXPORT static const bool & Cleanup();
 
