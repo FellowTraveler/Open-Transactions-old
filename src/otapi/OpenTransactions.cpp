@@ -1059,7 +1059,7 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
     }
 #endif
 #endif
-	std::cerr << "Installing signal handlers - DONE"<<std::endl;
+	// std::cerr << "Installing signal handlers - DONE"<<std::endl;
 	
 
 	if (this->IsPidOpen()) { OTLog::sError("%s: Pid is OPEN, MUST CLOSE BEFORE OPENING A NEW ONE!\n",__FUNCTION__,"strPidFilePath"); OT_ASSERT(false); }
