@@ -765,6 +765,9 @@ bool OT_API::bInitOTApp = false;
 // static
 bool OT_API::bCleanupOTApp = false;
 
+
+#define async_write_string(str) { size_t len=0; const char* ptr = str; while(*ptr){++ptr; ++len;} write(2,str,len); }
+
 // extern (global)
 bool OT_API_atexit_now = false; // are we *now* running atexit? 
 
@@ -774,7 +777,7 @@ void OT_API_atexit() {
 
 void OT_API_atexit(int signal) { // for global signal handler - must be able to run in SIGNAL CONTEXT
 	if (OT_API_atexit_now) {
-		std::cerr << "Got another atexit while processing an atexit (double signal?) so aborting" << std::endl;
+		async_write_string("Got another atexit while processing an atexit (double signal?) so aborting!\n");
 		abort();
 	}
 	OT_API_atexit_now=1;
@@ -789,17 +792,20 @@ void OT_API_atexit(int signal) { // for global signal handler - must be able to 
 	OT_API_atexit_now=0;
 }
 
+
+
 // signals (unix version mainly)
 bool OT_API_atexit_installed=0;  // (global - in this cpp only) is the atexit installed yet?
 bool OT_API_signalHandler_now=0; // now running a signal handler
 
+template <int T> 
 void OT_API_signalHanlder(int signal) {
 	if (OT_API_signalHandler_now) {
-		std::cerr << "Got signal="<<signal<<" while already in signal - abort"<<std::endl;
+		async_write_string("Got signal while already in signal - abort!\n");
 		abort();
 	}
 	OT_API_signalHandler_now=1;
-	std::cerr << "Got signal="<<signal<<" - will close and exit"<<std::endl;
+	async_write_string("Got signal - will close and exit.\n");
 	OT_API_atexit(signal); // try to call it directly so it knows the signal that cuased it
 	exit(signal); // called also from here
 	OT_API_signalHandler_now=0; // dead code
@@ -809,7 +815,7 @@ void OT_API_signalHanlder(int signal) {
 
 void OT_API::CleanupForAtexit(int signal) {
 	if (m_refPid.IsPidOpen()) {
-		m_refPid.ClosePid();
+		m_refPid.ClosePid_asyncsafe();
 	}
 }
 
@@ -973,9 +979,12 @@ OT_API::~OT_API()
 
 
 OT_API::Pid::Pid()
-	: m_bIsPidOpen(false)
+	: 
+	m_bIsPidOpen(false),
+	m_strPidFilePath(""),
+	m_strPidFilePath_str( m_strPidFilePath.Get() ),
+	m_strPidFilePath_cstr( m_strPidFilePath_str.c_str() )
 {
-	m_strPidFilePath = "";
 }
 
 OT_API::Pid::~Pid()
@@ -990,24 +999,29 @@ BOOL WINAPI OT_API::Pid::ConsoleHandler(DWORD dwType)
     switch(dwType) {
     case CTRL_C_EVENT:
         printf("ctrl-c\n");
-		OT_API_signalHanlder(dwType);
+		OT_API_signalHanlder<CTRL_C_EVENT>(dwType);
         break;
     case CTRL_BREAK_EVENT:
         printf("break\n");
-		OT_API_signalHanlder(CTRL_BREAK_EVENT);
+		OT_API_signalHanlder<CTRL_BREAK_EVENT>(dwType);
         break;
     default:
         printf("Some other event\n");
-		OT_API_signalHanlder(0);
+		OT_API_signalHanlder<0>(0);
     }
     return TRUE;
 }
 #endif
 
+void OT_API::Pid::set_PidFilePath(const OTString &path) { // updates all versions of this string
+	this->m_strPidFilePath = path;
+	this->m_strPidFilePath_str  = this->m_strPidFilePath.Get();
+	this->m_strPidFilePath_cstr = this->m_strPidFilePath_str.c_str();
+}
+
 
 void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 {
-
 #ifndef OT_SIGNAL_HANDLING // if debug is not taking over the signals
 #if defined(__unix__)
 	if (!OT_API_atexit_installed) {
@@ -1019,7 +1033,7 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 		}
 		
 		#define _local_add_handler(SIG) \
-		{ int sig=SIG;  sighandler_t ret = signal(sig, OT_API_signalHanlder);  if (ret==SIG_ERR) { std::cerr<<"skipping signal " << #SIG << std::endl; } }
+		{ int sig=SIG;  sighandler_t ret = signal(sig, OT_API_signalHanlder<SIG>);  if (ret==SIG_ERR) { std::cerr<<"skipping signal " << #SIG << std::endl; } }
 			_local_add_handler(SIGINT);
 			_local_add_handler(SIGTERM);
 			_local_add_handler(SIGHUP);
@@ -1042,7 +1056,7 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 	if (3 > strPidFilePath.GetLength()) { OTLog::sError("%s: %s is Too Short! (%s)\n",__FUNCTION__,"strPidFilePath",strPidFilePath.Get()); OT_ASSERT(false); }
 
 	OTLog::vOutput(1, "%s: Using Pid File: %s\n",__FUNCTION__,strPidFilePath.Get());
-	this->m_strPidFilePath = strPidFilePath;
+	this->set_PidFilePath( strPidFilePath );
 
 	{
 		// 1. READ A FILE STORING THE PID. (It will already exist, if OT is already running.)
@@ -1111,7 +1125,6 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 	}
 }
 
-#define async_write_string(str) { size_t len=0; const char* = str; while(*str){++str; ++len;} write(2,str,len); }
 
 // -------------------------------------------------------
 // PID -- Set it to 0 in the lock file so the next time we run OT, it knows there isn't
@@ -1139,14 +1152,17 @@ void OT_API::Pid::ClosePid_asyncsafe() { // asynce-safe (can be used in signal h
 	if (OT_API_atexit_now) { async_write_string("Closing the pid file now (from signal)\n"); }
 	else async_write_string("Warning (code error - fix it) using the asyncsafe close when not needed, why?\n");
 
-	if (!this->IsPidOpen()) async_write_string("Warning (code error - fix it) trying to close pid while not opened.\n");
+	{ // test if the file existed
+		int fd = open( this->m_strPidFilePath_cstr , O_RDONLY , 0600 ); //  TODO mode 0600 ?
+		if (fd == -1) async_write_string("Warning (code error - fix it) trying to close pid while not opened.\n");
+		if (fd != -1) close(fd);
+	}
 	// TODO check? if (!this->m_strPidFilePath.Exists()) { OTLog::sError("%s: %s is Empty!\n",__FUNCTION__,"m_strPidFilePath"); OT_ASSERT(false); }
 
-	std::ofstream pid_outfile(this->m_strPidFilePath.Get());
-	int fd = open( this->m_strPidFilePath.Get() , O_WRONLY|O_CREAT|O_TRUNC , 0600 ); // TODO string ; 0600 ? XXX ERROR
+	int fd = open( this->m_strPidFilePath_cstr , O_WRONLY|O_CREAT|O_TRUNC , 0600 ); //  TODO mode 0600 ?
 	if (fd != -1) {
 		write(fd,"0",1); // 1 bytes: the '0'
-		fclose(fd);
+		close(fd);
 		this->m_bIsPidOpen = false;
 	}
 	else {

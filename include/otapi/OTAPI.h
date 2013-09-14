@@ -179,6 +179,8 @@
 #include <OTPassword.h>
 #include <OTData.h>
 
+// for manuall file operations in signal handler:
+#include <fcntl.h> 
 
 class OT_API;
 class OTServerContract;

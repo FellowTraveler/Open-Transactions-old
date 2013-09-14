@@ -321,7 +321,13 @@ private:
 	{
 	private:
 		bool m_bIsPidOpen;
-		OTString m_strPidFilePath;
+
+	  OTString m_strPidFilePath;
+		std::string m_strPidFilePath_str; // same, as std::string
+	  const char* m_strPidFilePath_cstr; // same, as cstring. not-owned, it only points to the data owned by std::string
+
+		private:
+			void set_PidFilePath(const OTString &path); // updates all versions of this string
 
 #ifdef _WIN32
 		static BOOL WINAPI ConsoleHandler(DWORD);
