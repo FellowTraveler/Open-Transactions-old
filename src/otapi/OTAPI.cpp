@@ -639,7 +639,7 @@ std::string OTAPI_Wrap::CreateNym(const int32_t     & nKeySize, // must be 1024,
                                   const std::string & NYM_ID_SOURCE, // Can be empty.
                                   const std::string & ALT_LOCATION)  // Can be empty.
 {
-	if (0 >= nKeySize) { OTLog::vError("%s: Keysize is 0 or less, will fail! Try 1024.\n",__FUNCTION__); OT_FAIL; return ""; }
+	if (0 >= nKeySize) { OTLog::vError("%s: Keysize is 0 or less, will fail! Try 1024.\n",__FUNCTION__); OT_FAIL; }
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->CreateNym(nKeySize, NYM_ID_SOURCE, ALT_LOCATION);
 	if (NULL == pNym) // Creation failed.
@@ -659,7 +659,7 @@ std::string OTAPI_Wrap::CreateNym(const int32_t     & nKeySize, // must be 1024,
 
 std::string OTAPI_Wrap::GetNym_SourceForID(const std::string & NYM_ID)
 {
-    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; return ""; }
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; }
 	// ---------------------------------------------------------
     OTPasswordData   thePWData(OT_PW_DISPLAY);
 	OTIdentifier     nym_id(NYM_ID);
@@ -674,7 +674,7 @@ std::string OTAPI_Wrap::GetNym_SourceForID(const std::string & NYM_ID)
 
 std::string OTAPI_Wrap::GetNym_AltSourceLocation(const std::string & NYM_ID)
 {
-    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; return ""; }
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; }
 	// ---------------------------------------------------------
     OTPasswordData   thePWData(OT_PW_DISPLAY);
 	OTIdentifier     nym_id(NYM_ID);
@@ -688,7 +688,7 @@ std::string OTAPI_Wrap::GetNym_AltSourceLocation(const std::string & NYM_ID)
 
 int32_t OTAPI_Wrap::GetNym_CredentialCount(const std::string & NYM_ID)
 {
-    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; return (-1); }
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; }
 	// ---------------------------------------------------------
     OTPasswordData   thePWData(OT_PW_DISPLAY);
 	OTIdentifier     nym_id(NYM_ID);
@@ -704,7 +704,7 @@ int32_t OTAPI_Wrap::GetNym_CredentialCount(const std::string & NYM_ID)
 std::string OTAPI_Wrap::GetNym_CredentialID(const std::string & NYM_ID,
                                             const int32_t     & nIndex)
 {
-    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; return ""; }
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; }
 	// ---------------------------------------------------------
     OTPasswordData   thePWData(OT_PW_DISPLAY);
 	OTIdentifier     nym_id(NYM_ID);
@@ -725,7 +725,7 @@ std::string OTAPI_Wrap::GetNym_CredentialID(const std::string & NYM_ID,
 std::string OTAPI_Wrap::GetNym_CredentialContents(const std::string & NYM_ID,
                                                   const std::string & CREDENTIAL_ID)
 {
-    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; return ""; }
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; }
 	// ---------------------------------------------------------
     OTPasswordData   thePWData(OT_PW_DISPLAY);
 	OTIdentifier     nym_id(NYM_ID);
@@ -746,7 +746,7 @@ std::string OTAPI_Wrap::GetNym_CredentialContents(const std::string & NYM_ID,
 
 int32_t OTAPI_Wrap::GetNym_RevokedCredCount(const std::string & NYM_ID)
 {
-    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; return (-1); }
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; }
 	// ---------------------------------------------------------
     OTPasswordData   thePWData(OT_PW_DISPLAY);
 	OTIdentifier     nym_id(NYM_ID);
@@ -762,7 +762,7 @@ int32_t OTAPI_Wrap::GetNym_RevokedCredCount(const std::string & NYM_ID)
 std::string OTAPI_Wrap::GetNym_RevokedCredID(const std::string & NYM_ID,
                                              const int32_t     & nIndex)
 {
-    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; return ""; }
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; }
 	// ---------------------------------------------------------
     OTPasswordData   thePWData(OT_PW_DISPLAY);
 	OTIdentifier     nym_id(NYM_ID);
@@ -785,7 +785,7 @@ std::string OTAPI_Wrap::GetNym_RevokedCredID(const std::string & NYM_ID,
 std::string OTAPI_Wrap::GetNym_RevokedCredContents(const std::string & NYM_ID,
                                                    const std::string & CREDENTIAL_ID)
 {
-    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; return ""; }
+    if (NYM_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID"); OT_FAIL; }
 	// ---------------------------------------------------------
     OTPasswordData   thePWData(OT_PW_DISPLAY);
 	OTIdentifier     nym_id(NYM_ID);
@@ -807,8 +807,8 @@ std::string OTAPI_Wrap::GetNym_RevokedCredContents(const std::string & NYM_ID,
 int32_t OTAPI_Wrap::GetNym_SubcredentialCount(const std::string & NYM_ID,
                                               const std::string & MASTER_CRED_ID)
 {
-    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_FAIL; return (-1); }
-    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_FAIL; return (-1); }
+    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_FAIL; }
+    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_FAIL; }
 	// ---------------------------------------------------------
     OTPasswordData   thePWData(OT_PW_DISPLAY);
 	OTIdentifier     nym_id(NYM_ID);
@@ -835,8 +835,8 @@ std::string OTAPI_Wrap::GetNym_SubCredentialID(const std::string & NYM_ID,
                                                const std::string & MASTER_CRED_ID,
                                                const int32_t     & nIndex)
 {
-    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_FAIL; return ""; }
-    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_FAIL; return ""; }
+    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_FAIL; }
+    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_FAIL; }
 	// ---------------------------------------------------------
     OTPasswordData   thePWData(OT_PW_DISPLAY);
 	OTIdentifier     nym_id(NYM_ID);
@@ -858,9 +858,9 @@ std::string OTAPI_Wrap::GetNym_SubCredentialContents(const std::string & NYM_ID,
                                                      const std::string & MASTER_CRED_ID,
                                                      const std::string & SUB_CRED_ID)
 {
-    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_FAIL; return ""; }
-    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_FAIL; return ""; }
-    if (SUB_CRED_ID.empty())    { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "SUB_CRED_ID");    OT_FAIL; return ""; }
+    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_FAIL; }
+    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_FAIL; }
+    if (SUB_CRED_ID.empty())    { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "SUB_CRED_ID");    OT_FAIL; }
 	// ---------------------------------------------------------
     OTPasswordData   thePWData(OT_PW_DISPLAY);
 	OTIdentifier     nym_id(NYM_ID);
@@ -887,9 +887,9 @@ std::string OTAPI_Wrap::GetNym_SubCredentialContents(const std::string & NYM_ID,
 
 std::string OTAPI_Wrap::AddSubcredential(const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const int32_t & nKeySize)
 {
-    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_FAIL; return ""; }
-    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_FAIL; return ""; }
-    if (0 >= nKeySize)          { OTLog::vError("%s: Keysize is 0 or less, will fail! Try 1024.\n",__FUNCTION__);     OT_FAIL; return ""; }
+    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_FAIL; }
+    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_FAIL; }
+    if (0 >= nKeySize)          { OTLog::vError("%s: Keysize is 0 or less, will fail! Try 1024.\n",__FUNCTION__);     OT_FAIL; }
 	// ---------------------------------------------------------
     OTPasswordData   thePWData(OT_PW_DISPLAY);
 	OTIdentifier     nym_id(NYM_ID);
@@ -924,9 +924,9 @@ std::string OTAPI_Wrap::AddSubcredential(const std::string & NYM_ID, const std::
 
 bool OTAPI_Wrap::RevokeSubcredential(const std::string & NYM_ID, const std::string & MASTER_CRED_ID, const std::string & SUB_CRED_ID)
 {
-    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_FAIL; return ""; }
-    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_FAIL; return ""; }
-    if (SUB_CRED_ID.empty())    { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "SUB_CRED_ID");    OT_FAIL; return ""; }
+    if (NYM_ID.empty())         { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "NYM_ID");         OT_FAIL; }
+    if (MASTER_CRED_ID.empty()) { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "MASTER_CRED_ID"); OT_FAIL; }
+    if (SUB_CRED_ID.empty())    { OTLog::vError("%s: NULL %s passed in!\n", __FUNCTION__, "SUB_CRED_ID");    OT_FAIL; }
 	// ---------------------------------------------------------
     OTPasswordData   thePWData(OT_PW_DISPLAY);
 	OTIdentifier     nym_id(NYM_ID);
@@ -7246,7 +7246,7 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string & THE_MESSAGE,
 //
 std::string OTAPI_Wrap::LoadPubkey_Encryption(const std::string & USER_ID) // returns "", or a public key.
 {
-	if (USER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"); OT_FAIL; return ""; }
+	if (USER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"); OT_FAIL; }
 	// ---------------------------------------------------------
 	OTString strPubkey; // For the output
 	// ---------------------------------------------------------
@@ -7270,7 +7270,7 @@ std::string OTAPI_Wrap::LoadPubkey_Encryption(const std::string & USER_ID) // re
 
 std::string OTAPI_Wrap::LoadPubkey_Signing(const std::string & USER_ID) // returns "", or a public key.
 {
-	if (USER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"); OT_FAIL; return ""; }
+	if (USER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"); OT_FAIL; }
 	// ---------------------------------------------------------
 	OTString strPubkey; // For the output
 	// ---------------------------------------------------------
