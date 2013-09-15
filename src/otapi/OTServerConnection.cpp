@@ -246,7 +246,7 @@ void OTServerConnection::Initialize()
 //
 bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theServerContract, TransportCallback * pCallback)
 {
-	if (NULL == pCallback) { OTLog::vError("%s: pCallback is NULL",__FUNCTION__); OT_ASSERT(false); };
+	if (NULL == pCallback) { OTLog::vError("%s: pCallback is NULL",__FUNCTION__); OT_FAIL; };
 
 	// We're already connected! You can't use SetFocus if you're in connection mode (TCP instead of HTTP.)
 	//if (IsConnected())

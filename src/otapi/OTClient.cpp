@@ -3393,8 +3393,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                     {
                         // Just make sure not to add it if it's already there...
                         // ------------------------------------------------------
-						if (!strServerID.Exists()) { OTLog::vError("%s: %s dosn't Exist!\n", __FUNCTION__, "strServerID" ); OT_ASSERT(false); return false; }
-						if (!strNymID.Exists())    { OTLog::vError("%s: %s dosn't Exist!\n", __FUNCTION__, "strNymID"    ); OT_ASSERT(false); return false; }
+						if (!strServerID.Exists()) { OTLog::vError("%s: %s dosn't Exist!\n", __FUNCTION__, "strServerID" ); OT_FAIL; }
+						if (!strNymID.Exists())    { OTLog::vError("%s: %s dosn't Exist!\n", __FUNCTION__, "strNymID"    ); OT_FAIL; }
                         // -----------------------------------------------------
                         const bool bExists   = OTDB::Exists(OTFolders::PaymentInbox().Get(), strServerID.Get(), strNymID.Get());
                         // -----------------------------------------------------

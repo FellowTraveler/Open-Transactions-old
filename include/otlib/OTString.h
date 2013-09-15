@@ -459,7 +459,7 @@ EXPORT	void OTfgets(std::istream & ofs);
     EXPORT   virtual void Release(void);
     void Release_String(void);
 	// ----------------------------------------------
-    void zeroMemory();
+	EXPORT   void zeroMemory();
     // ----------------------------------------------
    // Internal properties
 protected:

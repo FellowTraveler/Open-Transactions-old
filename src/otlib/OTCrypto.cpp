@@ -347,86 +347,82 @@ int main()
 
 bool OTCrypto::GetPasswordFromConsoleLowLevel(OTPassword & theOutput, const char * szPrompt) const
 {
-    OT_ASSERT(NULL != szPrompt);
-    // -----------------------------------------
-#ifdef _WIN32
-    
-	std::cout << szPrompt;
+	OT_ASSERT(NULL != szPrompt);
 
+#ifdef _WIN32
 	{
-		std::string strPassword = "";
+		std::cout << szPrompt;
+
+		{
+			std::string strPassword = "";
 
 #ifdef UNICODE
 
-		const wchar_t enter[] = {L'\x000D', L'\x0000'};  // carrage return
-		const std::wstring wstrENTER = enter;
+			const wchar_t enter[] = {L'\x000D', L'\x0000'};  // carrage return
+			const std::wstring wstrENTER = enter;
 
-		std::wstring wstrPass = L"";
+			std::wstring wstrPass = L"";
 
-		for (;;) {
-			const wchar_t ch[] = {_getwch(), L'\x0000'}; 
-			const std::wstring wstrCH = ch;
-
-			if (wstrENTER == wstrCH) break;
-
-			wstrPass.append(wstrCH);
-		}
-
-		strPassword = OTString::ws2s(wstrPass);
+			for (;;) {
+				const wchar_t ch[] = {_getwch(), L'\x0000'}; 
+				const std::wstring wstrCH = ch;
+				if (wstrENTER == wstrCH) break;
+				wstrPass.append(wstrCH);
+			}
+			strPassword = OTString::ws2s(wstrPass);
 
 #else
 
-		const char enter[] = {'\x0D', '\x00'}; // carrage return
-		const std::string strENTER = enter;
+			const char enter[] = {'\x0D', '\x00'}; // carrage return
+			const std::string strENTER = enter;
 
-		std::string strPass = "";
+			std::string strPass = "";
 
-		for (;;) {
-			const char ch[] = {_getch(), '\x00'};
-			const std::string strCH = ch;
-
-			if (strENTER == strCH) break;
-
-			strPass.append(strCH);
-		}
-
-		strPassword = strPass;
+			for (;;) {
+				const char ch[] = {_getch(), '\x00'};
+				const std::string strCH = ch;
+				if (strENTER == strCH) break;
+				strPass.append(strCH);
+			}
+			strPassword = strPass;
 
 #endif
+			theOutput.setPassword(strPassword.c_str(), static_cast<int>(strPassword.length() -1));
+		}
 
-		theOutput.setPassword(strPassword.c_str(), static_cast<int>(strPassword.length() -1));
+		std::cout << std::endl; //new line.
+		return true;
 	}
-
-	std::cout << std::endl; //new line.
-	return true;
-
-    // -----------------------------------------
 #elif defined (OT_CRYPTO_USING_OPENSSL)
-    // todo security: might want to allow to set OTPassword's size and copy directly into it,
-    // so that we aren't using this temp buf in between, which, although we're zeroing it, could
-    // technically end up getting swapped to disk.
-    //
-    char buf[_PASSWORD_LEN + 10] = "", buff[_PASSWORD_LEN + 10] = "";
-    
-    int nReadPW = 0;
-        
-//  char * szPass = getpass(szPrompt); // "This function is obsolete. Do not use it."
-	if ((nReadPW = UI_UTIL_read_pw(buf,buff,_PASSWORD_LEN,szPrompt,0)) == 0) // verify=0
-    {
-        size_t nPassLength = OTString::safe_strlen(buf, _PASSWORD_LEN);
-        theOutput.setPassword_uint8(reinterpret_cast<uint8_t*>(buf), nPassLength);
-        OTPassword::zeroMemory(buf, nPassLength);
-        OTPassword::zeroMemory(buff, nPassLength);
-        return true;
-    }
-    // -----------------------------------------
-#else
-    OTLog::vError("%s: Open-Transactions is not compiled to collect "
-                  "the passphrase from the console!\n", __FUNCTION__);
-#endif
-    // -----------------------------------------
+	// todo security: might want to allow to set OTPassword's size and copy directly into it,
+	// so that we aren't using this temp buf in between, which, although we're zeroing it, could
+	// technically end up getting swapped to disk.
+	//
+	{
+		char buf[_PASSWORD_LEN + 10] = "", buff[_PASSWORD_LEN + 10] = "";
 
-    return false;
+		int nReadPW = 0;
+
+		//  char * szPass = getpass(szPrompt); // "This function is obsolete. Do not use it."
+		if ((nReadPW = UI_UTIL_read_pw(buf,buff,_PASSWORD_LEN,szPrompt,0)) == 0) // verify=0
+		{
+			size_t nPassLength = OTString::safe_strlen(buf, _PASSWORD_LEN);
+			theOutput.setPassword_uint8(reinterpret_cast<uint8_t*>(buf), nPassLength);
+			OTPassword::zeroMemory(buf, nPassLength);
+			OTPassword::zeroMemory(buff, nPassLength);
+			return true;
+		}
+		else
+			return false;
+		// -----------------------------------------
+	}
+#else
+	{
+		OTLog::vError("%s: Open-Transactions is not compiled to collect "
+			"the passphrase from the console!\n", __FUNCTION__);
+		return false;
+	}
+#endif
 }
 
 
@@ -547,7 +543,7 @@ void OTCrypto::Init()
         rlim.rlim_max = rlim.rlim_cur = 0;
         if (setrlimit(RLIMIT_CORE, &rlim))
         {
-            OT_ASSERT_MSG(false, "OTCrypto::Init: ASSERT: setrlimit failed. (Used for preventing core dumps.)\n");
+            OT_FAIL_MSG("OTCrypto::Init: ASSERT: setrlimit failed. (Used for preventing core dumps.)\n");
         }
 #endif
         
@@ -1178,7 +1174,7 @@ extern "C"
         }
         else
         {
-            OT_ASSERT_MSG(false, "Failed creating new Bio in base64_encode.\n");
+            OT_FAIL_MSG("Failed creating new Bio in base64_encode.\n");
         }
         // -------------------------------
         BIO_free_all(b64);
@@ -1218,7 +1214,7 @@ extern "C"
         }
         else 
         {
-            OT_ASSERT_MSG(false, "Failed creating new Bio in base64_decode.\n");
+            OT_FAIL_MSG("Failed creating new Bio in base64_decode.\n");
         }
         
         return buf;
@@ -1744,7 +1740,7 @@ void OTCrypto_OpenSSL::Init_Override()
      
      */
 #if !defined(OPENSSL_VERSION_NUMBER) || OPENSSL_VERSION_NUMBER-0 < 0x10000000L    
-    OT_ASSERT_MSG(false, "ASSERT: Must use OpenSSL version 1.0.0 or higher.\n");
+    OT_FAIL_MSG("ASSERT: Must use OpenSSL version 1.0.0 or higher.\n");
 #endif
 
     
@@ -2427,10 +2423,10 @@ bool OTCrypto_OpenSSL::Seal(mapOfAsymmetricKeys & RecipPubKeys, const OTString &
             m_nLastPopulatedIndex(-1),
             m_bFinalized(param_Finalized)
         {
-            OT_ASSERT(NULL != param_szFunc);
-            OT_ASSERT(NULL != param_array_pubkey);
-            OT_ASSERT(NULL != param_ek);
-            OT_ASSERT(NULL != param_eklen);
+            if (NULL == param_szFunc)		OT_FAIL;
+            if (NULL == param_array_pubkey) OT_FAIL;
+            if (NULL == param_ek)           OT_FAIL;
+            if (NULL == param_eklen)        OT_FAIL;
             OT_ASSERT(m_RecipPubKeys.size() > 0);
             // ----------------------------
             // Notice that each variable is a "pointer to" the actual array that was passed in.
@@ -2459,7 +2455,7 @@ bool OTCrypto_OpenSSL::Seal(mapOfAsymmetricKeys & RecipPubKeys, const OTString &
             // (*m_ek)[] array must have m_RecipPubKeys.size() no. of elements (each will contain a pointer from OpenSSL that we must clean up.)
             //
             *m_ek = (uint8_t**)malloc(m_RecipPubKeys.size() * sizeof(uint8_t*));  
-            OT_ASSERT(NULL != *m_ek);
+            if (NULL == *m_ek) OT_FAIL;
             memset(*m_ek, 0, m_RecipPubKeys.size() * sizeof(uint8_t*)); // size of array length * sizeof(pointer)
             // ----------------------------------------------
             // (*m_eklen)[] array must also have m_RecipPubKeys.size() no. of elements (each containing a size as integer.)
@@ -4410,9 +4406,7 @@ bool OTCrypto_OpenSSL::SignContract(const OTString    & strContractUnsigned,
 		theSignature.SetData(tempData);
 		
 		return true;
-	}    
-    // ----------------------------------------------
-    return false; // should never happen.
+	}
 }
 
 

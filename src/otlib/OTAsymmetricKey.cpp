@@ -656,7 +656,7 @@ bool OTAsymmetricKey_OpenSSL::LoadPrivateKeyFromCertString(const OTString & strC
 		{ 
 			OTLog::vError("%s: (pImportPassword is %s, size: %d) Error reading private key from string:\n%s\n\n",
 						  __FUNCTION__, NULL == pImportPassword ? "NULL" : pImportPassword->getPassword(),
-                          pImportPassword->getPasswordSize(),
+                          NULL == pImportPassword ? 0 : pImportPassword->getPasswordSize(),
                           strWithBookends.Get()
                           );
 			return false; 
@@ -1528,9 +1528,11 @@ bool OTAsymmetricKey_OpenSSL::ArmorPrivateKey(EVP_PKEY & theKey, OTASCIIArmor & 
         _Nym__saveCert_(BIO	** param_bio_out)
         : m_bio_out(param_bio_out)
         {
-            OT_ASSERT(NULL != m_bio_out);
-            
+			if (NULL == m_bio_out) { OTLog::vError("%s: m_bio_out is NULL!", __FUNCTION__); OT_FAIL; }
+
+			else {
             *m_bio_out  = BIO_new(BIO_s_mem());
+			}
         }
         ~_Nym__saveCert_()
         {            
@@ -1793,10 +1795,13 @@ PgpKeys ExportRsaKey(unsigned char *pbData, int dataLength)
 			{
 				int pLen, gLen, yLen;
 				ELGAMAL* pKey = (ELGAMAL*) malloc(sizeof(ELGAMAL));
+				if (NULL == pKey) {OTLog::vError("%s: Error: pKey is NULL!", __FUNCTION__); OT_FAIL; }
 				
 				// Get Prime P
 				pLen = ((pbData[i]*256 + pbData[i+1]+7)/8);
+
 				pKey->p = BN_bin2bn(pbData + i + 2, pLen, NULL);
+
 				i += pLen + 2;
 				
 				// Get Prime G
@@ -2534,7 +2539,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
     // --------------------------------------	
     else // should never happen
     {
-//      OT_ASSERT_MSG(false, "This should never happen. (souped_up_pass_cb");
+//      OT_FAIL_MSG("This should never happen. (souped_up_pass_cb");
     }
 	return len;
 }
@@ -3100,8 +3105,6 @@ bool OTAsymmetricKey::LoadPublicKey(const OTString & strFoldername, const OTStri
 		OTLog::vError("Unable to read pubkey file in OTAsymmetricKey::LoadPublicKey: %s\n", strFilename.Get()); 
 		return false; 
 	}
-
-	return false;
 }
 
 // -------------------------------------------------------------------------------------------

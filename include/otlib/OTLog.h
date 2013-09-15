@@ -149,9 +149,18 @@
 #define PREDEF_MODE_DEBUG 1
 #endif
 
-// x must be a boolean expression
-#define    OT_ASSERT(x)			( (false == (x)) ? OTLog::Assert(__FILE__, __LINE__)		: (1))
-#define    OT_ASSERT_MSG(x, s)	( (false == (x)) ? OTLog::Assert(__FILE__, __LINE__, (s))	: (1))
+// old, before we used std::terminate
+//#define    OT_ASSERT(x)			( (false == (x)) ? OTLog::Assert(__FILE__, __LINE__)		: (1))
+//#define    OT_ASSERT_MSG(x, s)	( (false == (x)) ? OTLog::Assert(__FILE__, __LINE__, (s))	: (1))
+
+// new, more simple OT_ASSERT, for static analysis.
+
+#define    OT_FAIL                               { OTLog::Assert(__FILE__, __LINE__);      std::terminate(); };
+#define    OT_FAIL_MSG(s)                        { OTLog::Assert(__FILE__, __LINE__, (s)); std::terminate(); };
+
+#define    OT_ASSERT(x)			if(false == (x)) { OTLog::Assert(__FILE__, __LINE__);      std::terminate(); };
+#define    OT_ASSERT_MSG(x, s)  if(false == (x)) { OTLog::Assert(__FILE__, __LINE__, (s)); std::terminate(); };
+
 
 
 #include <deque>

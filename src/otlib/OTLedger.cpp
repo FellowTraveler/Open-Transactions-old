@@ -998,8 +998,7 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 			m_Type	= theType;
 			return true;
 		default:
-			OT_ASSERT_MSG(false, "OTLedger::GenerateLedger: GenerateLedger is only for message, nymbox, inbox, outbox, and paymentInbox ledgers.\n");
-			return false; // this return is unecessary because of the assert. But I like having it anyway.
+			OT_FAIL_MSG("OTLedger::GenerateLedger: GenerateLedger is only for message, nymbox, inbox, outbox, and paymentInbox ledgers.\n");
 	}
 	
 	m_Type	= theType; // Todo make this Get/Set methods
@@ -1165,8 +1164,6 @@ bool OTLedger::RemoveTransaction(long lTransactionNum, bool bDeleteIt/*=true*/)
         }
 		return true;
 	}
-	
-	return false;
 }
 
 
@@ -1760,7 +1757,7 @@ OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
                                     const int32_t      & nIndex)    // Returns financial instrument by index.
 {
     if ((0 > nIndex) || (nIndex >= this->GetTransactionCount()))
-    { OTLog::vError("%s: nIndex is out of bounds (it's in the negative.)\n", __FUNCTION__); OT_ASSERT(false); }
+    { OTLog::vError("%s: nIndex is out of bounds (it's in the negative.)\n", __FUNCTION__); OT_FAIL; }
     // ----------------------------------------------------
 //	if (nIndex >= this->GetTransactionCount())
 //	{
@@ -1839,7 +1836,7 @@ OTPayment * OTLedger::GetInstrument(      OTPseudonym  & theNym,
 		}
 		// ------------------------------------------------
 		OTMessage * pMsg = new OTMessage;
-		if (NULL == pMsg) { OTLog::vError("%s: Null:  Assert while allocating memory for an OTMessage!\n", __FUNCTION__); OT_ASSERT(false); }
+		if (NULL == pMsg) { OTLog::vError("%s: Null:  Assert while allocating memory for an OTMessage!\n", __FUNCTION__); OT_FAIL; }
 		OTCleanup<OTMessage> theMsgAngel(*pMsg); // cleanup memory.
 		// ------------------------------------------------
 		if (false == pMsg->LoadContractFromString(strMsg))
@@ -2017,7 +2014,7 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 				default: // todo: possibly change this to an OT_ASSERT. security.
 					OTLog::Error("OTLedger::UpdateContents: Error: unexpected box type (2nd block). (This should never happen. Skipping.)\n");
                     
-                    OT_ASSERT_MSG(true == false, "ASSERT: OTLedger::UpdateContents: Unexpected ledger type.");
+                    OT_FAIL_MSG("ASSERT: OTLedger::UpdateContents: Unexpected ledger type.");
                     
 					continue;
 			}

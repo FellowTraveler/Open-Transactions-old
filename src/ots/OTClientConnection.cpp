@@ -822,10 +822,10 @@ OTMessage * OTClientConnection::GetNextInputMessage()
 //#if !defined(OT_ZMQ_MODE)    
 //	return m_listIn.Pop();
 //#else
-//    OT_ASSERT_MSG(false, "OTClientConnection::GetNextInputMessage: ASSERT: Should not be calling this...");
+//    OT_FAIL_MSG("OTClientConnection::GetNextInputMessage: ASSERT: Should not be calling this...");
 //#endif
 
-    OT_ASSERT_MSG(false, "OTClientConnection::GetNextInputMessage: ASSERT: Should not be calling this...");
+    OT_FAIL_MSG("OTClientConnection::GetNextInputMessage: ASSERT: Should not be calling this...");
 
     return NULL;
 }
@@ -843,10 +843,10 @@ OTMessage * OTClientConnection::GetNextOutputMessage()
 //#if !defined(OT_ZMQ_MODE)    
 //	return m_listOut.Pop();
 //#else
-//    OT_ASSERT_MSG(false, "OTClientConnection::GetNextOutputMessage: ASSERT: Should not be calling this...");
+//    OT_FAIL_MSG("OTClientConnection::GetNextOutputMessage: ASSERT: Should not be calling this...");
 //#endif
 
-    OT_ASSERT_MSG(false, "OTClientConnection::GetNextOutputMessage: ASSERT: Should not be calling this...");
+    OT_FAIL_MSG("OTClientConnection::GetNextOutputMessage: ASSERT: Should not be calling this...");
 
     return  NULL;
 }

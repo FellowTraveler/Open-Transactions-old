@@ -696,7 +696,7 @@ public:
     EXPORT bool LoadSubkeyFromString (const OTString & strInput, const OTString & strSubID, OTPassword * pImportPassword=NULL);
     EXPORT bool LoadSubcredentialFromString(const OTString & strInput, const OTString & strSubID, OTPassword * pImportPassword=NULL);
     // ------------------------------
-    EXPORT int   GetSubcredentialCount() const;
+    EXPORT size_t GetSubcredentialCount() const;
     EXPORT const OTSubcredential * GetSubcredential (const OTString & strSubID, const listOfStrings * plistRevokedIDs=NULL) const;
     EXPORT const OTSubcredential * GetSubcredentialByIndex (int nIndex) const;
     EXPORT const std::string GetSubcredentialIDByIndex(int nIndex) const;

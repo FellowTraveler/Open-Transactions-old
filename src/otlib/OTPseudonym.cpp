@@ -3228,12 +3228,12 @@ void OTPseudonym::OnUpdateRequestNum(OTPseudonym & SIGNER_NYM, const OTString & 
 
 
 
-int OTPseudonym::GetMasterCredentialCount() const
+size_t OTPseudonym::GetMasterCredentialCount() const
 {
     return m_mapCredentials.size();
 }
 
-int OTPseudonym::GetRevokedCredentialCount() const
+size_t OTPseudonym::GetRevokedCredentialCount() const
 {
     return m_mapRevoked.size();
 }
@@ -3399,8 +3399,6 @@ bool OTPseudonym::VerifyPseudonym() const
             return true;
         }
     }
-    // --------------------------------------------
-    return false;
 }
 
 
@@ -3725,7 +3723,7 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
     strOutput.Concatenate("Source for ID:\n%s\n", m_strSourceForNymID.Get());
     strOutput.Concatenate("Alt. location: %s\n\n", m_strAltLocation.Get());    
 
-    const int nMasterCredCount = this->GetMasterCredentialCount();
+    const size_t nMasterCredCount = this->GetMasterCredentialCount();
     if (nMasterCredCount > 0)
     {
         for (int iii = 0; iii < nMasterCredCount; ++iii)
@@ -3735,11 +3733,11 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
             {                         
                 strOutput.Concatenate("Credential ID: %s \n",
                                       pCredential->GetMasterCredID().Get());
-                const int nSubcredentialCount = pCredential->GetSubcredentialCount();
+                const size_t nSubcredentialCount = pCredential->GetSubcredentialCount();
                 
                 if (nSubcredentialCount > 0)
                 {
-                    for (int vvv = 0; vvv < nSubcredentialCount; ++vvv)
+                    for (size_t vvv = 0; vvv < nSubcredentialCount; ++vvv)
                     {
                         const std::string str_subcred_id(pCredential->GetSubcredentialIDByIndex(vvv));
 
@@ -5839,8 +5837,8 @@ bool OTPseudonym::Loadx509CertAndPrivateKey(const bool bChecking/*=false*/,
 	std::string  strFoldername	= OTFolders::Cert().Get();
 	std::string  strFilename	= strID.Get();
 	// --------------------------------------------------------------------
-	if (strFoldername.empty()) { OTLog::vError("%s: Error: strFoldername is empty!",__FUNCTION__); OT_ASSERT(false); return false; }
-	if (strFilename.empty())   { OTLog::vError("%s: Error: strFilename is empty!",  __FUNCTION__); OT_ASSERT(false); return false; }
+	if (strFoldername.empty()) { OTLog::vError("%s: Error: strFoldername is empty!",__FUNCTION__); OT_FAIL; }
+	if (strFilename.empty())   { OTLog::vError("%s: Error: strFilename is empty!",  __FUNCTION__); OT_FAIL; }
 	// --------------------------------------------------------------------
 	const bool bExists = OTDB::Exists(strFoldername, strFilename);
 
