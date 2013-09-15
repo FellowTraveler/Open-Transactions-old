@@ -147,6 +147,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <io.h>
 
  // credit:stlplus library.
 #include "containers/simple_ptr.hpp"
@@ -788,9 +789,16 @@ void OT_API_atexit(int signal) { // for global signal handler - must be able to 
 	if (ot_api) { // OTAPI was created
 		const char *msg = "\n\nEmergency cleanup [unknown signal]\n";
 		if (signal==-1) msg = "\n\nEmergency cleanup [not-signal]\n";
+#ifdef _WIN32
+		if (signal==CTRL_C_EVENT)  msg = "\n\nEmergency cleanup [Ctrl-C detected, CTRL_C_EVENT]\n";
+		if (signal==CTRL_BREAK_EVENT)  msg = "\n\nEmergency cleanup [Ctrl-Break detected, CTRL_BREAK_EVENT]\n";
+		if (signal==CTRL_CLOSE_EVENT)  msg = "\n\nEmergency cleanup [terminal lost, CTRL_CLOSE_EVENT]\n";
+		
+#else
 		if (signal==SIGINT)  msg = "\n\nEmergency cleanup [Ctrl-C detected, SIGINT]\n";
 		if (signal==SIGTERM) msg = "\n\nEmergency cleanup [kill detected, SIGTERM]\n";
 		if (signal==SIGHUP)  msg = "\n\nEmergency cleanup [terminal lost, SIGHUP]\n";
+#endif
 		async_write_string(msg);
 		ot_api->CleanupForAtexit();
 	} 
@@ -815,7 +823,11 @@ void OT_API_signalHanlder(int signal) {
 
 	OT_API_atexit(signal); // try to call it directly so it knows the signal that cuased it
 
+#ifdef _WIN32
+	_exit(0);
+#else
 	abort(); // to make sure we will not do normal atexit like destructors etc now
+#endif
 }
 
 // =====================================================================
@@ -970,18 +982,22 @@ OT_API::OT_API() :
 
 OT_API::~OT_API()
 {
-    // DELETE AND SET NULL
-    //
+	// DELETE AND SET NULL
+	//
 	if (NULL != m_pSocket) delete m_pSocket; m_pSocket = NULL;
 
 	if (NULL != m_pTransportCallback) delete m_pTransportCallback; m_pTransportCallback = NULL;
 	if (NULL != m_pWallet) delete m_pWallet; m_pWallet = NULL;
 	if (NULL != m_pClient) delete m_pClient; m_pClient = NULL;
 
-	if (m_bInitialized) OT_ASSERT(this->Cleanup()); // we only cleanup if we need to
+	if (m_bInitialized)
+		if(!(this->Cleanup())) // we only cleanup if we need to
+		{
+			if (!OT_API_atexit_now) OT_ASSERT(false);
+		} 
 
-	// this must be last!
-	if (NULL != &m_refPid) delete &m_refPid;
+		// this must be last!
+		if (NULL != &m_refPid) delete &m_refPid;
 }
 
 
@@ -1003,20 +1019,26 @@ OT_API::Pid::~Pid()
 #if defined(_WIN32)
 BOOL WINAPI OT_API::Pid::ConsoleHandler(DWORD dwType)
 {
-    switch(dwType) {
-    case CTRL_C_EVENT:
-        printf("ctrl-c\n");
+	switch(dwType) {
+	case CTRL_C_EVENT:
 		OT_API_signalHanlder<CTRL_C_EVENT>(dwType);
-        break;
-    case CTRL_BREAK_EVENT:
-        printf("break\n");
+		break;
+	case CTRL_BREAK_EVENT:
 		OT_API_signalHanlder<CTRL_BREAK_EVENT>(dwType);
-        break;
-    default:
-        printf("Some other event\n");
+		break;
+	case CTRL_CLOSE_EVENT:
+		OT_API_signalHanlder<CTRL_CLOSE_EVENT>(dwType);
+		break;
+	case CTRL_LOGOFF_EVENT:
+		OT_API_signalHanlder<CTRL_LOGOFF_EVENT>(dwType);
+		break;
+	case CTRL_SHUTDOWN_EVENT:
+		OT_API_signalHanlder<CTRL_SHUTDOWN_EVENT>(dwType);
+		break;
+	default:
 		OT_API_signalHanlder<0>(0);
-    }
-    return TRUE;
+	}
+	return TRUE;
 }
 #endif
 
