@@ -160,6 +160,9 @@ int mkcert(X509 **x509p, EVP_PKEY **pkeyp, int bits, int serial, int days)
         if (!X509_sign(x,pk,EVP_md5()))
                 goto err;
 
+		if (NULL == x509p) goto err;
+		if (NULL == pkeyp) goto err;
+
         *x509p=x;
         *pkeyp=pk;
         return(1);
