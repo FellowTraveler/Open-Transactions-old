@@ -6,6 +6,8 @@
 #define __IRR_STRING_H_INCLUDED__
 
 #include "irrTypes.h"
+#include <stdlib.h>
+
 
 namespace irr
 {
