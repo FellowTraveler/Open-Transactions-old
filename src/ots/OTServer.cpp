@@ -1017,11 +1017,11 @@ bool OTServer::LoadConfigFile()
 	// Setup Config File
 	OTString strConfigFolder, strConfigFilename;
 
-	if (!OTDataFolder::IsInitialized()) { OT_ASSERT(false); };
+	if (!OTDataFolder::IsInitialized()) { OT_FAIL; };
 
 	// Create Config Object (OTSettings)
 	OTString strConfigFilePath="";
-	if (!OTDataFolder::GetConfigFilePath(strConfigFilePath)) { OT_ASSERT(false); };
+	if (!OTDataFolder::GetConfigFilePath(strConfigFilePath)) { OT_FAIL; };
 	OTSettings * p_Config = NULL;
 	p_Config = new OTSettings(strConfigFilePath);
 	
@@ -1039,7 +1039,7 @@ bool OTServer::LoadConfigFile()
 	if (!p_Config -> Load())
 	{
 		OTLog::vError(0,"%s: Error: Unable to load config file: %s It should exist, as we just saved it!\n", szFunc, strConfigFilename.Get());
-		OT_ASSERT(false);
+		OT_FAIL;
 	}
 
 
@@ -1280,7 +1280,7 @@ bool OTServer::LoadConfigFile()
 	if (!p_Config -> Save())
 	{
 		OTLog::vError("%s: Error! Unable to save updated Config!!!\n",szFunc);
-		OT_ASSERT(false);
+		OT_FAIL;
 	}
 
 	// Finsihed Saving... now lets cleanup!
@@ -1397,8 +1397,8 @@ void OTServer::Release()
 void OTServer::Init(bool bReadOnly/*=false*/)
 {
     // -------------------------------------------------------
-	if (!OTDataFolder::IsInitialized()) { OTLog::vError("%s: Unable to Init data folders", __FUNCTION__); OT_ASSERT(false); };
-	if (!this->LoadConfigFile())        { OTLog::vError("%s: Unable to Load Config File!", __FUNCTION__); OT_ASSERT(false); };
+	if (!OTDataFolder::IsInitialized()) { OTLog::vError("%s: Unable to Init data folders", __FUNCTION__); OT_FAIL; };
+	if (!this->LoadConfigFile())        { OTLog::vError("%s: Unable to Load Config File!", __FUNCTION__); OT_FAIL; };
 	// -------------------------------------------------------
     m_bReadOnly = bReadOnly;
 	// -------------------------------------------------------
@@ -1496,7 +1496,7 @@ void OTServer::Init(bool bReadOnly/*=false*/)
                           "Plus, unable to create, since read-only flag is set.\n",
                           __FUNCTION__,
                           m_strWalletFilename.Get());
-            OT_ASSERT(false);  // end execution here.
+            OT_FAIL;  // end execution here.
         }
         else
             bMainFileExists = CreateMainFile();
@@ -1507,7 +1507,7 @@ void OTServer::Init(bool bReadOnly/*=false*/)
 		if (!LoadMainFile(bReadOnly))
 		{
 			OTLog::vError("\n%s: Error in Loading Main File!\n", __FUNCTION__);
-			OT_ASSERT(false);  // end execution here.
+			OT_FAIL;  // end execution here.
 		}
         
         // We just want to call this function once in order to make sure that the
@@ -1516,7 +1516,7 @@ void OTServer::Init(bool bReadOnly/*=false*/)
         if (!ValidateServerIDfromUser(m_strServerID))
 		{
 			OTLog::vError("\n%s: Error in Validation of ServerID from User!\n", __FUNCTION__);
-			OT_ASSERT(false);  // end execution here.
+			OT_FAIL;  // end execution here.
 		}
     }
     
@@ -1829,7 +1829,7 @@ bool OTServer::CreateMainFile()
                                              "please enter your password", true);
 		if (!SaveMainFile())
 		{
-			OT_ASSERT(false);
+			OT_FAIL;
 		}
 	}
 	// ---------------------------------------------------------------  
@@ -6870,11 +6870,13 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 			if (NULL == pInbox) // || !pInbox->VerifyAccount(m_nymServer)) OTAccount::Load (above) already verifies.
 			{
 				OTLog::Error("OTServer::NotarizeDeposit: Error loading or verifying inbox.\n");
+				OT_FAIL; // pInbox may get dereferenced
 			}
 			
 			else if (NULL == pOutbox) // || !pOutbox->VerifyAccount(m_nymServer)) OTAccount::Load (above) already verifies.
 			{
 				OTLog::Error("OTServer::NotarizeDeposit: Error loading or verifying outbox.\n");
+				OT_FAIL; // pOutbox may get dereferenced
 			}
 			// --------------------------------------------------------------------
 			OTString strPurse;
@@ -8805,6 +8807,7 @@ void OTServer::NotarizeExchangeBasket(OTPseudonym & theNym, OTAccount & theAccou
                             while (!listUserAccounts.empty())
                             {
                                 pAccount = listUserAccounts.front();
+								if (NULL == pAccount) OT_FAIL;
                                 listUserAccounts.pop_front();
                                 
                                 if (true == bSuccess)
@@ -8822,6 +8825,8 @@ void OTServer::NotarizeExchangeBasket(OTPseudonym & theNym, OTAccount & theAccou
                             while (!listServerAccounts.empty())
                             {
                                 pAccount = listServerAccounts.front();
+								if (NULL == pAccount) OT_FAIL;
+
                                 listServerAccounts.pop_front();
                                 
                                 if (true == bSuccess)
@@ -8839,6 +8844,7 @@ void OTServer::NotarizeExchangeBasket(OTPseudonym & theNym, OTAccount & theAccou
                             while (!listInboxes.empty())
                             {
                                 OTLedger * pTempInbox = listInboxes.front();
+								if (NULL == pTempInbox) OT_FAIL;
                                 listInboxes.pop_front();
                                 
                                 if (true == bSuccess)
@@ -10855,7 +10861,7 @@ void OTServer::UserCmdGetBoxReceipt(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 							  "UserID (%s) and AccountID (%s) FYI. IsAbbreviated == %s\n", 
 							  MsgIn.m_lTransactionNum, 
 							  (MsgIn.m_lDepth == 0) ? "nymbox" : ((MsgIn.m_lDepth == 1) ? "inbox" : "outbox"), // outbox is 2.
-							  MsgIn.m_strNymID.Get(), MsgIn.m_strAcctID.Get(), pTransaction->IsAbbreviated() ? "true" : "false");
+							  MsgIn.m_strNymID.Get(), MsgIn.m_strAcctID.Get(), (NULL == pTransaction) ? "NULL" : (pTransaction->IsAbbreviated()) ? "true" : "false"  );
 				bErrorCondition = true;
 			}
 		}
@@ -13222,6 +13228,8 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                                         OTTransaction * pInboxTransaction	= OTTransaction::GenerateTransaction(theFromInbox, 
                                                                                                                  OTTransaction::transferReceipt,
                                                                                                                  lNewTransactionNumber);
+
+										if (NULL == pInboxTransaction) OT_FAIL;
                                         
                                         // Here we give the sender (by dropping into his inbox) a copy of my acceptItem (for
                                         // his transfer), including the transaction number of my acceptance of his transfer.

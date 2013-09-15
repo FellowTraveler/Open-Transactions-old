@@ -713,7 +713,7 @@ void OTNym_or_SymmetricKey::GetIdentifier(OTIdentifier & theIdentifier) const
     }
     else
     {
-        OT_ASSERT(false); // should never happen
+        OT_FAIL; // should never happen
     }
 }
 
@@ -731,7 +731,7 @@ void OTNym_or_SymmetricKey::GetIdentifier(OTString & strIdentifier) const
     }
     else
     {
-        OT_ASSERT(false); // should never happen
+        OT_FAIL; // should never happen
     }   
 }
 

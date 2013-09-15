@@ -449,27 +449,27 @@ const bool OTSocket::Init(OTSettings * pSettings)
 	if (m_HasContext) return false;
 	if (m_bIsListening) return false;
 
-	if (NULL == pSettings) { OT_ASSERT(false); return false; };
+	if (NULL == pSettings) { OT_FAIL; };
 
 	bool bIsNew;
 	{
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_MS,		m_lLatencySendMs,		m_lLatencySendMs,		bIsNew)) { OT_ASSERT(false); return false; };
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_MS,		m_lLatencySendMs,		m_lLatencySendMs,		bIsNew)) { OT_FAIL; };
 	}
 	{
 		long lResult = 0;
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_NO_TRIES,	m_nLatencySendNoTries,	lResult,				bIsNew)) { OT_ASSERT(false); return false;  };
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_NO_TRIES,	m_nLatencySendNoTries,	lResult,				bIsNew)) { OT_FAIL;  };
 		m_nLatencySendNoTries = static_cast<int>(lResult);
 	}
 	{
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_MS,		m_lLatencyReceiveMs,	m_lLatencyReceiveMs,	bIsNew)) { OT_ASSERT(false); return false;  };
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_MS,		m_lLatencyReceiveMs,	m_lLatencyReceiveMs,	bIsNew)) { OT_FAIL;  };
 	}
 	{
 		long lResult = 0;
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_NO_TRIES, m_nLatencyReceiveNoTries, lResult,			bIsNew)) { OT_ASSERT(false); return false;  };
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_NO_TRIES, m_nLatencyReceiveNoTries, lResult,			bIsNew)) { OT_FAIL;  };
 		m_nLatencyReceiveNoTries = static_cast<int>(lResult);
 	}
 	{
-		if(!pSettings->CheckSet_bool("latency", KEY_IS_BLOCKING,			m_bIsBlocking,			m_bIsBlocking,			bIsNew)) { OT_ASSERT(false); return false;  };
+		if(!pSettings->CheckSet_bool("latency", KEY_IS_BLOCKING,			m_bIsBlocking,			m_bIsBlocking,			bIsNew)) { OT_FAIL;  };
 	}
 
 	m_bInitialized = true;
@@ -918,7 +918,7 @@ int main(int argc, char* argv[])
 			//
 			{
 				bool bSetupPathsSuccess = false;
-				if(!OTDataFolder::Init(SERVER_CONFIG_KEY)) { OT_ASSERT(false); }
+				if(!OTDataFolder::Init(SERVER_CONFIG_KEY)) { OT_FAIL; }
 				else
 					bSetupPathsSuccess = true;
 
@@ -1036,31 +1036,31 @@ int main(int argc, char* argv[])
 
 	OTSocket theSocket;
 
-	if (!OTDataFolder::IsInitialized()) { OT_ASSERT(false); };
+	if (!OTDataFolder::IsInitialized()) { OT_FAIL; };
 
 	{
 		OTString strConfigFolderPath = "";
-		if (!OTDataFolder::GetConfigFilePath(strConfigFolderPath)) { OT_ASSERT(false); };
+		if (!OTDataFolder::GetConfigFilePath(strConfigFolderPath)) { OT_FAIL; };
 		OTSettings * pSettings(new OTSettings(strConfigFolderPath));
 
 		pSettings->Reset();
-		if (!pSettings->Load()) { OT_ASSERT(false); };
+		if (!pSettings->Load()) { OT_FAIL; };
 
-		if (!theSocket.Init(pSettings)) { OT_ASSERT(false); };
+		if (!theSocket.Init(pSettings)) { OT_FAIL; };
 
-		if (!pSettings->Save()) { OT_ASSERT(false); };
+		if (!pSettings->Save()) { OT_FAIL; };
 		pSettings->Reset();
 
 		if (NULL != pSettings) delete pSettings; pSettings = NULL;
 	}
 
-	if (!theSocket.NewContext()	)		{ OT_ASSERT(false); };
+	if (!theSocket.NewContext()	)		{ OT_FAIL; };
 
 	{
-		if(0 == nServerPort)  { OT_ASSERT(false); };
+		if(0 == nServerPort)  { OT_FAIL; };
 		OTString strBindPath; strBindPath.Format("%s%d", "tcp://*:", nServerPort);
 
-		if (!theSocket.Listen(strBindPath))  { OT_ASSERT(false); };
+		if (!theSocket.Listen(strBindPath))  { OT_FAIL; };
 	}
     
     // ******************************************************************************************

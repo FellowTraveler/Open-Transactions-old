@@ -223,7 +223,8 @@ bool OTAssetContract::ParseFormatted(long & lResult,
     int  nDigitsCollectedBeforeDot = 0;
     int  nDigitsCollectedAfterDot  = 0;
     // ----------------------
-    const std::moneypunct<char, false> &mp = std::use_facet< std::moneypunct<char, false> >(std::locale ());
+	// BUG: &mp isn't used.
+    //const std::moneypunct<char, false> &mp = std::use_facet< std::moneypunct<char, false> >(std::locale ()); 
     // ----------------------
     std::deque<long> deque_cents;
     // ----------------------
@@ -645,8 +646,7 @@ OTAcctFunctor::~OTAcctFunctor()
 
 bool OTAcctFunctor::Trigger(OTAccount & theAccount)
 {
-    OT_ASSERT_MSG(false, "OTAcctFunctor::Trigger: You need to override the Trigger method in your subclass. (It's missing.)");
-	return false;
+    OT_FAIL_MSG("OTAcctFunctor::Trigger: You need to override the Trigger method in your subclass. (It's missing.)");
 }
 
 // ----------------------------------------------------------------
@@ -739,12 +739,12 @@ bool OTAssetContract::ForEachAccountRecord(OTAcctFunctor & theAction)  // Loops 
                 const bool bSuccessLoadingAccount = ((pAccount != NULL) ? true:false );
                 if (bSuccessLoadingAccount)
                 {
-                    const bool bTriggerSuccess = theAction.Trigger(*pAccount);   // <=========
-                    // todo, log?
+                    const bool bTriggerSuccess = theAction.Trigger(*pAccount);
+					if (!bTriggerSuccess) OTLog::vError("%s: Error: Trigger Failed.", __FUNCTION__);
                 }   
                 else
                 {
-                    // todo, log?
+                    OTLog::vError("%s: Error: Failed Loading Account!", __FUNCTION__);
                 }
                 // --------------------------------            
             }
@@ -760,8 +760,6 @@ bool OTAssetContract::ForEachAccountRecord(OTAcctFunctor & theAction)  // Loops 
         //
         return true; // 
     }
-    
-    return false; // should never happen.
 }
 
 // ----------------------------------------------------------------

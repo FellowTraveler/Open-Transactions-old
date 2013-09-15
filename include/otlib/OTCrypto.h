@@ -271,6 +271,7 @@ private:
         if(NULL == pValue)
             if(!GetSetAll())
                 assert(false);
+		if(NULL == pValue) assert(false);
         return *pValue;
 	}
 

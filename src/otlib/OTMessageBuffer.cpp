@@ -349,7 +349,7 @@ void OTMessageOutbuffer::AddSentMessage(OTMessage & theMessage) // must be heap 
             m_mapMessages.erase(it);
             break;
         }
-        ++it;
+        ++it; // probably will never reach this line. But it just feels correct to have it here anyway.
     }
     // Whatever it was, it's gone now!
     // ----------------------------------
@@ -668,7 +668,7 @@ void OTMessageOutbuffer::Clear(const OTString * pstrServerID/*=NULL*/, const OTS
             delete pThisMsg;                // <============ DELETE
             pThisMsg = NULL;
             // ---------------------------------------------------------------------------
-            if (NULL != pstrNymID)
+            if (NULL != pstrNymID && NULL != pstrServerID)
             {
                 OTString strFolder, strFile;
                 strFolder.Format("%s%s%s%s%s%s%s",

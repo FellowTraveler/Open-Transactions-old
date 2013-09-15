@@ -516,20 +516,20 @@ namespace OTDB
                     {
 						OTLog::vError("%s: ot_twoStr or ot_threeStr exist, when ot_oneStr doesn't exist! \n",
                                       szFuncName);
-						OT_ASSERT(false);
+						OT_FAIL;
 					}
                 }
 				else if ( (!ot_twoStr.Exists()) && (ot_threeStr.Exists()) )
                 {
 					OTLog::vError("%s: ot_twoStr or ot_threeStr exist, when ot_oneStr doesn't exist! \n",
                                   szFuncName);
-					OT_ASSERT(false);
+					OT_FAIL;
 				}
             }
 			else
             {
 				OTLog::vError("%s: ot_strFolder must always exist!\n", szFuncName);
-				OT_ASSERT(false);
+				OT_FAIL;
 			}
 			return true;
 	}
@@ -2813,7 +2813,7 @@ namespace OTDB
 		bool bConfirmOrCreateSuccess=false, bFolderAlreadyExist=false;
         OTString strFolderName(szFolderName);
 		if(!OTPaths::ConfirmCreateFolder(strFolderName, bConfirmOrCreateSuccess, bFolderAlreadyExist))
-        { OT_ASSERT(false); return false; };
+        { OT_FAIL; };
 		return bConfirmOrCreateSuccess;
 	}
 	
@@ -2996,7 +2996,6 @@ namespace OTDB
 		}
         OTLog::vOutput(2, "\n");
 
-		bool bFolderExists=false, bFolderAlreadyExists=false;
         // ---------------------------------------------------------
 		// Zero...
 		if (zero.Compare(".")) { path = m_strDataPath; }

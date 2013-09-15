@@ -351,30 +351,30 @@ const bool OTSocket::Init(OTSettings * pSettings)
 	if (m_HasContext) return false;
 	if (m_bConnected) return false;
 
-	if (NULL == pSettings) { OT_ASSERT(false); return false; }
+	if (NULL == pSettings) { OT_FAIL; }
 
 	bool bIsNew;
 	{
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_MS,		m_lLatencySendMs,		m_lLatencySendMs,		bIsNew)) { OT_ASSERT(false); return false; }
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_MS,		m_lLatencySendMs,		m_lLatencySendMs,		bIsNew)) { OT_FAIL; }
 	}
 	{
 		long lResult = 0;
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_NO_TRIES,	m_nLatencySendNoTries,	lResult,				bIsNew)) { OT_ASSERT(false); return false;  }
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_SEND_NO_TRIES,	m_nLatencySendNoTries,	lResult,				bIsNew)) { OT_FAIL;  }
 		m_nLatencySendNoTries = static_cast<int>(lResult);
 	}
 	{
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_MS,		m_lLatencyReceiveMs,	m_lLatencyReceiveMs,	bIsNew)) { OT_ASSERT(false); return false;  }
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_MS,		m_lLatencyReceiveMs,	m_lLatencyReceiveMs,	bIsNew)) { OT_FAIL;  }
 	}
 	{
 		long lResult = 0;
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_NO_TRIES, m_nLatencyReceiveNoTries, lResult,			bIsNew)) { OT_ASSERT(false); return false;  }
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_RECEIVE_NO_TRIES, m_nLatencyReceiveNoTries, lResult,			bIsNew)) { OT_FAIL;  }
 		m_nLatencyReceiveNoTries = static_cast<int>(lResult);
 	}
 	{
-		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_DELAY_AFTER,	m_lLatencyDelayAfter,	m_lLatencyDelayAfter,	bIsNew)) { OT_ASSERT(false); return false;  }
+		if(!pSettings->CheckSet_long("latency", KEY_LATENCY_DELAY_AFTER,	m_lLatencyDelayAfter,	m_lLatencyDelayAfter,	bIsNew)) { OT_FAIL;  }
 	}
 	{
-		if(!pSettings->CheckSet_bool("latency", KEY_IS_BLOCKING,			m_bIsBlocking,			m_bIsBlocking,			bIsNew)) { OT_ASSERT(false); return false;  }
+		if(!pSettings->CheckSet_bool("latency", KEY_IS_BLOCKING,			m_bIsBlocking,			m_bIsBlocking,			bIsNew)) { OT_FAIL;  }
 	}
 
 	m_bInitialized = true;
@@ -409,8 +409,8 @@ const bool OTSocket::Connect(const OTString & strConnectPath)
 	if (NULL != m_pSocket)  zmq_close(m_pSocket);
 	if (NULL != m_pSocket)	delete m_pSocket;	m_pSocket	= NULL; // cleanup old socket (if we have one);
 
-	if (!strConnectPath.Exists())		{ OTLog::vError("%s: Error: %s dosn't exist!\n", __FUNCTION__, "strConnectPath");	OT_ASSERT(false); return false;}
-	if (5 > strConnectPath.GetLength()) { OTLog::vError("%s: Error: %s is too short!\n", __FUNCTION__, "strConnectPath");	OT_ASSERT(false); return false;}
+	if (!strConnectPath.Exists())		{ OTLog::vError("%s: Error: %s dosn't exist!\n", __FUNCTION__, "strConnectPath");	OT_FAIL;}
+	if (5 > strConnectPath.GetLength()) { OTLog::vError("%s: Error: %s is too short!\n", __FUNCTION__, "strConnectPath");	OT_FAIL;}
 
 	if (!m_bInitialized) return false;
 	if (!m_HasContext) return false;
@@ -431,7 +431,7 @@ const bool OTSocket::Connect(const OTString & strConnectPath)
      Caution: All options, with the exception of ZMQ_SUBSCRIBE, ZMQ_UNSUBSCRIBE and ZMQ_LINGER, only take effect for subsequent socket bind/connects.     
      */
 
-	if (!m_strConnectPath.Exists()) { OT_ASSERT(false); }
+	if (!m_strConnectPath.Exists()) { OT_FAIL; }
 	m_pSocket->connect(m_strConnectPath.Get());
 	m_bConnected = true;
 	return true;
@@ -993,7 +993,7 @@ OT_API::~OT_API()
 	if (m_bInitialized)
 		if(!(this->Cleanup())) // we only cleanup if we need to
 		{
-			if (!OT_API_atexit_now) OT_ASSERT(false);
+			if (!OT_API_atexit_now) OT_FAIL
 		} 
 
 		// this must be last!
@@ -1074,20 +1074,23 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 		OT_API_atexit_installed=1;
 	}
 #endif
-#if defined(_WIN32)
-    if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler,TRUE)) {
-        fprintf(stderr, "Unable to install handler!\n");
-        assert(false); //error!
-    }
+#ifdef _WIN32
+	if (!OT_API_atexit_installed) {
+		if (!SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler,TRUE)) {
+			fprintf(stderr, "Unable to install handler!\n");
+			assert(false); //error!
+		}
+		OT_API_atexit_installed=1;
+	}
 #endif
 #endif
 	// std::cerr << "Installing signal handlers - DONE"<<std::endl;
 	
 
-	if (this->IsPidOpen()) { OTLog::sError("%s: Pid is OPEN, MUST CLOSE BEFORE OPENING A NEW ONE!\n",__FUNCTION__,"strPidFilePath"); OT_ASSERT(false); }
+	if (this->IsPidOpen()) { OTLog::sError("%s: Pid is OPEN, MUST CLOSE BEFORE OPENING A NEW ONE!\n",__FUNCTION__,"strPidFilePath"); OT_FAIL; }
 
-	if (!strPidFilePath.Exists()) { OTLog::sError("%s: %s is Empty!\n",__FUNCTION__,"strPidFilePath"); OT_ASSERT(false); }
-	if (3 > strPidFilePath.GetLength()) { OTLog::sError("%s: %s is Too Short! (%s)\n",__FUNCTION__,"strPidFilePath",strPidFilePath.Get()); OT_ASSERT(false); }
+	if (!strPidFilePath.Exists()) { OTLog::sError("%s: %s is Empty!\n",__FUNCTION__,"strPidFilePath"); OT_FAIL; }
+	if (3 > strPidFilePath.GetLength()) { OTLog::sError("%s: %s is Too Short! (%s)\n",__FUNCTION__,"strPidFilePath",strPidFilePath.Get()); OT_FAIL; }
 
 	OTLog::vOutput(1, "%s: Using Pid File: %s\n",__FUNCTION__,strPidFilePath.Get());
 	this->set_PidFilePath( strPidFilePath );
@@ -1167,8 +1170,8 @@ void OT_API::Pid::OpenPid(const OTString strPidFilePath)
 void OT_API::Pid::ClosePid()
 {
 	if (OT_API_atexit_now) { async_write_string("ERROR: Closing the pid file now (from signal) - with NOT SIGNAL SAFE FUNCTION - abort!\n"); abort(); }
-	if (!this->IsPidOpen()) { OTLog::sError("%s: Pid is CLOSED, WHY CLOSE A PID IF NONE IS OPEN!\n",__FUNCTION__,"strPidFilePath"); OT_ASSERT(false); }
-	if (!this->m_strPidFilePath.Exists()) { OTLog::sError("%s: %s is Empty!\n",__FUNCTION__,"m_strPidFilePath"); OT_ASSERT(false); }
+	if (!this->IsPidOpen()) { OTLog::sError("%s: Pid is CLOSED, WHY CLOSE A PID IF NONE IS OPEN!\n",__FUNCTION__,"strPidFilePath"); OT_FAIL; }
+	if (!this->m_strPidFilePath.Exists()) { OTLog::sError("%s: %s is Empty!\n",__FUNCTION__,"m_strPidFilePath"); OT_FAIL; }
 
 	std::ofstream pid_outfile(this->m_strPidFilePath.Get());
 	if (pid_outfile.is_open()) {
@@ -1237,7 +1240,7 @@ bool OT_API::Init()
 		return true;
 	}
 
-	if (!OTDataFolder::Init(CLIENT_CONFIG_KEY)) { OTLog::vError("%s: Unable to Init data folders", __FUNCTION__); OT_ASSERT(false); }
+	if (!OTDataFolder::Init(CLIENT_CONFIG_KEY)) { OTLog::vError("%s: Unable to Init data folders", __FUNCTION__); OT_FAIL; }
 
     // --------------------------------------
 	static bool bConstruct = false;
@@ -1252,7 +1255,7 @@ bool OT_API::Init()
 	}
     // --------------------------------------
 	
-	if (!this->LoadConfigFile()) { OTLog::vError("%s: Unable to Load Config File!", __FUNCTION__); OT_ASSERT(false); }
+	if (!this->LoadConfigFile()) { OTLog::vError("%s: Unable to Load Config File!", __FUNCTION__); OT_FAIL; }
 
 	// --------------------------------------
     // PID -- Make sure we're not running two copies of OT on the same data simultaneously here.
@@ -1308,7 +1311,7 @@ bool OT_API::Cleanup()
 	if (!this->m_refPid.IsPidOpen()) { return false; } // pid isn't open, just return false.
 
 	this->m_refPid.ClosePid();
-	if (this->m_refPid.IsPidOpen()) { OT_ASSERT(false); }  // failed loading
+	if (this->m_refPid.IsPidOpen()) { OT_FAIL; }  // failed loading
 	return true;
 }
 
@@ -1330,7 +1333,7 @@ bool OT_API::SetTransportCallback(TransportCallback * pTransportCallback)
 TransportCallback * OT_API::GetTransportCallback()
 {
 	if (NULL != this->m_pTransportCallback) { return this->m_pTransportCallback; }
-	else { OT_ASSERT(false); return NULL; }
+	else { OT_FAIL; }
 }
 
 // Load the configuration file.
@@ -1347,7 +1350,7 @@ bool OT_API::LoadConfigFile()
 
 	// Create Config Object (OTSettings)
 	OTString strConfigFilePath="";
-	if (!OTDataFolder::GetConfigFilePath(strConfigFilePath)) { OT_ASSERT(false); }
+	if (!OTDataFolder::GetConfigFilePath(strConfigFilePath)) { OT_FAIL; }
 	OTSettings * p_Config = NULL;
 	p_Config = new OTSettings(strConfigFilePath);
 
@@ -1366,7 +1369,7 @@ bool OT_API::LoadConfigFile()
 	if (!p_Config -> Load())
 	{
 		OTLog::vError(0,"%s: Error: Unable to load config file: %s It should exist, as we just saved it!\n", szFunc, strConfigFilename.Get());
-		OT_ASSERT(false);
+		OT_FAIL;
 	}
 
 
@@ -1416,7 +1419,7 @@ bool OT_API::LoadConfigFile()
 
 
 	{
-		if (NULL == m_pSocket) { OT_ASSERT(false); return false; }
+		if (NULL == m_pSocket) { OT_FAIL; }
 
 		m_pSocket->Init(p_Config);  // setup the socket.
 	}
@@ -1474,7 +1477,7 @@ bool OT_API::LoadConfigFile()
 	if (!p_Config -> Save())
 	{
 		OTLog::vError("%s: Error! Unable to save updated Config!!!\n",szFunc);
-		OT_ASSERT(false);
+		OT_FAIL;
 	}
 
 	// Finsihed Saving... now lets cleanup!
@@ -1493,11 +1496,11 @@ bool OT_API::LoadConfigFile()
 
 bool OT_API::SetWallet(const OTString & strFilename) {
 
-	if (!m_bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n", __FUNCTION__); OT_ASSERT(false); return false; }
+	if (!m_bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n", __FUNCTION__); OT_FAIL; }
 
 	{
 		bool bExists = strFilename.Exists();
-		if (bExists) { OTLog::vError("%s: strFilename dose not exist!\n", __FUNCTION__); OT_ASSERT(false); return false; }
+		if (bExists) { OTLog::vError("%s: strFilename dose not exist!\n", __FUNCTION__); OT_FAIL; }
 	}
 
 	OT_ASSERT_MSG(strFilename.Exists(),"OT_API::SetWalletFilename: strFilename does not exist.\n");
@@ -1536,7 +1539,7 @@ bool OT_API::SetWallet(const OTString & strFilename) {
 	if (!p_Config -> Load())
 	{
 		OTLog::vError(0,"%s: Error: Unable to load config file: %s It should exist, as we just saved it!\n", __FUNCTION__, strConfigFilePath.Get());
-		OT_ASSERT(false);
+		OT_FAIL;
 	}
 
 
@@ -1554,7 +1557,7 @@ bool OT_API::SetWallet(const OTString & strFilename) {
 	if (!p_Config -> Save())
 	{
 		OTLog::vError("%s: Error! Unable to save updated Config!!!\n",__FUNCTION__);
-		OT_ASSERT(false);
+		OT_FAIL;
 	}
 
 	// Finsihed Saving... now lets cleanup!
@@ -1627,15 +1630,15 @@ bool OT_API::LoadWallet()
 
 bool OT_API::TransportFunction(OTServerContract & theServerContract, OTEnvelope & theEnvelope)
 {
-	if (!this->IsInitialized())					{ OTLog::vError("%s: Error: %s is not Initialized!\n", __FUNCTION__, "OT_API");		OT_ASSERT(false); return false;}
-	if (NULL == this->m_pClient)				{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_pClient");		OT_ASSERT(false); return false;}
-	if (NULL == this->m_pClient->m_pConnection) { OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_pConnection");	OT_ASSERT(false); return false;}
+	if (!this->IsInitialized())					{ OTLog::vError("%s: Error: %s is not Initialized!\n", __FUNCTION__, "OT_API");		OT_FAIL;}
+	if (NULL == this->m_pClient)				{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_pClient");		OT_FAIL;}
+	if (NULL == this->m_pClient->m_pConnection) { OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_pConnection");	OT_FAIL;}
 
 	OTPseudonym * pNym(m_pClient -> m_pConnection -> GetNym());
-	if (NULL == pNym)							{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "pNym");				OT_ASSERT(false); return false;}
-	if (NULL == this->m_pSocket)				{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_Socket");			OT_ASSERT(false); return false;}
-	if (NULL == this->m_pSocket->m_pMutex)		{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_Socket");			OT_ASSERT(false); return false;}
-	if (!m_pSocket->IsInitialized())			{ OTLog::vError("%s: Error: %s is not Initialized!\n", __FUNCTION__, "m_Socket");	OT_ASSERT(false); return false;}
+	if (NULL == pNym)							{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "pNym");				OT_FAIL;}
+	if (NULL == this->m_pSocket)				{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_Socket");			OT_FAIL;}
+	if (NULL == this->m_pSocket->m_pMutex)		{ OTLog::vError("%s: Error: %s is a NULL!\n", __FUNCTION__, "m_Socket");			OT_FAIL;}
+	if (!m_pSocket->IsInitialized())			{ OTLog::vError("%s: Error: %s is not Initialized!\n", __FUNCTION__, "m_Socket");	OT_FAIL;}
 
 
 
@@ -1883,7 +1886,7 @@ OTWallet * OT_API::GetWallet(const char * szFuncName/*=NULL*/)
 
 OTPseudonym * OT_API::GetNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
 {
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return NULL; }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_FAIL; }
 	// --------------------------------------------------------------------
 	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OT_API::GetNym";
 	// --------------------------------------------------------------------
@@ -2152,7 +2155,7 @@ bool OT_API::SetServer_Name(const OTIdentifier	&	SERVER_ID,
 
 bool OT_API::IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdentifier & SERVER_ID)
 {
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return false; }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_FAIL; }
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetNym(NYM_ID, __FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pNym) return false;
@@ -2225,7 +2228,7 @@ const bool OT_API::Wallet_ChangePassphrase()
 {
     // -----------------------------------------------------
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_FAIL; }
     // -----------------------------------------------------
 	OTWallet * pWallet = OTAPI_Wrap::OTAPI()->GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pWallet) return false;
@@ -2508,7 +2511,7 @@ const bool OT_API::Wallet_ChangePassphrase()
                           "on the old key!! Therefore, asserting now. OLD KEY was:\n%s\n\n NEW KEY is: %s\n",
                           __FUNCTION__, ascBackup.Get(), ascBackup2.Get()); // Todo: security: keys are exposed here. Is this log safe?
             // ------------------------
-            OT_ASSERT_MSG(false, "ASSERT while trying to change wallet's master key and passphrase.\n");
+            OT_FAIL_MSG("ASSERT while trying to change wallet's master key and passphrase.\n");
         }
         // -----------------------------------------------------
         else// SAVE THE WALLET.
@@ -2547,7 +2550,7 @@ const bool OT_API::Wallet_ChangePassphrase()
                               "Asserting now. OLD KEY was:\n%s\n\n NEW KEY is: %s\n",
                               __FUNCTION__, ascBackup.Get(), ascBackup2.Get()); // Todo: security: keys are exposed here. Is this log safe?
                 // ------------------------
-                OT_ASSERT_MSG(false, "ASSERT while trying to save and re-load wallet with new master key and passphrase.\n");
+                OT_FAIL_MSG("ASSERT while trying to save and re-load wallet with new master key and passphrase.\n");
             }
             else
                 OTLog::vOutput(0, "\nSuccess changing master passphrase for wallet!\n");
@@ -2556,8 +2559,6 @@ const bool OT_API::Wallet_ChangePassphrase()
         }
         // -----------------------------------------------------
     }
-    
-    return false;
 }
 
 
@@ -2566,9 +2567,9 @@ const bool OT_API::Wallet_CanRemoveServer(const OTIdentifier & SERVER_ID)
 {
     // -----------------------------------------------------
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_FAIL; }
 
-	if (SERVER_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_FAIL; }
     // -----------------------------------------------------
 	OTString strName;
 	// ------------------------------------------
@@ -2623,9 +2624,9 @@ const bool OT_API::Wallet_CanRemoveAssetType(const OTIdentifier & ASSET_ID)
 {
     // -----------------------------------------------------
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_FAIL; }
 
-	if (ASSET_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID" ); OT_ASSERT(false); }
+	if (ASSET_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID" ); OT_FAIL; }
     // -----------------------------------------------------
 	OTString strName;
 	// ------------------------------------------
@@ -2664,9 +2665,9 @@ const bool OT_API::Wallet_CanRemoveNym(const OTIdentifier & NYM_ID)
 {	
     // -----------------------------------------------------
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_FAIL; }
 
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID" ); OT_ASSERT(false); }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "NYM_ID" ); OT_FAIL; }
     // -----------------------------------------------------
 	
 	
@@ -2749,9 +2750,9 @@ const bool OT_API::Wallet_CanRemoveAccount(const OTIdentifier & ACCOUNT_ID)
 {
     // -----------------------------------------------------
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_FAIL; }
 
-	if (ACCOUNT_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_ASSERT(false); }
+	if (ACCOUNT_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID" ); OT_FAIL; }
     // -----------------------------------------------------
 
 	// -----------------------------------------------------------------
@@ -2807,9 +2808,9 @@ const bool OT_API::Wallet_RemoveServer(const OTIdentifier & SERVER_ID)
 {
 	// -----------------------------------------------------
 	bool bInitialized = IsInitialized();
-	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_FAIL; }
 
-	if (SERVER_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_ASSERT(false); }
+	if (SERVER_ID.IsEmpty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_FAIL; }
 	// -----------------------------------------------------
 
 	// Make sure there aren't any dependent accounts..
@@ -2829,7 +2830,7 @@ const bool OT_API::Wallet_RemoveServer(const OTIdentifier & SERVER_ID)
 
 	if (NULL == m_pWallet) {
 		OTLog::sError("%s:  No wallet found...\n",__FUNCTION__);
-		OT_ASSERT(false);
+		OT_FAIL;
 	}
 
 	if (m_pWallet->RemoveServerContract(SERVER_ID))
@@ -2851,9 +2852,9 @@ const bool OT_API::Wallet_RemoveAssetType(const OTIdentifier & ASSET_ID)
 {
     // -----------------------------------------------------
 	bool bInitialized = IsInitialized();
-	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+	if (!bInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_FAIL; }
 
-	if (ASSET_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID" ); OT_ASSERT(false); }
+	if (ASSET_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID" ); OT_FAIL; }
     // -----------------------------------------------------
 
 	// Make sure there aren't any dependent accounts..
@@ -2862,7 +2863,7 @@ const bool OT_API::Wallet_RemoveAssetType(const OTIdentifier & ASSET_ID)
 
 	if (NULL == m_pWallet) {
 		OTLog::sError("%s: No wallet found...!\n",__FUNCTION__);
-		OT_ASSERT(false);
+		OT_FAIL;
 	}
 
 	if (m_pWallet -> RemoveAssetContract(ASSET_ID))
@@ -2884,9 +2885,9 @@ const bool OT_API::Wallet_RemoveNym(const OTIdentifier & NYM_ID)
 {
     // -----------------------------------------------------
 	bool bInitialized = IsInitialized();
-	if (!bInitialized)    { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_ASSERT(false); }
+	if (!bInitialized)    { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_FAIL; }
 
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"); OT_ASSERT(false); }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCOUNT_ID"); OT_FAIL; }
     // -----------------------------------------------------
 
 
@@ -2906,7 +2907,7 @@ const bool OT_API::Wallet_RemoveNym(const OTIdentifier & NYM_ID)
 	if (NULL == m_pWallet)
     {
 		OTLog::sError("%s: No wallet found...!\n",__FUNCTION__);
-		OT_ASSERT(false);
+		OT_FAIL;
 	}
 
 	if (m_pWallet->RemoveNym(NYM_ID))
@@ -2930,7 +2931,7 @@ const bool OT_API::Wallet_RemoveNym(const OTIdentifier & NYM_ID)
 //
 const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput)
 {
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return false; }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_FAIL; }
 	// -----------------------------------------------------
     OTPasswordData thePWDataLoad("Enter wallet master passphrase.");
     OTPasswordData thePWDataSave("Create new passphrase for exported Nym.");
@@ -3501,7 +3502,7 @@ const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTStri
 
 const bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput)
 {
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return false; }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_FAIL; }
 	// -----------------------------------------------------
     OTPasswordData thePWDataLoad("Need Wallet Master passphrase to export any Cert.");
     OTPasswordData thePWDataSave("Create new passphrase for exported Cert.");
@@ -3576,7 +3577,7 @@ bool OT_API::NumList_Remove(OTNumList & theList, const OTNumList & theOldNumbers
         long lPeek=0;
         
         if (!tempOldList.Peek(lPeek) || !tempOldList.Pop())
-            OT_ASSERT(false);
+            OT_FAIL;
         
         if (!tempNewList.Remove(lPeek))
             return false;
@@ -3599,7 +3600,7 @@ bool OT_API::NumList_VerifyQuery(OTNumList & theList, const OTNumList & theQuery
         long lPeek=0;
         
         if (!theTempQuery.Peek(lPeek) || !theTempQuery.Pop())
-            OT_ASSERT(false);
+            OT_FAIL;
         
         if (!theList.Verify(lPeek))
             return false;
@@ -4901,7 +4902,7 @@ bool OT_API::SmartContract_AddVariable(const	OTString		& THE_CONTRACT,		// The c
 			break;
 		default:
 			// SHOULD NEVER HAPPEN (We already return above, if the variable type isn't correct.)
-			OT_ASSERT_MSG(false, "Should never happen. You aren't seeing this.");
+			OT_FAIL_MSG("Should never happen. You aren't seeing this.");
 			break;
 	}
 	
@@ -5023,7 +5024,7 @@ bool OT_API::SetAccount_Name(const OTIdentifier &	ACCT_ID,
 /// (Low level.)
 OTPseudonym * OT_API::LoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
 {
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return NULL; }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_FAIL;}
 
 //	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OT_API::LoadPublicNym";
 	// ---------------------------------
@@ -5046,7 +5047,7 @@ OTPseudonym * OT_API::LoadPrivateNym(const OTIdentifier & NYM_ID, const bool bCh
                                      OTPasswordData * pPWData/*=NULL*/,
                                      OTPassword   * pImportPassword/*=NULL*/)
 {
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return NULL; }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_FAIL; }
 	// ---------------------------------
 	// Grab the name, if there is one.
 	// That way if we have to reload it, we'll be able to preserve the name.
@@ -5253,7 +5254,7 @@ bool OT_API::HarvestAllNumbers(const OTIdentifier & SERVER_ID,
 ///
 OTPseudonym * OT_API::GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
 {
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return NULL; }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_FAIL; }
 
 	OTWallet * pWallet = GetWallet(szFuncName); // This logs and ASSERTs already.
 	if (NULL == pWallet) return NULL;
@@ -5279,7 +5280,7 @@ OTPseudonym * OT_API::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID,
                                           OTPasswordData * pPWData/*=NULL*/,
                                           OTPassword * pImportPassword/*=NULL*/)
 {
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return NULL; }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_FAIL; }
 
 	OTWallet * pWallet = GetWallet(szFuncName); // This logs and ASSERTs already.
 	if (NULL == pWallet) return NULL;
@@ -5309,7 +5310,7 @@ OTPseudonym * OT_API::GetOrLoadNym(const OTIdentifier & NYM_ID,
                                    const char * szFuncName/*=NULL*/,
                                    OTPasswordData * pPWData/*=NULL*/)
 {
-	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_ASSERT(false); return NULL; }
+	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_FAIL; }
 
 	OTWallet * pWallet = GetWallet(szFuncName); // This logs and ASSERTs already.
 	if (NULL == pWallet) return NULL;

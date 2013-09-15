@@ -598,8 +598,8 @@ OTAccount * OTAccount::LoadExistingAccount(const OTIdentifier & theAccountID, co
 	bool bFolderAlreadyExist=false, bFolderIsNew=false;
 
 	OTString strDataFolder = "", strAccountPath = "";
-	if (!OTDataFolder::Get(strDataFolder)) { OT_ASSERT(false); };
-	if (!OTPaths::AppendFolder(strAccountPath,strDataFolder,OTFolders::Account())) { OT_ASSERT(false); };
+	if (!OTDataFolder::Get(strDataFolder)) { OT_FAIL; };
+	if (!OTPaths::AppendFolder(strAccountPath,strDataFolder,OTFolders::Account())) { OT_FAIL; };
 
 	if (!OTPaths::ConfirmCreateFolder(strAccountPath,bFolderAlreadyExist,bFolderIsNew))
 	{

@@ -2801,7 +2801,7 @@ bool NewScriptExists(const OTString & strScriptFilename, bool bIsHeader, OTStrin
 	if (3 > strScriptFilename.GetLength())
     {
 		OTLog::vError("NewScriptHeaderExists: Filename: %s  is too short!\n",strScriptFilename.Get());
-		OT_ASSERT(false);
+		OT_FAIL;
 	}
 
 	OTString strScriptsFolder(OTPaths::ScriptsFolder()); //	/usr/local   /   lib    /  opentxs

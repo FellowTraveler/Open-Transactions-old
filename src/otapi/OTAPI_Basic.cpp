@@ -257,7 +257,7 @@ string OTAPI_Basic::NumList_Add(
 	const string & strNumbers
 	)
 {
-	if (strNumList.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_ASSERT(false); }
+	if (strNumList.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_FAIL; }
 
 	return OTAPI_Wrap::NumList_Add(strNumList,strNumbers);
 }
@@ -267,8 +267,8 @@ string OTAPI_Basic::NumList_Remove(
 	const string & strNumbers
 	)
 {
-	if (strNumList.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_ASSERT(false); }
-	if (strNumbers.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers" ); OT_ASSERT(false); }
+	if (strNumList.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_FAIL; }
+	if (strNumbers.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers" ); OT_FAIL; }
 
 	return OTAPI_Wrap::NumList_Remove(strNumList,strNumbers);
 }
@@ -278,8 +278,8 @@ bool OTAPI_Basic::NumList_VerifyQuery(
 	const string & strNumbers
 	)
 {
-	if (strNumList.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_ASSERT(false); }
-	if (strNumbers.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers" ); OT_ASSERT(false); }
+	if (strNumList.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_FAIL; }
+	if (strNumbers.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers" ); OT_FAIL; }
 
 	return OTAPI_Wrap::NumList_VerifyQuery(strNumList,strNumbers);
 }
@@ -289,8 +289,8 @@ bool OTAPI_Basic::NumList_VerifyAll(
 	const string & strNumbers
 	)
 {
-	if (strNumList.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_ASSERT(false); }
-	if (strNumbers.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers" ); OT_ASSERT(false); }
+	if (strNumList.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumList" ); OT_FAIL; }
+	if (strNumbers.empty()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strNumbers" ); OT_FAIL; }
 
 	return OTAPI_Wrap::NumList_VerifyAll(strNumList,strNumbers);
 }
