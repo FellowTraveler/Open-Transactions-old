@@ -1256,9 +1256,9 @@ bool OTToken_Lucre::GenerateTokenRequest(const OTPseudonym & theNym,
     // -----------------------------------------------------------------
     _OT_Lucre_Dumper setDumper;  // todo security.
     // -----------------------------------------------------------------
-    BIO * bioBank		=	BIO_new(BIO_s_mem()); // Input. We must supply the bank's public lucre info
-    BIO * bioCoin		=	BIO_new(BIO_s_mem()); // These two are output. We must write these bios, after
-    BIO * bioPublicCoin	=	BIO_new(BIO_s_mem()); // the operation, back into some form we can use
+    OpenSSL_BIO bioBank		=	BIO_new(BIO_s_mem()); // Input. We must supply the bank's public lucre info
+    OpenSSL_BIO bioCoin		=	BIO_new(BIO_s_mem()); // These two are output. We must write these bios, after
+    OpenSSL_BIO bioPublicCoin	=	BIO_new(BIO_s_mem()); // the operation, back into some form we can use
 	
 	// This version base64-DECODES the ascii-armored string passed in,
 	// and then sets the decoded plaintext string onto the string.
@@ -1347,19 +1347,11 @@ bool OTToken_Lucre::GenerateTokenRequest(const OTPseudonym & theNym,
 			// Error condition todo
 		}
 
-		// Free the Private and Public coins and allocate them fresh, for the next iteration of the loop.
-		BIO_free_all(bioCoin);	
-		BIO_free_all(bioPublicCoin);
-
-		bioCoin			=	BIO_new(BIO_s_mem());
-		bioPublicCoin	=	BIO_new(BIO_s_mem());
+		// automatically cleans up old bio.
+		bioCoin.new_bio();
+		bioPublicCoin.new_bio();
 	}
 	
-	// Cleanup openssl resources.
-	BIO_free_all(bioBank);	
-    BIO_free_all(bioCoin);	
-    BIO_free_all(bioPublicCoin);
-
 	return true;
 }
 
@@ -1384,10 +1376,10 @@ bool OTToken_Lucre::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, O
 	// Lucre
     _OT_Lucre_Dumper setDumper; // todo security.
     
-    BIO *bioBank			= BIO_new(BIO_s_mem()); // input
-    BIO *bioSignature		= BIO_new(BIO_s_mem()); // input
-    BIO *bioPrivateRequest	= BIO_new(BIO_s_mem()); // input
-    BIO *bioCoin			= BIO_new(BIO_s_mem()); // output
+    OpenSSL_BIO bioBank			= BIO_new(BIO_s_mem()); // input
+    OpenSSL_BIO bioSignature		= BIO_new(BIO_s_mem()); // input
+    OpenSSL_BIO bioPrivateRequest	= BIO_new(BIO_s_mem()); // input
+    OpenSSL_BIO bioCoin			= BIO_new(BIO_s_mem()); // output
 	
 	// Get the bank's public key (decoded into strPublicMint)
 	// and put it into bioBank so we can use it with Lucre.
@@ -1473,12 +1465,6 @@ bool OTToken_Lucre::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, O
 	}
 	// Todo log error here if the private prototoken is not found. (Very strange if so!!)
 	//  else {}
-	
-	// Cleanup openssl resources.
-	BIO_free_all(bioBank);	
-	BIO_free_all(bioSignature);	
-	BIO_free_all(bioPrivateRequest);	
-	BIO_free_all(bioCoin);	
 
 	return bReturnValue;	
 }

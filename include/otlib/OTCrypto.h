@@ -670,6 +670,29 @@ public:
     virtual ~OTCrypto_OpenSSL();
 };
 
+
+class OpenSSL_BIO {
+private:
+	BIO & m_refBIO;
+
+public:
+
+	OpenSSL_BIO(BIO * pBIO) : m_refBIO(*pBIO) { };
+	~OpenSSL_BIO() { if(NULL != &m_refBIO) BIO_free_all(&m_refBIO); };
+
+	operator BIO *() { return (&m_refBIO); };
+
+	void operator=(BIO * pBIO) { m_refBIO = *pBIO; };
+
+	void reset(BIO * pBIO) {
+		if(NULL != &m_refBIO) BIO_free_all(&m_refBIO);
+		this->operator=(pBIO);
+	};
+
+	void new_bio() { this->reset(BIO_new(BIO_s_mem())); };
+};
+
+
 // ------------------------------------------------------------------------
 #else // Apparently NO crypto engine is defined! 
 

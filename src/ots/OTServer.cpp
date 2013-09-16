@@ -3827,6 +3827,12 @@ void OTServer::UserCmdCreateAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTM
             // (For shares, not for currencies.)
             //
             const bool bAdded = pContract->AddAccountRecord(*pNewAccount);
+			if (!bAdded)
+			{
+				const OTString strAssetID(pNewAccount->GetAssetTypeID());
+				OTLog::vError("%s: ERROR Adding Account Record: %s ... Aborting.\n", __FUNCTION__,strAssetID.Get());
+				return; //error
+			}
         }
 		// -----------------------------------------------
 		OTIdentifier theNewAccountID;
@@ -10976,8 +10982,14 @@ void OTServer::UserCmdDeleteAssetAcct(OTPseudonym & theNym, OTMessage & MsgIn, O
                 // The asset type keeps a list of all accounts for that type.
                 // (For shares, not for currencies.)
                 //
-                const bool bErased = pContract->EraseAccountRecord(pAccount->GetAssetTypeID());
-            }
+				const bool bErased = pContract->EraseAccountRecord(pAccount->GetAssetTypeID());
+				if (!bErased)
+				{
+					const OTString strAssetID(pAccount->GetAssetTypeID());
+					OTLog::vError("%s: ERROR Erasing Account Record: %s ... Aborting.\n", __FUNCTION__,strAssetID.Get());
+					return; //error
+				}
+			}
             // -----------------------------------------------
             //
             pAccount->MarkForDeletion();    // The account isn't actually deleted yet, just marked for deletion.
