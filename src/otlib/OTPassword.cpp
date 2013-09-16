@@ -949,8 +949,6 @@ bool OTPassword::randomizePassword_uint8(uint8_t * szDestination, uint32_t nNewS
     OT_ASSERT(NULL != szDestination);
     OT_ASSERT(nNewSize > 0);
 	// ---------------------------------
-//  const char * szFunc = "OTPassword::randomizePassword(static)";
-	// ---------------------------------
     if (OTPassword::randomizeMemory_uint8(szDestination, nNewSize))
     {
         // --------------------------------------------------
@@ -1009,7 +1007,7 @@ int32_t OTPassword::randomizePassword(uint32_t nNewSize/*=DEFAULT_SIZE*/)
             m_bIsPageLocked = true;
         }
         else
-            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", __FUNCTION__);
     }    
 #endif
 	// ---------------------------------
