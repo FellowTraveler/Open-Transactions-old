@@ -5959,6 +5959,7 @@ const OTAsymmetricKey & OTPseudonym::GetPrivateAuthKey() const
 {
     if (m_mapCredentials.size() > 0)
     {
+		OTLog::vOutput(0,"test");
         FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
         {
             const OTCredential * pCredential = (*it).second;
