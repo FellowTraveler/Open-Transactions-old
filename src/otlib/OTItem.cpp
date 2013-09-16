@@ -831,10 +831,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 						return false;
 					}
 				} // for (numbers for a specific server.)
-			} // If the server ID matches
-
             break; // Only one server ID should match, so we can break after finding it.
-            
+			} // If the server ID matches  
 		} // for (deques of numbers for each server)
 	}
 	

@@ -424,7 +424,6 @@ bool OTAPI_Wrap::SetWallet(const std::string & strWalletFilename)
 		}
 		OT_FAIL;
 	}
-	return false;
 }
 
 // --------------------------------------------------------------------
@@ -821,7 +820,7 @@ int32_t OTAPI_Wrap::GetNym_SubcredentialCount(const std::string & NYM_ID,
     
     if (NULL != pCredential) // Found the master credential...
     {
-        const int nSubCredCount = pCredential->GetSubcredentialCount();
+        const size_t nSubCredCount = pCredential->GetSubcredentialCount();
         
         const int32_t nReturnValue = static_cast<const int32_t>(nSubCredCount);
         return nReturnValue;

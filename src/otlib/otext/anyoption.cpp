@@ -78,6 +78,7 @@ extern "C"
 
 #include "anyoption.h"
 
+
 AnyOption::AnyOption()
 {
 	init();

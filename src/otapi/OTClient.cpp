@@ -9435,7 +9435,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                 
                 
                 
-                while (1)
+                for (;;)
                 {
                     OTLog::vOutput(0, "The Market Scale is: %ld\n"
                                   "What is your price limit, in currency, PER SCALE of assets?\n"

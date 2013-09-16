@@ -9425,240 +9425,244 @@ int OT_API::getTransactionNumber(OTIdentifier & SERVER_ID,
 
 
 int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
-								OTIdentifier	& USER_ID,
-								OTIdentifier	& ACCT_ID,
-								const long		& AMOUNT)
+                               OTIdentifier	& USER_ID,
+                               OTIdentifier	& ACCT_ID,
+                               const long		& AMOUNT)
 {
-	const char * szFuncName = "OT_API::notarizeWithdrawal";
-	// -----------------------------------------------------
-	OTWallet * pWallet = this->GetWallet(szFuncName); // This logs and ASSERTs already.
-	if (NULL == pWallet) return (-1);
-	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return (-1);
-	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return (-1);
-	// By this point, pServer is a good pointer.  (No need to cleanup.)
-	// -----------------------------------------------------
-	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
-	if (NULL == pAccount) return (-1);
-	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------			
-	OTIdentifier	CONTRACT_ID;
-	OTString		strContractID, strServerID(SERVER_ID);
-	// -----------------------------------------------------
-	CONTRACT_ID = pAccount->GetAssetTypeID();
-	CONTRACT_ID.GetString(strContractID);	
-	// --------------------------------------------------------------------
-	if (false == OTDB::Exists(OTFolders::Mint().Get(), strServerID.Get(), strContractID.Get()))
-	{
-		OTLog::vError("OT_API::notarizeWithdrawal: File does not exist: %s%s%s%s%s\n", 
-					  OTFolders::Mint().Get(), OTLog::PathSeparator(), strServerID.Get(),
-					  OTLog::PathSeparator(), strContractID.Get());
+    const char * szFuncName = "OT_API::notarizeWithdrawal";
+    // -----------------------------------------------------
+    OTWallet * pWallet = this->GetWallet(szFuncName); // This logs and ASSERTs already.
+    if (NULL == pWallet) return (-1);
+    // -----------------------------------------------------
+    OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName); // These copiously log, and ASSERT.
+    if (NULL == pNym) return (-1);
+    // By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+    // -----------------------------------------------------
+    OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+    if (NULL == pServer) return (-1);
+    // By this point, pServer is a good pointer.  (No need to cleanup.)
+    // -----------------------------------------------------
+    OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
+    if (NULL == pAccount) return (-1);
+    // By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
+    // -----------------------------------------------------			
+    OTIdentifier	CONTRACT_ID;
+    OTString		strContractID, strServerID(SERVER_ID);
+    // -----------------------------------------------------
+    CONTRACT_ID = pAccount->GetAssetTypeID();
+    CONTRACT_ID.GetString(strContractID);	
+    // --------------------------------------------------------------------
+    if (false == OTDB::Exists(OTFolders::Mint().Get(), strServerID.Get(), strContractID.Get()))
+    {
+        OTLog::vError("OT_API::notarizeWithdrawal: File does not exist: %s%s%s%s%s\n", 
+            OTFolders::Mint().Get(), OTLog::PathSeparator(), strServerID.Get(),
+            OTLog::PathSeparator(), strContractID.Get());
         return -1;
-	}
-	// --------------------------------------------------------------------
-	OTMint * pMint = OTMint::MintFactory(strServerID, strContractID); // <=================
-	OTCleanup<OTMint> theMintAngel(pMint);
+    }
+    // --------------------------------------------------------------------
+    OTMint * pMint = OTMint::MintFactory(strServerID, strContractID); // <=================
+    OTCleanup<OTMint> theMintAngel(pMint);
     OT_ASSERT(NULL != pMint);
-	// -----------------------------------------------------------------	
-	OTMessage theMessage;
-	
-	long lRequestNumber = 0;
-	
-	const	long lTotalAmount	= AMOUNT;
-			long lAmount		= lTotalAmount;
-	
-	OTString strNymID(USER_ID), strFromAcct(ACCT_ID);
-	
-	long lStoredTransactionNumber=0;
-	bool bGotTransNum = false;
-	// ---------------------------------------------
-	OTLedger * pInbox	= pAccount->LoadInbox(*pNym);
-	OTLedger * pOutbox	= pAccount->LoadOutbox(*pNym);
-	
-	OTCleanup<OTLedger> theInboxAngel(pInbox);
-	OTCleanup<OTLedger> theOutboxAngel(pOutbox);
-	
-	if (NULL == pInbox)
-	{
-		OTLog::Output(0, "OT_API::notarizeWithdrawal: Failed loading inbox!\n");
-	}
-	else if (NULL == pOutbox)
-	{
-		OTLog::Output(0, "OT_API::notarizeWithdrawal: Failed loading outbox!\n");
-	}
-	else if ((bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber)))
-	{
-		// Create a transaction
-		OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_ID, SERVER_ID, 
-																		   OTTransaction::withdrawal, lStoredTransactionNumber);
-		// set up the transaction item (each transaction may have multiple items...)
-		OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::withdrawal);
-		pItem->SetAmount(lTotalAmount);
-//		pItem->m_lAmount	= atol(strAmount.Get());
-		OTString strNote("Gimme cash!");  // TODO: Note is unnecessary for cash withdrawal. Research uses / risks.
-		pItem->SetNote(strNote);
-		// -------------------------------------
-		const OTPseudonym * pServerNym = pServer->GetContractPublicNym();
-		
-		const OTIdentifier SERVER_USER_ID(*pServerNym);
-		// -----------------------------------------------------------------
-		if ((NULL != pServerNym) && 
-			pMint->LoadMint() &&
-			pMint->VerifyMint((OTPseudonym&)*pServerNym))
-		{
-			OTPurse * pPurse		= new OTPurse(SERVER_ID, CONTRACT_ID, SERVER_USER_ID);
-			OTPurse * pPurseMyCopy	= new OTPurse(SERVER_ID, CONTRACT_ID, USER_ID);
-			
-			// Create all the necessary tokens for the withdrawal amount.
-			// Push copies of each token into a purse to be sent to the server,
-			// as well as a purse to be kept for unblinding when we receive the
-			// server response.  (Coin private unblinding keys are not sent to
-			// the server, obviously.)
-			long lTokenAmount = 0;
-			while ((lTokenAmount = pMint->GetLargestDenomination(lAmount)) > 0 )
-			{
-				lAmount -= lTokenAmount;
-				
-				// Create the relevant token request with same server/asset ID as the purse.
-				// the purse does NOT own the token at this point. The token's constructor
-				// just uses it to copy some IDs, since they must match.
-                //
-                OTToken * pToken = OTToken::InstantiateAndGenerateTokenRequest(*pPurse, *pNym, *pMint, lTokenAmount);
-                OTCleanup<OTToken> theTokenAngel(pToken);
-                OT_ASSERT(NULL != pToken);
+    // -----------------------------------------------------------------	
+    OTMessage theMessage;
 
-				// Sign it and save it. 
-				pToken->SignContract(*pNym);
-				pToken->SaveContract();
-				
-				// Now the proto-token is generated, let's add it to a purse
-				// By pushing *pToken into pPurse with *pServerNym, I encrypt it to pServerNym.
-				// So now only the server Nym can decrypt that token and pop it out of that purse.
-				pPurse->Push(*pServerNym, *pToken);
-				
-				// I'm saving my own copy of all this, encrypted to my nym
-				// instead of the server's, so I can get to my private coin data.
-				// The server's copy of pToken is already Pushed, so I can re-use
-				// the variable now for my own purse.
-				pToken->ReleaseSignatures();
-				pToken->SetSavePrivateKeys(); // This time it will save the private keys when I sign it
-				pToken->SignContract(*pNym);
-				pToken->SaveContract();
-				
-				pPurseMyCopy->Push(*pNym, *pToken);// Now my copy of the purse has a version of the token,
-			}
-			// --------------------------------
-			// Save the purse into a string...
-			OTString strPurse;
-			pPurse->SignContract(*pNym);
-			pPurse->SaveContract();			
-			pPurse->SaveContractRaw(strPurse);
-			
-			// Add the purse string as the attachment on the transaction item.
-			pItem->SetAttachment(strPurse); // The purse is contained in the reference string.
-			// --------------------------------------
-			pPurseMyCopy->SignContract(*pNym);		// encrypted to me instead of the server, and including 
-			pPurseMyCopy->SaveContract();			// the private keys for unblinding the server response.
-			// This thing is neat and tidy. The wallet can just save it as an ascii-armored string as a
-			// purse field inside the wallet file.  It doesn't do that for now (TODO) but it easily could.			
-			// --------------------------------------
-			// Add the purse to the wallet
-			// (We will need it to look up the private coin info for unblinding the token,
-			//  when the response comes from the server.)
-			pWallet->AddPendingWithdrawal(*pPurseMyCopy);
-			
-			delete pPurse;
-			pPurse			= NULL; // We're done with this one.
-			pPurseMyCopy	= NULL; // The wallet owns my copy now and will handle cleaning it up.
-			
-			// --------------------------------------
-			// sign the item
-			pItem->SignContract(*pNym);
-			pItem->SaveContract();
-			
-			pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
-			// ---------------------------------------------
-			// BALANCE AGREEMENT
-			
-			// pBalanceItem is signed and saved within this call. No need to do that again.
-			OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(lTotalAmount*(-1), *pTransaction, *pNym, *pAccount, *pOutbox);
-			
-			if (NULL != pBalanceItem) // will never be NULL. Will assert above before it gets here.
-				pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
-			// ---------------------------------------------
-			
-			// sign the transaction
-			pTransaction->SignContract(*pNym);
-			pTransaction->SaveContract();
-			
-			// set up the ledger
-			OTLedger theLedger(USER_ID, ACCT_ID, SERVER_ID);
-			theLedger.GenerateLedger(ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
-			theLedger.AddTransaction(*pTransaction);
-			
-			// sign the ledger
-			theLedger.SignContract(*pNym);
-			theLedger.SaveContract();
-			
-			// extract the ledger in ascii-armored form
-			OTString		strLedger(theLedger);
-			OTASCIIArmor	ascLedger; // I can't pass strLedger into this constructor because I want to encode it
-			
-			// Encoding...
-			ascLedger.SetString(strLedger);
-			// -----------------------------------------------------
-			// (0) Set up the REQUEST NUMBER and then INCREMENT IT
-			pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
-			theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-			pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
-			
-			// (1) Set up member variables 
-			theMessage.m_strCommand			= "notarizeTransactions";
-			theMessage.m_strNymID			= strNymID;
-			theMessage.m_strServerID		= strServerID;
-            theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+    long lRequestNumber = 0;
 
-			theMessage.m_strAcctID			= strFromAcct;
-			theMessage.m_ascPayload			= ascLedger;
-			
-            OTIdentifier NYMBOX_HASH;
-            const std::string str_server(strServerID.Get());
-            const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
-            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
-            
-            if (!bNymboxHash)
-                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
-                              str_server.c_str());
+    const	long lTotalAmount	= AMOUNT;
+    long lAmount		= lTotalAmount;
 
-			// (2) Sign the Message 
-			theMessage.SignContract(*pNym);		
-			
-			// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-			theMessage.SaveContract();
-			
-			// (Send it)
+    OTString strNymID(USER_ID), strFromAcct(ACCT_ID);
+
+    long lStoredTransactionNumber=0;
+    bool bGotTransNum = false;
+    // ---------------------------------------------
+    OTLedger * pInbox	= pAccount->LoadInbox(*pNym);
+    OTLedger * pOutbox	= pAccount->LoadOutbox(*pNym);
+
+    OTCleanup<OTLedger> theInboxAngel(pInbox);
+    OTCleanup<OTLedger> theOutboxAngel(pOutbox);
+
+    if (NULL == pInbox)
+    {
+        OTLog::vOutput(0, "%s: Error: Failed loading inbox!\n", __FUNCTION__);
+        return (-1);
+    }
+    if (NULL == pOutbox)
+    {
+        OTLog::vOutput(0, "%s: Error: Failed loading outbox!\n", __FUNCTION__);
+        return (-1);
+    }
+
+    bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber);
+    if (!bGotTransNum)
+    {
+        OTLog::vOutput(0, "%s: Next Transaction Number Available: Suggest requesting the server for a new one.\n", __FUNCTION__);
+        return (-1);
+    }
+
+    // Create a transaction
+    OTTransaction * pTransaction =
+        OTTransaction::GenerateTransaction(USER_ID, ACCT_ID, SERVER_ID, OTTransaction::withdrawal, lStoredTransactionNumber);
+
+    // set up the transaction item (each transaction may have multiple items...)
+    OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::withdrawal);
+    pItem->SetAmount(lTotalAmount);
+
+    OTString strNote("Gimme cash!");  // TODO: Note is unnecessary for cash withdrawal. Research uses / risks.
+    pItem->SetNote(strNote);
+    // -------------------------------------
+    const OTPseudonym * pServerNym = pServer->GetContractPublicNym();
+
+    const OTIdentifier SERVER_USER_ID(*pServerNym);
+    // -----------------------------------------------------------------
+    if ((NULL != pServerNym) && 
+        pMint->LoadMint() &&
+        pMint->VerifyMint((OTPseudonym&)*pServerNym))
+    {
+        OTPurse * pPurse		= new OTPurse(SERVER_ID, CONTRACT_ID, SERVER_USER_ID);
+        OTPurse * pPurseMyCopy	= new OTPurse(SERVER_ID, CONTRACT_ID, USER_ID);
+
+        // Create all the necessary tokens for the withdrawal amount.
+        // Push copies of each token into a purse to be sent to the server,
+        // as well as a purse to be kept for unblinding when we receive the
+        // server response.  (Coin private unblinding keys are not sent to
+        // the server, obviously.)
+        long lTokenAmount = 0;
+        while ((lTokenAmount = pMint->GetLargestDenomination(lAmount)) > 0 )
+        {
+            lAmount -= lTokenAmount;
+
+            // Create the relevant token request with same server/asset ID as the purse.
+            // the purse does NOT own the token at this point. The token's constructor
+            // just uses it to copy some IDs, since they must match.
+            //
+            OTToken * pToken = OTToken::InstantiateAndGenerateTokenRequest(*pPurse, *pNym, *pMint, lTokenAmount);
+            OTCleanup<OTToken> theTokenAngel(pToken);
+            OT_ASSERT(NULL != pToken);
+
+            // Sign it and save it. 
+            pToken->SignContract(*pNym);
+            pToken->SaveContract();
+
+            // Now the proto-token is generated, let's add it to a purse
+            // By pushing *pToken into pPurse with *pServerNym, I encrypt it to pServerNym.
+            // So now only the server Nym can decrypt that token and pop it out of that purse.
+            pPurse->Push(*pServerNym, *pToken);
+
+            // I'm saving my own copy of all this, encrypted to my nym
+            // instead of the server's, so I can get to my private coin data.
+            // The server's copy of pToken is already Pushed, so I can re-use
+            // the variable now for my own purse.
+            pToken->ReleaseSignatures();
+            pToken->SetSavePrivateKeys(); // This time it will save the private keys when I sign it
+            pToken->SignContract(*pNym);
+            pToken->SaveContract();
+
+            pPurseMyCopy->Push(*pNym, *pToken);// Now my copy of the purse has a version of the token,
+        }
+        // --------------------------------
+        // Save the purse into a string...
+        OTString strPurse;
+        pPurse->SignContract(*pNym);
+        pPurse->SaveContract();			
+        pPurse->SaveContractRaw(strPurse);
+
+        // Add the purse string as the attachment on the transaction item.
+        pItem->SetAttachment(strPurse); // The purse is contained in the reference string.
+        // --------------------------------------
+        pPurseMyCopy->SignContract(*pNym);		// encrypted to me instead of the server, and including 
+        pPurseMyCopy->SaveContract();			// the private keys for unblinding the server response.
+        // This thing is neat and tidy. The wallet can just save it as an ascii-armored string as a
+        // purse field inside the wallet file.  It doesn't do that for now (TODO) but it easily could.			
+        // --------------------------------------
+        // Add the purse to the wallet
+        // (We will need it to look up the private coin info for unblinding the token,
+        //  when the response comes from the server.)
+        pWallet->AddPendingWithdrawal(*pPurseMyCopy);
+
+        delete pPurse;
+        pPurse			= NULL; // We're done with this one.
+        pPurseMyCopy	= NULL; // The wallet owns my copy now and will handle cleaning it up.
+
+        // --------------------------------------
+        // sign the item
+        pItem->SignContract(*pNym);
+        pItem->SaveContract();
+
+        pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+        // ---------------------------------------------
+        // BALANCE AGREEMENT
+
+        // pBalanceItem is signed and saved within this call. No need to do that again.
+        OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(lTotalAmount*(-1), *pTransaction, *pNym, *pAccount, *pOutbox);
+
+        if (NULL != pBalanceItem) // will never be NULL. Will assert above before it gets here.
+            pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
+        // ---------------------------------------------
+
+        // sign the transaction
+        pTransaction->SignContract(*pNym);
+        pTransaction->SaveContract();
+
+        // set up the ledger
+        OTLedger theLedger(USER_ID, ACCT_ID, SERVER_ID);
+        theLedger.GenerateLedger(ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+        theLedger.AddTransaction(*pTransaction);
+
+        // sign the ledger
+        theLedger.SignContract(*pNym);
+        theLedger.SaveContract();
+
+        // extract the ledger in ascii-armored form
+        OTString		strLedger(theLedger);
+        OTASCIIArmor	ascLedger; // I can't pass strLedger into this constructor because I want to encode it
+
+        // Encoding...
+        ascLedger.SetString(strLedger);
+        // -----------------------------------------------------
+        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+        pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
+        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+        pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
+
+        // (1) Set up member variables 
+        theMessage.m_strCommand			= "notarizeTransactions";
+        theMessage.m_strNymID			= strNymID;
+        theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+        theMessage.m_strAcctID			= strFromAcct;
+        theMessage.m_ascPayload			= ascLedger;
+
+        OTIdentifier NYMBOX_HASH;
+        const std::string str_server(strServerID.Get());
+        const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+        NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+
+        if (!bNymboxHash)
+            OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+            str_server.c_str());
+
+        // (2) Sign the Message 
+        theMessage.SignContract(*pNym);		
+
+        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+        theMessage.SaveContract();
+
+        // (Send it)
 #if defined(OT_ZMQ_MODE)
-			m_pClient->SetFocusToServerAndNym(*pServer, *pNym, m_pTransportCallback);
+        m_pClient->SetFocusToServerAndNym(*pServer, *pNym, m_pTransportCallback);
 #endif	
-			m_pClient->ProcessMessageOut(theMessage);
-            
-            return m_pClient->CalcReturnVal(lRequestNumber);
-		}
-		else 
-		{
-			// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
-		}
-	}
-	else 
-	{
-		OTLog::Output(0, "No Transaction Numbers were available. Suggest requesting the server for a new one.\n");
-	}
-    
+        m_pClient->ProcessMessageOut(theMessage);
+
+        return m_pClient->CalcReturnVal(lRequestNumber);
+    }
+    else 
+    {
+        // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+        pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
+    }
+
     return (-1);
 }
 
@@ -9666,236 +9670,242 @@ int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 
 
 int OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
-							 OTIdentifier	& USER_ID,
-							 OTIdentifier	& ACCT_ID,
-							 OTString		& THE_PURSE)
+                            OTIdentifier	& USER_ID,
+                            OTIdentifier	& ACCT_ID,
+                            OTString		& THE_PURSE)
 {
-	const char * szFuncName = "OT_API::notarizeDeposit";
-	// -----------------------------------------------------
+    const char * szFuncName = "OT_API::notarizeDeposit";
+    // -----------------------------------------------------
     OTString strPurseReason        ("Depositing a cash purse. Enter passphrase for the purse.");
     OTPasswordData thePWDataWallet ("Depositing a cash purse. Enter master passphrase for wallet.");
     // -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName, &thePWDataWallet); // These copiously log, and ASSERT.
-	if (NULL == pNym) return (-1);
-	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return (-1);
-	// By this point, pServer is a good pointer.  (No need to cleanup.)
-	// -----------------------------------------------------
-	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
-	if (NULL == pAccount) return (-1);
-	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------			
-	OTIdentifier	CONTRACT_ID;
-	OTString		strContractID;
-	
-	CONTRACT_ID = pAccount->GetAssetTypeID();
-	CONTRACT_ID.GetString(strContractID);
-	// -----------------------------------------------------------------
-	OTMessage theMessage;
-	long lRequestNumber = 0;
-	
-	OTString strServerID(SERVER_ID), strNymID(USER_ID), strFromAcct(ACCT_ID);
-		
-	const OTPseudonym * pServerNym = pServer->GetContractPublicNym();
-	const OTIdentifier SERVER_USER_ID(*pServerNym);
-	// ------------------------------------------------
-	OTPurse thePurse(SERVER_ID, CONTRACT_ID, SERVER_USER_ID);
-	
-	long lStoredTransactionNumber=0;
-	bool bGotTransNum = false;
-	// ---------------------------------------------
-	OTLedger * pInbox	= pAccount->LoadInbox(*pNym);
-	OTLedger * pOutbox	= pAccount->LoadOutbox(*pNym);
-	
-	OTCleanup<OTLedger> theInboxAngel(pInbox);
-	OTCleanup<OTLedger> theOutboxAngel(pOutbox);
-	
-	if (NULL == pInbox)
-		OTLog::vOutput(0, "OT_API::notarizeDeposit: Failed loading inbox for acct %s\n",
-					   strFromAcct.Get());
-	else if (NULL == pOutbox)
-		OTLog::vOutput(0, "OT_API::notarizeDeposit: Failed loading outbox for acct %s\n",
-					   strFromAcct.Get());	
-	else if (!(bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber)))
-		OTLog::Output(0, "OT_API::notarizeDeposit: No Transaction Numbers were available. Try requesting the server for a new one.\n");
-	// -----------------------------------------
-	else if (NULL != pServerNym)
-	{
-		bool bSuccess = false;
-		
-		// Create a transaction
-		OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_ID, SERVER_ID, 
-																		   OTTransaction::deposit, lStoredTransactionNumber); 
-		// set up the transaction item (each transaction may have multiple items...)
-		OTItem * pItem	= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::deposit);
-        
-        // -----------------------------------------------------
-        // What's going on here?
-        // A purse can be encrypted by a private key (controlled by a Nym) or by a symmetric
-        // key (embedded inside the purse along with a corresponding master key.) The below
-        // function is what actually loads up pPurse from string (THE_PURSE) and this call
-        // also returns pOwner, which is a pointer to a special wrapper class (which you must
-        // delete, when you're done with it) which contains a pointer EITHER to the owner Nym
-        // for that purse, OR to the "owner" symmetric key for that purse.
-        //
-        // This way, any subsequent purse operations can use pOwner, regardless of whether there
-        // is actually a Nym inside, or a symmetric key. (None of the purse operations will care,
-        // since they can use pOwner either way.)
-        //
-        OTPassword  thePassword;
-        OTPurse     theSourcePurse(thePurse);
+    OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName, &thePWDataWallet); // These copiously log, and ASSERT.
+    if (NULL == pNym) return (-1);
+    // By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+    // -----------------------------------------------------
+    OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+    if (NULL == pServer) return (-1);
+    // By this point, pServer is a good pointer.  (No need to cleanup.)
+    // -----------------------------------------------------
+    OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
+    if (NULL == pAccount) return (-1);
+    // By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
+    // -----------------------------------------------------			
+    OTIdentifier	CONTRACT_ID;
+    OTString		strContractID;
 
-        OTNym_or_SymmetricKey * pPurseOwner = this->LoadPurseAndOwnerForMerge(THE_PURSE, theSourcePurse, thePassword,
-                                                                              false, //bCanBePublic=false by default. MUST be private, if a nym.
-                                                                              &USER_ID, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise if it's Nym-protected, the purse will have a NymID on it already, which is what LoadPurseAndOwnerForMerge will try first. If not (it's optional), then USER_ID is the ID it will try next, before failing altogether.
-                                                                            &strPurseReason);
-        OTCleanup<OTNym_or_SymmetricKey> theOwnerAngel(pPurseOwner);
-        // -----------------------------------------------------------------
-		if (NULL != pPurseOwner)
+    CONTRACT_ID = pAccount->GetAssetTypeID();
+    CONTRACT_ID.GetString(strContractID);
+    // -----------------------------------------------------------------
+    OTMessage theMessage;
+    long lRequestNumber = 0;
+
+    OTString strServerID(SERVER_ID), strNymID(USER_ID), strFromAcct(ACCT_ID);
+
+    const OTPseudonym * pServerNym = pServer->GetContractPublicNym();
+    const OTIdentifier SERVER_USER_ID(*pServerNym);
+    // ------------------------------------------------
+    OTPurse thePurse(SERVER_ID, CONTRACT_ID, SERVER_USER_ID);
+
+    long lStoredTransactionNumber=0;
+    bool bGotTransNum = false;
+    // ---------------------------------------------
+    OTLedger * pInbox	= pAccount->LoadInbox(*pNym);
+    OTLedger * pOutbox	= pAccount->LoadOutbox(*pNym);
+
+    OTCleanup<OTLedger> theInboxAngel(pInbox);
+    OTCleanup<OTLedger> theOutboxAngel(pOutbox);
+
+    if (NULL == pInbox){
+        OTLog::vOutput(0, "%s: Error: Failed loading inbox!\n", __FUNCTION__);
+        return (-1);
+    }
+    if (NULL == pOutbox){
+        OTLog::vOutput(0, "%s: Error: Failed loading outbox!\n", __FUNCTION__);
+        return (-1);
+    }
+
+    bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber);
+    if (!bGotTransNum){
+        OTLog::vOutput(0, "%s: Next Transaction Number Available: Suggest requesting the server for a new one.\n", __FUNCTION__);
+        return (-1);
+    }
+
+    if (NULL != pServerNym) OT_FAIL;
+
+    // -----------------------------------------
+    bool bSuccess = false;
+
+    // Create a transaction
+    OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_ID, SERVER_ID, 
+        OTTransaction::deposit, lStoredTransactionNumber); 
+    // set up the transaction item (each transaction may have multiple items...)
+    OTItem * pItem	= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::deposit);
+
+    // -----------------------------------------------------
+    // What's going on here?
+    // A purse can be encrypted by a private key (controlled by a Nym) or by a symmetric
+    // key (embedded inside the purse along with a corresponding master key.) The below
+    // function is what actually loads up pPurse from string (THE_PURSE) and this call
+    // also returns pOwner, which is a pointer to a special wrapper class (which you must
+    // delete, when you're done with it) which contains a pointer EITHER to the owner Nym
+    // for that purse, OR to the "owner" symmetric key for that purse.
+    //
+    // This way, any subsequent purse operations can use pOwner, regardless of whether there
+    // is actually a Nym inside, or a symmetric key. (None of the purse operations will care,
+    // since they can use pOwner either way.)
+    //
+    OTPassword  thePassword;
+    OTPurse     theSourcePurse(thePurse);
+
+    OTNym_or_SymmetricKey * pPurseOwner = this->LoadPurseAndOwnerForMerge(THE_PURSE, theSourcePurse, thePassword,
+        false, //bCanBePublic=false by default. MUST be private, if a nym.
+        &USER_ID, // This can be NULL, **IF** purse is password-protected. (It's just ignored in that case.) Otherwise if it's Nym-protected, the purse will have a NymID on it already, which is what LoadPurseAndOwnerForMerge will try first. If not (it's optional), then USER_ID is the ID it will try next, before failing altogether.
+        &strPurseReason);
+    OTCleanup<OTNym_or_SymmetricKey> theOwnerAngel(pPurseOwner);
+    // -----------------------------------------------------------------
+    if (NULL != pPurseOwner)
+    {
+        OTNym_or_SymmetricKey theServerNymAsOwner(*pServerNym);
+
+        while (!theSourcePurse.IsEmpty())
         {
-            OTNym_or_SymmetricKey theServerNymAsOwner(*pServerNym);
+            OTToken * pToken = theSourcePurse.Pop(*pPurseOwner);
 
-			while (!theSourcePurse.IsEmpty())
-			{
-				OTToken * pToken = theSourcePurse.Pop(*pPurseOwner);
-				
-				if (NULL != pToken)
-				{
-					// TODO need 2-recipient envelopes. My request to the server is encrypted to the server's nym,
-					// but it should be encrypted to my Nym also, so both have access to decrypt it.
-					
-					// Now the token is ready, let's add it to a purse
-					// By pushing theToken into thePurse with *pServerNym, I encrypt it to pServerNym.
-					// So now only the server Nym can decrypt that token and pop it out of that purse.
-					if (false == pToken->ReassignOwnership(*pPurseOwner,         // must be private, if a nym.
-                                                           theServerNymAsOwner)) // can be public, if a nym.
-					{
-						OTLog::Error("OT_API::notarizeDeposit: Error re-assigning ownership of token (to server.)\n");
-						delete pToken; pToken = NULL;
-						bSuccess = false;
-						break;
-					}
-					else 
-					{
-						OTLog::vOutput(3, "OT_API::notarizeDeposit: Success re-assigning ownership of token (to server.)\n");
-						
-						bSuccess = true;
-						
-						pToken->ReleaseSignatures();
-						pToken->SignContract(*pNym);
-						pToken->SaveContract();
-						
-						thePurse.Push(theServerNymAsOwner, *pToken);
-						
-						long lTemp = pItem->GetAmount();
-						pItem->SetAmount(lTemp += pToken->GetDenomination());
-					}
-					delete pToken;
-					pToken = NULL;
-				}
-				else 
-				{
-					OTLog::Error("Error loading token from purse.\n");
-					break;
-				}
-			} // while
-        }
-		// ---------------------------------------------
-		if (bSuccess)
-		{
-			// Save the purse into a string...
-			OTString strPurse;
-			thePurse.SignContract(*pNym);
-			thePurse.SaveContract();
-			thePurse.SaveContractRaw(strPurse);
-			
-			// Add the purse string as the attachment on the transaction item.
-			pItem->SetAttachment(strPurse); // The purse is contained in the reference string.
-			
-			// sign the item
-			pItem->SignContract(*pNym);
-			pItem->SaveContract();
-			
-			// the Transaction "owns" the item now and will handle cleaning it up.
-			pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
-			
-			// ---------------------------------------------
-			// BALANCE AGREEMENT
-			//
-			// pBalanceItem is signed and saved within this call. No need to do that again.
-			OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(pItem->GetAmount(), *pTransaction, *pNym, *pAccount, *pOutbox);
-			
-			if (NULL != pBalanceItem) // will never be NULL. Will assert above before it gets here.
-				pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
-			// ---------------------------------------------
-			
-			// sign the transaction
-			pTransaction->SignContract(*pNym);
-			pTransaction->SaveContract();
-			
-			// set up the ledger
-			OTLedger theLedger(USER_ID, ACCT_ID, SERVER_ID);
-			theLedger.GenerateLedger(ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
-			theLedger.AddTransaction(*pTransaction); // now the ledger "owns" and will handle cleaning up the transaction.
-			
-			// sign the ledger
-			theLedger.SignContract(*pNym);
-			theLedger.SaveContract();
-			
-			// extract the ledger in ascii-armored form... encoding...
-			OTString		strLedger(theLedger);
-			OTASCIIArmor	ascLedger(strLedger);
-			
-			// (0) Set up the REQUEST NUMBER and then INCREMENT IT
-			pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
-			theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-			pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
-			
-			// (1) Set up member variables 
-			theMessage.m_strCommand			= "notarizeTransactions";
-			theMessage.m_strNymID			= strNymID;
-			theMessage.m_strServerID		= strServerID;
-            theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+            if (NULL != pToken)
+            {
+                // TODO need 2-recipient envelopes. My request to the server is encrypted to the server's nym,
+                // but it should be encrypted to my Nym also, so both have access to decrypt it.
 
-			theMessage.m_strAcctID			= strFromAcct;
-			theMessage.m_ascPayload			= ascLedger;
-			
-            OTIdentifier NYMBOX_HASH;
-            const std::string str_server(strServerID.Get());
-            const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
-            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
-            
-            if (!bNymboxHash)
-                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
-                              str_server.c_str());
+                // Now the token is ready, let's add it to a purse
+                // By pushing theToken into thePurse with *pServerNym, I encrypt it to pServerNym.
+                // So now only the server Nym can decrypt that token and pop it out of that purse.
+                if (false == pToken->ReassignOwnership(*pPurseOwner,         // must be private, if a nym.
+                    theServerNymAsOwner)) // can be public, if a nym.
+                {
+                    OTLog::Error("OT_API::notarizeDeposit: Error re-assigning ownership of token (to server.)\n");
+                    delete pToken; pToken = NULL;
+                    bSuccess = false;
+                    break;
+                }
+                else 
+                {
+                    OTLog::vOutput(3, "OT_API::notarizeDeposit: Success re-assigning ownership of token (to server.)\n");
 
-			// (2) Sign the Message 
-			theMessage.SignContract(*pNym);		
-			
-			// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-			theMessage.SaveContract();
-			
-			// (Send it)
+                    bSuccess = true;
+
+                    pToken->ReleaseSignatures();
+                    pToken->SignContract(*pNym);
+                    pToken->SaveContract();
+
+                    thePurse.Push(theServerNymAsOwner, *pToken);
+
+                    long lTemp = pItem->GetAmount();
+                    pItem->SetAmount(lTemp += pToken->GetDenomination());
+                }
+                delete pToken;
+                pToken = NULL;
+            }
+            else 
+            {
+                OTLog::Error("Error loading token from purse.\n");
+                break;
+            }
+        } // while
+    }
+    // ---------------------------------------------
+    if (bSuccess)
+    {
+        // Save the purse into a string...
+        OTString strPurse;
+        thePurse.SignContract(*pNym);
+        thePurse.SaveContract();
+        thePurse.SaveContractRaw(strPurse);
+
+        // Add the purse string as the attachment on the transaction item.
+        pItem->SetAttachment(strPurse); // The purse is contained in the reference string.
+
+        // sign the item
+        pItem->SignContract(*pNym);
+        pItem->SaveContract();
+
+        // the Transaction "owns" the item now and will handle cleaning it up.
+        pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+
+        // ---------------------------------------------
+        // BALANCE AGREEMENT
+        //
+        // pBalanceItem is signed and saved within this call. No need to do that again.
+        OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(pItem->GetAmount(), *pTransaction, *pNym, *pAccount, *pOutbox);
+
+        if (NULL != pBalanceItem) // will never be NULL. Will assert above before it gets here.
+            pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
+        // ---------------------------------------------
+
+        // sign the transaction
+        pTransaction->SignContract(*pNym);
+        pTransaction->SaveContract();
+
+        // set up the ledger
+        OTLedger theLedger(USER_ID, ACCT_ID, SERVER_ID);
+        theLedger.GenerateLedger(ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+        theLedger.AddTransaction(*pTransaction); // now the ledger "owns" and will handle cleaning up the transaction.
+
+        // sign the ledger
+        theLedger.SignContract(*pNym);
+        theLedger.SaveContract();
+
+        // extract the ledger in ascii-armored form... encoding...
+        OTString		strLedger(theLedger);
+        OTASCIIArmor	ascLedger(strLedger);
+
+        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+        pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
+        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+        pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
+
+        // (1) Set up member variables 
+        theMessage.m_strCommand			= "notarizeTransactions";
+        theMessage.m_strNymID			= strNymID;
+        theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+        theMessage.m_strAcctID			= strFromAcct;
+        theMessage.m_ascPayload			= ascLedger;
+
+        OTIdentifier NYMBOX_HASH;
+        const std::string str_server(strServerID.Get());
+        const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+        NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+
+        if (!bNymboxHash)
+            OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+            str_server.c_str());
+
+        // (2) Sign the Message 
+        theMessage.SignContract(*pNym);		
+
+        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+        theMessage.SaveContract();
+
+        // (Send it)
 #if defined(OT_ZMQ_MODE)
-			m_pClient->SetFocusToServerAndNym(*pServer, *pNym, this->m_pTransportCallback);
+        m_pClient->SetFocusToServerAndNym(*pServer, *pNym, this->m_pTransportCallback);
 #endif	
-			m_pClient->ProcessMessageOut(theMessage);	
-			
-            return m_pClient->CalcReturnVal(lRequestNumber);
-            
-		} // bSuccess
-		else 
-		{
-			delete pItem;		pItem = NULL;
-			delete pTransaction;pTransaction = NULL;
-			
-			// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
-		}
-	} // if (pServerNym)
-    
+        m_pClient->ProcessMessageOut(theMessage);	
+
+        return m_pClient->CalcReturnVal(lRequestNumber);
+
+    } // bSuccess
+    else 
+    {
+        delete pItem;		pItem = NULL;
+        delete pTransaction;pTransaction = NULL;
+
+        // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+        pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
+    }
+
     return (-1);
 }
 

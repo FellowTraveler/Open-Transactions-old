@@ -671,11 +671,6 @@ bool OTAsymmetricKey_OpenSSL::LoadPrivateKeyFromCertString(const OTString & strC
 			return true;
 		}
 	}
-	// -------------------
-	
-	OTLog::vError("%s: STRANGE error while loading private key: %s\n",
-                  __FUNCTION__, strWithBookends.Get());
-	return false;
 }
 
 

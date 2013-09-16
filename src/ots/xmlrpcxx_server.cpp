@@ -1067,7 +1067,7 @@ int main(int argc, char* argv[])
     //
     //      *** MAIN LOOP ***
     //
-	do // ---------------------------
+	for (;;)
 	{
         // =-=-=- HEARTBEAT -=-=-=
 		//
@@ -1192,10 +1192,9 @@ int main(int argc, char* argv[])
 			break;
 		}
         
-    } while (1);  // (MAIN LOOP)
+    }
     
 	// ------------------------------------
-    
 	return 0;
 }
 

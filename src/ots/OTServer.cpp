@@ -2797,6 +2797,7 @@ bool OTServer::SendInstrumentToNym(const OTIdentifier & SERVER_ID,
     if (NULL != pPayment)
     {
         const bool bGotPaymentContents = pPayment->GetPaymentContents(strPayment);
+		if (!bGotPaymentContents) OTLog::vError("%s: Error GetPaymentContents Failed", __FUNCTION__);
     }
     // ------------------------
     const bool bDropped = this->DropMessageToNymbox(SERVER_ID, 
@@ -9887,165 +9888,174 @@ void OTServer::NotarizeTransaction(OTPseudonym & theNym, OTTransaction & tranIn,
 /// An existing user is sending a list of transactions to be notarized.
 void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
 {
-	// (1) set up member variables 
-	msgOut.m_strCommand		= "@notarizeTransactions";	// reply to notarizeTransactions
-	msgOut.m_strNymID		= MsgIn.m_strNymID;         // UserID
-//	msgOut.m_strServerID	= m_strServerID;            // This is already set in ProcessUserCommand.
-	msgOut.m_strAcctID		= MsgIn.m_strAcctID;        // The Account ID in question
-	
-	const OTIdentifier	USER_ID(MsgIn.m_strNymID), 
-                        ACCOUNT_ID(MsgIn.m_strAcctID), 
-                        SERVER_ID(m_strServerID),
-						SERVER_USER_ID(m_nymServer);
-	
-	OTLedger theLedger(USER_ID, ACCOUNT_ID, SERVER_ID);			// These are ledgers used as messages. The one we received and the one 
-																// that we're sending back in response.
-	OTLedger * pResponseLedger = OTLedger::GenerateLedger(SERVER_USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::message, false);
-	OTCleanup<OTLedger> theRespLedgerGuardian(pResponseLedger); // So I don't have to worry about cleaning it up.
-	// ----------------
-    
+    // (1) set up member variables 
+    msgOut.m_strCommand		= "@notarizeTransactions";	// reply to notarizeTransactions
+    msgOut.m_strNymID		= MsgIn.m_strNymID;         // UserID
+    //	msgOut.m_strServerID	= m_strServerID;            // This is already set in ProcessUserCommand.
+    msgOut.m_strAcctID		= MsgIn.m_strAcctID;        // The Account ID in question
+
+    const OTIdentifier	USER_ID(MsgIn.m_strNymID), 
+        ACCOUNT_ID(MsgIn.m_strAcctID), 
+        SERVER_ID(m_strServerID),
+        SERVER_USER_ID(m_nymServer);
+
+    OTLedger theLedger(USER_ID, ACCOUNT_ID, SERVER_ID);			// These are ledgers used as messages. The one we received and the one 
+    // that we're sending back in response.
+    OTLedger * pResponseLedger = OTLedger::GenerateLedger(SERVER_USER_ID, ACCOUNT_ID, SERVER_ID, OTLedger::message, false);
+    OTCleanup<OTLedger> theRespLedgerGuardian(pResponseLedger); // So I don't have to worry about cleaning it up.
+    // ----------------
+
     bool bTransSuccess = false; // for the Nymbox notice.
     bool bCancelled    = false; // for "failed" transactions that were actually successful cancellations.
-    
+
     long lTransactionNumber = 0, lResponseNumber = 0;
     // --------------------------
-	// Since the one going back (above) is a new ledger, we have to call GenerateLedger.
-	// Whereas the ledger we received from the server was generated there, so we don't
-	// have to generate it again. We just load it.
-	
-	OTString strLedger(MsgIn.m_ascPayload);
-    
-    const
-    OTIdentifier  theMsgNymboxHash(MsgIn.m_strNymboxHash);    // theMsgNymboxHash is the hash sent by the client side
+    // Since the one going back (above) is a new ledger, we have to call GenerateLedger.
+    // Whereas the ledger we received from the server was generated there, so we don't
+    // have to generate it again. We just load it.
+
+    OTString strLedger(MsgIn.m_ascPayload);
+
+    const OTIdentifier  theMsgNymboxHash(MsgIn.m_strNymboxHash);    // theMsgNymboxHash is the hash sent by the client side
     OTIdentifier  theSrvrNymboxHash;
-    
+
     bool bGotNymboxHashServerSide = theNym.GetNymboxHashServerSide(SERVER_ID, theSrvrNymboxHash);
-    const
-    bool bGotNymboxHashClientSide = MsgIn.m_strNymboxHash.Exists();
-    
+
     if (bGotNymboxHashServerSide)  // theSrvrNymboxHash is the hash stored on the server side
         theSrvrNymboxHash.GetString(msgOut.m_strNymboxHash);
-    // -------------------------------------------------------------
-    if (
-        (bGotNymboxHashServerSide && bGotNymboxHashClientSide && (theMsgNymboxHash != theSrvrNymboxHash))
-        ||
-        (bGotNymboxHashServerSide && !bGotNymboxHashClientSide)
-        )
-    {
-        OTLog::Output(0, "OTServer::UserCmdNotarizeTransactions: Rejecting message since nymbox hash "
-                      "doesn't match. (Send a getNymbox message to grab the newest one.)\n");
-        
+    else {
+        OTLog::vError("%s: Error: We cannot obtain server side nymbox hash, abort.\n",__FUNCTION__);
+        msgOut.m_bSuccess = false;
+        return;
     }
-	// as long as the request ledger loads from the message into memory, success is true
-	// from there, the success or failure of the transactions within will be carried in
-	// their own status variables and those of the items inside those transactions.
-	else if ((msgOut.m_bSuccess = theLedger.LoadLedgerFromString(strLedger))) // This is an assignment, NOT a comparison.
-	{
-		// In this case we need to process the ledger items
-		// and create a corresponding ledger where each of the new items
-		// contains the answer to the ledger item sent.
-		// Then we send that new "response ledger" back to the user in MsgOut.Payload.
-		// That is all done here. Until I write that, in the meantime,
-		// let's just fprintf it out and see what it looks like.
-//		OTLog::Error("Loaded ledger out of message payload:\n%s\n", strLedger.Get());
-//		OTLog::Error("Loaded ledger out of message payload.\n");
- 		
-		// Loop through ledger transactions, and do a "NotarizeTransaction" call for each one.
-		// Inside that function it will do the various necessary authentication and processing, not this one.
-		// NOTE: In practice there is only ONE transaction, but in potential there are many.
-		// But so far, the code only actually has one, ever being sent. Otherwise the messages
-		// get too big IMO.
-		//
+
+    const bool bGotNymboxHashClientSide = MsgIn.m_strNymboxHash.Exists();
+
+    if (!bGotNymboxHashClientSide) {
+        OTLog::vOutput(0, "%s: We don't have a client side nymbox hash, Will resync.\n", __FUNCTION__);
+        goto send_message;
+    }
+
+    if (theMsgNymboxHash != theSrvrNymboxHash) {
+        OTLog::vOutput(0, "%s: The server and client nymbox hashes missmatch! Will resync.\n", __FUNCTION__);
+        goto send_message;
+    }
+
+
+    // as long as the request ledger loads from the message into memory, success is true
+    // from there, the success or failure of the transactions within will be carried in
+    // their own status variables and those of the items inside those transactions.
+    msgOut.m_bSuccess = theLedger.LoadLedgerFromString(strLedger);
+
+    if (msgOut.m_bSuccess)
+    {
+        // In this case we need to process the ledger items
+        // and create a corresponding ledger where each of the new items
+        // contains the answer to the ledger item sent.
+        // Then we send that new "response ledger" back to the user in MsgOut.Payload.
+        // That is all done here. Until I write that, in the meantime,
+        // let's just fprintf it out and see what it looks like.
+        //		OTLog::Error("Loaded ledger out of message payload:\n%s\n", strLedger.Get());
+        //		OTLog::Error("Loaded ledger out of message payload.\n");
+
+        // Loop through ledger transactions, and do a "NotarizeTransaction" call for each one.
+        // Inside that function it will do the various necessary authentication and processing, not this one.
+        // NOTE: In practice there is only ONE transaction, but in potential there are many.
+        // But so far, the code only actually has one, ever being sent. Otherwise the messages
+        // get too big IMO.
+        //
         int nCounter = 0;
-		FOR_EACH(mapOfTransactions, theLedger.GetTransactionMap())
-		{	
-			OTTransaction * pTransaction = (*it).second;
-			OT_ASSERT(NULL != pTransaction);
-			++nCounter;
-            
+        FOR_EACH(mapOfTransactions, theLedger.GetTransactionMap())
+        {	
+            OTTransaction * pTransaction = (*it).second;
+            OT_ASSERT(NULL != pTransaction);
+            ++nCounter;
+
             if (1 != nCounter)
                 OTLog::vError("WARNING: multiple transactions in a single message ledger.\n");
-            
-			// for each transaction in the ledger, we create a transaction response and add
-			// that to the response ledger.
-				
-			// I don't call IssueNextTransactionNumber here because I'm not creating a new transaction
-			// in someone's inbox or outbox. Instead, I'm making a transaction response to a transaction
-			// request, with a MATCHING transaction number (so don't need to issue a new one) to be sent
-			// back to the client in a message.
-			//
-			// On this new "response transaction", I set the ACCT ID, the serverID, and Transaction Number.
-			OTTransaction * pTranResponse =
-				OTTransaction::GenerateTransaction(*pResponseLedger, 
-												   OTTransaction::error_state, pTransaction->GetTransactionNum());
-			// Add the response transaction to the response ledger.
-			// That will go into the response message and be sent back to the client.
-			pResponseLedger->AddTransaction(*pTranResponse);
-			
-			// Now let's make sure the response transaction has a copy of the transaction
-			// it is responding to.
-			//				OTString strResponseTo;
-			//				pTransaction->SaveContract(strResponseTo);
-			//				pTranResponse->m_ascInReferenceTo.SetString(strResponseTo);
-			// I commented out the above because we are keeping too many copies.
-			// Message contains a copy of the message it's responding to.
-			// Then each transaction contains a copy of the transaction responding to...
-			// Then each ITEM in each transaction contains a copy of each item it's responding to.
-			//
-			// Therefore, for the "notarizeTransactions" message, I have decided (for now) to have
-			// the extra copy in the items themselves, and in the overall message, but not in the
-			// transactions. Thus, the above is commented out.
-			
-			
-			// It should always return something. Success, or failure, that goes into pTranResponse.
-			// I don't think there's need for more return value than that. The user has gotten deep 
-			// enough that they deserve SOME sort of response.
-			//
-			// This function also SIGNS the transaction, so there is no need to sign it after this.
-			// There's also no point to change it after this, unless you plan to sign it twice.
-			//
-			NotarizeTransaction(theNym, *pTransaction, *pTranResponse, bTransSuccess);
-            
+
+            // for each transaction in the ledger, we create a transaction response and add
+            // that to the response ledger.
+
+            // I don't call IssueNextTransactionNumber here because I'm not creating a new transaction
+            // in someone's inbox or outbox. Instead, I'm making a transaction response to a transaction
+            // request, with a MATCHING transaction number (so don't need to issue a new one) to be sent
+            // back to the client in a message.
+            //
+            // On this new "response transaction", I set the ACCT ID, the serverID, and Transaction Number.
+            OTTransaction * pTranResponse =
+                OTTransaction::GenerateTransaction(*pResponseLedger, 
+                OTTransaction::error_state, pTransaction->GetTransactionNum());
+            // Add the response transaction to the response ledger.
+            // That will go into the response message and be sent back to the client.
+            pResponseLedger->AddTransaction(*pTranResponse);
+
+            // Now let's make sure the response transaction has a copy of the transaction
+            // it is responding to.
+            //				OTString strResponseTo;
+            //				pTransaction->SaveContract(strResponseTo);
+            //				pTranResponse->m_ascInReferenceTo.SetString(strResponseTo);
+            // I commented out the above because we are keeping too many copies.
+            // Message contains a copy of the message it's responding to.
+            // Then each transaction contains a copy of the transaction responding to...
+            // Then each ITEM in each transaction contains a copy of each item it's responding to.
+            //
+            // Therefore, for the "notarizeTransactions" message, I have decided (for now) to have
+            // the extra copy in the items themselves, and in the overall message, but not in the
+            // transactions. Thus, the above is commented out.
+
+
+            // It should always return something. Success, or failure, that goes into pTranResponse.
+            // I don't think there's need for more return value than that. The user has gotten deep 
+            // enough that they deserve SOME sort of response.
+            //
+            // This function also SIGNS the transaction, so there is no need to sign it after this.
+            // There's also no point to change it after this, unless you plan to sign it twice.
+            //
+            NotarizeTransaction(theNym, *pTransaction, *pTranResponse, bTransSuccess);
+
             if (pTranResponse->IsCancelled())
                 bCancelled = true;
-            
+
             lTransactionNumber = pTransaction->GetTransactionNum();
             lResponseNumber    = pTranResponse->GetTransactionNum();
-            
+
             OT_ASSERT_MSG(lTransactionNumber == lResponseNumber, "Transaction number and response number should always be the same. (But this time, they weren't.)");
-            
-			pTranResponse = NULL; // at this point, the ledger now "owns" the response, and will handle deleting it.
-		}
-		
-		// TODO: should consider saving a copy of the response ledger here on the server. 
-		// Until the user signs off of the responses, maybe the user didn't receive them.
-		// The server should be able to re-send them until confirmation, then delete them.
-		// So might want to consider a SAVE TO FILE here of that ledger we're sending out...
-		
-		// sign the ledger
-		pResponseLedger->SignContract(m_nymServer);
-		pResponseLedger->SaveContract();
-		
-		// extract the ledger in ascii-armored form
-		OTString strPayload(*pResponseLedger);
-		
-		msgOut.m_ascPayload.SetString(strPayload);  // now the outgoing message has the response ledger in its payload.
-	}
-	else 
-	{
-		OTLog::Error("ERROR loading ledger from message in OTServer::UserCmdNotarizeTransactions\n");
-	}
-	// ---------------------------------------------------------------	
-	// todo: consider commenting this out since the transaction reply items already include a copy
-	// of the original client communication that the server is responding to. No point beating a
-	// dead horse.
-	//
-	// Send the user's command back to him as well.
-	{
-		OTString tempInMessage(MsgIn);
-		msgOut.m_ascInReferenceTo.SetString(tempInMessage);
-	}
-	
+
+            pTranResponse = NULL; // at this point, the ledger now "owns" the response, and will handle deleting it.
+        }
+
+        // TODO: should consider saving a copy of the response ledger here on the server. 
+        // Until the user signs off of the responses, maybe the user didn't receive them.
+        // The server should be able to re-send them until confirmation, then delete them.
+        // So might want to consider a SAVE TO FILE here of that ledger we're sending out...
+
+        // sign the ledger
+        pResponseLedger->SignContract(m_nymServer);
+        pResponseLedger->SaveContract();
+
+        // extract the ledger in ascii-armored form
+        OTString strPayload(*pResponseLedger);
+
+        msgOut.m_ascPayload.SetString(strPayload);  // now the outgoing message has the response ledger in its payload.
+    }
+    else 
+    {
+        OTLog::Error("ERROR loading ledger from message in OTServer::UserCmdNotarizeTransactions\n");
+    }
+
+send_message:
+    // ---------------------------------------------------------------	
+    // todo: consider commenting this out since the transaction reply items already include a copy
+    // of the original client communication that the server is responding to. No point beating a
+    // dead horse.
+    //
+    // Send the user's command back to him as well.
+    {
+        OTString tempInMessage(MsgIn);
+        msgOut.m_ascInReferenceTo.SetString(tempInMessage);
+    }
+
     // -------------------------------------------------------
     // UPDATE NYMBOX HASH IN OUTGOING MESSAGE
     //
@@ -10061,51 +10071,51 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
         theSrvrNymboxHash.GetString(msgOut.m_strNymboxHash);
     // -------------------------------------------------------
 
-	// (2) Sign the Message 
-	msgOut.SignContract(m_nymServer);		
-	
-	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-	//
-	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
-	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
-	msgOut.SaveContract();
-	
+    // (2) Sign the Message 
+    msgOut.SignContract(m_nymServer);		
+
+    // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+    //
+    // FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
+    // If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
+    msgOut.SaveContract();
+
     // (You are in UserCmdNotarizeTransactions.)
 
-	// *************************************************************
-	// REPLY NOTICE TO NYMBOX
-	//
-	// Now that we signed / saved the reply message...
-	//
-	// After EVERY / ANY transaction, we drop a notice with a copy of the server's reply
-	// into the Nymbox.  This way we are GUARANTEED that the Nym will receive and process
-	// it. (And thus never get out of sync.)
-	//
+    // *************************************************************
+    // REPLY NOTICE TO NYMBOX
+    //
+    // Now that we signed / saved the reply message...
+    //
+    // After EVERY / ANY transaction, we drop a notice with a copy of the server's reply
+    // into the Nymbox.  This way we are GUARANTEED that the Nym will receive and process
+    // it. (And thus never get out of sync.)
+    //
     if (msgOut.m_bSuccess)
     {
         const OTString strReplyMessage(msgOut);
         const long lReqNum = atol(MsgIn.m_strRequestNum.Get());
 
         // If it fails, it logs already.
-//      this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage, lReqNum, bTransSuccess, &theNym); // We don't want to update the Nym in this case (I don't think.)
+        //      this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage, lReqNum, bTransSuccess, &theNym); // We don't want to update the Nym in this case (I don't think.)
         this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage, lReqNum,
-                                      bTransSuccess);    // trans success
+            bTransSuccess);    // trans success
     }
     // -----------
     if (bCancelled)
     {
         OTLog::vOutput(0, "Success: canceling transaction %ld for nym: %s \n",
-                       lTransactionNumber, msgOut.m_strNymID.Get());
+            lTransactionNumber, msgOut.m_strNymID.Get());
     }
     else if (bTransSuccess)
     {
         OTLog::vOutput(0, "Success: processing transaction %ld for nym: %s \n",
-                       lTransactionNumber, msgOut.m_strNymID.Get());
+            lTransactionNumber, msgOut.m_strNymID.Get());
     }
     else
     {
         OTLog::vOutput(0, "Failure: processing transaction %ld for nym: %s \n",
-                       lTransactionNumber, msgOut.m_strNymID.Get());
+            lTransactionNumber, msgOut.m_strNymID.Get());
     }
 }
 
@@ -11313,27 +11323,34 @@ void OTServer::UserCmdProcessNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTM
     OTIdentifier  theSrvrNymboxHash;
     
     bool bGotNymboxHashServerSide = theNym.GetNymboxHashServerSide(SERVER_ID, theSrvrNymboxHash);
-    const
-    bool bGotNymboxHashClientSide = MsgIn.m_strNymboxHash.Exists();
-    
+
     if (bGotNymboxHashServerSide)  // theSrvrNymboxHash is the hash stored on the server side
         theSrvrNymboxHash.GetString(msgOut.m_strNymboxHash);
-    // -------------------------------------------------------------
-    if (
-        (bGotNymboxHashServerSide && bGotNymboxHashClientSide && (theMsgNymboxHash != theSrvrNymboxHash))
-        ||
-        (bGotNymboxHashServerSide && !bGotNymboxHashClientSide)
-        )
-    {
-        OTLog::Output(0, "OTServer::UserCmdProcessNymbox: Rejecting message since nymbox hash "
-                      "doesn't match. (Send a getNymbox message to grab the newest one.)\n");
-    
+    else {
+        OTLog::vError("%s: Error: We cannot obtain server side nymbox hash, abort.\n",__FUNCTION__);
+        msgOut.m_bSuccess = false;
+        return;
     }
+
+    const bool bGotNymboxHashClientSide = MsgIn.m_strNymboxHash.Exists();
+
+    if (!bGotNymboxHashClientSide) {
+        OTLog::vOutput(0, "%s: We don't have a client side nymbox hash, Will resync.\n", __FUNCTION__);
+        goto send_message;
+    }
+
+    if (theMsgNymboxHash != theSrvrNymboxHash) {
+        OTLog::vOutput(0, "%s: The server and client nymbox hashes missmatch! Will resync.\n", __FUNCTION__);
+        goto send_message;
+    }
+
+
 	// theLedger contains a single transaction from the client, with an item inside
 	// for each inbox transaction the client wants to accept or reject.
 	// Let's see if we can load it from the string that came in the message...
     //
-    else if ((msgOut.m_bSuccess = theLedger.LoadContractFromString(strLedger))) // Yes, that is an assignment operator.
+    msgOut.m_bSuccess = theLedger.LoadContractFromString(strLedger);
+    if (msgOut.m_bSuccess) // Yes, that is an assignment operator.
 	{		
 		// In this case we need to process the transaction items from the ledger
 		// and create a corresponding transaction where each of the new items
@@ -11409,6 +11426,8 @@ void OTServer::UserCmdProcessNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 		OTLog::Error("ERROR loading ledger from message in OTServer::UserCmdProcessNymbox\n");
 	}
 	
+send_message:
+
 	// sign the ledger
 	pResponseLedger->SignContract(m_nymServer);
 	pResponseLedger->SaveContract();
@@ -12062,25 +12081,32 @@ void OTServer::UserCmdProcessInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
     OTIdentifier  theSrvrNymboxHash;
     
     bool bGotNymboxHashServerSide = theNym.GetNymboxHashServerSide(SERVER_ID, theSrvrNymboxHash);
-    const
-    bool bGotNymboxHashClientSide = MsgIn.m_strNymboxHash.Exists();
-    
+
     if (bGotNymboxHashServerSide)  // theSrvrNymboxHash is the hash stored on the server side
         theSrvrNymboxHash.GetString(msgOut.m_strNymboxHash);
-    // -------------------------------------------------------------
-    if (
-        (bGotNymboxHashServerSide && bGotNymboxHashClientSide && (theMsgNymboxHash != theSrvrNymboxHash))
-        ||
-        (bGotNymboxHashServerSide && !bGotNymboxHashClientSide)
-        )
-    {
-        OTLog::Output(0, "OTServer::UserCmdProcessInbox: Rejecting message since nymbox hash "
-                      "doesn't match. (Send a getNymbox message to grab the newest one.)\n");        
+    else {
+        OTLog::vError("%s: Error: We cannot obtain server side nymbox hash, abort.\n",__FUNCTION__);
+        msgOut.m_bSuccess = false;
+        return;
     }
+
+    const bool bGotNymboxHashClientSide = MsgIn.m_strNymboxHash.Exists();
+
+    if (!bGotNymboxHashClientSide) {
+        OTLog::vOutput(0, "%s: We don't have a client side nymbox hash, Will resync.\n", __FUNCTION__);
+        goto send_message;
+    }
+
+    if (theMsgNymboxHash != theSrvrNymboxHash) {
+        OTLog::vOutput(0, "%s: The server and client nymbox hashes missmatch! Will resync.\n", __FUNCTION__);
+        goto send_message;
+    }
+
 	// theLedger contains a single transaction from the client, with an item inside
 	// for each inbox transaction the client wants to accept or reject.
 	// Let's see if we can load it from the string that came in the message...
-	else if ((msgOut.m_bSuccess = theLedger.LoadContractFromString(strLedger)))
+    msgOut.m_bSuccess = theLedger.LoadContractFromString(strLedger);
+	if (msgOut.m_bSuccess)
 	{
 		OTAccount theAccount(USER_ID, ACCOUNT_ID, SERVER_ID);
 
@@ -12210,6 +12236,9 @@ void OTServer::UserCmdProcessInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 	}
     // ----------------------------------------
     
+send_message:
+
+
 	if (NULL == pTranResponse)
 	{
 		pTranResponse = 
@@ -13920,9 +13949,11 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
                                 
                                 // Good -- this means the account doesn't already exist.
                                 // Let's create it.
-                                
+
+                                msgOut.m_bSuccess = theMessage.SaveContract(OTFolders::UserAcct().Get(), theMessage.m_strNymID.Get());
+
                                 // First we save the createUserAccount message in the accounts folder...
-                                if ((msgOut.m_bSuccess = theMessage.SaveContract(OTFolders::UserAcct().Get(), theMessage.m_strNymID.Get())))
+                                if (msgOut.m_bSuccess)
                                 {
                                     OTLog::Output(0, "Success saving new user account verification file.\n");
                                     
