@@ -839,7 +839,6 @@ int32_t OTPassword::setPassword_uint8(const uint8_t * szInput, uint32_t nInputSi
 {
     OT_ASSERT(NULL != szInput);
     
-    const char * szFunc = "OTPassword::setPassword";
     // ---------------------------------
 	// Wipe whatever was in there before.
     //
@@ -864,7 +863,7 @@ int32_t OTPassword::setPassword_uint8(const uint8_t * szInput, uint32_t nInputSi
 	//
 	if (OTString::safe_strlen(reinterpret_cast<const char *>(szInput), static_cast<size_t>(nInputSize)) < static_cast<size_t>(nInputSize))
 	{
-        OTLog::vError("%s: ERROR: string length of szInput did not match nInputSize.\n", szFunc);
+        OTLog::vError("%s: ERROR: string length of szInput did not match nInputSize.\n", __FUNCTION__);
 		return (-1);
 	}
 
@@ -881,7 +880,7 @@ int32_t OTPassword::setPassword_uint8(const uint8_t * szInput, uint32_t nInputSi
             m_bIsPageLocked = true;
         }
         else
-            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", __FUNCTION__);
     }   
 #endif
 	// ---------------------------------
@@ -1078,7 +1077,7 @@ int32_t OTPassword::randomizeMemory(uint32_t nNewSize/*=DEFAULT_SIZE*/)
             m_bIsPageLocked = true;
         }
         else
-            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", __FUNCTION__ );
     }  
 #endif
 	// ---------------------------------
@@ -1104,7 +1103,6 @@ int32_t OTPassword::addMemory(const void * vAppend, uint32_t nAppendSize)
 {
     OT_ASSERT(NULL != vAppend);
 
-//  const char * szFunc = "OTPassword::addMemory";
     // ---------------------------------
 	if (0 == nAppendSize)
 		return 0;
@@ -1185,7 +1183,7 @@ int32_t OTPassword::setMemory(const void * vInput, uint32_t nInputSize)
             m_bIsPageLocked = true;
         }
         else
-            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", __FUNCTION__);
     }    
 #endif
 
