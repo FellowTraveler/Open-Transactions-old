@@ -98,40 +98,40 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="..\..\src\otlib\Generics.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="..\..\src\otlib\Markets.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="..\..\src\otlib\Moneychanger.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/wd4267 /wd4125 /wd4244 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/wd4267 /wd4125 /wd4244 /wd4996 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="..\..\src\otlib\OTAccount.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
@@ -486,6 +486,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/wd4913 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/wd4913 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/wd4913 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/wd4913 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -600,24 +604,26 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalOptions>/bigobj /Zm480 /wd4996 /wd4100 /wd4512 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /Zm480 /wd4512 /wd4100</AdditionalOptions>
       <PreprocessorDefinitions>_UNICODE;UNICODE;_DEBUG;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>libprotobuf.lib;ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalOptions>/bigobj /Zm480 /wd4996 /wd4100 /wd4100 /wd4512 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /Zm480 /wd4512 /wd4100</AdditionalOptions>
       <PreprocessorDefinitions>_UNICODE;UNICODE;_DEBUG;DEBUG;_WIN64;_AMD64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>libprotobuf.lib;ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -626,7 +632,7 @@
       <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalOptions>/bigobj /Zm480 /wd4996 /wd4100 /wd4512 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /Zm480 /wd4512 /wd4100</AdditionalOptions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -643,7 +649,7 @@
       <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalOptions>/bigobj /Zm480 /wd4996 /wd4100 /wd4512 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /Zm480 /wd4512 /wd4100</AdditionalOptions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <PreprocessorDefinitions>_UNICODE;UNICODE;_WIN64;_AMD64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
