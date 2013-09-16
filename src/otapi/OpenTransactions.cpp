@@ -147,7 +147,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <io.h>
+
 
  // credit:stlplus library.
 #include "containers/simple_ptr.hpp"
@@ -173,6 +173,9 @@ extern "C"
 
 // ----------------------------------------------
 #ifdef _WIN32
+
+#include <io.h> // write() etc
+
 /*
  Minimum supported client    -- Windows XP
  Minimum supported server    -- Windows Server 2003
@@ -182,12 +185,15 @@ extern "C"
  */
 //#include <windows.h>  // I'm assuming the above WinsockWrapper inclusion already covers this.
 // DWORD GetCurrentProcessId(void);
+
 #else
-// getpid
+
+// getpid(), write() etc
 #include <sys/types.h>
 #include <unistd.h>
 //pid_t getpid(void);
 //pid_t getppid(void);
+
 #endif
 // ----------------------------------------------
 
