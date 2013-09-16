@@ -6,6 +6,8 @@
 #define __IRR_STRING_H_INCLUDED__
 
 #include "irrTypes.h"
+#include <stdlib.h>
+
 
 namespace irr
 {
@@ -103,13 +105,18 @@ public:
 		if (!c)
 			return;
 
-        allocated = used = lenght+1;
+		{
+			if (lenght < 0) abort(); // length must not be negitave
+			allocated = used = lenght+1;
+			if(lenght >= used || lenght >= allocated) abort(); // must not overflow.
+		}
+
 		array = new T[used];
 
-		for (s32 l = 0; l<lenght; ++l)
+		for (s32 l = 0; l<(used -1); ++l)
 			array[l] = (T)c[l];
 
-		array[lenght] = 0;
+		array[used -1] = 0; // null terminate
 	}
 
 

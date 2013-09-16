@@ -937,8 +937,6 @@ bool OTCron::RemoveCronItem(long lTransactionNum, OTPseudonym & theRemover) // i
 		// An item has been removed from Cron. SAVE.		
 		return SaveCron();		
 	}
-	
-	return false;
 }
 
 
@@ -1072,8 +1070,6 @@ bool OTCron::RemoveMarket(const OTIdentifier & MARKET_ID) // if false, market wa
 		// A market has been removed from Cron. SAVE.		
 		return SaveCron();		
 	}
-	
-	return false;
 }
 
 

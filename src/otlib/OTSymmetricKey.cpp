@@ -220,10 +220,15 @@ bool OTSymmetricKey::GenerateKey(const
     //
     OTPassword  theActualKey;
     
-    if (OTCryptoConfig::SymmetricKeySize() != theActualKey.randomizeMemory(OTCryptoConfig::SymmetricKeySize()))
 	{
-		OTLog::vError("%s: Failed generating symmetric key. (Returning false.)\n", szFunc);
-		return false;
+		int32_t nRes = theActualKey.randomizeMemory(OTCryptoConfig::SymmetricKeySize()); if (0 > nRes) { OT_FAIL; }
+		uint32_t uRes = static_cast<uint32_t>(nRes); // we need an unsigned value.
+
+		if (OTCryptoConfig::SymmetricKeySize() != uRes)
+		{
+			OTLog::vError("%s: Failed generating symmetric key. (Returning false.)\n", szFunc);
+			return false;
+		}
 	}
     // We didn't bother generating the derived key if the above three randomizations failed.
     // 
@@ -279,8 +284,7 @@ bool OTSymmetricKey::GenerateHashCheck(const OTPassword & thePassphrase)
 	if (!m_bIsGenerated)
 	{
 		OTLog::vError("%s: No Key Generated, run GenerateKey(), and this function will not be needed!",__FUNCTION__);
-		OT_ASSERT(false);
-		return false;
+		OT_FAIL;
 	}
 
 	if (this->HasHashCheck())
@@ -303,8 +307,7 @@ bool OTSymmetricKey::GenerateHashCheck(const OTPassword & thePassphrase)
 	{
 		OTLog::vError("%s: Still don't have a hash check (even after generating one)\n!"
 			"this is bad. Will assert.",__FUNCTION__);
-		OT_ASSERT(false);
-		return false;
+		OT_FAIL;
 	}
     
     return true;
@@ -380,8 +383,7 @@ OTPassword * OTSymmetricKey::CalculateDerivedKeyFromPassphrase(const OTPassword 
 		if (!this->HasHashCheck())
 		{
 			OTLog::vError("%s: Unable to calculate derived key, as hash check is missing!", __FUNCTION__);
-			OT_ASSERT(false);
-			return NULL;
+			OT_FAIL;
 		}
 		OT_ASSERT(!tmpDataHashCheck.IsEmpty());
 	}
@@ -437,8 +439,6 @@ bool OTSymmetricKey::GetRawKeyFromPassphrase(const
 {    
     OT_ASSERT(m_bIsGenerated);
 //  OT_ASSERT(thePassphrase.isPassword());
-    // -------------------------------------------------------------------------------------------------
-    const char * szFunc = "OTSymmetricKey::GetRawKeyFromPassphrase";    
     // -------------------------------------------------------------------------------------------------    
     OTCleanup<OTPassword> theDerivedAngel;
     // ------------------------

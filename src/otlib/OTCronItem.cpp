@@ -1153,7 +1153,7 @@ int OTCronItem::GetCountClosingNumbers() const
 
 long OTCronItem::GetClosingTransactionNoAt(unsigned int nIndex) const 
 {
-	if (m_dequeClosingNumbers.size() <= nIndex)	{ OTLog::vError("%s: %s is equal or larger than m_dequeClosingNumbers.size()!\n", __FUNCTION__, "nIndex"	); OT_ASSERT(false); return false; }
+	if (m_dequeClosingNumbers.size() <= nIndex)	{ OTLog::vError("%s: %s is equal or larger than m_dequeClosingNumbers.size()!\n", __FUNCTION__, "nIndex"	); OT_FAIL; }
     
     return m_dequeClosingNumbers.at(nIndex);
 }
@@ -1341,7 +1341,7 @@ void OTCronItem::HookRemovalFromCron(OTPseudonym * pRemover) // sometimes NULL.
         //
 		{
 			bool bValidSignture = pOrigCronItem->VerifySignature(*pServerNym);
-			if (!bValidSignture) { OTLog::vError("%s: Failure verifying signature of server on Cron Item!\n", __FUNCTION__); OT_ASSERT(false); return; }
+			if (!bValidSignture) { OTLog::vError("%s: Failure verifying signature of server on Cron Item!\n", __FUNCTION__); OT_FAIL; return; }
 		}
 
         // I now have a String copy of the original CronItem...
@@ -1766,8 +1766,6 @@ bool OTCronItem::DropFinalReceiptToInbox(const OTIdentifier & USER_ID,
         // --------------------------------------------------------
         return true;    // Really this true should be predicated on ALL the above functions returning true. Right?
     }                   // ...Right?
-    
-    return false; // unreachable.
 }
 
 

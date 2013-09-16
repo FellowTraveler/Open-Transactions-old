@@ -1,8 +1,4 @@
-/************************************************************
- *    
- *  OTServerContract.cpp
- *  
- */
+
 
 
 /************************************************************
@@ -131,221 +127,68 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
-#include <stdafx.h>
+#ifndef __OTAPI_H__
+#define __OTAPI_H__
 
-#include <cstring>
+#ifndef EXPORT
+#define EXPORT
+#endif
+#ifndef NOEXPORT
+#include <ExportWrapper.h>
+#endif
 
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <string>
+#include <set>
+#include <list>
+#include <vector>
+#include <memory>
 
-#include "irrxml/irrXML.h"
+// credit:stlplus library.
+//#include "containers/simple_ptr.hpp"
 
-#include "OTStorage.h"
+#include <stdint.h>
 
-#include "OTServerContract.h"
-#include "OTStringXML.h"
-#include "OTLog.h"
+#include <OTPassword.h>
+#include <OTData.h>
 
-using namespace irr;
-using namespace io;
-
-
-OTServerContract::OTServerContract() : OTContract()
-{
-	m_nPort = 0;
-}
-
-OTServerContract::OTServerContract(OTString & name, OTString & foldername, OTString & filename, OTString & strID) 
-: OTContract(name, foldername, filename, strID)
-{
-	m_nPort = 0;
-}
+// for manuall file operations in signal handler:
+#include <fcntl.h> 
 
 
-OTServerContract::~OTServerContract()
-{
+class OTRunnableAsProgram {
+	public:
+		OTRunnableAsProgram();
+		virtual ~OTRunnableAsProgram();
 
-}
+		// Member
+	private:
 
-bool OTServerContract::GetConnectInfo(OTString & strHostname, int & nPort)
-{
-	if (m_strHostname.GetLength())
-	{
-		strHostname	= m_strHostname;
-		nPort		= m_nPort;
-		return true;
-	}
-	return false;
-}
+		class Pid	{
+			private:
+				bool m_bIsPidOpen;
 
+				OTString m_strPidFilePath;
+				std::string m_strPidFilePath_str; // same, as std::string
+				const char* m_strPidFilePath_cstr; // same, as cstring. not-owned, it only points to the data owned by std::string
 
-bool OTServerContract::DisplayStatistics(OTString & strContents) const
-{
-	const OTString strID(m_ID);
-	
-	strContents.Concatenate(
-							" Notary Provider: %s\n"
-							" ServerID: %s\n"
-							"\n",
-							m_strName.Get(),
-							strID.Get());
-	
-	return true;
-}
+				private:
+					void set_PidFilePath(const OTString &path); // updates all versions of this string
 
+#ifdef _WIN32
+				static BOOL WINAPI ConsoleHandler(DWORD);
+#endif
 
-bool OTServerContract::SaveContractWallet(OTString & strContents) const
-{
-	const OTString strID(m_ID);
-	OTASCIIArmor   ascName;
-	
-	if (m_strName.Exists()) // name is in the clear in memory, and base64 in storage.
-	{
-		ascName.SetString(m_strName, false); // linebreaks == false
-	}
-	strContents.Concatenate("<notaryProvider name=\"%s\"\n"
-							" serverID=\"%s\" />\n\n",
-							m_strName.Exists() ? ascName.Get() : "",
-							strID.Get());
-	
-	return true;
-}
+			public:
+				Pid();
+				~Pid();
+				void OpenPid(const OTString strPidFilePath);
+				void ClosePid();
+				void ClosePid_asyncsafe(); // asynce-safe (can be used in signal handler)
+				const bool IsPidOpen() const;
+		}; // class Pid		
 
-
-bool OTServerContract::SaveContractWallet(std::ofstream & ofs)
-{
-	OTString strOutput;
-	
-	if (SaveContractWallet(strOutput))
-	{
-		ofs << strOutput.Get();
-		return true;
-	}
-		
-	return false;
-}
-
-void OTServerContract::CreateContents()
-{
-    // ----------------------------------
-    m_strVersion = "2.0";  // 2.0 since adding credentials.
-    // ----------------------------------
- 	m_xmlUnsigned.Release();
-    m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n", "1.0");
-	m_xmlUnsigned.Concatenate("<%s version=\"%s\">\n\n", "notaryProviderContract", m_strVersion.Get());
-    // --------------------------------------------
-    // Entity
-    m_xmlUnsigned.Concatenate("<entity shortname=\"%s\"\n"
-                              " longname=\"%s\"\n"
-                              " email=\"%s\"\n"
-                              " serverURL=\"%s\"/>\n\n",
-                              m_strEntityShortName.Get(),
-                              m_strEntityLongName .Get(),
-                              m_strEntityEmail    .Get(),
-                              m_strURL            .Get());
-    // --------------------------------------------
-    // notaryServer
-    m_xmlUnsigned.Concatenate("<notaryServer hostname=\"%s\"\n"
-                              " port=\"%d\"\n"
-                              " URL=\"%s\"/>\n\n",
-                              m_strHostname.Get(),
-                              m_nPort,
-                              m_strURL.Get());
-    // --------------------------------------------
-    // This is where OTContract scribes m_xmlUnsigned with its keys, conditions, etc.
-    this->CreateInnerContents();
-    // --------------------------------------------
-	m_xmlUnsigned.Concatenate("</%s>\n", "notaryProviderContract");
-    // --------------------------------------------
-}
-
-// This is the serialization code for READING FROM THE CONTRACT
-// return -1 if error, 0 if nothing, and 1 if the node was processed.
-int OTServerContract::ProcessXMLNode(IrrXMLReader*& xml)
-{
-	int nReturnVal = 0;
-	
-	// Here we call the parent class first.
-	// If the node is found there, or there is some error,
-	// then we just return either way.  But if it comes back
-	// as '0', then nothing happened, and we'll continue executing.
-	//
-	// -- Note you can choose not to call the parent if
-	// you don't want to use any of those xml tags.
-	
-	nReturnVal = OTContract::ProcessXMLNode(xml);
-	if (nReturnVal)
-		return nReturnVal;
-	
-	if (!strcmp("notaryProviderContract", xml->getNodeName()))
-	{
-		m_strVersion = xml->getAttributeValue("version");					
-		
-		OTLog::vOutput(1, "\n"
-				"===> Loading XML portion of server contract into memory structures...\n\n"
-				"Notary Server Name: %s\nContract version: %s\n----------\n", m_strName.Get(), m_strVersion.Get());
-		nReturnVal = 1;
-	}
-	
-	else if (!strcmp("notaryServer", xml->getNodeName()))
-	{
-		m_strHostname	= xml->getAttributeValue("hostname");					
-		m_nPort			= atoi(xml->getAttributeValue("port"));					
-		m_strURL		= xml->getAttributeValue("URL");					
-		
-		OTLog::vOutput(1, "\n"
-				"Notary Server connection info:\n --- Hostname: %s\n --- Port: %d\n --- URL:%s\n\n", 
-				m_strHostname.Get(), m_nPort, m_strURL.Get());
-		nReturnVal = 1;
-	}
-	
-	return nReturnVal;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		Pid & m_refPid;  // only one pid reference per instance, must not change
+};
 
 
 

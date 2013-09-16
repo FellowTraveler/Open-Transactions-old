@@ -26,7 +26,7 @@ public:
 	{
 		// open file
 #ifdef _WIN32
-		errno_t err = fopen_s(&File, filename, "rb");
+		/*errno_t err=*/ fopen_s(&File, filename, "rb");
 #else
 		File = fopen(filename, "rb");
 #endif

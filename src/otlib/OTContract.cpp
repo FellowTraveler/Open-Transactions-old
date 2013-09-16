@@ -439,7 +439,7 @@ bool OTNumList::Add(const char * szNumbers)       // if false, means the numbers
     // -------------------------------------
     bool bStartedANumber = false; // During the loop, set this to true when processing a digit, and set to false when anything else. That way when we go to add the number to the list, and it's "0", we'll know it's a real number we're supposed to add, and not just a default value.
     
-    while (1) // We already know it's not null, due to the assert. (So at least one iteration will happen.)
+    for (;;) // We already know it's not null, due to the assert. (So at least one iteration will happen.)
     {
         if (std::isdigit(*pChar))
         {
@@ -2248,8 +2248,7 @@ bool OTContract::ParseRawFile()
 	else if (bSignatureMode)
 	{
 		OTLog::Error("Error in OTContract::ParseRawFile: EOF while reading signature.\n");
-        OT_ASSERT_MSG(false, "gimme a call stack!");
-		return false;
+        OT_FAIL_MSG("gimme a call stack!");
 	}
 	else if (!LoadContractXML())
 	{
@@ -2663,8 +2662,6 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & a
                       szFunc, pElementExpected);
 		return false; // error condition
 	}
-	
-	return false;
 }
 
 
@@ -2981,7 +2978,7 @@ void OTContract::CreateInnerContents()
 //
 void OTContract::CreateContents()
 {
-    OT_ASSERT_MSG(false, "ASSERT: OTContract::CreateContents should never be called, but should be overrided. (In this case, it wasn't.)");
+    OT_FAIL_MSG("ASSERT: OTContract::CreateContents should never be called, but should be overrided. (In this case, it wasn't.)");
 }
 
 // -------------------------------------------------------------------------------

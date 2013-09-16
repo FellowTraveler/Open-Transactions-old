@@ -291,8 +291,8 @@ EXPORT  bool    AddNewSubcredential(const OTIdentifier & idMasterCredential,
                                     const mapOfStrings * pmapPublic =NULL,  // In the case of key credentials, public is optional since it can already be derived from private. For now we pass it through... May eliminate this parameter later if not needed.
                                     OTPasswordData * pPWData=NULL); // Pass in the string to show users here, if/when asking for the passphrase.
 	// ------------------------------------------------
-EXPORT  int     GetMasterCredentialCount()  const;
-EXPORT  int     GetRevokedCredentialCount() const;
+EXPORT  size_t     GetMasterCredentialCount()  const;
+EXPORT  size_t     GetRevokedCredentialCount() const;
 	// ------------------------------------------------
 EXPORT  OTCredential    * GetMasterCredential (const OTString & strID);
 EXPORT  OTCredential    * GetRevokedCredential(const OTString & strID);
