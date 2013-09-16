@@ -317,14 +317,13 @@ void OTMessageOutbuffer::AddSentMessage(OTMessage & theMessage) // must be heap 
     //
     mapOfMessages::iterator it = m_mapMessages.begin();
     
-    while (it != m_mapMessages.end())
+    for (; it != m_mapMessages.end(); ++it)
     {
         // -----------------------------
         const long  & lTempReqNum   = it->first;
         // -----------------------
         if (lTempReqNum != lRequestNum)
         {
-            ++it;
             continue;
         }
         // -----------------------
@@ -338,7 +337,6 @@ void OTMessageOutbuffer::AddSentMessage(OTMessage & theMessage) // must be heap 
         if (!theMessage.m_strServerID.Compare(pMsg->m_strServerID) ||
             !theMessage.m_strNymID.   Compare(pMsg->m_strNymID))
         {
-            ++it;
             continue;
         }
         // --------
@@ -349,7 +347,6 @@ void OTMessageOutbuffer::AddSentMessage(OTMessage & theMessage) // must be heap 
             m_mapMessages.erase(it);
             break;
         }
-        ++it; // probably will never reach this line. But it just feels correct to have it here anyway.
     }
     // Whatever it was, it's gone now!
     // ----------------------------------
@@ -452,14 +449,13 @@ OTMessage * OTMessageOutbuffer::GetSentMessage(const long & lRequestNum, const O
 {
     mapOfMessages::iterator it = m_mapMessages.begin();
     
-    while (it != m_mapMessages.end())
+    for ( ; it != m_mapMessages.end(); ++it)
     {
         // -----------------------------
         const long  & lTempReqNum   = it->first;
         // -----------------------
         if (lTempReqNum != lRequestNum)
         {
-            ++it;
             continue;
         }
         // -----------------------
@@ -472,7 +468,6 @@ OTMessage * OTMessageOutbuffer::GetSentMessage(const long & lRequestNum, const O
         if (!strServerID.Compare(pMsg->m_strServerID) ||
             !strNymID.   Compare(pMsg->m_strNymID))
         {
-            ++it;
             continue;
         }
         // --------
@@ -480,7 +475,6 @@ OTMessage * OTMessageOutbuffer::GetSentMessage(const long & lRequestNum, const O
         {
             return pMsg;
         }
-        ++it; // probably will never reach this line. But it just feels correct to have it here anyway.
     }
     // ----------------------------------
     // Didn't find it? Okay let's load it from local storage, if it's there...

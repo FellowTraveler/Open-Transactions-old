@@ -5794,18 +5794,22 @@ const OTAsymmetricKey & OTPseudonym::GetPrivateAuthKey() const
 {
     if (m_mapCredentials.size() > 0)
     {
+		const OTCredential * pCredential = NULL;
+
         FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
         {
-            const OTCredential * pCredential = (*it).second;
-            OT_ASSERT(NULL != pCredential);
-            // ------------------
+			// ------------------
             // Todo: If we have some criteria, such as which master or subcredential
             // is currently being employed by the user, we'll use that here to skip
             // through this loop until we find the right one. Until then, I'm just
-            // going to return the first one that's valid.
+            // going to return the first one that's valid (not null).
             // ------------------
-            return pCredential->GetPrivateAuthKey(&m_listRevokedIDs);
+            pCredential = (*it).second;
+			if(NULL != pCredential) break;
         }
+		if (NULL == pCredential) OT_FAIL;
+
+		return pCredential->GetPrivateAuthKey(&m_listRevokedIDs); // success
     }
     else
     {
@@ -5828,18 +5832,22 @@ const OTAsymmetricKey & OTPseudonym::GetPrivateEncrKey() const
 {
     if (m_mapCredentials.size() > 0)
     {
+		const OTCredential * pCredential = NULL;
+
         FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
         {
-            const OTCredential * pCredential = (*it).second;
-            OT_ASSERT(NULL != pCredential);
-            // ------------------
+			// ------------------
             // Todo: If we have some criteria, such as which master or subcredential
             // is currently being employed by the user, we'll use that here to skip
             // through this loop until we find the right one. Until then, I'm just
-            // going to return the first one that's valid.
+            // going to return the first one that's valid (not null).
             // ------------------
-            return pCredential->GetPrivateEncrKey(&m_listRevokedIDs);
+            pCredential = (*it).second;
+			if(NULL != pCredential) break;
         }
+		if (NULL == pCredential) OT_FAIL;
+
+		return pCredential->GetPrivateAuthKey(&m_listRevokedIDs); // success
     }
     else
     {
@@ -5862,18 +5870,22 @@ const OTAsymmetricKey & OTPseudonym::GetPrivateSignKey() const
 {
     if (m_mapCredentials.size() > 0)
     {
+		const OTCredential * pCredential = NULL;
+
         FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
         {
-            const OTCredential * pCredential = (*it).second;
-            OT_ASSERT(NULL != pCredential);
-            // ------------------
+			// ------------------
             // Todo: If we have some criteria, such as which master or subcredential
             // is currently being employed by the user, we'll use that here to skip
             // through this loop until we find the right one. Until then, I'm just
-            // going to return the first one that's valid.
+            // going to return the first one that's valid (not null).
             // ------------------
-            return pCredential->GetPrivateSignKey(&m_listRevokedIDs);
+            pCredential = (*it).second;
+			if(NULL != pCredential) break;
         }
+		if (NULL == pCredential) OT_FAIL;
+
+		return pCredential->GetPrivateAuthKey(&m_listRevokedIDs); // success
     }
     else
     {
@@ -5896,18 +5908,22 @@ const OTAsymmetricKey & OTPseudonym::GetPublicAuthKey() const
 {
     if (m_mapCredentials.size() > 0)
     {
+		const OTCredential * pCredential = NULL;
+
         FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
         {
-            const OTCredential * pCredential = (*it).second;
-            OT_ASSERT(NULL != pCredential);
-            // ------------------
+			// ------------------
             // Todo: If we have some criteria, such as which master or subcredential
             // is currently being employed by the user, we'll use that here to skip
             // through this loop until we find the right one. Until then, I'm just
-            // going to return the first one that's valid.
+            // going to return the first one that's valid (not null).
             // ------------------
-            return pCredential->GetPublicAuthKey(&m_listRevokedIDs);
+            pCredential = (*it).second;
+			if(NULL != pCredential) break;
         }
+		if (NULL == pCredential) OT_FAIL;
+
+		return pCredential->GetPrivateAuthKey(&m_listRevokedIDs); // success
     }
     else
     {
@@ -5930,19 +5946,22 @@ const OTAsymmetricKey & OTPseudonym::GetPublicEncrKey() const
 {
     if (m_mapCredentials.size() > 0)
     {
-		OTLog::vOutput(0,"test");
+		const OTCredential * pCredential = NULL;
+
         FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
         {
-            const OTCredential * pCredential = (*it).second;
-            OT_ASSERT(NULL != pCredential);
-            // ------------------
+			// ------------------
             // Todo: If we have some criteria, such as which master or subcredential
             // is currently being employed by the user, we'll use that here to skip
             // through this loop until we find the right one. Until then, I'm just
-            // going to return the first one that's valid.
+            // going to return the first one that's valid (not null).
             // ------------------
-            return pCredential->GetPublicEncrKey(&m_listRevokedIDs);
+            pCredential = (*it).second;
+			if(NULL != pCredential) break;
         }
+		if (NULL == pCredential) OT_FAIL;
+
+		return pCredential->GetPrivateAuthKey(&m_listRevokedIDs); // success
     }
     else
     {
@@ -5965,18 +5984,22 @@ const OTAsymmetricKey & OTPseudonym::GetPublicSignKey() const
 {
     if (m_mapCredentials.size() > 0)
     {
+		const OTCredential * pCredential = NULL;
+
         FOR_EACH_CONST(mapOfCredentials, m_mapCredentials)
         {
-            const OTCredential * pCredential = (*it).second;
-            OT_ASSERT(NULL != pCredential);
-            // ------------------
+			// ------------------
             // Todo: If we have some criteria, such as which master or subcredential
             // is currently being employed by the user, we'll use that here to skip
             // through this loop until we find the right one. Until then, I'm just
-            // going to return the first one that's valid.
+            // going to return the first one that's valid (not null).
             // ------------------
-            return pCredential->GetPublicSignKey(&m_listRevokedIDs);
+            pCredential = (*it).second;
+			if(NULL != pCredential) break;
         }
+		if (NULL == pCredential) OT_FAIL;
+
+		return pCredential->GetPrivateAuthKey(&m_listRevokedIDs); // success
     }
     else
     {
