@@ -1009,7 +1009,7 @@ int32_t OTPassword::randomizePassword(uint32_t nNewSize/*=DEFAULT_SIZE*/)
             m_bIsPageLocked = true;
         }
         else
-            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", __FUNCTION__);
     }    
 #endif
 	// ---------------------------------
@@ -1080,7 +1080,7 @@ int32_t OTPassword::randomizeMemory(uint32_t nNewSize/*=DEFAULT_SIZE*/)
             m_bIsPageLocked = true;
         }
         else
-            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", __FUNCTION__);
     }  
 #endif
 	// ---------------------------------
@@ -1187,7 +1187,7 @@ int32_t OTPassword::setMemory(const void * vInput, uint32_t nInputSize)
             m_bIsPageLocked = true;
         }
         else
-            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", __FUNCTION__);
     }    
 #endif
 
