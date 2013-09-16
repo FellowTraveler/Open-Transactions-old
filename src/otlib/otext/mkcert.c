@@ -53,7 +53,6 @@ int main(int argc, char **argv)
         CRYPTO_cleanup_all_ex_data();
 
         CRYPTO_mem_leaks(bio_err);
-        BIO_free(bio_err);
         return(0);
         }
  */

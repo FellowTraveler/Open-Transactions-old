@@ -1053,16 +1053,15 @@ void ot_openssl_locking_callback(int mode, int type, const char *file, int line)
                   int& outLen)
 {
     // create a memory buffer containing base64 encoded data
-    BIO* bmem = BIO_new_mem_buf((void*)pIn, inLen);
+    OpenSSL_BIO bmem = BIO_new_mem_buf((void*)pIn, inLen);
     
     // push a Base64 filter so that reading from buffer decodes it
-    BIO *bioCmd = BIO_new(BIO_f_base64());
+    OpenSSL_BIO bioCmd = BIO_new(BIO_f_base64());
     // we don't want newlines
     BIO_set_flags(bioCmd, BIO_FLAGS_BASE64_NO_NL);
     bmem = BIO_push(bioCmd, bmem);
     
     int finalLen = BIO_read(bmem, (void*)pOut, outLen);
-    BIO_free_all(bmem);
     outLen = finalLen;
 }
 
@@ -1070,7 +1069,7 @@ void ot_openssl_locking_callback(int mode, int type, const char *file, int line)
 
 char *unbase64(unsigned char *input, int length)
 {
-    BIO *b64, *bmem;
+    OpenSSL_BIO b64(NULL), bmem(NULL);
     
     char *buffer = (char *)malloc(length);
     memset(buffer, 0, length);
@@ -1080,8 +1079,6 @@ char *unbase64(unsigned char *input, int length)
     bmem = BIO_push(b64, bmem);
     
     BIO_read(bmem, buffer, length);
-    
-    BIO_free_all(bmem);
     
     return buffer;
 }
@@ -1141,8 +1138,8 @@ extern "C"
     char * ot_openssl_base64_encode(const uint8_t * input, int in_len, int bLineBreaks)
     {
         char    * buf  = NULL;
-        BIO     * bmem = NULL;
-        BIO     * b64  = NULL;
+        OpenSSL_BIO bmem = NULL;
+        OpenSSL_BIO b64  = NULL;
         BUF_MEM * bptr = NULL;
         
         OT_ASSERT_MSG(in_len >= 0, "OT_base64_encode: Abort: in_len is a negative number!");
@@ -1177,15 +1174,12 @@ extern "C"
             OT_FAIL_MSG("Failed creating new Bio in base64_encode.\n");
         }
         // -------------------------------
-        BIO_free_all(b64);
-        // -------------------------------
         return buf;
     }
     
     uint8_t * ot_openssl_base64_decode(const char * input, size_t * out_len, int bLineBreaks)
     {
-        BIO * bmem = NULL,
-        * b64  = NULL;
+        OpenSSL_BIO bmem(NULL), b64(NULL);
         // -------------------------------
         OT_ASSERT(NULL != input);
         // -------------------------------
@@ -1209,7 +1203,6 @@ extern "C"
             OT_ASSERT(NULL != b64);
             // -------------------------------
             *out_len = BIO_read(b64, buf, out_max_len);
-            BIO_free_all(b64);
             // -------------------------------
         }
         else 
@@ -1850,7 +1843,7 @@ void OTCrypto_OpenSSL::Init_Override()
     
     /*
     Try to activate OpenSSL debug memory procedure:
-        BIO *pbio - BIO_new(BIO_s_file());
+        OpenSSL_BIO pbio = BIO_new(BIO_s_file());
         BIO_set_fp(out,stdout,BIO_NOCLOSE);
         CRYPTO_malloc_debug_init();
         MemCheck_start();
@@ -4587,7 +4580,7 @@ bool OTCrypto_OpenSSL::SignContract(const OTString    & strContractUnsigned,
 	// --------------------------------------------------------------------
 	// Create a new memory buffer on the OpenSSL side
     //
-	BIO * bio = BIO_new_mem_buf((void*)strCertFileContents.c_str(), -1);  // todo cast.
+	OpenSSL_BIO bio = BIO_new_mem_buf((void*)strCertFileContents.c_str(), -1);  // todo cast.
 	OT_ASSERT(NULL != bio);
 	// --------------------------------------------------------------------
     // TODO security:
@@ -4605,7 +4598,6 @@ bool OTCrypto_OpenSSL::SignContract(const OTString    & strContractUnsigned,
     bool       bSigned = false;
     EVP_PKEY * pkey    = PEM_read_bio_PrivateKey( bio, NULL, OTAsymmetricKey::GetPasswordCallback(), pPWData);
     
-    BIO_free_all(bio); bio = NULL;
     // --------------------------------------------------------------------
     if (NULL == pkey) 
     { 
@@ -4643,7 +4635,7 @@ bool OTCrypto_OpenSSL::VerifySignature(const OTString    & strContractToVerify,
 	// --------------------------------------------------------------------    
 	// Create a new memory buffer on the OpenSSL side
     //
-	BIO * bio = BIO_new_mem_buf((void*)strCertFileContents.c_str(), -1); // todo cast
+	OpenSSL_BIO bio = BIO_new_mem_buf((void*)strCertFileContents.c_str(), -1); // todo cast
 	OT_ASSERT(NULL != bio);	
 	// --------------------------------------------------------------------
     OTPasswordData thePWData("(OTCrypto_OpenSSL::VerifySignature is trying to read the public key...)");
@@ -4653,7 +4645,6 @@ bool OTCrypto_OpenSSL::VerifySignature(const OTString    & strContractToVerify,
     // --------------------------------------------------------------------
     X509  *  x509  = PEM_read_bio_X509(bio, NULL, OTAsymmetricKey::GetPasswordCallback(), pPWData);
     
-	BIO_free_all(bio);	bio = NULL;
 	// --------------------------
 	if (NULL == x509) 
 	{ 

@@ -699,7 +699,7 @@ public:
     EXPORT size_t GetSubcredentialCount() const;
     EXPORT const OTSubcredential * GetSubcredential (const OTString & strSubID, const listOfStrings * plistRevokedIDs=NULL) const;
     EXPORT const OTSubcredential * GetSubcredentialByIndex (int nIndex) const;
-    EXPORT const std::string GetSubcredentialIDByIndex(int nIndex) const;
+    EXPORT const std::string GetSubcredentialIDByIndex(size_t nIndex) const;
     // ------------------------------
     EXPORT const OTString & GetPubCredential() const; // Returns: m_Masterkey's public credential string.
     EXPORT const OTString & GetPriCredential() const; // Returns: m_Masterkey's private credential string.

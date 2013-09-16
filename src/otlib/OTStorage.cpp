@@ -852,18 +852,15 @@ namespace OTDB
 	
 	PackType OTPacker::GetType() const
 	{
-		if (0)
-		{}
 #if defined (OTDB_MESSAGE_PACK)
-		else if (typeid(*this) == typeid(PackerMsgpack))
+		if (typeid(*this) == typeid(PackerMsgpack))
 			return PACK_MESSAGE_PACK;
 #endif
 #if defined (OTDB_PROTOCOL_BUFFERS)
-		else if (typeid(*this) == typeid(PackerPB))
+		if (typeid(*this) == typeid(PackerPB))
 			return PACK_PROTOCOL_BUFFERS;
 #endif
-		else
-			return PACK_TYPE_ERROR; 
+		return PACK_TYPE_ERROR; 
 	}
 	
 	

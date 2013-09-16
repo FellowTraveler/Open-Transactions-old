@@ -699,8 +699,8 @@ bool OTMint_Lucre::AddDenomination(OTPseudonym & theNotary, long lDenomination, 
 	SetMonitor(stderr);
 #endif
 	
-    BIO *bio		=	BIO_new(BIO_s_mem());
-    BIO *bioPublic	=	BIO_new(BIO_s_mem());
+    OpenSSL_BIO bio		=	BIO_new(BIO_s_mem());
+    OpenSSL_BIO bioPublic	=	BIO_new(BIO_s_mem());
 	
 	// Generate the mint private key information
     Bank bank(nPrimeLength/8);
@@ -755,10 +755,6 @@ bool OTMint_Lucre::AddDenomination(OTPseudonym & theNotary, long lDenomination, 
 		bReturnValue = true;
 		OTLog::vOutput(1, "Successfully added denomination: %ld\n", lDenomination);
 	}
-	
-	// Release OpenSSL resources.
-    BIO_free_all(bio);		// note: this WAS bio_free. I changed it to free_all. In case there is trouble later...
-    BIO_free_all(bioPublic);
 	
 	return bReturnValue;
 }
@@ -994,14 +990,14 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
  
  Create a memory BIO and write some data to it:
  
- BIO *mem = BIO_new(BIO_s_mem());
+ OpenSSL_BIO mem = BIO_new(BIO_s_mem());
  BIO_puts(mem, "Hello World\n");
  
  
  Create a read only memory BIO:
  
  char data[] = "Hello World";
- BIO *mem;
+ OpenSSL_BIO mem;
  mem = BIO_new_mem_buf(data, -1);
  
  
@@ -1031,9 +1027,9 @@ bool OTMint_Lucre::SignToken(OTPseudonym & theNotary, OTToken & theToken, OTStri
 	
 //	OTLog::vError("OTMint::SignToken!!\nnTokenIndex: %d\n Denomination: %ld\n", nTokenIndex, theToken.GetDenomination());
 	
-    BIO *bioBank		= BIO_new(BIO_s_mem()); // input
-    BIO *bioRequest		= BIO_new(BIO_s_mem()); // input
-    BIO *bioSignature	= BIO_new(BIO_s_mem()); // output
+    OpenSSL_BIO bioBank		= BIO_new(BIO_s_mem()); // input
+    OpenSSL_BIO bioRequest		= BIO_new(BIO_s_mem()); // input
+    OpenSSL_BIO bioSignature	= BIO_new(BIO_s_mem()); // output
 	
 	OTASCIIArmor thePrivate;
 	GetPrivate(thePrivate, theToken.GetDenomination());
@@ -1138,10 +1134,6 @@ bool OTMint_Lucre::SignToken(OTPseudonym & theNotary, OTToken & theToken, OTStri
 		}
 	}
 
-	BIO_free_all(bioBank);		
-    BIO_free_all(bioRequest);	
-    BIO_free_all(bioSignature);
-
 	return bReturnValue;
 }
 
@@ -1154,8 +1146,8 @@ bool OTMint_Lucre::VerifyToken(OTPseudonym & theNotary, OTString & theCleartextT
 //	OTLog::Error("%s <bank info> <coin>\n", argv[0]);
     _OT_Lucre_Dumper setDumper;
 	
-	BIO *bioBank	= BIO_new(BIO_s_mem()); // input
-	BIO *bioCoin	= BIO_new(BIO_s_mem()); // input
+	OpenSSL_BIO bioBank	= BIO_new(BIO_s_mem()); // input
+	OpenSSL_BIO bioCoin	= BIO_new(BIO_s_mem()); // input
 	
 	// --- copy theCleartextToken to bioCoin so lucre can load it
 	BIO_puts(bioCoin, theCleartextToken.Get());
@@ -1197,10 +1189,6 @@ bool OTMint_Lucre::VerifyToken(OTPseudonym & theNotary, OTString & theCleartextT
 			// amount, as an additional level of security after the blind signature itself.)
 		}
 	}
-	
-	// Cleanup openssl resources.
-	BIO_free_all(bioBank);	
-	BIO_free_all(bioCoin);
 
 	return bReturnValue;
 }

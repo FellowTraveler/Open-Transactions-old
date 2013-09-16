@@ -2985,6 +2985,15 @@ void OTKeyCredential::SetMetadata()
     const bool bNymID  = this->GetNymID()           .At(0, cMetaNymID);
     const bool bCredID = m_pOwner->GetMasterCredID().At(0, cMetaMasterCredID);
     const bool bSubID  = strSubcredID               .At(0, cMetaSubCredID); // In the case of the master credential, this will repeat the previous one.
+
+	if (!bNymID || !bCredID || !bSubID)
+	{
+		OTLog::vError("%s: Error getting Metadata:\n %s is %s, %s is %s, %s is %s", __FUNCTION__,
+			"bNymID", bNymID ? "True": "False",
+			"bCredID",bNymID ? "True": "False",
+			"bSubID", bNymID ? "True": "False");
+	}
+
     // ----------------------------------------------------
     OTSignatureMetadata theMetadata;
     // ----------------------------------------------------
@@ -3438,7 +3447,7 @@ const OTSubcredential * OTCredential::GetSubcredentialByIndex(int nIndex) const
 
 
 
-const std::string OTCredential::GetSubcredentialIDByIndex(int nIndex) const
+const std::string OTCredential::GetSubcredentialIDByIndex(size_t nIndex) const
 {
     if ((nIndex < 0) || (nIndex >= m_mapSubcredentials.size()))
     {
