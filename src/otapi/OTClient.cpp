@@ -6063,136 +6063,166 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
     bool bSendCommand = false;
     long lReturnValue = 0;
 
-    if (OTClient::checkServerID == requestedCommand)
+
+    // --------------------------------------------------------------------	
+    // --------------------------------------------------------------------	
+
+    // THE BIG SWITCH (inside a code block for neatness
+    switch(requestedCommand)
     {
-        //		OTLog::vOutput(0, "(User has instructed to send a checkServerID command to the server...)\n");
 
-        OTString strAuthentKey, strEncryptionKey;
-
-        theNym.GetPublicAuthKey().GetPublicKey(strAuthentKey   );
-        theNym.GetPublicEncrKey().GetPublicKey(strEncryptionKey);
-
-        // (1) set up member variables 
-        theMessage.m_strCommand      = "checkServerID";
-        theMessage.m_strNymID        = strNymID;          // Not expected to verify in any way (for this message.) Just mirrored back in the reply.
-        theMessage.m_strServerID     = strServerID;
-        theMessage.m_strNymPublicKey = strAuthentKey;     // Authentication public key for this Nym. (That he's signing this message with...)
-        theMessage.m_strNymID2	     = strEncryptionKey;  // Encryption public key for this Nym (to send an encrypted reply back.)
-
-        theMessage.m_strRequestNum.Format("%d", 1); // Request Number, if unused, should be set to 1.
-
-        // (2) Sign the Message 
-        // When a message is signed, it updates its m_xmlUnsigned contents to
-        // the values in the member variables
-        theMessage.SignContract(theNym);		
-
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        //
-        // FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
-        // If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = 1;
-    }
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::createUserAccount == requestedCommand)
-    {
-        //		OTLog::vOutput(0, "(User has instructed to send a createUserAccount command to the server...)\n");
-        // -----------------------------
-        // Create a new OTDB::StringMap object.
-        //
-        OTDB::Storable * pStorable = NULL;
-        OTCleanup<OTDB::Storable> theAngel;
-        OTDB::StringMap * pMap = NULL;
-        // --------------------------------------------------------------
-        pStorable = OTDB::CreateObject(OTDB::STORED_OBJ_STRING_MAP); // this asserts already, on failure.
-        theAngel.SetCleanupTargetPointer(pStorable); // It will definitely be cleaned up.
-        pMap = (NULL == pStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pStorable);
-        // --------------------------------------------------------------
-        if (NULL == pMap)
-            OTLog::vError("%s: Error: failed trying to load or create a STORED_OBJ_STRING_MAP.\n",
-            __FUNCTION__);        
-        else // It instantiated.
-        {    // -----------------------------------------------
-            OTString       strCredList;
-            mapOfStrings & theMap = pMap->the_map;
-
-            // Credentials exist already.
-            if (theNym.GetMasterCredentialCount() > 0)
-            {
-                theNym.GetPublicCredentials(strCredList, &theMap);
-            }
-            else // No credentials? Create them, then.
-            {
-                OTString strMasterCredID;
-                const bool bAddedMaster = theNym.AddNewMasterCredential(strMasterCredID);
-
-                if (bAddedMaster && strMasterCredID.Exists() && (theNym.GetMasterCredentialCount() > 0))
-                {
-                    OTLog::vOutput(0, "%s: Adding new keyCredential to master credential: %s\n",
-                        __FUNCTION__, strMasterCredID.Get());
-
-                    const OTIdentifier theMasterCredID(strMasterCredID);
-
-                    const bool bAddedSubkey = theNym.AddNewSubkey(theMasterCredID);
-
-                    if (bAddedSubkey)
-                    {
-                        theNym.SaveCredentialList();
-                        theNym.GetPublicCredentials(strCredList, &theMap);
-                    }
-                    else
-                        OTLog::vError("%s: Failed trying to add new keyCredential to new Master credential.\n",
-                        __FUNCTION__);
-                }
-                else
-                    OTLog::vError("%s: Failed trying to add new master credential (for Nym who doesn't have one yet.)\n",
-                    __FUNCTION__);
-            }
-            // -----------------------------------------------
-            // Serialize the StringMap to a string...
-            //
-            if (strCredList.Exists() && (theMap.size() > 0)) // Won't bother if there are zero credentials somehow.
-            {
-                std::string str_Encoded     = OTDB::EncodeObject(*pMap);
-                const bool bSuccessEncoding = (str_Encoded.size() > 0);
-                if (bSuccessEncoding)
-                {
-                    theMessage.m_ascPayload.SetString(strCredList);   // <========== Success
-                    theMessage.m_ascPayload2.Set(str_Encoded.c_str());  // Payload contains credentials list, payload2 contains actual credentials.
-                }
-            }
-        }
-        // ----------------------------------------------
-        if (!theMessage.m_ascPayload.Exists() || !theMessage.m_ascPayload2.Exists())
+    case(OTClient::checkServerID) :
         {
-            OTLog::vError("%s: Failed trying to assemble a createUserAccount message: This Nym "
-                "has no credentials to use for registration. Convert this Nym "
-                "first to the new credential system, then try again.\n", __FUNCTION__);
-        }
-        else
-        {
-            // ----------------------------------------------
-            // (1) set up member variables
-            theMessage.m_strCommand			= "createUserAccount";
-            theMessage.m_strNymID			= strNymID;
-            theMessage.m_strServerID		= strServerID;
+            OTString strAuthentKey, strEncryptionKey;
 
-            //          theNym.GetPublicKey().GetPublicKey(strNymPublicKey);
-            //          theMessage.m_strNymPublicKey	= strNymPublicKey; // Deprecated. (Credentials are new.)
+            theNym.GetPublicAuthKey().GetPublicKey(strAuthentKey   );
+            theNym.GetPublicEncrKey().GetPublicKey(strEncryptionKey);
 
-            // THIS APPEARS SLIGHTLY ABOVE. Just leaving as a comment
-            // here so it's not forgotten that this is also happening.
-            //
-            //          theMessage.m_ascPayload.SetString(strCredList);   // <========== Success
-            //          theMessage.m_ascPayload2.Set(str_Encoded.c_str());  // Payload contains credentials list, payload2 contains actual credentials.
+            // (1) set up member variables 
+            theMessage.m_strCommand      = "checkServerID";
+            theMessage.m_strNymID        = strNymID;          // Not expected to verify in any way (for this message.) Just mirrored back in the reply.
+            theMessage.m_strServerID     = strServerID;
+            theMessage.m_strNymPublicKey = strAuthentKey;     // Authentication public key for this Nym. (That he's signing this message with...)
+            theMessage.m_strNymID2	     = strEncryptionKey;  // Encryption public key for this Nym (to send an encrypted reply back.)
 
             theMessage.m_strRequestNum.Format("%d", 1); // Request Number, if unused, should be set to 1.
 
             // (2) Sign the Message 
-            theMessage.SignContract(theNym);
+            // When a message is signed, it updates its m_xmlUnsigned contents to
+            // the values in the member variables
+            theMessage.SignContract(theNym);		
+
+            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+            //
+            // FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
+            // If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
+            theMessage.SaveContract();
+
+            bSendCommand = true;
+            lReturnValue = 1;
+
+            // ------------------------------------------------------------------------
+        }
+
+        break;
+    case(OTClient::createUserAccount):
+        {
+            // -----------------------------
+            // Create a new OTDB::StringMap object.
+            //
+            OTDB::Storable * pStorable = NULL;
+            OTCleanup<OTDB::Storable> theAngel;
+            OTDB::StringMap * pMap = NULL;
+            // --------------------------------------------------------------
+            pStorable = OTDB::CreateObject(OTDB::STORED_OBJ_STRING_MAP); // this asserts already, on failure.
+            theAngel.SetCleanupTargetPointer(pStorable); // It will definitely be cleaned up.
+            pMap = (NULL == pStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pStorable);
+            // --------------------------------------------------------------
+            if (NULL == pMap)
+                OTLog::vError("%s: Error: failed trying to load or create a STORED_OBJ_STRING_MAP.\n",
+                __FUNCTION__);        
+            else // It instantiated.
+            {    // -----------------------------------------------
+                OTString       strCredList;
+                mapOfStrings & theMap = pMap->the_map;
+
+                // Credentials exist already.
+                if (theNym.GetMasterCredentialCount() > 0)
+                {
+                    theNym.GetPublicCredentials(strCredList, &theMap);
+                }
+                else // No credentials? Create them, then.
+                {
+                    OTString strMasterCredID;
+                    const bool bAddedMaster = theNym.AddNewMasterCredential(strMasterCredID);
+
+                    if (bAddedMaster && strMasterCredID.Exists() && (theNym.GetMasterCredentialCount() > 0))
+                    {
+                        OTLog::vOutput(0, "%s: Adding new keyCredential to master credential: %s\n",
+                            __FUNCTION__, strMasterCredID.Get());
+
+                        const OTIdentifier theMasterCredID(strMasterCredID);
+
+                        const bool bAddedSubkey = theNym.AddNewSubkey(theMasterCredID);
+
+                        if (bAddedSubkey)
+                        {
+                            theNym.SaveCredentialList();
+                            theNym.GetPublicCredentials(strCredList, &theMap);
+                        }
+                        else
+                            OTLog::vError("%s: Failed trying to add new keyCredential to new Master credential.\n",
+                            __FUNCTION__);
+                    }
+                    else
+                        OTLog::vError("%s: Failed trying to add new master credential (for Nym who doesn't have one yet.)\n",
+                        __FUNCTION__);
+                }
+                // -----------------------------------------------
+                // Serialize the StringMap to a string...
+                //
+                if (strCredList.Exists() && (theMap.size() > 0)) // Won't bother if there are zero credentials somehow.
+                {
+                    std::string str_Encoded     = OTDB::EncodeObject(*pMap);
+                    const bool bSuccessEncoding = (str_Encoded.size() > 0);
+                    if (bSuccessEncoding)
+                    {
+                        theMessage.m_ascPayload.SetString(strCredList);   // <========== Success
+                        theMessage.m_ascPayload2.Set(str_Encoded.c_str());  // Payload contains credentials list, payload2 contains actual credentials.
+                    }
+                }
+            }
+            // ----------------------------------------------
+            if (!theMessage.m_ascPayload.Exists() || !theMessage.m_ascPayload2.Exists())
+            {
+                OTLog::vError("%s: Failed trying to assemble a createUserAccount message: This Nym "
+                    "has no credentials to use for registration. Convert this Nym "
+                    "first to the new credential system, then try again.\n", __FUNCTION__);
+            }
+            else
+            {
+                // ----------------------------------------------
+                // (1) set up member variables
+                theMessage.m_strCommand			= "createUserAccount";
+                theMessage.m_strNymID			= strNymID;
+                theMessage.m_strServerID		= strServerID;
+
+                //          theNym.GetPublicKey().GetPublicKey(strNymPublicKey);
+                //          theMessage.m_strNymPublicKey	= strNymPublicKey; // Deprecated. (Credentials are new.)
+
+                // THIS APPEARS SLIGHTLY ABOVE. Just leaving as a comment
+                // here so it's not forgotten that this is also happening.
+                //
+                //          theMessage.m_ascPayload.SetString(strCredList);   // <========== Success
+                //          theMessage.m_ascPayload2.Set(str_Encoded.c_str());  // Payload contains credentials list, payload2 contains actual credentials.
+
+                theMessage.m_strRequestNum.Format("%d", 1); // Request Number, if unused, should be set to 1.
+
+                // (2) Sign the Message 
+                theMessage.SignContract(theNym);
+
+                // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+                theMessage.SaveContract();
+
+                bSendCommand = true;
+                lReturnValue = 1;
+            }
+        }
+
+        break;
+    case(OTClient::getRequest):
+        {
+            //		OTLog::vOutput(0, "(User has instructed to send a getRequest command to the server...)\n");
+
+            // (1) set up member variables 
+            theMessage.m_strCommand			= "getRequest";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strServerID		= strServerID;
+
+            theMessage.m_strRequestNum.Format("%d", 1); // Request Number, if unused, should be set to 1.
+
+            // (2) Sign the Message 
+            theMessage.SignContract(theNym);		
 
             // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
             theMessage.SaveContract();
@@ -6200,284 +6230,666 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             bSendCommand = true;
             lReturnValue = 1;
         }
-    }
 
-    // ------------------------------------------------------------------------
+        // ------------------------------------------------------------------------
 
-    else if (OTClient::getRequest == requestedCommand)
-    {
-        //		OTLog::vOutput(0, "(User has instructed to send a getRequest command to the server...)\n");
+        // **************************************************************************************
+        // EVERY COMMAND BELOW THIS POINT (THEY ARE ALL OUTGOING TO THE SERVER) MUST INCLUDE THE
+        // CORRECT REQUEST NUMBER, OR BE REJECTED BY THE SERVER.
+        //
+        // The same commands must also increment the local counter of the request number by calling theNym.IncrementRequestNum
+        // Otherwise it will get out of sync, and future commands will start failing (until it is resynchronized with
+        // a getRequest message to the server, which replies with the latest number. The code on this side that processes
+        // that server reply is already smart enough to update the local nym's copy of the request number when it is received.
+        // In this way, the client becomes resynchronized and the next command will work again. But it's better to increment the
+        // counter properly.
+        // PROPERLY == every time you actually get the request number from a nym and use it to make a server request,
+        // then you should therefore also increment that counter. If you call GetCurrentRequestNum AND USE IT WITH THE SERVER,
+        // then make sure you call IncrementRequestNum immediately after. Otherwise future commands will start failing.
+        //
+        // This is all because the server requres a new request number (last one +1) with each request. This is in
+        // order to thwart would-be attackers who cannot break the crypto, but try to capture encrypted messages and
+        // send them to the server twice. Better that new requests requre new request numbers :-)
 
-        // (1) set up member variables 
-        theMessage.m_strCommand			= "getRequest";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strServerID		= strServerID;
-
-        theMessage.m_strRequestNum.Format("%d", 1); // Request Number, if unused, should be set to 1.
-
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
-
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = 1;
-    }
-
-    // ------------------------------------------------------------------------
-
-    // **************************************************************************************
-    // EVERY COMMAND BELOW THIS POINT (THEY ARE ALL OUTGOING TO THE SERVER) MUST INCLUDE THE
-    // CORRECT REQUEST NUMBER, OR BE REJECTED BY THE SERVER.
-    //
-    // The same commands must also increment the local counter of the request number by calling theNym.IncrementRequestNum
-    // Otherwise it will get out of sync, and future commands will start failing (until it is resynchronized with
-    // a getRequest message to the server, which replies with the latest number. The code on this side that processes
-    // that server reply is already smart enough to update the local nym's copy of the request number when it is received.
-    // In this way, the client becomes resynchronized and the next command will work again. But it's better to increment the
-    // counter properly.
-    // PROPERLY == every time you actually get the request number from a nym and use it to make a server request,
-    // then you should therefore also increment that counter. If you call GetCurrentRequestNum AND USE IT WITH THE SERVER,
-    // then make sure you call IncrementRequestNum immediately after. Otherwise future commands will start failing.
-    //
-    // This is all because the server requres a new request number (last one +1) with each request. This is in
-    // order to thwart would-be attackers who cannot break the crypto, but try to capture encrypted messages and
-    // send them to the server twice. Better that new requests requre new request numbers :-)
-
-    else if (OTClient::deleteUserAccount == requestedCommand)
-    {
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-        //		OTLog::vOutput(0, "(User has instructed to send a deleteUserAccount command to the server...)\n");
-
-        // (1) set up member variables 
-        theMessage.m_strCommand			= "deleteUserAccount";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
-
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = lRequestNumber;
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::sendUserMessage == requestedCommand) // SEND USER MESSAGE
-    {
-        OTLog::Output(0, "Please enter a NymID (for recipient): ");
-
-        // User input.
-        // I need a second NymID, so I allow the user to enter it here.
-        OTString strNymID2;
-        strNymID2.OTfgets(std::cin);
-
-        // -----------------------------------
-
-        OTLog::Output(0, "Enter recipient's public key:\n> ");
-
-        OTASCIIArmor theArmoredText;
-        char decode_buffer[200]; // Safe since we only read sizeof - 1.
-
-        do {
-            decode_buffer[0] = 0;
-            if (NULL != fgets(decode_buffer, sizeof(decode_buffer)-1, stdin))
-            {
-                theArmoredText.Concatenate("%s\n", decode_buffer);
-                OTLog::Output(0, "> ");
-            }
-            else 
-            {
-                break;
-            }
-
-        } while (strlen(decode_buffer)>1);
-
-        // ----------------------------------------
-
-        decode_buffer[0] = '\0';
-        OTString strPlaintext;
-
-        OTLog::Output(0, "Please enter a plaintext message, terminate with ~ on a new line:\n> ");
-
-        do {
-            fgets(decode_buffer, sizeof(decode_buffer), stdin);
-
-            if (decode_buffer[0] != '~')
-            {
-                strPlaintext.Concatenate("%s", decode_buffer);
-                OTLog::Output(0, "> ");
-            }
-        } while (decode_buffer[0] != '~');
-
-        // -----------------------------------
-
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-        // (1) set up member variables 
-        theMessage.m_strCommand			= "sendUserMessage";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strNymID2			= strNymID2;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-        OTEnvelope theEnvelope;
-        OTAsymmetricKey * pPubkey = OTAsymmetricKey::KeyFactory();
-        OT_ASSERT(NULL != pPubkey);
-        OTCleanup<OTAsymmetricKey> theKeyAngel(pPubkey);
-
-        if (theArmoredText.Exists() && !pPubkey->SetPublicKey(theArmoredText))
+        break;
+    case OTClient::deleteUserAccount:
         {
-            OTLog::Output(0, "Failed setting public key.\n");
-        }
-        else if (strPlaintext.Exists() && 
-            theEnvelope.Seal(*pPubkey, strPlaintext) &&
-            theEnvelope.GetAsciiArmoredData(theMessage.m_ascPayload))
-        {
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+            //		OTLog::vOutput(0, "(User has instructed to send a deleteUserAccount command to the server...)\n");
+
+            // (1) set up member variables 
+            theMessage.m_strCommand			= "deleteUserAccount";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
             // (2) Sign the Message 
             theMessage.SignContract(theNym);		
 
             // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
             theMessage.SaveContract();
 
-            // (Send it)
             bSendCommand = true;
             lReturnValue = lRequestNumber;
+        }
+
+        // ------------------------------------------------------------------------
+        break;
+    case OTClient::sendUserMessage: // SEND USER MESSAGE
+        {
+            OTLog::Output(0, "Please enter a NymID (for recipient): ");
+
+            // User input.
+            // I need a second NymID, so I allow the user to enter it here.
+            OTString strNymID2;
+            strNymID2.OTfgets(std::cin);
 
             // -----------------------------------
-            // store a copy in the outmail.
-            // (not encrypted, since the Nymfile will be encrypted anyway.
-            //
-            OTMessage * pMessage = new OTMessage;
 
-            OT_ASSERT(NULL != pMessage);
+            OTLog::Output(0, "Enter recipient's public key:\n> ");
 
-            pMessage->m_strCommand		= "outmailMessage";
-            pMessage->m_strNymID		= strNymID;
-            pMessage->m_strNymID2		= strNymID2;
-            pMessage->m_strServerID		= strServerID;			
-            pMessage->m_strRequestNum.Format("%ld", lRequestNumber);
+            OTASCIIArmor theArmoredText;
+            char decode_buffer[200]; // Safe since we only read sizeof - 1.
 
-            pMessage->SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+            do {
+                decode_buffer[0] = 0;
+                if (NULL != fgets(decode_buffer, sizeof(decode_buffer)-1, stdin))
+                {
+                    theArmoredText.Concatenate("%s\n", decode_buffer);
+                    OTLog::Output(0, "> ");
+                }
+                else 
+                {
+                    break;
+                }
 
-            pMessage->m_ascPayload.SetString(strPlaintext);
+            } while (strlen(decode_buffer)>1);
 
-            pMessage->SignContract(theNym);		
-            pMessage->SaveContract();
+            // ----------------------------------------
 
-            theNym.AddOutmail(*pMessage); // Now the Nym is responsible to delete it. It's in his "outmail".
+            decode_buffer[0] = '\0';
+            OTString strPlaintext;
 
-            OTPseudonym & extraNym = theNym;
-            theNym.SaveSignedNymfile(extraNym);
-        }
-        else
-        {
-            OTLog::Output(0, "Failed sealing envelope.\n");
-        }	
-    }
+            OTLog::Output(0, "Please enter a plaintext message, terminate with ~ on a new line:\n> ");
 
-    // ------------------------------------------------------------------------
+            do {
+                fgets(decode_buffer, sizeof(decode_buffer), stdin);
 
-    else if (OTClient::checkUser == requestedCommand) // CHECK USER
-    {
-        OTLog::Output(0, "Please enter a NymID: ");
+                if (decode_buffer[0] != '~')
+                {
+                    strPlaintext.Concatenate("%s", decode_buffer);
+                    OTLog::Output(0, "> ");
+                }
+            } while (decode_buffer[0] != '~');
 
-        // User input.
-        // I need a second NymID, so I allow the user to enter it here.
-        OTString strNymID2;
-        strNymID2.OTfgets(std::cin);
+            // -----------------------------------
 
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 
-        // (1) set up member variables 
-        theMessage.m_strCommand			= "checkUser";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strNymID2			= strNymID2;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+            // (1) set up member variables 
+            theMessage.m_strCommand			= "sendUserMessage";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strNymID2			= strNymID2;
+            theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
+            OTEnvelope theEnvelope;
+            OTAsymmetricKey * pPubkey = OTAsymmetricKey::KeyFactory();
+            OT_ASSERT(NULL != pPubkey);
+            OTCleanup<OTAsymmetricKey> theKeyAngel(pPubkey);
 
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = lRequestNumber;
-    }
-
-    // ------------------------------------------------------------------------
-
-    // The standard "contract" key inside the new currency contract must be the same key
-    // used by the Nym who is signing the requests to issue the currency.
-    else if (OTClient::issueAssetType == requestedCommand) // ISSUE ASSET TYPE
-    {				
-        OTString strSourceContract;
-
-        OTLog::Output(0, "Please enter currency contract, terminate with ~ on a new line:\n> ");
-        char decode_buffer[200];
-
-        do {
-            fgets(decode_buffer, sizeof(decode_buffer), stdin);
-
-            if (decode_buffer[0] != '~')
+            if (theArmoredText.Exists() && !pPubkey->SetPublicKey(theArmoredText))
             {
-                strSourceContract.Concatenate("%s", decode_buffer);
-                OTLog::Output(0, "> ");
+                OTLog::Output(0, "Failed setting public key.\n");
             }
-        } while (decode_buffer[0] != '~');
+            else if (strPlaintext.Exists() && 
+                theEnvelope.Seal(*pPubkey, strPlaintext) &&
+                theEnvelope.GetAsciiArmoredData(theMessage.m_ascPayload))
+            {
+                // (2) Sign the Message 
+                theMessage.SignContract(theNym);		
 
-        /*
-        // While debugging, sometimes I just want it to read the source contract directly out of a test file.
-        // So I use this code, instead of the above code, when I am doing that, to set strSourceContract's value...
-        //
+                // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+                theMessage.SaveContract();
 
-        OTString strTempPath;
-        strTempPath.Format("%s%s%s%s%s", OTLog::Path(), OTLog::PathSeparator(), "sample-contract", OTLog::PathSeparator(), "tokens.xml");
-        std::ifstream in(strTempPath.Get(), std::ios::binary);
+                // (Send it)
+                bSendCommand = true;
+                lReturnValue = lRequestNumber;
 
-        std::ifstream in(strTempPath.Get(), std::ios::binary);
+                // -----------------------------------
+                // store a copy in the outmail.
+                // (not encrypted, since the Nymfile will be encrypted anyway.
+                //
+                OTMessage * pMessage = new OTMessage;
 
-        if (in.fail())
-        {
-        OTLog::vError("Error opening file WHILE DEBUGGING: %s\n", strTempPath.Get());
+                OT_ASSERT(NULL != pMessage);
+
+                pMessage->m_strCommand		= "outmailMessage";
+                pMessage->m_strNymID		= strNymID;
+                pMessage->m_strNymID2		= strNymID2;
+                pMessage->m_strServerID		= strServerID;			
+                pMessage->m_strRequestNum.Format("%ld", lRequestNumber);
+
+                pMessage->SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+                pMessage->m_ascPayload.SetString(strPlaintext);
+
+                pMessage->SignContract(theNym);		
+                pMessage->SaveContract();
+
+                theNym.AddOutmail(*pMessage); // Now the Nym is responsible to delete it. It's in his "outmail".
+
+                OTPseudonym & extraNym = theNym;
+                theNym.SaveSignedNymfile(extraNym);
+            }
+            else
+            {
+                OTLog::Output(0, "Failed sealing envelope.\n");
+            }	
         }
-        OT_ASSERT(!in.fail());
 
-        std::stringstream buffer;
-        buffer << in.rdbuf();
+        // ------------------------------------------------------------------------
 
-        std::string contents(buffer.str());
-
-        strSourceContract = contents.c_str();
-        */
-
-        // -------------------------------------------------------------------
-
-        OTAssetContract theAssetContract;
-
-        if (theAssetContract.LoadContractFromString(strSourceContract))
+        break;
+    case OTClient::checkUser: // CHECK USER
         {
-            // In some places the ID is already set, and I'd verify it here.
-            // But in this place, I am adding it and generating the ID from the string.
-            OTIdentifier	newID;
-            theAssetContract.CalculateContractID(newID);	
-            theAssetContract.SetIdentifier(newID); // probably unnecessary
+            OTLog::Output(0, "Please enter a NymID: ");
+
+            // User input.
+            // I need a second NymID, so I allow the user to enter it here.
+            OTString strNymID2;
+            strNymID2.OTfgets(std::cin);
+
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+            // (1) set up member variables 
+            theMessage.m_strCommand			= "checkUser";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strNymID2			= strNymID2;
+            theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+            // (2) Sign the Message 
+            theMessage.SignContract(theNym);		
+
+            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+            theMessage.SaveContract();
+
+            bSendCommand = true;
+            lReturnValue = lRequestNumber;
+        }
+
+        // ------------------------------------------------------------------------
+
+        // The standard "contract" key inside the new currency contract must be the same key
+        // used by the Nym who is signing the requests to issue the currency.
+        break;
+    case OTClient::issueAssetType: // ISSUE ASSET TYPE
+        {				
+            OTString strSourceContract;
+
+            OTLog::Output(0, "Please enter currency contract, terminate with ~ on a new line:\n> ");
+            char decode_buffer[200];
+
+            do {
+                fgets(decode_buffer, sizeof(decode_buffer), stdin);
+
+                if (decode_buffer[0] != '~')
+                {
+                    strSourceContract.Concatenate("%s", decode_buffer);
+                    OTLog::Output(0, "> ");
+                }
+            } while (decode_buffer[0] != '~');
+
+            /*
+            // While debugging, sometimes I just want it to read the source contract directly out of a test file.
+            // So I use this code, instead of the above code, when I am doing that, to set strSourceContract's value...
+            //
+
+            OTString strTempPath;
+            strTempPath.Format("%s%s%s%s%s", OTLog::Path(), OTLog::PathSeparator(), "sample-contract", OTLog::PathSeparator(), "tokens.xml");
+            std::ifstream in(strTempPath.Get(), std::ios::binary);
+
+            std::ifstream in(strTempPath.Get(), std::ios::binary);
+
+            if (in.fail())
+            {
+            OTLog::vError("Error opening file WHILE DEBUGGING: %s\n", strTempPath.Get());
+            }
+            OT_ASSERT(!in.fail());
+
+            std::stringstream buffer;
+            buffer << in.rdbuf();
+
+            std::string contents(buffer.str());
+
+            strSourceContract = contents.c_str();
+            */
+
+            // -------------------------------------------------------------------
+
+            OTAssetContract theAssetContract;
+
+            if (theAssetContract.LoadContractFromString(strSourceContract))
+            {
+                // In some places the ID is already set, and I'd verify it here.
+                // But in this place, I am adding it and generating the ID from the string.
+                OTIdentifier	newID;
+                theAssetContract.CalculateContractID(newID);	
+                theAssetContract.SetIdentifier(newID); // probably unnecessary
+
+                // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+                theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+                theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+                theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+                // (1) Set up member variables 
+                theMessage.m_strCommand			= "issueAssetType";
+                theMessage.m_strNymID			= strNymID;
+                theMessage.m_strServerID		= strServerID;
+                theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+                newID.GetString(theMessage.m_strAssetID); // I've calculated the ID, and now put it on the message...
+                OTString strAssetContract(theAssetContract);
+                theMessage.m_ascPayload.SetString(strAssetContract);
+
+                // (2) Sign the Message 
+                theMessage.SignContract(theNym);		
+
+                // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+                theMessage.SaveContract();
+
+                bSendCommand = true;		
+                lReturnValue = lRequestNumber;
+
+                // ------------------------------------ 
+                // Save the contract to local storage and add to wallet.
+
+                OTString strFoldername(OTFolders::Contract().Get());
+                OTString strFilename(theMessage.m_strAssetID.Get());	// In this case the filename isn't actually used, since SaveToContractFolder will
+                // handle setting up the filename and overwrite it anyway. But I still prefer to set it
+                // up correctly, rather than pass a blank. I'm just funny like that.
+
+                OTAssetContract * pContract = new OTAssetContract(theMessage.m_strAssetID, strFoldername, 
+                    strFilename, theMessage.m_strAssetID);
+                OT_ASSERT(NULL != pContract);
+
+                // Check the server signature on the contract here. (Perhaps the message is good enough?
+                // After all, the message IS signed by the server and contains the Account.
+                //			if (pContract->LoadContract() && pContract->VerifyContract())
+                if (pContract->LoadContractFromString(strSourceContract) && pContract->VerifyContract())
+                {
+                    // Next make sure the wallet has this contract on its list...
+                    OTWallet * pWallet = NULL;
+
+                    if (NULL != (pWallet = m_pWallet))
+                    {
+                        pWallet->AddAssetContract(*pContract); // this saves both the contract and the wallet.
+                        pContract = NULL; // Success. The wallet "owns" it now, no need to clean it up.
+                    }
+                }
+                // cleanup
+                if (pContract)
+                {
+                    delete pContract;
+                    pContract = NULL;
+                }
+            }		
+        }
+
+        // ------------------------------------------------------------------------
+
+        // DONE: This will have to be changed from a simple message, to a transaction,
+        // BECAUSE IT CHANGES ACCOUNT BALANCES, and thus requires balance agreement for all affected accounts!
+
+        break;
+    case OTClient::exchangeBasket: // EXCHANGE BASKET
+        {				
+            const OTIdentifier USER_ID(theNym);
+
+            OTString strBasketInfo, strNymID(USER_ID);
+            OTString str_BASKET_CONTRACT_ID, str_MAIN_ACCOUNT_ID, strTemp;
+
+            // FIRST get the Asset Type ID for the basket
+            OTLog::Output(0, "Enter the basket's Asset Type ID (aka Contract ID): ");
+            str_BASKET_CONTRACT_ID.OTfgets(std::cin);
+
+            // FIRST get the Asset Type ID for the basket
+            OTLog::Output(0, "Enter an ACCOUNT ID of yours for an account that has the same asset type: ");
+            str_MAIN_ACCOUNT_ID.OTfgets(std::cin);
+            OTIdentifier MAIN_ACCOUNT_ID(str_MAIN_ACCOUNT_ID);
+
+            // which direction is the exchange?
+            OTString strDirection;
+            OTLog::Output(0, "Are you exchanging in or out? [in]: ");
+            strDirection.OTfgets(std::cin);
+
+            const bool bDirection = (strDirection.Compare("in") || strDirection.Compare("In"));
+
+            // load up the asset contract
+            OTString strFoldername(OTFolders::Contract().Get());
+            OTString strContractPath(str_BASKET_CONTRACT_ID.Get());
+            OTAssetContract * pContract = new OTAssetContract(str_BASKET_CONTRACT_ID, strFoldername,
+                strContractPath, str_BASKET_CONTRACT_ID);
+            OT_ASSERT(NULL != pContract);
+            OTCleanup<OTAssetContract> theAssetContractAngel(*pContract);
+
+            if (pContract->LoadContract() && pContract->VerifyContract()) 
+            {
+                // Next load the OTBasket object out of that contract.
+                OTBasket theBasket;
+
+                // todo perhaps verify the basket here, even though I just verified the asset contract itself...
+                // Can't never be too sure.
+                if (pContract->GetBasketInfo().GetLength() && theBasket.LoadContractFromString(pContract->GetBasketInfo()))
+                {                
+                    // We need a transaction number just to send this thing. Plus, we need a number for
+                    // each sub-account to the basket, as well as the basket's main account.
+                    // That is: 1 + theBasket.Count() + 1
+
+                    if (theNym.GetTransactionNumCount(SERVER_ID) < (2 + theBasket.Count()))
+                    {
+                        OTLog::vOutput(0, "%s: Trying to exchange basket: you don't have enough transaction numbers "
+                            "to perform the exchange.\n", __FUNCTION__);
+                    }
+                    else
+                    {
+                        long lStoredTransactionNumber=0;
+                        bool bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber); // this saves
+
+                        if (bGotTransNum)
+                        {
+                            // Create a transaction
+                            OTTransaction * pTransaction = 
+                                OTTransaction::GenerateTransaction (USER_ID, MAIN_ACCOUNT_ID, SERVER_ID, OTTransaction::exchangeBasket, lStoredTransactionNumber); 
+
+                            // set up the transaction item (each transaction may have multiple items...)
+                            OTItem * pItem = OTItem::CreateItemFromTransaction(*pTransaction, OTItem::exchangeBasket);
+
+                            // This pItem is where the Basket Info will be stored. (So it ends up on receipts...)                        
+                            pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+
+                            // ----------------------------------------------------
+                            // GET / LOAD the ACCOUNT / INBOX /OUTBOX for the MAIN ACCOUNT
+
+                            OTAccount * pMainAccount = m_pWallet->GetAccount(MAIN_ACCOUNT_ID);
+                            OT_ASSERT(NULL != pMainAccount); // todo. better than nothing for now.
+
+                            OTLedger * pInbox	= pMainAccount->LoadInbox(theNym);
+                            OTLedger * pOutbox	= pMainAccount->LoadOutbox(theNym);
+
+                            OTCleanup<OTLedger> theInboxAngel(pInbox);
+                            OTCleanup<OTLedger> theOutboxAngel(pOutbox);
+
+                            if (NULL == pInbox)
+                            {
+                                OTLog::Output(0, "Failed loading inbox!\n");
+
+                                // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                                theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true
+                            }
+                            else if (NULL == pOutbox)
+                            {
+                                OTLog::Output(0, "Failed loading outbox!\n");
+
+                                // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                                theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true
+                            }
+                            // Set up the Request Basket! ------------------------------
+                            else
+                            {
+                                int nTransferMultiple = 0;
+
+                                OTBasket theRequestBasket(theBasket.Count(), theBasket.GetMinimumTransfer());
+
+                                theRequestBasket.SetExchangingIn(bDirection);
+                                // --------------------------------------------------
+                                // Show the minimum transfer amount to the customer and ask him to choose a multiple for the transfer
+                                OTLog::vOutput(0, "The minimum transfer amount for this basket is %ld. You may only exchange in multiples of it.\n"
+                                    "Choose any multiple [1]: ", theBasket.GetMinimumTransfer());
+                                strTemp.OTfgets(std::cin);
+                                nTransferMultiple = atoi(strTemp.Get()); 
+                                strTemp.Release();
+                                if (nTransferMultiple <= 0)
+                                    nTransferMultiple = 1;
+
+                                theRequestBasket.SetTransferMultiple(nTransferMultiple);
+
+                                // NOTE: I'm not checking this call for success...
+                                // But, I DID check the count beforehand, and I know there are enough numbers.
+                                //
+                                long lClosingTransactionNo = 0;
+                                theNym.GetNextTransactionNum(theNym, strServerID, lClosingTransactionNo); // this saves
+
+                                theRequestBasket.SetClosingNum(lClosingTransactionNo); // For the basketReceipt (Closing Transaction Num) for main account.
+
+                                // -----------------------------------------------------------
+
+                                // Then loop through the BasketItems... 
+                                for (int i = 0; i < theBasket.Count(); i++)
+                                {
+                                    // pItem-> contains SUB_CONTRACT_ID, SUB_ACCOUNT_ID, and lMinimumTransferAmount.
+                                    BasketItem * pItem = theBasket.At(i);
+
+                                    // ...and for each one, ask the user to enter his corresponding account ID.
+                                    // IT MUST BE THE SAME ASSET TYPE AS THE BASKET ITEM, SO SHOW USER THE ASSET ID!
+                                    OTString str_SUB_CONTRACT_ID(pItem->SUB_CONTRACT_ID);
+                                    OTLog::vOutput(0, "\nBasket currency type (Asset Type) #%d is:\n%s\n\nPlease enter your own "
+                                        "existing Account ID of the same asset type: ", 
+                                        i+1, str_SUB_CONTRACT_ID.Get());
+                                    OTString str_TEMP_ACCOUNT_ID;
+                                    str_TEMP_ACCOUNT_ID.OTfgets(std::cin);
+                                    OTIdentifier TEMP_ACCOUNT_ID(str_TEMP_ACCOUNT_ID);
+
+
+                                    // TODO (later) Load up the user's account at this point to make sure it even exists.
+                                    // Then check the asset type on that account against pItem->SUB_CONTRACT_ID and make sure they match.
+                                    // The server will definitely have to do this anyway. The client can skip it, but the command
+                                    // won't work unless the user enters this data properly. UI will have to do a popup here if something is wrong.
+
+
+                                    // As this is happening, we're creating ANOTHER basket object (theRequestBasket), with items that 
+                                    // contain MY account IDs. 
+                                    // The minimum transfer amounts on the new basket are set based on a multiple of the original.
+                                    // (I already set the multiple just above this loop.)
+
+                                    // NOTE: I'm not checking this call for success...
+                                    // But, I DID check the count beforehand, and I know there are enough numbers.
+                                    //
+                                    long lSubClosingTransactionNo = 0; // For the basketReceipt (closing transaction num) for the sub account.
+                                    theNym.GetNextTransactionNum(theNym, strServerID, lSubClosingTransactionNo); // this saves
+                                    // -------------------------------------------------------------------------------------
+                                    theRequestBasket.AddRequestSubContract(pItem->SUB_CONTRACT_ID, TEMP_ACCOUNT_ID, lSubClosingTransactionNo);
+                                }
+
+                                // Make sure the server knows where to put my new basket currency once the exchange is done.
+                                theRequestBasket.SetRequestAccountID(MAIN_ACCOUNT_ID);
+
+                                // Export the OTBasket object into a string, add it as
+                                // a payload on my request, and send to server.
+                                theRequestBasket.SignContract(theNym);
+                                theRequestBasket.SaveContractRaw(strBasketInfo);
+
+                                //***********************************************************************
+
+                                pItem->SetAttachment(strBasketInfo);
+
+                                // sign the item. save it.
+                                //
+                                pItem->SignContract(theNym);
+                                pItem->SaveContract();
+
+                                //***********************************************************************
+
+                                // ---------------------------------------------
+                                // BALANCE AGREEMENT!
+                                //
+                                // pBalanceItem is signed and saved within this call. No need to do that again.
+                                OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(0, // Change in balance is 0. (The accounts will all be changed, 
+                                    *pTransaction, theNym, *pMainAccount, *pOutbox); // but basketReceipts will be used to account for it.) 
+
+                                if (NULL != pBalanceItem) // will never be NULL. Will assert above before it gets here.
+                                    pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
+
+                                // ---------------------------------------------
+
+                                // sign the transaction
+                                pTransaction->SignContract(theNym);
+                                pTransaction->SaveContract();
+
+                                // set up the ledger
+                                OTLedger theLedger(USER_ID, MAIN_ACCOUNT_ID, SERVER_ID);
+                                theLedger.GenerateLedger(MAIN_ACCOUNT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+                                theLedger.AddTransaction(*pTransaction);
+
+                                // sign the ledger
+                                theLedger.SignContract(theNym);
+                                theLedger.SaveContract();
+
+                                // extract the ledger in ascii-armored form
+                                OTString		strLedger(theLedger);
+                                OTASCIIArmor	ascLedger; // I can't pass strLedger into this constructor because I want to encode it
+
+                                // Encoding...
+                                ascLedger.SetString(strLedger);
+
+
+                                // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+                                theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+                                theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+                                theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+                                // (1) Set up member variables 
+                                theMessage.m_strCommand			= "notarizeTransactions";
+                                theMessage.m_strNymID			= strNymID;
+                                theMessage.m_strServerID		= strServerID;
+                                theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+                                theMessage.m_strAcctID			= str_MAIN_ACCOUNT_ID;
+                                theMessage.m_ascPayload			= ascLedger;
+
+                                OTIdentifier NYMBOX_HASH;
+                                const std::string str_server(strServerID.Get());
+                                const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+
+                                if (bNymboxHash)
+                                    NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                                else
+                                    OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                                    str_server.c_str());
+
+                                // (2) Sign the Message 
+                                theMessage.SignContract(theNym);		
+
+                                // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+                                theMessage.SaveContract();
+
+                                bSendCommand = true;
+                                lReturnValue = lRequestNumber;                            
+                            } // Inbox loaded.
+                        } // successfully got first transaction number.
+                        else 
+                        {
+                            OTLog::Error("SUPPOSEDLY transaction numbers were available, but the call failed...\n");
+                        }
+
+                    } // theNym apparently has enough transaction numbers to exchange the basket.
+
+                    // ----------------------------------------------------------------
+
+                } // loaded Basket Info from string.
+                else {
+                    OTLog::Output(0, "Error loading basket info from asset contract. Are you SURE this is a basket currency?\n");
+                }
+            }
+            else {
+                OTLog::vOutput(0, "Failure loading or verifying %s\n", strContractPath.Get());
+            }
+        }
+
+        // ------------------------------------------------------------------------
+
+        break;
+    case OTClient::issueBasket: // ISSUE BASKET
+        {				
+            OTString strTemp, strBasketInfo;
+
+            // Collect NUMBER OF CONTRACTS for the basket.
+            OTLog::Output(0, "How many different asset types will compose this new basket? [2]: ");
+            strTemp.OTfgets(std::cin);
+            int nBasketCount = atoi(strTemp.Get());
+            if (0 >= nBasketCount)
+                nBasketCount = 2;
+
+            // Collect the MINIMUM TRANSFER AMOUNT for the basket. Default 100.
+            OTLog::Output(0, "If your basket has a minimum transfer amount of 100, you might have 2 or 3 sub-currencies,\n"
+                "with the first being a minimum of 2 gold, the second being a minimum of 50 dollars, and the\n"
+                "third being a minimum of 30 silver. In this example, 100 units of the basket currency is\n"
+                "transferrable in or out of the basket currency, in return for 2 gold, 50 dollars, and 30 silver.\n"
+                "As those are only the *minimum* amounts, you could also transfer (in or out) in *any* multiple of\n"
+                "those numbers.\n\n");
+            OTLog::Output(0, "What is the minimum transfer amount for the basket currency itself? [100]: ");
+            strTemp.Release(); strTemp.OTfgets(std::cin);
+            long lMinimumTransferAmount = atoi(strTemp.Get());
+            if (0 == lMinimumTransferAmount)
+                lMinimumTransferAmount = 100;
+
+            // ADD THESE VALUES TO A BASKET OBJECT HERE SO I CAN RE-USE lMinimumTransferAmount for the loop below.
+            OTBasket theBasket(nBasketCount, lMinimumTransferAmount);
+
+            // Collect all the contract IDs for the above contracts
+            for (int i = 0; i < nBasketCount; i++)
+            {
+                OTLog::vOutput(0, "Enter contract ID # %d: ", i+1);
+                strTemp.Release(); strTemp.OTfgets(std::cin);
+
+                OTIdentifier SUB_CONTRACT_ID(strTemp.Get());
+
+                // After each ID, collect the minimum transfer amount for EACH contract.
+                OTLog::Output(0, "Enter minimum transfer amount for that asset type: ");
+                strTemp.Release(); strTemp.OTfgets(std::cin);
+
+                lMinimumTransferAmount = atol(strTemp.Get());
+
+                // ADD THE CONTRACT ID TO A LIST TO BE SENT TO THE SERVER.
+                // ADD THE MINIMUM TRANSFER AMOUNT TO THE SAME OBJECT
+                theBasket.AddSubContract(SUB_CONTRACT_ID, lMinimumTransferAmount);
+
+                // The object storing these should also have a space for storing
+                // the account ID that will go with each one. The server will add
+                // the Account ID when the reserve accounts are generated.
+                //
+                // (The basket issuer account will contain sub-accounts for the
+                // reserves, which are stored there and 100% redeemable at all times.)
+            }
+
+            // Export the OTBasket object into a string, add it as
+            // a payload on message, and send to server.
+            theBasket.SignContract(theNym);
+            theBasket.SaveContractRaw(strBasketInfo);
+
+            // The user signs and saves the contract, but once the server gets it,
+            // the server releases signatures and signs it, calculating the hash from the result,
+            // in order to form the ID.
+            //
+            // The result is the same as any other currency contract, but with the server's signature
+            // on it (and thus it must store the server's public key).  The server handles all
+            // transactions in and out of the basket currency based upon the rules set up by the user.
+            //
+            // The user who created the currency has no more control over it. The server reserves the
+            // right to exchange out to the various users and close the basket.
+
+            // AT SOME POINT, strBasketInfo has been populated with the relevant data.
 
             // (0) Set up the REQUEST NUMBER and then INCREMENT IT
             theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
@@ -6485,14 +6897,12 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 
             // (1) Set up member variables 
-            theMessage.m_strCommand			= "issueAssetType";
+            theMessage.m_strCommand			= "issueBasket";
             theMessage.m_strNymID			= strNymID;
             theMessage.m_strServerID		= strServerID;
             theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 
-            newID.GetString(theMessage.m_strAssetID); // I've calculated the ID, and now put it on the message...
-            OTString strAssetContract(theAssetContract);
-            theMessage.m_ascPayload.SetString(strAssetContract);
+            theMessage.m_ascPayload.SetString(strBasketInfo);
 
             // (2) Sign the Message 
             theMessage.SignContract(theNym);		
@@ -6500,553 +6910,1151 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
             theMessage.SaveContract();
 
-            bSendCommand = true;		
+            bSendCommand = true;			
             lReturnValue = lRequestNumber;
+        }
 
-            // ------------------------------------ 
-            // Save the contract to local storage and add to wallet.
+        // ------------------------------------------------------------------------
 
-            OTString strFoldername(OTFolders::Contract().Get());
-            OTString strFilename(theMessage.m_strAssetID.Get());	// In this case the filename isn't actually used, since SaveToContractFolder will
-            // handle setting up the filename and overwrite it anyway. But I still prefer to set it
-            // up correctly, rather than pass a blank. I'm just funny like that.
+        break;
+    case OTClient::createAccount: // CREATE ACCOUNT
+        {	
+            OTLog::Output(0, "Please enter an asset type (contract ID): ");
+            // User input.
+            // I need a from account
+            OTString strAssetID;
+            strAssetID.OTfgets(std::cin);
 
-            OTAssetContract * pContract = new OTAssetContract(theMessage.m_strAssetID, strFoldername, 
-                strFilename, theMessage.m_strAssetID);
-            OT_ASSERT(NULL != pContract);
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 
-            // Check the server signature on the contract here. (Perhaps the message is good enough?
-            // After all, the message IS signed by the server and contains the Account.
-            //			if (pContract->LoadContract() && pContract->VerifyContract())
-            if (pContract->LoadContractFromString(strSourceContract) && pContract->VerifyContract())
-            {
-                // Next make sure the wallet has this contract on its list...
-                OTWallet * pWallet = NULL;
+            // (1) Set up member variables 
+            theMessage.m_strCommand			= "createAccount";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 
-                if (NULL != (pWallet = m_pWallet))
-                {
-                    pWallet->AddAssetContract(*pContract); // this saves both the contract and the wallet.
-                    pContract = NULL; // Success. The wallet "owns" it now, no need to clean it up.
-                }
-            }
-            // cleanup
-            if (pContract)
-            {
-                delete pContract;
-                pContract = NULL;
-            }
-        }		
-    }
+            theMessage.m_strAssetID			= strAssetID;// the hash of the contract is the AssetID
 
-    // ------------------------------------------------------------------------
+            // (2) Sign the Message 
+            theMessage.SignContract(theNym);		
 
-    // DONE: This will have to be changed from a simple message, to a transaction,
-    // BECAUSE IT CHANGES ACCOUNT BALANCES, and thus requires balance agreement for all affected accounts!
+            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+            theMessage.SaveContract();
 
-    else if (OTClient::exchangeBasket == requestedCommand) // EXCHANGE BASKET
-    {				
-        const OTIdentifier USER_ID(theNym);
+            bSendCommand = true;
+            lReturnValue = lRequestNumber;
+        }
 
-        OTString strBasketInfo, strNymID(USER_ID);
-        OTString str_BASKET_CONTRACT_ID, str_MAIN_ACCOUNT_ID, strTemp;
-
-        // FIRST get the Asset Type ID for the basket
-        OTLog::Output(0, "Enter the basket's Asset Type ID (aka Contract ID): ");
-        str_BASKET_CONTRACT_ID.OTfgets(std::cin);
-
-        // FIRST get the Asset Type ID for the basket
-        OTLog::Output(0, "Enter an ACCOUNT ID of yours for an account that has the same asset type: ");
-        str_MAIN_ACCOUNT_ID.OTfgets(std::cin);
-        OTIdentifier MAIN_ACCOUNT_ID(str_MAIN_ACCOUNT_ID);
-
-        // which direction is the exchange?
-        OTString strDirection;
-        OTLog::Output(0, "Are you exchanging in or out? [in]: ");
-        strDirection.OTfgets(std::cin);
-
-        const bool bDirection = (strDirection.Compare("in") || strDirection.Compare("In"));
-
-        // load up the asset contract
-        OTString strFoldername(OTFolders::Contract().Get());
-        OTString strContractPath(str_BASKET_CONTRACT_ID.Get());
-        OTAssetContract * pContract = new OTAssetContract(str_BASKET_CONTRACT_ID, strFoldername,
-            strContractPath, str_BASKET_CONTRACT_ID);
-        OT_ASSERT(NULL != pContract);
-        OTCleanup<OTAssetContract> theAssetContractAngel(*pContract);
-
-        if (pContract->LoadContract() && pContract->VerifyContract()) 
+        // ------------------------------------------------------------------------
+        break;
+    case OTClient::notarizeTransfer: // NOTARIZE TRANSFER
         {
-            // Next load the OTBasket object out of that contract.
-            OTBasket theBasket;
+            OTString strFromAcct;
 
-            // todo perhaps verify the basket here, even though I just verified the asset contract itself...
-            // Can't never be too sure.
-            if (pContract->GetBasketInfo().GetLength() && theBasket.LoadContractFromString(pContract->GetBasketInfo()))
-            {                
-                // We need a transaction number just to send this thing. Plus, we need a number for
-                // each sub-account to the basket, as well as the basket's main account.
-                // That is: 1 + theBasket.Count() + 1
+            if (NULL == pAccount)
+            {
+                OTLog::Output(0, "Please enter an asset Account ID (FROM acct): ");
+                // User input.
+                // I need a from account
+                strFromAcct.OTfgets(std::cin);
 
-                if (theNym.GetTransactionNumCount(SERVER_ID) < (2 + theBasket.Count()))
+                if (strFromAcct.GetLength() < 2)
+                    return (-1);
+
+                const OTIdentifier ACCOUNT_ID(strFromAcct);
+
+                if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
                 {
-                    OTLog::vOutput(0, "%s: Trying to exchange basket: you don't have enough transaction numbers "
-                        "to perform the exchange.\n", __FUNCTION__);
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
                 }
                 else
                 {
-                    long lStoredTransactionNumber=0;
-                    bool bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber); // this saves
-
-                    if (bGotTransNum)
-                    {
-                        // Create a transaction
-                        OTTransaction * pTransaction = 
-                            OTTransaction::GenerateTransaction (USER_ID, MAIN_ACCOUNT_ID, SERVER_ID, OTTransaction::exchangeBasket, lStoredTransactionNumber); 
-
-                        // set up the transaction item (each transaction may have multiple items...)
-                        OTItem * pItem = OTItem::CreateItemFromTransaction(*pTransaction, OTItem::exchangeBasket);
-
-                        // This pItem is where the Basket Info will be stored. (So it ends up on receipts...)                        
-                        pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
-
-                        // ----------------------------------------------------
-                        // GET / LOAD the ACCOUNT / INBOX /OUTBOX for the MAIN ACCOUNT
-
-                        OTAccount * pMainAccount = m_pWallet->GetAccount(MAIN_ACCOUNT_ID);
-                        OT_ASSERT(NULL != pMainAccount); // todo. better than nothing for now.
-
-                        OTLedger * pInbox	= pMainAccount->LoadInbox(theNym);
-                        OTLedger * pOutbox	= pMainAccount->LoadOutbox(theNym);
-
-                        OTCleanup<OTLedger> theInboxAngel(pInbox);
-                        OTCleanup<OTLedger> theOutboxAngel(pOutbox);
-
-                        if (NULL == pInbox)
-                        {
-                            OTLog::Output(0, "Failed loading inbox!\n");
-
-                            // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-                            theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true
-                        }
-                        else if (NULL == pOutbox)
-                        {
-                            OTLog::Output(0, "Failed loading outbox!\n");
-
-                            // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-                            theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true
-                        }
-                        // Set up the Request Basket! ------------------------------
-                        else
-                        {
-                            int nTransferMultiple = 0;
-
-                            OTBasket theRequestBasket(theBasket.Count(), theBasket.GetMinimumTransfer());
-
-                            theRequestBasket.SetExchangingIn(bDirection);
-                            // --------------------------------------------------
-                            // Show the minimum transfer amount to the customer and ask him to choose a multiple for the transfer
-                            OTLog::vOutput(0, "The minimum transfer amount for this basket is %ld. You may only exchange in multiples of it.\n"
-                                "Choose any multiple [1]: ", theBasket.GetMinimumTransfer());
-                            strTemp.OTfgets(std::cin);
-                            nTransferMultiple = atoi(strTemp.Get()); 
-                            strTemp.Release();
-                            if (nTransferMultiple <= 0)
-                                nTransferMultiple = 1;
-
-                            theRequestBasket.SetTransferMultiple(nTransferMultiple);
-
-                            // NOTE: I'm not checking this call for success...
-                            // But, I DID check the count beforehand, and I know there are enough numbers.
-                            //
-                            long lClosingTransactionNo = 0;
-                            theNym.GetNextTransactionNum(theNym, strServerID, lClosingTransactionNo); // this saves
-
-                            theRequestBasket.SetClosingNum(lClosingTransactionNo); // For the basketReceipt (Closing Transaction Num) for main account.
-
-                            // -----------------------------------------------------------
-
-                            // Then loop through the BasketItems... 
-                            for (int i = 0; i < theBasket.Count(); i++)
-                            {
-                                // pItem-> contains SUB_CONTRACT_ID, SUB_ACCOUNT_ID, and lMinimumTransferAmount.
-                                BasketItem * pItem = theBasket.At(i);
-
-                                // ...and for each one, ask the user to enter his corresponding account ID.
-                                // IT MUST BE THE SAME ASSET TYPE AS THE BASKET ITEM, SO SHOW USER THE ASSET ID!
-                                OTString str_SUB_CONTRACT_ID(pItem->SUB_CONTRACT_ID);
-                                OTLog::vOutput(0, "\nBasket currency type (Asset Type) #%d is:\n%s\n\nPlease enter your own "
-                                    "existing Account ID of the same asset type: ", 
-                                    i+1, str_SUB_CONTRACT_ID.Get());
-                                OTString str_TEMP_ACCOUNT_ID;
-                                str_TEMP_ACCOUNT_ID.OTfgets(std::cin);
-                                OTIdentifier TEMP_ACCOUNT_ID(str_TEMP_ACCOUNT_ID);
-
-
-                                // TODO (later) Load up the user's account at this point to make sure it even exists.
-                                // Then check the asset type on that account against pItem->SUB_CONTRACT_ID and make sure they match.
-                                // The server will definitely have to do this anyway. The client can skip it, but the command
-                                // won't work unless the user enters this data properly. UI will have to do a popup here if something is wrong.
-
-
-                                // As this is happening, we're creating ANOTHER basket object (theRequestBasket), with items that 
-                                // contain MY account IDs. 
-                                // The minimum transfer amounts on the new basket are set based on a multiple of the original.
-                                // (I already set the multiple just above this loop.)
-
-                                // NOTE: I'm not checking this call for success...
-                                // But, I DID check the count beforehand, and I know there are enough numbers.
-                                //
-                                long lSubClosingTransactionNo = 0; // For the basketReceipt (closing transaction num) for the sub account.
-                                theNym.GetNextTransactionNum(theNym, strServerID, lSubClosingTransactionNo); // this saves
-                                // -------------------------------------------------------------------------------------
-                                theRequestBasket.AddRequestSubContract(pItem->SUB_CONTRACT_ID, TEMP_ACCOUNT_ID, lSubClosingTransactionNo);
-                            }
-
-                            // Make sure the server knows where to put my new basket currency once the exchange is done.
-                            theRequestBasket.SetRequestAccountID(MAIN_ACCOUNT_ID);
-
-                            // Export the OTBasket object into a string, add it as
-                            // a payload on my request, and send to server.
-                            theRequestBasket.SignContract(theNym);
-                            theRequestBasket.SaveContractRaw(strBasketInfo);
-
-                            //***********************************************************************
-
-                            pItem->SetAttachment(strBasketInfo);
-
-                            // sign the item. save it.
-                            //
-                            pItem->SignContract(theNym);
-                            pItem->SaveContract();
-
-                            //***********************************************************************
-
-                            // ---------------------------------------------
-                            // BALANCE AGREEMENT!
-                            //
-                            // pBalanceItem is signed and saved within this call. No need to do that again.
-                            OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(0, // Change in balance is 0. (The accounts will all be changed, 
-                                *pTransaction, theNym, *pMainAccount, *pOutbox); // but basketReceipts will be used to account for it.) 
-
-                            if (NULL != pBalanceItem) // will never be NULL. Will assert above before it gets here.
-                                pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
-
-                            // ---------------------------------------------
-
-                            // sign the transaction
-                            pTransaction->SignContract(theNym);
-                            pTransaction->SaveContract();
-
-                            // set up the ledger
-                            OTLedger theLedger(USER_ID, MAIN_ACCOUNT_ID, SERVER_ID);
-                            theLedger.GenerateLedger(MAIN_ACCOUNT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
-                            theLedger.AddTransaction(*pTransaction);
-
-                            // sign the ledger
-                            theLedger.SignContract(theNym);
-                            theLedger.SaveContract();
-
-                            // extract the ledger in ascii-armored form
-                            OTString		strLedger(theLedger);
-                            OTASCIIArmor	ascLedger; // I can't pass strLedger into this constructor because I want to encode it
-
-                            // Encoding...
-                            ascLedger.SetString(strLedger);
-
-
-                            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-                            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-                            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-                            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-                            // (1) Set up member variables 
-                            theMessage.m_strCommand			= "notarizeTransactions";
-                            theMessage.m_strNymID			= strNymID;
-                            theMessage.m_strServerID		= strServerID;
-                            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-                            theMessage.m_strAcctID			= str_MAIN_ACCOUNT_ID;
-                            theMessage.m_ascPayload			= ascLedger;
-
-                            OTIdentifier NYMBOX_HASH;
-                            const std::string str_server(strServerID.Get());
-                            const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
-
-                            if (bNymboxHash)
-                                NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
-                            else
-                                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
-                                str_server.c_str());
-
-                            // (2) Sign the Message 
-                            theMessage.SignContract(theNym);		
-
-                            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-                            theMessage.SaveContract();
-
-                            bSendCommand = true;
-                            lReturnValue = lRequestNumber;                            
-                        } // Inbox loaded.
-                    } // successfully got first transaction number.
-                    else 
-                    {
-                        OTLog::Error("SUPPOSEDLY transaction numbers were available, but the call failed...\n");
-                    }
-
-                } // theNym apparently has enough transaction numbers to exchange the basket.
-
-                // ----------------------------------------------------------------
-
-            } // loaded Basket Info from string.
-            else {
-                OTLog::Output(0, "Error loading basket info from asset contract. Are you SURE this is a basket currency?\n");
-            }
-        }
-        else {
-            OTLog::vOutput(0, "Failure loading or verifying %s\n", strContractPath.Get());
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::issueBasket == requestedCommand) // ISSUE BASKET
-    {				
-        OTString strTemp, strBasketInfo;
-
-        // Collect NUMBER OF CONTRACTS for the basket.
-        OTLog::Output(0, "How many different asset types will compose this new basket? [2]: ");
-        strTemp.OTfgets(std::cin);
-        int nBasketCount = atoi(strTemp.Get());
-        if (0 >= nBasketCount)
-            nBasketCount = 2;
-
-        // Collect the MINIMUM TRANSFER AMOUNT for the basket. Default 100.
-        OTLog::Output(0, "If your basket has a minimum transfer amount of 100, you might have 2 or 3 sub-currencies,\n"
-            "with the first being a minimum of 2 gold, the second being a minimum of 50 dollars, and the\n"
-            "third being a minimum of 30 silver. In this example, 100 units of the basket currency is\n"
-            "transferrable in or out of the basket currency, in return for 2 gold, 50 dollars, and 30 silver.\n"
-            "As those are only the *minimum* amounts, you could also transfer (in or out) in *any* multiple of\n"
-            "those numbers.\n\n");
-        OTLog::Output(0, "What is the minimum transfer amount for the basket currency itself? [100]: ");
-        strTemp.Release(); strTemp.OTfgets(std::cin);
-        long lMinimumTransferAmount = atoi(strTemp.Get());
-        if (0 == lMinimumTransferAmount)
-            lMinimumTransferAmount = 100;
-
-        // ADD THESE VALUES TO A BASKET OBJECT HERE SO I CAN RE-USE lMinimumTransferAmount for the loop below.
-        OTBasket theBasket(nBasketCount, lMinimumTransferAmount);
-
-        // Collect all the contract IDs for the above contracts
-        for (int i = 0; i < nBasketCount; i++)
-        {
-            OTLog::vOutput(0, "Enter contract ID # %d: ", i+1);
-            strTemp.Release(); strTemp.OTfgets(std::cin);
-
-            OTIdentifier SUB_CONTRACT_ID(strTemp.Get());
-
-            // After each ID, collect the minimum transfer amount for EACH contract.
-            OTLog::Output(0, "Enter minimum transfer amount for that asset type: ");
-            strTemp.Release(); strTemp.OTfgets(std::cin);
-
-            lMinimumTransferAmount = atol(strTemp.Get());
-
-            // ADD THE CONTRACT ID TO A LIST TO BE SENT TO THE SERVER.
-            // ADD THE MINIMUM TRANSFER AMOUNT TO THE SAME OBJECT
-            theBasket.AddSubContract(SUB_CONTRACT_ID, lMinimumTransferAmount);
-
-            // The object storing these should also have a space for storing
-            // the account ID that will go with each one. The server will add
-            // the Account ID when the reserve accounts are generated.
-            //
-            // (The basket issuer account will contain sub-accounts for the
-            // reserves, which are stored there and 100% redeemable at all times.)
-        }
-
-        // Export the OTBasket object into a string, add it as
-        // a payload on message, and send to server.
-        theBasket.SignContract(theNym);
-        theBasket.SaveContractRaw(strBasketInfo);
-
-        // The user signs and saves the contract, but once the server gets it,
-        // the server releases signatures and signs it, calculating the hash from the result,
-        // in order to form the ID.
-        //
-        // The result is the same as any other currency contract, but with the server's signature
-        // on it (and thus it must store the server's public key).  The server handles all
-        // transactions in and out of the basket currency based upon the rules set up by the user.
-        //
-        // The user who created the currency has no more control over it. The server reserves the
-        // right to exchange out to the various users and close the basket.
-
-        // AT SOME POINT, strBasketInfo has been populated with the relevant data.
-
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-        // (1) Set up member variables 
-        theMessage.m_strCommand			= "issueBasket";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-        theMessage.m_ascPayload.SetString(strBasketInfo);
-
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
-
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;			
-        lReturnValue = lRequestNumber;
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::createAccount == requestedCommand) // CREATE ACCOUNT
-    {	
-        OTLog::Output(0, "Please enter an asset type (contract ID): ");
-        // User input.
-        // I need a from account
-        OTString strAssetID;
-        strAssetID.OTfgets(std::cin);
-
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-        // (1) Set up member variables 
-        theMessage.m_strCommand			= "createAccount";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-        theMessage.m_strAssetID			= strAssetID;// the hash of the contract is the AssetID
-
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
-
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = lRequestNumber;
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::notarizeTransfer == requestedCommand) // NOTARIZE TRANSFER
-    {	
-        OTString strFromAcct;
-
-        if (NULL == pAccount)
-        {
-            OTLog::Output(0, "Please enter an asset Account ID (FROM acct): ");
-            // User input.
-            // I need a from account
-            strFromAcct.OTfgets(std::cin);
-
-            if (strFromAcct.GetLength() < 2)
-                return (-1);
-
-            const OTIdentifier ACCOUNT_ID(strFromAcct);
-
-            if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
+                    OTLog::Error("Unable to transfer without a 'FROM' account. Try adding:  --myacct ACCOUNT_ID\n");
+                    return (-1);
+                }
             }
             else
             {
-                OTLog::Error("Unable to transfer without a 'FROM' account. Try adding:  --myacct ACCOUNT_ID\n");
+                pAccount->GetIdentifier(strFromAcct);
+                CONTRACT_ID = pAccount->GetAssetTypeID();
+                CONTRACT_ID.GetString(strContractID);
+            }
+
+            if (pAccount->GetPurportedServerID() != SERVER_ID)
+            {
+                OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                    "(Try adding:  --server SERVER_ID)\n");
                 return (-1);
             }
+
+            // -----------------------------------------------------
+
+            OTString strRecipientAcct;
+
+            if (NULL == pHisAcctID)
+            {
+                OTLog::Output(0, "Enter Recipient's asset account ID (no partial IDs here): ");
+
+                // User input.
+                // I need a from account
+                strRecipientAcct.OTfgets(std::cin);
+
+                if (strRecipientAcct.GetLength() < 2)
+                    return (-1);			
+            }
+            else
+            {
+                pHisAcctID->GetString(strRecipientAcct);            
+            }
+
+            OTIdentifier HIS_ACCT_ID(strRecipientAcct);
+
+            // ----------------------------------------------   
+            OTString strAmount;
+            if (0 == lTransactionAmount)
+            {
+                OTLog::Output(0, "Please enter an amount: ");
+                // User input.
+                // I need an amount
+                strAmount.OTfgets(std::cin);
+            }
+
+            const long lTotalAmount	= (0 == lTransactionAmount) ?  // If nothing was passed in, then use atol(strAmount), 
+                (atol(strAmount.Exists() ? strAmount.Get() : "0")) : lTransactionAmount; // otherwise lTransactionAmount.
+            // ----------------------------------------------
+
+            OTIdentifier	ACCT_FROM_ID(strFromAcct), USER_ID(theNym);
+
+            long lStoredTransactionNumber=0;
+            bool bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber); // this saves
+
+            //      int GetTransactionNumCount(const OTIdentifier & theServerID); // count
+
+            if (bGotTransNum)
+            {
+                // Create a transaction
+                OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_FROM_ID, SERVER_ID, OTTransaction::transfer, lStoredTransactionNumber); 
+
+                // set up the transaction item (each transaction may have multiple items...)
+                OTItem * pItem	= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::transfer, &HIS_ACCT_ID);
+
+                pItem->SetAmount(lTotalAmount);
+
+                OTString strNote("Just testing the notes...blah blah blah blah blah blah");
+                pItem->SetNote(strNote);
+
+                // sign the item
+                pItem->SignContract(theNym);
+                pItem->SaveContract();
+
+                pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+
+                // ---------------------------------------------
+
+                OTLedger * pInbox	= pAccount->LoadInbox(theNym);
+                OTLedger * pOutbox	= pAccount->LoadOutbox(theNym);
+
+                OTCleanup<OTLedger> theInboxAngel(pInbox);
+                OTCleanup<OTLedger> theOutboxAngel(pOutbox);
+
+                if (NULL == pInbox)
+                {
+                    OTLog::Output(0, "Failed loading inbox!\n");
+
+                    // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                    theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true				
+                }
+
+                else if (NULL == pOutbox)
+                {
+                    OTLog::Output(0, "Failed loading outbox!\n");
+
+                    // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                    theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true				
+                }
+                // BALANCE AGREEMENT 
+
+                else 
+                {
+                    // Need to setup a dummy outbox transaction (to mimic the one that will be on the server side when this pending transaction is actually put into the real outbox.)
+                    // When the server adds its own, and then compares the two, they should both show the same pending transaction, in order for this balance agreement to be valid..
+                    // Otherwise the server would have to refuse it for being inaccurate (server can't sign something inaccurate!) So I throw a dummy on there before generating balance statement.
+
+                    OTTransaction * pOutboxTransaction	= OTTransaction::GenerateTransaction(*pOutbox, OTTransaction::pending,
+                        1/*todo pick some number that everyone agrees doesn't matter, like 1. The referring-to is the important 
+                         number in this case, and perhaps server should update this value too before signing and returning.*/); // todo use a constant instead of '1'
+
+                    OT_ASSERT(NULL != pOutboxTransaction); // for now.
+
+                    OTString strItem(*pItem);
+                    pOutboxTransaction->SetReferenceString(strItem); // So the GenerateBalanceStatement function below can get the other info off this item (like amount, etc)
+                    pOutboxTransaction->SetReferenceToNum(pItem->GetTransactionNum());
+
+                    //				pOutboxTransaction->SignContract(theNym);	// Unnecessary to sign/save, since this is just a dummy data for verification
+                    //				pOutboxTransaction->SaveContract();			// purposes, and isn't being serialized anywhere.
+
+                    pOutbox->AddTransaction(*pOutboxTransaction);  // no need to cleanup pOutboxTransaction since pOutbox will handle it now.
+
+                    // ---------------------------------------------
+
+                    // pBalanceItem is signed and saved within this call. No need to do that again.
+                    OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(atol(strAmount.Get())*(-1), *pTransaction, theNym, *pAccount, *pOutbox);				
+
+                    if (NULL != pBalanceItem) // will never be NULL. Will assert above before it gets here.
+                        pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
+
+                    // ---------------------------------------------
+
+
+                    // sign the transaction
+                    pTransaction->SignContract(theNym);
+                    pTransaction->SaveContract();
+
+
+                    // set up the ledger
+                    OTLedger theLedger(USER_ID, ACCT_FROM_ID, SERVER_ID);
+                    theLedger.GenerateLedger(ACCT_FROM_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+                    theLedger.AddTransaction(*pTransaction);
+
+                    // sign the ledger
+                    theLedger.SignContract(theNym);
+                    theLedger.SaveContract();
+
+                    // extract the ledger in ascii-armored form
+                    OTString		strLedger(theLedger);
+                    OTASCIIArmor	ascLedger; // I can't pass strLedger into this constructor because I want to encode it
+
+                    // Encoding...
+                    ascLedger.SetString(strLedger);
+
+
+                    // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+                    theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+                    theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+                    theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+                    // (1) Set up member variables 
+                    theMessage.m_strCommand			= "notarizeTransactions";
+                    theMessage.m_strNymID			= strNymID;
+                    theMessage.m_strServerID		= strServerID;
+                    theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+                    theMessage.m_strAcctID			= strFromAcct;
+                    theMessage.m_ascPayload			= ascLedger;
+
+                    OTIdentifier NYMBOX_HASH;
+                    const std::string str_server(strServerID.Get());
+                    const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+
+                    if (bNymboxHash)
+                        NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                    else
+                        OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                        str_server.c_str());
+
+                    // (2) Sign the Message 
+                    theMessage.SignContract(theNym);		
+
+                    // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+                    theMessage.SaveContract();
+
+                    bSendCommand = true;
+                    lReturnValue = lRequestNumber;
+                }
+
+            }
+            else 
+            {
+                OTLog::Output(0, "No transaction numbers were available. Suggest requesting the server for one.\n");
+            }
         }
-        else
-        {
-            pAccount->GetIdentifier(strFromAcct);
-            CONTRACT_ID = pAccount->GetAssetTypeID();
-            CONTRACT_ID.GetString(strContractID);
-        }
 
-        if (pAccount->GetPurportedServerID() != SERVER_ID)
-        {
-            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
-                "(Try adding:  --server SERVER_ID)\n");
-            return (-1);
-        }
+        // ------------------------------------------------------------------------
 
-        // -----------------------------------------------------
+        break;
+    case OTClient::setAssetName: // SET ASSET CONTRACT NAME (wallet label only)
+        {	
+            OT_ASSERT(NULL != m_pWallet);
 
-        OTString strRecipientAcct;
-
-        if (NULL == pHisAcctID)
-        {
-            OTLog::Output(0, "Enter Recipient's asset account ID (no partial IDs here): ");
-
+            OTLog::Output(0, "Please enter an Asset Type ID: ");
             // User input.
-            // I need a from account
-            strRecipientAcct.OTfgets(std::cin);
+            // I need a server ID
+            OTString strContractID;
+            strContractID.OTfgets(std::cin);
 
-            if (strRecipientAcct.GetLength() < 2)
-                return (-1);			
+            const OTIdentifier theTargetID(strContractID);
+
+            OTAssetContract * pTargetContract = m_pWallet->GetAssetContract(theTargetID);
+
+            if (NULL != pTargetContract)
+            {
+                OTLog::Output(0, "Enter the new client-side \"name\" label for that asset type: ");
+                // User input.
+                // I need a name
+                OTString strNewName;
+                strNewName.OTfgets(std::cin);
+
+                pTargetContract->SetName(strNewName);
+
+                m_pWallet->SaveWallet(); // Only 'cause the server's name is stored here.
+            }
+            else 
+            {
+                OTLog::Output(0, "No Asset Contract found with that ID. Try 'load'.\n");
+            }
         }
-        else
-        {
-            pHisAcctID->GetString(strRecipientAcct);            
-        }
 
-        OTIdentifier HIS_ACCT_ID(strRecipientAcct);
+        // ------------------------------------------------------------------------
 
-        // ----------------------------------------------   
-        OTString strAmount;
-        if (0 == lTransactionAmount)
-        {
-            OTLog::Output(0, "Please enter an amount: ");
+        break;
+    case OTClient::setServerName: // SET SERVER CONTRACT NAME (wallet label only)
+        {	
+            OT_ASSERT(NULL != m_pWallet);
+
+            OTLog::Output(0, "Please enter a Server ID: ");
             // User input.
-            // I need an amount
-            strAmount.OTfgets(std::cin);
+            // I need a server ID
+            OTString strContractID;
+            strContractID.OTfgets(std::cin);
+
+            const OTIdentifier theTargetID(strContractID);
+
+            OTServerContract * pTargetContract = m_pWallet->GetServerContract(theTargetID);
+
+            if (NULL != pTargetContract)
+            {
+                OTLog::Output(0, "Enter the new client-side \"name\" label for that transaction server: ");
+                // User input.
+                // I need a name
+                OTString strNewName;
+                strNewName.OTfgets(std::cin);
+
+                pTargetContract->SetName(strNewName);
+
+                m_pWallet->SaveWallet(); // Only 'cause the server's name is stored here.
+            }
+            else 
+            {
+                OTLog::Output(0, "No Server Contract found with that ID. Try 'load'.\n");
+            }
         }
 
-        const long lTotalAmount	= (0 == lTransactionAmount) ?  // If nothing was passed in, then use atol(strAmount), 
-            (atol(strAmount.Exists() ? strAmount.Get() : "0")) : lTransactionAmount; // otherwise lTransactionAmount.
-        // ----------------------------------------------
+        // ------------------------------------------------------------------------
 
-        OTIdentifier	ACCT_FROM_ID(strFromAcct), USER_ID(theNym);
+        break;
+    case OTClient::setNymName: // SET NYM NAME (wallet label only)
+        {	
+            OT_ASSERT(NULL != m_pWallet);
 
-        long lStoredTransactionNumber=0;
-        bool bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber); // this saves
+            OTLog::Output(0, "Please enter a Nym ID: ");
+            // User input.
+            // I need a nym ID
+            OTString strNymID;
+            strNymID.OTfgets(std::cin);
 
-        //      int GetTransactionNumCount(const OTIdentifier & theServerID); // count
+            const OTIdentifier theTargetNymID(strNymID);
 
-        if (bGotTransNum)
+            OTPseudonym * pTargetNym = m_pWallet->GetNymByID(theTargetNymID);
+
+            if (NULL != pTargetNym)
+            {
+                OTLog::Output(0, "Enter the new client-side \"name\" label for that Nym: ");
+                // User input.
+                // I need a name
+                OTString strNewName;
+                strNewName.OTfgets(std::cin);
+
+                OTString strOldName(pTargetNym->GetNymName()); // just in case.
+
+                pTargetNym->SetNymName(strNewName);
+
+                if (pTargetNym->SaveSignedNymfile(theNym)) // theNym is signer on this file.
+                {
+                    m_pWallet->SaveWallet(); // Only 'cause the nym's name is stored here, too.
+                }
+                else
+                    pTargetNym->SetNymName(strOldName);
+            }
+            else 
+            {
+                OTLog::Output(0, "No Nym found with that ID. Try 'load'.\n");
+            }
+        }
+
+        // ------------------------------------------------------------------------
+
+        break;
+    case OTClient::setAccountName: // SET ACCOUNT NAME (wallet label only)
+        {	
+            OT_ASSERT(NULL != m_pWallet);
+
+            OTLog::Output(0, "Please enter an asset account ID: ");
+            // User input.
+            // I need an account
+            OTString strAcctID;
+            strAcctID.OTfgets(std::cin);
+
+            if (strAcctID.GetLength() < 2)
+                return (-1);
+
+            const OTIdentifier theAccountID(strAcctID);
+
+            OTAccount * pTheAccount = m_pWallet->GetAccount(theAccountID);
+
+            if (NULL != pTheAccount)
+            {
+                OTLog::Output(0, "Enter the new client-side \"name\" label for that Account: ");
+                // User input.
+                // I need a name
+                OTString strNewName;
+                strNewName.OTfgets(std::cin);
+
+                pTheAccount->SetName(strNewName);
+                pTheAccount->ReleaseSignatures();
+
+                pTheAccount->SignContract(theNym);
+                pTheAccount->SaveAccount();
+
+                m_pWallet->SaveWallet();
+            }
+            else 
+            {
+                OTLog::Output(0, "No account found with that ID. Try 'load'.\n");
+            }
+        }
+
+        // ------------------------------------------------------------------------
+
+        break;
+    case OTClient::getNymbox: // GET NYMBOX
+        {			
+
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+            // (1) Set up member variables 
+            theMessage.m_strCommand			= "getNymbox";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+            // (2) Sign the Message 
+            theMessage.SignContract(theNym);		
+
+            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+            theMessage.SaveContract();
+
+            bSendCommand = true;
+            lReturnValue = lRequestNumber;
+        }
+
+        // ------------------------------------------------------------------------
+
+        break;
+    case OTClient::getInbox: // GET INBOX
+        {			
+            // --------------------------------
+
+            OTString strFromAcct;
+
+            if (NULL == pAccount)
+            {
+                OTLog::Output(0, "Please enter an asset Account ID (to get its INBOX): ");
+                // User input.
+                // I need a from account
+                strFromAcct.OTfgets(std::cin);
+
+                if (strFromAcct.GetLength() < 2)
+                    return (-1);
+
+                const OTIdentifier ACCOUNT_ID(strFromAcct);
+
+                if ( (pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL )
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else
+                {
+                    OTLog::Error("Unable to download Inbox without an account ID. Try adding:  --myacct ACCOUNT_ID\n");
+                    return (-1);
+                }
+            }
+            else
+            {
+                pAccount->GetIdentifier(strFromAcct);
+                CONTRACT_ID = pAccount->GetAssetTypeID();
+                CONTRACT_ID.GetString(strContractID);
+            }
+
+            if (pAccount->GetPurportedServerID() != SERVER_ID)
+            {
+                OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                    "(Try adding:  --server SERVER_ID)\n");
+                return (-1);
+            }
+
+            // ------------------------------------
+
+            OTString strAcctID;
+            OTIdentifier theAccountID;
+
+            pAccount->GetIdentifier(theAccountID);
+            theAccountID.GetString(strAcctID);
+
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+            // (1) Set up member variables 
+            theMessage.m_strCommand			= "getInbox";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+            theMessage.m_strAcctID			= strAcctID;
+
+            // (2) Sign the Message 
+            theMessage.SignContract(theNym);		
+
+            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+            theMessage.SaveContract();
+
+            bSendCommand = true;
+            lReturnValue = lRequestNumber;
+        }
+
+        // ------------------------------------------------------------------------
+
+        break;
+    case OTClient::getOutbox: // GET OUTBOX
+        {	
+            // --------------------------------
+
+            OTString strFromAcct;
+
+            if (NULL == pAccount)
+            {
+                OTLog::Output(0, "Please enter an asset Account ID (to get its OUTBOX): ");
+                // User input.
+                // I need a from account
+                strFromAcct.OTfgets(std::cin);
+
+                if (strFromAcct.GetLength() < 2)
+                    return (-1);
+
+                const OTIdentifier ACCOUNT_ID(strFromAcct);
+
+                if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else
+                {
+                    OTLog::Error("Unable to download outbox without account ID. Try adding:  --myacct ACCOUNT_ID\n");
+                    return (-1);
+                }
+            }
+            else
+            {
+                pAccount->GetIdentifier(strFromAcct);
+                CONTRACT_ID = pAccount->GetAssetTypeID();
+                CONTRACT_ID.GetString(strContractID);
+            }
+
+            if (pAccount->GetPurportedServerID() != SERVER_ID)
+            {
+                OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                    "(Try adding:  --server SERVER_ID)\n");
+                return (-1);
+            }
+
+            // ------------------------------------
+
+            OTString strAcctID;
+            OTIdentifier theAccountID;
+
+            pAccount->GetIdentifier(theAccountID);
+            theAccountID.GetString(strAcctID);	
+
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+            // (1) Set up member variables 
+            theMessage.m_strCommand			= "getOutbox";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+            theMessage.m_strAcctID			= strAcctID;
+
+            // (2) Sign the Message 
+            theMessage.SignContract(theNym);		
+
+            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+            theMessage.SaveContract();
+
+            bSendCommand = true;
+            lReturnValue = lRequestNumber;
+        }
+
+
+        /*
+        bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
+        OTMessage & theMessage,
+        OTPseudonym & theNym,
+        //								  OTAssetContract & theContract,
+        OTServerContract & theServer,
+        OTAccount * pAccount=NULL,
+        long lTransactionAmount=0,
+        OTAssetContract * pMyAssetContract=NULL,
+        OTIdentifier * pHisNymID=NULL,
+        OTIdentifier * pHisAcctID=NULL)
         {
-            // Create a transaction
-            OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_FROM_ID, SERVER_ID, OTTransaction::transfer, lStoredTransactionNumber); 
+        // This is all preparatory work to get the various pieces of data together -- only
+        // then can we put those pieces into a message.
+        OTIdentifier CONTRACT_ID;
+        OTString strNymID, strContractID, strServerID, strNymPublicKey, strAccountID;
+        long lRequestNumber = 0;
 
-            // set up the transaction item (each transaction may have multiple items...)
-            OTItem * pItem	= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::transfer, &HIS_ACCT_ID);
+        theNym.GetIdentifier(strNymID);
+        theServer.GetIdentifier(strServerID);
 
-            pItem->SetAmount(lTotalAmount);
+        const OTIdentifier SERVER_ID(strServerID);
+        */
 
-            OTString strNote("Just testing the notes...blah blah blah blah blah blah");
-            pItem->SetNote(strNote);
+        // ------------------------------------------------------------------------
+        // This is called by the command line user.
 
-            // sign the item
-            pItem->SignContract(theNym);
-            pItem->SaveContract();
+        break;
+    case OTClient::processEntireNymbox: // PROCESS ENTIRE NYMBOX
+        {
+            const OTIdentifier MY_NYM_ID(theNym);
 
-            pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+            // Load up the appropriate Nymbox... 
+            OTLedger theNymbox(MY_NYM_ID, MY_NYM_ID, SERVER_ID);
+
+            bool bSuccess			= false;
+            bool bLoadedNymbox		= theNymbox.LoadNymbox();
+            bool bVerifiedNymbox	= bLoadedNymbox ? theNymbox.VerifyAccount(theNym) : false;
+            bool bIsEmpty			= theNymbox.GetTransactionCount() < 1;
+
+            if (false == bLoadedNymbox)
+                OTLog::vOutput(0, "OTClient::ProcessUserCommand::processEntireNymbox: Failed loading Nymbox: %s \n",
+                strNymID.Get());
+            else if (false == bVerifiedNymbox)
+                OTLog::vOutput(0, "OTClient::ProcessUserCommand::processEntireNymbox: Failed verifying Nymbox: %s \n",
+                strNymID.Get());
+            else if (!bIsEmpty)
+                bSuccess = AcceptEntireNymbox(theNymbox, SERVER_ID, theServer, theNym, theMessage);
+            // -----------------
+
+            if (!bSuccess)
+            {
+                if (bIsEmpty)
+                    OTLog::vOutput(0, "OTClient::ProcessUserCommand::processEntireNymbox: Nymbox (%s) is empty (so, skipping processNymbox.)\n",
+                    strNymID.Get());
+                else
+                    OTLog::vOutput(0, "OTClient::ProcessUserCommand::processEntireNymbox: Failed trying to accept the entire Nymbox.\n");
+            }
+            else
+            {
+                // (2) Sign the Message 
+                theMessage.SignContract(theNym);		
+
+                // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+                theMessage.SaveContract();
+
+                bSendCommand = true;
+            }
+        }
+
+        // ------------------------------------------------------------------------
+        // This is called by AcceptEntireNymbox().
+
+        break;
+    case OTClient::processNymbox: // PROCESS NYMBOX
+        {			
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+            // (1) Set up member variables 
+            theMessage.m_strCommand			= "processNymbox";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+            OTIdentifier EXISTING_NYMBOX_HASH;
+            const std::string str_server_id(strServerID.Get());
+
+            const bool bSuccess = theNym.GetNymboxHash(str_server_id, EXISTING_NYMBOX_HASH);
+
+            if (bSuccess)
+                EXISTING_NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+
+            // (2) Sign the Message 
+            theMessage.SignContract(theNym);		
+
+            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+            theMessage.SaveContract();
+
+            bSendCommand = true;
+            lReturnValue = lRequestNumber;        
+        }
+
+        // ------------------------------------------------------------------------
+        // This is called by the user of the command line utility.
+        //
+        break;
+    case OTClient::processEntireInbox: // PROCESS ENTIRE INBOX
+        {
+            const OTIdentifier MY_NYM_ID(theNym);
+
+            OTString strFromAcct;
+
+            if (NULL == pAccount)
+            {
+                OTLog::Output(0, "Please enter an asset Account ID (to PROCESS its INBOX): ");
+                // User input.
+                // I need a from account
+                strFromAcct.OTfgets(std::cin);
+
+                if (strFromAcct.GetLength() < 2)
+                    return (-1);
+
+                const OTIdentifier ACCOUNT_ID(strFromAcct);
+
+                if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL )
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else
+                {
+                    OTLog::Error("Unable to process inbox without account ID. Try adding:  --myacct ACCOUNT_ID\n");
+                    return (-1);
+                }
+            }
+            else
+            {
+                pAccount->GetIdentifier(strFromAcct);
+                CONTRACT_ID = pAccount->GetAssetTypeID();
+                CONTRACT_ID.GetString(strContractID);
+            }
+
+            if (pAccount->GetPurportedServerID() != SERVER_ID)
+            {
+                OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                    "(Try adding:  --server SERVER_ID)\n");
+                return (-1);
+            }
+
+            // ------------------------------------
+
+            OTIdentifier theAccountID;
+            pAccount->GetIdentifier(theAccountID);
+
+            // ----------------------------------------------------
+            // Load up the appropriate Inbox... 
+            OTLedger theInbox(MY_NYM_ID, theAccountID, SERVER_ID);
+
+            bool bLoadedInbox	= theInbox.LoadInbox();
+
+            bool bVerifiedInbox	= (bLoadedInbox ? theInbox.VerifyAccount(theNym) : false);
+
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            // (1) Set up member variables 
+            bool bSuccess = (bLoadedInbox && 
+                bVerifiedInbox && 
+                AcceptEntireInbox(theInbox, SERVER_ID, theServer, theNym, theMessage, *pAccount));
+            // -----------------		
+
+            if (bSuccess)
+            {
+                // (2) Sign the Message 
+                theMessage.SignContract(theNym);		
+
+                // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+                theMessage.SaveContract();
+
+                bSendCommand = true;
+            }
+            else
+            {
+                OTLog::vOutput(0, "OTClient::processEntireInbox: Failure Inbox: Loading (%s), verifying (%s), or accepting (%s) entire Inbox.\n",
+                    bLoadedInbox ? "Success" : "Failure", bVerifiedInbox ? "Success" : "Failure", bSuccess ? "Success" : "Failure");
+            }
+        }
+
+        // ------------------------------------------------------------------------
+        // This is called by AcceptEntireInbox(). 
+        //
+        break;
+    case OTClient::processInbox: // PROCESS INBOX
+        {
+            OTString strFromAcct;
+
+            if (NULL == pAccount)
+            {
+                OTLog::Output(0, "Please enter an asset Account ID (to PROCESS its INBOX): ");
+                // User input.
+                // I need a from account
+                strFromAcct.OTfgets(std::cin);
+
+                if (strFromAcct.GetLength() < 2)
+                    return (-1);
+
+                const OTIdentifier ACCOUNT_ID(strFromAcct);
+
+                if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else
+                {
+                    OTLog::Error("Unable to process inbox without account ID. Try adding:  --myacct ACCOUNT_ID\n");
+                    return (-1);
+                }
+            }
+            else
+            {
+                pAccount->GetIdentifier(strFromAcct);
+                CONTRACT_ID = pAccount->GetAssetTypeID();
+                CONTRACT_ID.GetString(strContractID);
+            }
+
+            if (pAccount->GetPurportedServerID() != SERVER_ID)
+            {
+                OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                    "(Try adding:  --server SERVER_ID)\n");
+                return (-1);
+            }
+
+            // ------------------------------------
+
+            OTString strAcctID;
+            OTIdentifier theAccountID;
+
+            pAccount->GetIdentifier(theAccountID);
+            theAccountID.GetString(strAcctID);	
+
+
+            // Normally processInbox command is sent with a transaction ledger
+            // in the payload, accepting or rejecting various transactions in
+            // my inbox.
+            // If pAccount was passed in, that means somewhere else in the code
+            // a ledger is being added to this message after this point, and it
+            // is being re-signed and sent out.
+            // That's why you don't see a ledger being constructed and added to
+            // the payload here. Because it's being done somewhere else, and that
+            // same place is what passed the account pointer in here.
+            // I only put this block here for now because I'd rather have it with
+            // all the others.
+
+
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+            // (1) Set up member variables 
+            theMessage.m_strCommand			= "processInbox";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+            theMessage.m_strAcctID			= strAcctID;
+
+            OTIdentifier NYMBOX_HASH;
+            const std::string str_server(strServerID.Get());
+            const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+
+            if (bNymboxHash)
+                NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+            else
+                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                str_server.c_str());
+
+            // (2) Sign the Message 
+            theMessage.SignContract(theNym);		
+
+            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+            theMessage.SaveContract();
+
+            bSendCommand = true;
+            lReturnValue = lRequestNumber;        
+        }
+
+        // ------------------------------------------------------------------------
+
+
+        break;
+    case OTClient::getAccount: // GET ACCOUNT
+        {	
+            OTString strFromAcct;
+
+            if (NULL == pAccount)
+            {
+                OTLog::Output(0, "Please enter an asset Account ID (to download its intermediary file): ");
+                // User input.
+                // I need a from account
+                strFromAcct.OTfgets(std::cin);
+
+                if (strFromAcct.GetLength() < 2)
+                    return (-1);
+
+                const OTIdentifier ACCOUNT_ID(strFromAcct);
+
+                if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else
+                {
+                    OTLog::Error("Unable to download account without account ID. Try adding:  --myacct ACCOUNT_ID\n");
+                    return (-1);
+                }
+            }
+            else
+            {
+                pAccount->GetIdentifier(strFromAcct);
+                CONTRACT_ID = pAccount->GetAssetTypeID();
+                CONTRACT_ID.GetString(strContractID);
+            }
+
+            if (pAccount->GetPurportedServerID() != SERVER_ID)
+            {
+                OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                    "(Try adding:  --server SERVER_ID)\n");
+                return (-1);
+            }
+
+            // ------------------------------------
+
+            OTString strAcctID;
+            OTIdentifier theAccountID;
+
+            pAccount->GetIdentifier(theAccountID);
+            theAccountID.GetString(strAcctID);	
+
+
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+            // (1) Set up member variables 
+            theMessage.m_strCommand			= "getAccount";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+            theMessage.m_strAcctID			= strAcctID;
+
+            // (2) Sign the Message 
+            theMessage.SignContract(theNym);		
+
+            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+            theMessage.SaveContract();
+
+            bSendCommand = true;
+            lReturnValue = lRequestNumber;        
+        }
+
+        // ------------------------------------------------------------------------
+
+
+        break;
+    case OTClient::getContract: // GET CONTRACT
+        {	
+            OTLog::Output(0, "Please enter an asset type ID: ");
+            // User input.
+            // I need an account
+            OTString strAssetID;
+            strAssetID.OTfgets(std::cin);
+
+            if (strAssetID.GetLength() < 2)
+                return (-1);
+
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+            // (1) Set up member variables 
+            theMessage.m_strCommand			= "getContract";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+            theMessage.m_strAssetID			= strAssetID;
+
+            // (2) Sign the Message 
+            theMessage.SignContract(theNym);		
+
+            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+            theMessage.SaveContract();
+
+            bSendCommand = true;
+            lReturnValue = lRequestNumber;        
+        }
+
+        // ------------------------------------------------------------------------
+
+
+        break;
+    case OTClient::getMint: // GET MINT
+        {	
+            OTLog::Output(0, "Please enter an asset type ID: ");
+            // User input.
+            // I need an account
+            OTString strAssetID;
+            strAssetID.OTfgets(std::cin);
+
+            if (strAssetID.GetLength() < 2)
+                return (-1);
+
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+            // (1) Set up member variables 
+            theMessage.m_strCommand			= "getMint";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+            theMessage.m_strAssetID			= strAssetID;
+
+            // (2) Sign the Message 
+            theMessage.SignContract(theNym);		
+
+            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+            theMessage.SaveContract();
+
+            bSendCommand = true;
+            lReturnValue = lRequestNumber;        
+        }
+
+
+        // ------------------------------------------------------------------------
+
+
+
+        break;
+    case OTClient::notarizeDeposit: // NOTARIZE DEPOSIT
+        {	
+            OTString strFromAcct;
+
+            if (NULL == pAccount)
+            {
+                OTLog::Output(0, "Please enter an asset Account ID to deposit your tokens to: ");
+                // User input.
+                // I need a from account
+                strFromAcct.OTfgets(std::cin);
+
+                if (strFromAcct.GetLength() < 2)
+                    return (-1);
+
+                const OTIdentifier ACCOUNT_ID(strFromAcct);
+
+                if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else
+                {
+                    OTLog::Error("Unable to deposit tokens without an account. Try adding:  --myacct ACCOUNT_ID\n");
+                    return (-1);
+                }
+            }
+            else
+            {
+                pAccount->GetIdentifier(strFromAcct);
+                CONTRACT_ID = pAccount->GetAssetTypeID();
+                CONTRACT_ID.GetString(strContractID);
+            }
+
+            if (pAccount->GetPurportedServerID() != SERVER_ID)
+            {
+                OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                    "(Try adding:  --server SERVER_ID)\n");
+                return (-1);
+            }
+
+            const OTIdentifier ACCT_FROM_ID(strFromAcct), USER_ID(theNym);
+
+            OTPurse thePurse(SERVER_ID, CONTRACT_ID);
+
+            const OTPseudonym * pServerNym = theServer.GetContractPublicNym();
+
+            long lStoredTransactionNumber=0;
+            bool bGotTransNum = false;
 
             // ---------------------------------------------
 
@@ -7059,1001 +8067,29 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             if (NULL == pInbox)
             {
                 OTLog::Output(0, "Failed loading inbox!\n");
-
-                // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-                theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true				
+                break;
             }
 
-            else if (NULL == pOutbox)
+            if (NULL == pOutbox)
             {
                 OTLog::Output(0, "Failed loading outbox!\n");
+                break;
+            }
 
+            bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber);
+            if (!bGotTransNum)
+            {
+                OTLog::Output(0, "No Transaction Numbers were available. Try requesting the server for a new one.\n");
+                break;
+            }
+
+            if (!pServerNym)
+            {
                 // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-                theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true				
-            }
-            // BALANCE AGREEMENT 
-
-            else 
-            {
-                // Need to setup a dummy outbox transaction (to mimic the one that will be on the server side when this pending transaction is actually put into the real outbox.)
-                // When the server adds its own, and then compares the two, they should both show the same pending transaction, in order for this balance agreement to be valid..
-                // Otherwise the server would have to refuse it for being inaccurate (server can't sign something inaccurate!) So I throw a dummy on there before generating balance statement.
-
-                OTTransaction * pOutboxTransaction	= OTTransaction::GenerateTransaction(*pOutbox, OTTransaction::pending,
-                    1/*todo pick some number that everyone agrees doesn't matter, like 1. The referring-to is the important 
-                     number in this case, and perhaps server should update this value too before signing and returning.*/); // todo use a constant instead of '1'
-
-                OT_ASSERT(NULL != pOutboxTransaction); // for now.
-
-                OTString strItem(*pItem);
-                pOutboxTransaction->SetReferenceString(strItem); // So the GenerateBalanceStatement function below can get the other info off this item (like amount, etc)
-                pOutboxTransaction->SetReferenceToNum(pItem->GetTransactionNum());
-
-                //				pOutboxTransaction->SignContract(theNym);	// Unnecessary to sign/save, since this is just a dummy data for verification
-                //				pOutboxTransaction->SaveContract();			// purposes, and isn't being serialized anywhere.
-
-                pOutbox->AddTransaction(*pOutboxTransaction);  // no need to cleanup pOutboxTransaction since pOutbox will handle it now.
-
-                // ---------------------------------------------
-
-                // pBalanceItem is signed and saved within this call. No need to do that again.
-                OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(atol(strAmount.Get())*(-1), *pTransaction, theNym, *pAccount, *pOutbox);				
-
-                if (NULL != pBalanceItem) // will never be NULL. Will assert above before it gets here.
-                    pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
-
-                // ---------------------------------------------
-
-
-                // sign the transaction
-                pTransaction->SignContract(theNym);
-                pTransaction->SaveContract();
-
-
-                // set up the ledger
-                OTLedger theLedger(USER_ID, ACCT_FROM_ID, SERVER_ID);
-                theLedger.GenerateLedger(ACCT_FROM_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
-                theLedger.AddTransaction(*pTransaction);
-
-                // sign the ledger
-                theLedger.SignContract(theNym);
-                theLedger.SaveContract();
-
-                // extract the ledger in ascii-armored form
-                OTString		strLedger(theLedger);
-                OTASCIIArmor	ascLedger; // I can't pass strLedger into this constructor because I want to encode it
-
-                // Encoding...
-                ascLedger.SetString(strLedger);
-
-
-                // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-                theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-                theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-                theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-                // (1) Set up member variables 
-                theMessage.m_strCommand			= "notarizeTransactions";
-                theMessage.m_strNymID			= strNymID;
-                theMessage.m_strServerID		= strServerID;
-                theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-                theMessage.m_strAcctID			= strFromAcct;
-                theMessage.m_ascPayload			= ascLedger;
-
-                OTIdentifier NYMBOX_HASH;
-                const std::string str_server(strServerID.Get());
-                const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
-
-                if (bNymboxHash)
-                    NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
-                else
-                    OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
-                    str_server.c_str());
-
-                // (2) Sign the Message 
-                theMessage.SignContract(theNym);		
-
-                // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-                theMessage.SaveContract();
-
-                bSendCommand = true;
-                lReturnValue = lRequestNumber;
+                theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true
+                break;
             }
 
-        }
-        else 
-        {
-            OTLog::Output(0, "No transaction numbers were available. Suggest requesting the server for one.\n");
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::setAssetName == requestedCommand) // SET ASSET CONTRACT NAME (wallet label only)
-    {	
-        OT_ASSERT(NULL != m_pWallet);
-
-        OTLog::Output(0, "Please enter an Asset Type ID: ");
-        // User input.
-        // I need a server ID
-        OTString strContractID;
-        strContractID.OTfgets(std::cin);
-
-        const OTIdentifier theTargetID(strContractID);
-
-        OTAssetContract * pTargetContract = m_pWallet->GetAssetContract(theTargetID);
-
-        if (NULL != pTargetContract)
-        {
-            OTLog::Output(0, "Enter the new client-side \"name\" label for that asset type: ");
-            // User input.
-            // I need a name
-            OTString strNewName;
-            strNewName.OTfgets(std::cin);
-
-            pTargetContract->SetName(strNewName);
-
-            m_pWallet->SaveWallet(); // Only 'cause the server's name is stored here.
-        }
-        else 
-        {
-            OTLog::Output(0, "No Asset Contract found with that ID. Try 'load'.\n");
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::setServerName == requestedCommand) // SET SERVER CONTRACT NAME (wallet label only)
-    {	
-        OT_ASSERT(NULL != m_pWallet);
-
-        OTLog::Output(0, "Please enter a Server ID: ");
-        // User input.
-        // I need a server ID
-        OTString strContractID;
-        strContractID.OTfgets(std::cin);
-
-        const OTIdentifier theTargetID(strContractID);
-
-        OTServerContract * pTargetContract = m_pWallet->GetServerContract(theTargetID);
-
-        if (NULL != pTargetContract)
-        {
-            OTLog::Output(0, "Enter the new client-side \"name\" label for that transaction server: ");
-            // User input.
-            // I need a name
-            OTString strNewName;
-            strNewName.OTfgets(std::cin);
-
-            pTargetContract->SetName(strNewName);
-
-            m_pWallet->SaveWallet(); // Only 'cause the server's name is stored here.
-        }
-        else 
-        {
-            OTLog::Output(0, "No Server Contract found with that ID. Try 'load'.\n");
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::setNymName == requestedCommand) // SET NYM NAME (wallet label only)
-    {	
-        OT_ASSERT(NULL != m_pWallet);
-
-        OTLog::Output(0, "Please enter a Nym ID: ");
-        // User input.
-        // I need a nym ID
-        OTString strNymID;
-        strNymID.OTfgets(std::cin);
-
-        const OTIdentifier theTargetNymID(strNymID);
-
-        OTPseudonym * pTargetNym = m_pWallet->GetNymByID(theTargetNymID);
-
-        if (NULL != pTargetNym)
-        {
-            OTLog::Output(0, "Enter the new client-side \"name\" label for that Nym: ");
-            // User input.
-            // I need a name
-            OTString strNewName;
-            strNewName.OTfgets(std::cin);
-
-            OTString strOldName(pTargetNym->GetNymName()); // just in case.
-
-            pTargetNym->SetNymName(strNewName);
-
-            if (pTargetNym->SaveSignedNymfile(theNym)) // theNym is signer on this file.
-            {
-                m_pWallet->SaveWallet(); // Only 'cause the nym's name is stored here, too.
-            }
-            else
-                pTargetNym->SetNymName(strOldName);
-        }
-        else 
-        {
-            OTLog::Output(0, "No Nym found with that ID. Try 'load'.\n");
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::setAccountName == requestedCommand) // SET ACCOUNT NAME (wallet label only)
-    {	
-        OT_ASSERT(NULL != m_pWallet);
-
-        OTLog::Output(0, "Please enter an asset account ID: ");
-        // User input.
-        // I need an account
-        OTString strAcctID;
-        strAcctID.OTfgets(std::cin);
-
-        if (strAcctID.GetLength() < 2)
-            return (-1);
-
-        const OTIdentifier theAccountID(strAcctID);
-
-        OTAccount * pTheAccount = m_pWallet->GetAccount(theAccountID);
-
-        if (NULL != pTheAccount)
-        {
-            OTLog::Output(0, "Enter the new client-side \"name\" label for that Account: ");
-            // User input.
-            // I need a name
-            OTString strNewName;
-            strNewName.OTfgets(std::cin);
-
-            pTheAccount->SetName(strNewName);
-            pTheAccount->ReleaseSignatures();
-
-            pTheAccount->SignContract(theNym);
-            pTheAccount->SaveAccount();
-
-            m_pWallet->SaveWallet();
-        }
-        else 
-        {
-            OTLog::Output(0, "No account found with that ID. Try 'load'.\n");
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::getNymbox == requestedCommand) // GET NYMBOX
-    {			
-
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-        // (1) Set up member variables 
-        theMessage.m_strCommand			= "getNymbox";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
-
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = lRequestNumber;
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::getInbox == requestedCommand) // GET INBOX
-    {			
-        // --------------------------------
-
-        OTString strFromAcct;
-
-        if (NULL == pAccount)
-        {
-            OTLog::Output(0, "Please enter an asset Account ID (to get its INBOX): ");
-            // User input.
-            // I need a from account
-            strFromAcct.OTfgets(std::cin);
-
-            if (strFromAcct.GetLength() < 2)
-                return (-1);
-
-            const OTIdentifier ACCOUNT_ID(strFromAcct);
-
-            if ( (pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL )
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else
-            {
-                OTLog::Error("Unable to download Inbox without an account ID. Try adding:  --myacct ACCOUNT_ID\n");
-                return (-1);
-            }
-        }
-        else
-        {
-            pAccount->GetIdentifier(strFromAcct);
-            CONTRACT_ID = pAccount->GetAssetTypeID();
-            CONTRACT_ID.GetString(strContractID);
-        }
-
-        if (pAccount->GetPurportedServerID() != SERVER_ID)
-        {
-            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
-                "(Try adding:  --server SERVER_ID)\n");
-            return (-1);
-        }
-
-        // ------------------------------------
-
-        OTString strAcctID;
-        OTIdentifier theAccountID;
-
-        pAccount->GetIdentifier(theAccountID);
-        theAccountID.GetString(strAcctID);
-
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-        // (1) Set up member variables 
-        theMessage.m_strCommand			= "getInbox";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-        theMessage.m_strAcctID			= strAcctID;
-
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
-
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = lRequestNumber;
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::getOutbox == requestedCommand) // GET OUTBOX
-    {	
-        // --------------------------------
-
-        OTString strFromAcct;
-
-        if (NULL == pAccount)
-        {
-            OTLog::Output(0, "Please enter an asset Account ID (to get its OUTBOX): ");
-            // User input.
-            // I need a from account
-            strFromAcct.OTfgets(std::cin);
-
-            if (strFromAcct.GetLength() < 2)
-                return (-1);
-
-            const OTIdentifier ACCOUNT_ID(strFromAcct);
-
-            if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else
-            {
-                OTLog::Error("Unable to download outbox without account ID. Try adding:  --myacct ACCOUNT_ID\n");
-                return (-1);
-            }
-        }
-        else
-        {
-            pAccount->GetIdentifier(strFromAcct);
-            CONTRACT_ID = pAccount->GetAssetTypeID();
-            CONTRACT_ID.GetString(strContractID);
-        }
-
-        if (pAccount->GetPurportedServerID() != SERVER_ID)
-        {
-            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
-                "(Try adding:  --server SERVER_ID)\n");
-            return (-1);
-        }
-
-        // ------------------------------------
-
-        OTString strAcctID;
-        OTIdentifier theAccountID;
-
-        pAccount->GetIdentifier(theAccountID);
-        theAccountID.GetString(strAcctID);	
-
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-        // (1) Set up member variables 
-        theMessage.m_strCommand			= "getOutbox";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-        theMessage.m_strAcctID			= strAcctID;
-
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
-
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = lRequestNumber;
-    }
-
-
-    /*
-    bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
-    OTMessage & theMessage,
-    OTPseudonym & theNym,
-    //								  OTAssetContract & theContract,
-    OTServerContract & theServer,
-    OTAccount * pAccount=NULL,
-    long lTransactionAmount=0,
-    OTAssetContract * pMyAssetContract=NULL,
-    OTIdentifier * pHisNymID=NULL,
-    OTIdentifier * pHisAcctID=NULL)
-    {
-    // This is all preparatory work to get the various pieces of data together -- only
-    // then can we put those pieces into a message.
-    OTIdentifier CONTRACT_ID;
-    OTString strNymID, strContractID, strServerID, strNymPublicKey, strAccountID;
-    long lRequestNumber = 0;
-
-    theNym.GetIdentifier(strNymID);
-    theServer.GetIdentifier(strServerID);
-
-    const OTIdentifier SERVER_ID(strServerID);
-    */
-
-    // ------------------------------------------------------------------------
-    // This is called by the command line user.
-
-    else if (OTClient::processEntireNymbox == requestedCommand) // PROCESS ENTIRE NYMBOX
-    {
-        const OTIdentifier MY_NYM_ID(theNym);
-
-        // Load up the appropriate Nymbox... 
-        OTLedger theNymbox(MY_NYM_ID, MY_NYM_ID, SERVER_ID);
-
-        bool bSuccess			= false;
-        bool bLoadedNymbox		= theNymbox.LoadNymbox();
-        bool bVerifiedNymbox	= bLoadedNymbox ? theNymbox.VerifyAccount(theNym) : false;
-        bool bIsEmpty			= theNymbox.GetTransactionCount() < 1;
-
-        if (false == bLoadedNymbox)
-            OTLog::vOutput(0, "OTClient::ProcessUserCommand::processEntireNymbox: Failed loading Nymbox: %s \n",
-            strNymID.Get());
-        else if (false == bVerifiedNymbox)
-            OTLog::vOutput(0, "OTClient::ProcessUserCommand::processEntireNymbox: Failed verifying Nymbox: %s \n",
-            strNymID.Get());
-        else if (!bIsEmpty)
-            bSuccess = AcceptEntireNymbox(theNymbox, SERVER_ID, theServer, theNym, theMessage);
-        // -----------------
-
-        if (!bSuccess)
-        {
-            if (bIsEmpty)
-                OTLog::vOutput(0, "OTClient::ProcessUserCommand::processEntireNymbox: Nymbox (%s) is empty (so, skipping processNymbox.)\n",
-                strNymID.Get());
-            else
-                OTLog::vOutput(0, "OTClient::ProcessUserCommand::processEntireNymbox: Failed trying to accept the entire Nymbox.\n");
-        }
-        else
-        {
-            // (2) Sign the Message 
-            theMessage.SignContract(theNym);		
-
-            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-            theMessage.SaveContract();
-
-            bSendCommand = true;
-        }
-    }
-
-    // ------------------------------------------------------------------------
-    // This is called by AcceptEntireNymbox().
-
-    else if (OTClient::processNymbox == requestedCommand) // PROCESS NYMBOX
-    {			
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-        // (1) Set up member variables 
-        theMessage.m_strCommand			= "processNymbox";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-        OTIdentifier EXISTING_NYMBOX_HASH;
-        const std::string str_server_id(strServerID.Get());
-
-        const bool bSuccess = theNym.GetNymboxHash(str_server_id, EXISTING_NYMBOX_HASH);
-
-        if (bSuccess)
-            EXISTING_NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
-
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
-
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = lRequestNumber;        
-    }
-
-    // ------------------------------------------------------------------------
-    // This is called by the user of the command line utility.
-    //
-    else if (OTClient::processEntireInbox == requestedCommand) // PROCESS ENTIRE INBOX
-    {
-        const OTIdentifier MY_NYM_ID(theNym);
-
-        OTString strFromAcct;
-
-        if (NULL == pAccount)
-        {
-            OTLog::Output(0, "Please enter an asset Account ID (to PROCESS its INBOX): ");
-            // User input.
-            // I need a from account
-            strFromAcct.OTfgets(std::cin);
-
-            if (strFromAcct.GetLength() < 2)
-                return (-1);
-
-            const OTIdentifier ACCOUNT_ID(strFromAcct);
-
-            if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL )
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else
-            {
-                OTLog::Error("Unable to process inbox without account ID. Try adding:  --myacct ACCOUNT_ID\n");
-                return (-1);
-            }
-        }
-        else
-        {
-            pAccount->GetIdentifier(strFromAcct);
-            CONTRACT_ID = pAccount->GetAssetTypeID();
-            CONTRACT_ID.GetString(strContractID);
-        }
-
-        if (pAccount->GetPurportedServerID() != SERVER_ID)
-        {
-            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
-                "(Try adding:  --server SERVER_ID)\n");
-            return (-1);
-        }
-
-        // ------------------------------------
-
-        OTIdentifier theAccountID;
-        pAccount->GetIdentifier(theAccountID);
-
-        // ----------------------------------------------------
-        // Load up the appropriate Inbox... 
-        OTLedger theInbox(MY_NYM_ID, theAccountID, SERVER_ID);
-
-        bool bLoadedInbox	= theInbox.LoadInbox();
-
-        bool bVerifiedInbox	= (bLoadedInbox ? theInbox.VerifyAccount(theNym) : false);
-
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        // (1) Set up member variables 
-        bool bSuccess = (bLoadedInbox && 
-            bVerifiedInbox && 
-            AcceptEntireInbox(theInbox, SERVER_ID, theServer, theNym, theMessage, *pAccount));
-        // -----------------		
-
-        if (bSuccess)
-        {
-            // (2) Sign the Message 
-            theMessage.SignContract(theNym);		
-
-            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-            theMessage.SaveContract();
-
-            bSendCommand = true;
-        }
-        else
-        {
-            OTLog::vOutput(0, "OTClient::processEntireInbox: Failure Inbox: Loading (%s), verifying (%s), or accepting (%s) entire Inbox.\n",
-                bLoadedInbox ? "Success" : "Failure", bVerifiedInbox ? "Success" : "Failure", bSuccess ? "Success" : "Failure");
-        }
-    }
-
-    // ------------------------------------------------------------------------
-    // This is called by AcceptEntireInbox(). 
-    //
-    else if (OTClient::processInbox == requestedCommand) // PROCESS INBOX
-    {
-        OTString strFromAcct;
-
-        if (NULL == pAccount)
-        {
-            OTLog::Output(0, "Please enter an asset Account ID (to PROCESS its INBOX): ");
-            // User input.
-            // I need a from account
-            strFromAcct.OTfgets(std::cin);
-
-            if (strFromAcct.GetLength() < 2)
-                return (-1);
-
-            const OTIdentifier ACCOUNT_ID(strFromAcct);
-
-            if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else
-            {
-                OTLog::Error("Unable to process inbox without account ID. Try adding:  --myacct ACCOUNT_ID\n");
-                return (-1);
-            }
-        }
-        else
-        {
-            pAccount->GetIdentifier(strFromAcct);
-            CONTRACT_ID = pAccount->GetAssetTypeID();
-            CONTRACT_ID.GetString(strContractID);
-        }
-
-        if (pAccount->GetPurportedServerID() != SERVER_ID)
-        {
-            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
-                "(Try adding:  --server SERVER_ID)\n");
-            return (-1);
-        }
-
-        // ------------------------------------
-
-        OTString strAcctID;
-        OTIdentifier theAccountID;
-
-        pAccount->GetIdentifier(theAccountID);
-        theAccountID.GetString(strAcctID);	
-
-
-        // Normally processInbox command is sent with a transaction ledger
-        // in the payload, accepting or rejecting various transactions in
-        // my inbox.
-        // If pAccount was passed in, that means somewhere else in the code
-        // a ledger is being added to this message after this point, and it
-        // is being re-signed and sent out.
-        // That's why you don't see a ledger being constructed and added to
-        // the payload here. Because it's being done somewhere else, and that
-        // same place is what passed the account pointer in here.
-        // I only put this block here for now because I'd rather have it with
-        // all the others.
-
-
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-        // (1) Set up member variables 
-        theMessage.m_strCommand			= "processInbox";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-        theMessage.m_strAcctID			= strAcctID;
-
-        OTIdentifier NYMBOX_HASH;
-        const std::string str_server(strServerID.Get());
-        const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
-
-        if (bNymboxHash)
-            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
-        else
-            OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
-            str_server.c_str());
-
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
-
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = lRequestNumber;        
-    }
-
-    // ------------------------------------------------------------------------
-
-
-    else if (OTClient::getAccount == requestedCommand) // GET ACCOUNT
-    {	
-        OTString strFromAcct;
-
-        if (NULL == pAccount)
-        {
-            OTLog::Output(0, "Please enter an asset Account ID (to download its intermediary file): ");
-            // User input.
-            // I need a from account
-            strFromAcct.OTfgets(std::cin);
-
-            if (strFromAcct.GetLength() < 2)
-                return (-1);
-
-            const OTIdentifier ACCOUNT_ID(strFromAcct);
-
-            if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else
-            {
-                OTLog::Error("Unable to download account without account ID. Try adding:  --myacct ACCOUNT_ID\n");
-                return (-1);
-            }
-        }
-        else
-        {
-            pAccount->GetIdentifier(strFromAcct);
-            CONTRACT_ID = pAccount->GetAssetTypeID();
-            CONTRACT_ID.GetString(strContractID);
-        }
-
-        if (pAccount->GetPurportedServerID() != SERVER_ID)
-        {
-            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
-                "(Try adding:  --server SERVER_ID)\n");
-            return (-1);
-        }
-
-        // ------------------------------------
-
-        OTString strAcctID;
-        OTIdentifier theAccountID;
-
-        pAccount->GetIdentifier(theAccountID);
-        theAccountID.GetString(strAcctID);	
-
-
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-        // (1) Set up member variables 
-        theMessage.m_strCommand			= "getAccount";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-        theMessage.m_strAcctID			= strAcctID;
-
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
-
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = lRequestNumber;        
-    }
-
-    // ------------------------------------------------------------------------
-
-
-    else if (OTClient::getContract == requestedCommand) // GET CONTRACT
-    {	
-        OTLog::Output(0, "Please enter an asset type ID: ");
-        // User input.
-        // I need an account
-        OTString strAssetID;
-        strAssetID.OTfgets(std::cin);
-
-        if (strAssetID.GetLength() < 2)
-            return (-1);
-
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-        // (1) Set up member variables 
-        theMessage.m_strCommand			= "getContract";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-        theMessage.m_strAssetID			= strAssetID;
-
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
-
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = lRequestNumber;        
-    }
-
-    // ------------------------------------------------------------------------
-
-
-    else if (OTClient::getMint == requestedCommand) // GET MINT
-    {	
-        OTLog::Output(0, "Please enter an asset type ID: ");
-        // User input.
-        // I need an account
-        OTString strAssetID;
-        strAssetID.OTfgets(std::cin);
-
-        if (strAssetID.GetLength() < 2)
-            return (-1);
-
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-        // (1) Set up member variables 
-        theMessage.m_strCommand			= "getMint";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-        theMessage.m_strAssetID			= strAssetID;
-
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
-
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = lRequestNumber;        
-    }
-
-
-    // ------------------------------------------------------------------------
-
-
-
-    else if (OTClient::notarizeDeposit == requestedCommand) // NOTARIZE DEPOSIT
-    {	
-        OTString strFromAcct;
-
-        if (NULL == pAccount)
-        {
-            OTLog::Output(0, "Please enter an asset Account ID to deposit your tokens to: ");
-            // User input.
-            // I need a from account
-            strFromAcct.OTfgets(std::cin);
-
-            if (strFromAcct.GetLength() < 2)
-                return (-1);
-
-            const OTIdentifier ACCOUNT_ID(strFromAcct);
-
-            if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else
-            {
-                OTLog::Error("Unable to deposit tokens without an account. Try adding:  --myacct ACCOUNT_ID\n");
-                return (-1);
-            }
-        }
-        else
-        {
-            pAccount->GetIdentifier(strFromAcct);
-            CONTRACT_ID = pAccount->GetAssetTypeID();
-            CONTRACT_ID.GetString(strContractID);
-        }
-
-        if (pAccount->GetPurportedServerID() != SERVER_ID)
-        {
-            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
-                "(Try adding:  --server SERVER_ID)\n");
-            return (-1);
-        }
-
-        const OTIdentifier ACCT_FROM_ID(strFromAcct), USER_ID(theNym);
-
-        OTPurse thePurse(SERVER_ID, CONTRACT_ID);
-
-        const OTPseudonym * pServerNym = theServer.GetContractPublicNym();
-
-        long lStoredTransactionNumber=0;
-        bool bGotTransNum = false;
-
-        // ---------------------------------------------
-
-        OTLedger * pInbox	= pAccount->LoadInbox(theNym);
-        OTLedger * pOutbox	= pAccount->LoadOutbox(theNym);
-
-        OTCleanup<OTLedger> theInboxAngel(pInbox);
-        OTCleanup<OTLedger> theOutboxAngel(pOutbox);
-
-        if (NULL == pInbox)
-        {
-            OTLog::Output(0, "Failed loading inbox!\n");
-        }
-
-        else if (NULL == pOutbox)
-        {
-            OTLog::Output(0, "Failed loading outbox!\n");
-        }
-
-        else if (!(bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber)))
-        {
-            OTLog::Output(0, "No Transaction Numbers were available. Try requesting the server for a new one.\n");
-        }
-
-        else if (pServerNym)
-        {
             bool bSuccess = false;
 
             // Create a transaction
@@ -8227,195 +8263,197 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                 delete pItem;		pItem = NULL;
                 delete pTransaction;pTransaction = NULL;
             }			
-        } // if (pServerNym)
-        else
-        {
-            // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-            theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true												
         }
-    } // else if (OTClient::notarizeDeposit == requestedCommand) // NOTARIZE DEPOSIT
 
-    // ------------------------------------------------------------------------
-
-
-    else if (OTClient::notarizePurse == requestedCommand) // NOTARIZE PURSE (deposit)
-    {	
-        OTString strFromAcct;
-
-        if (NULL == pAccount)
+        break;
+    case OTClient::notarizePurse: // NOTARIZE PURSE (deposit)
         {
-            OTLog::Output(0, "Please enter an asset Account ID: ");
-            // User input.
-            // I need a from account
-            strFromAcct.OTfgets(std::cin);
+            OTString strFromAcct;
 
-            if (strFromAcct.GetLength() < 2)
-                return (-1);
-
-            const OTIdentifier ACCOUNT_ID(strFromAcct);
-
-            if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
+            if (NULL == pAccount)
             {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
+                OTLog::Output(0, "Please enter an asset Account ID: ");
+                // User input.
+                // I need a from account
+                strFromAcct.OTfgets(std::cin);
+
+                if (strFromAcct.GetLength() < 2)
+                    return (-1);
+
+                const OTIdentifier ACCOUNT_ID(strFromAcct);
+
+                if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else
+                {
+                    OTLog::Error("Unable to deposit without an account. Try adding:  --myacct ACCOUNT_ID\n");
+                    return (-1);
+                }
             }
             else
             {
-                OTLog::Error("Unable to deposit without an account. Try adding:  --myacct ACCOUNT_ID\n");
-                return (-1);
+                pAccount->GetIdentifier(strFromAcct);
+                CONTRACT_ID = pAccount->GetAssetTypeID();
+                CONTRACT_ID.GetString(strContractID);
             }
-        }
-        else
-        {
-            pAccount->GetIdentifier(strFromAcct);
-            CONTRACT_ID = pAccount->GetAssetTypeID();
-            CONTRACT_ID.GetString(strContractID);
-        }
 
-        if (pAccount->GetPurportedServerID() != SERVER_ID)
-        {
-            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
-                "(Try adding:  --server SERVER_ID)\n");
-            return (-1);
-        }
-
-        // ---------------------------------------------------------
-        //
-        // "from acct" is the acct we are depositing this cash to. aka MyAcct.
-        const OTIdentifier ACCT_FROM_ID(strFromAcct), USER_ID(theNym);
-
-        OTPurse thePurse(SERVER_ID, CONTRACT_ID);
-
-        const OTPseudonym * pServerNym = theServer.GetContractPublicNym();
-
-        // ---------------------------------------------
-
-        OTPurse theSourcePurse(thePurse);
-
-        OTString strAssetTypeID;
-
-        bool bUseThePurseInStorage = false; // deposit the purse stored in local storage, versus one supplied on stdin.
-
-        // If no asset contract was passed in, then --mypurse was not specified. Therefore,
-        // we can get the purse from the user, and verify that it has the same asset type ID
-        // as pAccount does. (No need to ask for the type.)
-        //
-        // But if an asset contract WAS passed in, then we will assume (for now) that the purse
-        // from local storage will be used, of that same type, and thus no need to ask for the type.
-        //
-        if (NULL == pMyAssetContract)
-        {
-            bUseThePurseInStorage = false;
-            OTString strSourcePurse;
-
-            OTLog::Output(0, "Please enter a plaintext purse (of the same asset type as the account), \n"
-                "and terminate with a ~ (tilde character) on a new line:\n> ");
-            char decode_buffer[200]; // Safe since we only read sizeof(decode_buffer)-1
-
-            do {
-                decode_buffer[0] = 0; // Make it fresh.
-
-                if ((NULL != fgets(decode_buffer, sizeof(decode_buffer)-1, stdin)) &&
-                    (decode_buffer[0] != '~'))
-                {
-                    strSourcePurse.Concatenate("%s", decode_buffer);
-                    OTLog::Output(0, "> ");
-                }
-                else 
-                {
-                    break;
-                }
-
-            } while (decode_buffer[0] != '~');
-
-            if (false == theSourcePurse.LoadContractFromString(strSourcePurse))
+            if (pAccount->GetPurportedServerID() != SERVER_ID)
             {
-                OTLog::Output(0, "Failure trying to load purse from string provided by user.\n");
+                OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                    "(Try adding:  --server SERVER_ID)\n");
                 return (-1);
             }
 
-            // todo verify signature?
+            // ---------------------------------------------------------
+            //
+            // "from acct" is the acct we are depositing this cash to. aka MyAcct.
+            const OTIdentifier ACCT_FROM_ID(strFromAcct), USER_ID(theNym);
 
-            theSourcePurse.GetAssetID().GetString(strAssetTypeID);
-        }
-        else
-        {
-            bUseThePurseInStorage = true;
-            pMyAssetContract->GetIdentifier(strAssetTypeID);
+            OTPurse thePurse(SERVER_ID, CONTRACT_ID);
 
-            bool bLoadedSourcePurse = theSourcePurse.LoadPurse(strServerID.Get(), strNymID.Get(), strAssetTypeID.Get());
+            const OTPseudonym * pServerNym = theServer.GetContractPublicNym();
 
-            if (false == bLoadedSourcePurse)
+            // ---------------------------------------------
+
+            OTPurse theSourcePurse(thePurse);
+
+            OTString strAssetTypeID;
+
+            bool bUseThePurseInStorage = false; // deposit the purse stored in local storage, versus one supplied on stdin.
+
+            // If no asset contract was passed in, then --mypurse was not specified. Therefore,
+            // we can get the purse from the user, and verify that it has the same asset type ID
+            // as pAccount does. (No need to ask for the type.)
+            //
+            // But if an asset contract WAS passed in, then we will assume (for now) that the purse
+            // from local storage will be used, of that same type, and thus no need to ask for the type.
+            //
+            if (NULL == pMyAssetContract)
             {
-                OTLog::vOutput(0, "Deposit purse: Failure trying to load purse from local storage:\n"
-                    "Server %s  Nym %s  Asset Type %s\n",
+                bUseThePurseInStorage = false;
+                OTString strSourcePurse;
+
+                OTLog::Output(0, "Please enter a plaintext purse (of the same asset type as the account), \n"
+                    "and terminate with a ~ (tilde character) on a new line:\n> ");
+                char decode_buffer[200]; // Safe since we only read sizeof(decode_buffer)-1
+
+                do {
+                    decode_buffer[0] = 0; // Make it fresh.
+
+                    if ((NULL != fgets(decode_buffer, sizeof(decode_buffer)-1, stdin)) &&
+                        (decode_buffer[0] != '~'))
+                    {
+                        strSourcePurse.Concatenate("%s", decode_buffer);
+                        OTLog::Output(0, "> ");
+                    }
+                    else 
+                    {
+                        break;
+                    }
+
+                } while (decode_buffer[0] != '~');
+
+                if (false == theSourcePurse.LoadContractFromString(strSourcePurse))
+                {
+                    OTLog::Output(0, "Failure trying to load purse from string provided by user.\n");
+                    return (-1);
+                }
+
+                // todo verify signature?
+
+                theSourcePurse.GetAssetID().GetString(strAssetTypeID);
+            }
+            else
+            {
+                bUseThePurseInStorage = true;
+                pMyAssetContract->GetIdentifier(strAssetTypeID);
+
+                bool bLoadedSourcePurse = theSourcePurse.LoadPurse(strServerID.Get(), strNymID.Get(), strAssetTypeID.Get());
+
+                if (false == bLoadedSourcePurse)
+                {
+                    OTLog::vOutput(0, "Deposit purse: Failure trying to load purse from local storage:\n"
+                        "Server %s  Nym %s  Asset Type %s\n",
+                        strServerID.Get(), strNymID.Get(), strAssetTypeID.Get());
+                    return (-1);
+                }
+                else
+                    OTLog::vOutput(0, "WARNING: This operation is very low-level. Once you deposit the purse in local storage,\n"
+                    "you need to erase the purse file from local storage, since the tokens within it are\n"
+                    "all spent. (Otherwise, when you withdraw again, good tokens would be mixed in with\n"
+                    "the spent ones, and then you'll have to sit there depositing them one-by-one, in order\n"
+                    "to sort it all out.\n (So just use the GUI and save yourself the trouble.)\n\n"
+                    "Deposit purse: using purse from local storage.\n Server %s  Nym %s  Asset Type %s\n",
                     strServerID.Get(), strNymID.Get(), strAssetTypeID.Get());
+
+                theSourcePurse.GetAssetID().GetString(strAssetTypeID);
+            }
+
+            // By this point, theSourcePurse is DEFINITELY good,
+            // and strAssetTypeID contains its ID. 
+            const OTIdentifier ASSET_TYPE_ID(strAssetTypeID);
+
+            if (ASSET_TYPE_ID != CONTRACT_ID)
+            {
+                OTLog::Output(0, "Asset ID on purse didn't match asset ID on account. \n"
+                    "Try: --myacct ACCT_ID  (to specify a different account.)\n"
+                    "To use the purse in local storage, try:  --mypurse ASSET_TYPE_ID\n"
+                    "FYI, if you PREFER to provide the purse from user input, OT *will* ask you to\n"
+                    "input a purse when doing this, just as long as --mypurse is NOT provided. (And\n"
+                    "that includes the defaultmypurse value stored in ~/.ot/command-line-ot.opt)\n\n");
                 return (-1);
             }
-            else
-                OTLog::vOutput(0, "WARNING: This operation is very low-level. Once you deposit the purse in local storage,\n"
-                "you need to erase the purse file from local storage, since the tokens within it are\n"
-                "all spent. (Otherwise, when you withdraw again, good tokens would be mixed in with\n"
-                "the spent ones, and then you'll have to sit there depositing them one-by-one, in order\n"
-                "to sort it all out.\n (So just use the GUI and save yourself the trouble.)\n\n"
-                "Deposit purse: using purse from local storage.\n Server %s  Nym %s  Asset Type %s\n",
-                strServerID.Get(), strNymID.Get(), strAssetTypeID.Get());
 
-            theSourcePurse.GetAssetID().GetString(strAssetTypeID);
-        }
+            // By this point, I have theSourcePurse loaded, whether from local storage or from 
+            // the command-line, and I know that it has the same asset type as pAccount.
+            //
+            // ----------------------------------------------------------
 
-        // By this point, theSourcePurse is DEFINITELY good,
-        // and strAssetTypeID contains its ID. 
-        const OTIdentifier ASSET_TYPE_ID(strAssetTypeID);
+            long lStoredTransactionNumber=0;
+            bool bGotTransNum = false;
 
-        if (ASSET_TYPE_ID != CONTRACT_ID)
-        {
-            OTLog::Output(0, "Asset ID on purse didn't match asset ID on account. \n"
-                "Try: --myacct ACCT_ID  (to specify a different account.)\n"
-                "To use the purse in local storage, try:  --mypurse ASSET_TYPE_ID\n"
-                "FYI, if you PREFER to provide the purse from user input, OT *will* ask you to\n"
-                "input a purse when doing this, just as long as --mypurse is NOT provided. (And\n"
-                "that includes the defaultmypurse value stored in ~/.ot/command-line-ot.opt)\n\n");
-            return (-1);
-        }
+            OTLedger * pInbox	= pAccount->LoadInbox(theNym);
+            OTLedger * pOutbox	= pAccount->LoadOutbox(theNym);
 
-        // By this point, I have theSourcePurse loaded, whether from local storage or from 
-        // the command-line, and I know that it has the same asset type as pAccount.
-        //
-        // ----------------------------------------------------------
+            OTCleanup<OTLedger> theInboxAngel(pInbox);
+            OTCleanup<OTLedger> theOutboxAngel(pOutbox);
 
-        long lStoredTransactionNumber=0;
-        bool bGotTransNum = false;
+            if (NULL == pInbox)
+            {
+                OTLog::Output(0, "Failed loading inbox!\n");
+                break;
+            }
 
-        OTLedger * pInbox	= pAccount->LoadInbox(theNym);
-        OTLedger * pOutbox	= pAccount->LoadOutbox(theNym);
+            if (NULL == pOutbox)
+            {
+                OTLog::Output(0, "Failed loading outbox!\n");
+                break;
+            }
 
-        OTCleanup<OTLedger> theInboxAngel(pInbox);
-        OTCleanup<OTLedger> theOutboxAngel(pOutbox);
+            bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber);
+            if (!bGotTransNum)
+            {
+                OTLog::Output(0, "No Transaction Numbers were available. Try requesting the server for a new one.\n");
+                break;
+            }
 
-        if (NULL == pInbox)
-        {
-            OTLog::Output(0, "Failed loading inbox!\n");
-        }
+            if (!pServerNym)
+            {
+                // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true
+                break;
+            }
 
-        else if (NULL == pOutbox)
-        {
-            OTLog::Output(0, "Failed loading outbox!\n");
-        }
-
-        else if (!(bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber)))
-        {
-            OTLog::Output(0, "No Transaction Numbers were available. Try requesting the server for a new one.\n");
-        }
-        else if (NULL != pServerNym)
-        {
             bool bSuccess = false;
 
             // Create a transaction
@@ -8563,132 +8601,347 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                 delete pItem;		pItem = NULL;
                 delete pTransaction;pTransaction = NULL;
             }
-        } // if (pServerNym)
-        else
-        {
-            // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-            theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
-        }
-    } // else if (OTClient::notarizePurse == requestedCommand) // NOTARIZE PURSE
+        } // else if (OTClient::notarizePurse == requestedCommand) // NOTARIZE PURSE
 
-    // ------------------------------------------------------------------------
+        // ------------------------------------------------------------------------
 
 
-    else if (OTClient::notarizeCheque == requestedCommand) // DEPOSIT CHEQUE
-    {	
-        OTString strFromAcct;
+        break;
+    case OTClient::notarizeCheque: // DEPOSIT CHEQUE
+        {	
+            OTString strFromAcct;
 
-        if (NULL == pAccount)
-        {
-            OTLog::Output(0, "Please enter an asset Account ID (to deposit to): ");
-            // User input.
-            // I need a from account
-            strFromAcct.OTfgets(std::cin);
-
-            if (strFromAcct.GetLength() < 2)
-                return (-1);
-
-            const OTIdentifier ACCOUNT_ID(strFromAcct);
-
-            if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
+            if (NULL == pAccount)
             {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
+                OTLog::Output(0, "Please enter an asset Account ID (to deposit to): ");
+                // User input.
+                // I need a from account
+                strFromAcct.OTfgets(std::cin);
+
+                if (strFromAcct.GetLength() < 2)
+                    return (-1);
+
+                const OTIdentifier ACCOUNT_ID(strFromAcct);
+
+                if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else
+                {
+                    OTLog::Error("Unable to deposit without an account. Try adding:  --myacct ACCOUNT_ID\n");
+                    return (-1);
+                }
             }
             else
             {
-                OTLog::Error("Unable to deposit without an account. Try adding:  --myacct ACCOUNT_ID\n");
+                pAccount->GetIdentifier(strFromAcct);
+                CONTRACT_ID = pAccount->GetAssetTypeID();
+                CONTRACT_ID.GetString(strContractID);
+            }
+
+            if (pAccount->GetPurportedServerID() != SERVER_ID)
+            {
+                OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                    "(Try adding:  --server SERVER_ID)\n");
                 return (-1);
             }
-        }
-        else
-        {
-            pAccount->GetIdentifier(strFromAcct);
-            CONTRACT_ID = pAccount->GetAssetTypeID();
-            CONTRACT_ID.GetString(strContractID);
-        }
 
-        if (pAccount->GetPurportedServerID() != SERVER_ID)
-        {
-            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
-                "(Try adding:  --server SERVER_ID)\n");
-            return (-1);
-        }
+            const OTIdentifier ACCT_FROM_ID(strFromAcct), USER_ID(theNym);
 
-        const OTIdentifier ACCT_FROM_ID(strFromAcct), USER_ID(theNym);
+            OTCheque theCheque(SERVER_ID, CONTRACT_ID);
 
-        OTCheque theCheque(SERVER_ID, CONTRACT_ID);
+            OTLog::Output(0, "Please enter plaintext cheque, terminate with ~ on a new line:\n> ");
+            OTString strCheque;
+            char decode_buffer[200]; // Safe since we only read sizeof(decode_buffer) - 1
 
-        OTLog::Output(0, "Please enter plaintext cheque, terminate with ~ on a new line:\n> ");
-        OTString strCheque;
-        char decode_buffer[200]; // Safe since we only read sizeof(decode_buffer) - 1
+            do {
+                decode_buffer[0] = 0; // Make sure it's starting out fresh.
 
-        do {
-            decode_buffer[0] = 0; // Make sure it's starting out fresh.
+                if ((NULL != fgets(decode_buffer, sizeof(decode_buffer) - 1, stdin)) && 
+                    (decode_buffer[0] != '~'))
+                {
+                    strCheque.Concatenate("%s", decode_buffer);
+                    OTLog::Output(0, "> ");
+                }
+                else 
+                {
+                    break;
+                }
 
-            if ((NULL != fgets(decode_buffer, sizeof(decode_buffer) - 1, stdin)) && 
-                (decode_buffer[0] != '~'))
+            } while (decode_buffer[0] != '~');
+
+            long lStoredTransactionNumber=0;
+            bool bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber);
+
+            if (!bGotTransNum)
             {
-                strCheque.Concatenate("%s", decode_buffer);
-                OTLog::Output(0, "> ");
+                OTLog::Output(0, "No Transaction Numbers were available. Try requesting the server for a new one.\n");
             }
-            else 
+            else if (theCheque.LoadContractFromString(strCheque))
             {
-                break;
-            }
+                if (theCheque.HasRecipient() && (theCheque.GetRecipientUserID() != USER_ID))
+                {
+                    const OTString strRecipientNym(theCheque.GetRecipientUserID());
+                    OTLog::vOutput(0, "This cheque is made out to the Nym: %s (and that is NOT you, so you can't deposit it!)\n You are: %s \n",
+                        strRecipientNym.Get(), strNymID.Get());
+                    // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                    theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true
+                }
+                else // the cheque is blank, or is made out to me.
+                {
+                    // Create a transaction
+                    OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_FROM_ID, SERVER_ID, 
+                        OTTransaction::deposit, lStoredTransactionNumber); 
 
-        } while (decode_buffer[0] != '~');
+                    // set up the transaction item (each transaction may have multiple items...)
+                    OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::depositCheque);
 
-        long lStoredTransactionNumber=0;
-        bool bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber);
+                    OTString strNote("Deposit this cheque, please!");
+                    pItem->SetNote(strNote);
 
-        if (!bGotTransNum)
-        {
-            OTLog::Output(0, "No Transaction Numbers were available. Try requesting the server for a new one.\n");
-        }
-        else if (theCheque.LoadContractFromString(strCheque))
-        {
-            if (theCheque.HasRecipient() && (theCheque.GetRecipientUserID() != USER_ID))
+                    strCheque.Release();
+                    theCheque.SaveContractRaw(strCheque);
+
+                    // Add the cheque string as the attachment on the transaction item.
+                    pItem->SetAttachment(strCheque); // The cheque is contained in the reference string.
+
+                    // sign the item
+                    pItem->SignContract(theNym);
+                    pItem->SaveContract();
+
+                    // the Transaction "owns" the item now and will handle cleaning it up.
+                    pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+
+                    // ---------------------------------------------
+
+                    OTLedger * pInbox	= pAccount->LoadInbox(theNym);
+                    OTLedger * pOutbox	= pAccount->LoadOutbox(theNym);
+
+                    OTCleanup<OTLedger> theInboxAngel(pInbox);
+                    OTCleanup<OTLedger> theOutboxAngel(pOutbox);
+
+                    if (NULL == pInbox)
+                    {
+                        OTLog::Output(0, "Failed loading inbox!\n");
+
+                        // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                        theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
+                    }
+                    else if (NULL == pOutbox)
+                    {
+                        OTLog::Output(0, "Failed loading outbox!\n");
+
+                        // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                        theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true				
+                    }
+                    else 
+                    {
+                        // BALANCE AGREEMENT 
+                        // ---------------------------------------------
+
+                        // pBalanceItem is signed and saved within this call. No need to do that again.
+                        OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(theCheque.GetAmount(), *pTransaction, theNym, *pAccount, *pOutbox);
+
+                        if (NULL != pBalanceItem) // will never be NULL. Will assert above before it gets here.
+                            pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
+
+                        // ---------------------------------------------
+
+                        // sign the transaction
+                        pTransaction->SignContract(theNym);
+                        pTransaction->SaveContract();
+
+                        // set up the ledger
+                        OTLedger theLedger(USER_ID, ACCT_FROM_ID, SERVER_ID);
+                        theLedger.GenerateLedger(ACCT_FROM_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+                        theLedger.AddTransaction(*pTransaction); // now the ledger "owns" and will handle cleaning up the transaction.
+
+                        // sign the ledger
+                        theLedger.SignContract(theNym);
+                        theLedger.SaveContract();
+
+                        // extract the ledger in ascii-armored form... encoding...
+                        OTString		strLedger(theLedger);
+                        OTASCIIArmor	ascLedger(strLedger);
+
+                        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+                        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+                        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+                        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+                        // (1) Set up member variables 
+                        theMessage.m_strCommand			= "notarizeTransactions";
+                        theMessage.m_strNymID			= strNymID;
+                        theMessage.m_strServerID		= strServerID;
+                        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+                        theMessage.m_strAcctID			= strFromAcct;
+                        theMessage.m_ascPayload			= ascLedger;
+
+                        OTIdentifier NYMBOX_HASH;
+                        const std::string str_server(strServerID.Get());
+                        const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+
+                        if (bNymboxHash)
+                            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                        else
+                            OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                            str_server.c_str());
+
+                        // (2) Sign the Message 
+                        theMessage.SignContract(theNym);		
+
+                        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+                        theMessage.SaveContract();
+
+                        bSendCommand = true;
+                        lReturnValue = lRequestNumber;        
+
+                    } // inbox/outbox loaded
+                } // the cheque is blank, or is made out to me
+            } // cheque loaded
+            else // cheque failed to load 
             {
-                const OTString strRecipientNym(theCheque.GetRecipientUserID());
-                OTLog::vOutput(0, "This cheque is made out to the Nym: %s (and that is NOT you, so you can't deposit it!)\n You are: %s \n",
-                    strRecipientNym.Get(), strNymID.Get());
                 // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
                 theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true
-            }
-            else // the cheque is blank, or is made out to me.
+            }		
+        } // else if (OTClient::notarizeCheque == requestedCommand) // DEPOSIT CHEQUE
+
+
+        // ------------------------------------------------------------------------
+
+        break;
+    case OTClient::withdrawVoucher: // WITHDRAW VOUCHER
+        {		
+            OT_ASSERT(NULL != m_pWallet);
+            // --------------------------------
+            OTString strFromAcct;
+
+            if (NULL == pAccount)
             {
-                // Create a transaction
-                OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_FROM_ID, SERVER_ID, 
-                    OTTransaction::deposit, lStoredTransactionNumber); 
+                OTLog::Output(0, "This is like a banker's cheque, aka cashier's cheque.\n"
+                    "Please enter an asset Account ID (FROM acct): ");
+                // User input.
+                // I need a from account
+                strFromAcct.OTfgets(std::cin);
 
-                // set up the transaction item (each transaction may have multiple items...)
-                OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::depositCheque);
+                if (strFromAcct.GetLength() < 2)
+                    return (-1);
 
-                OTString strNote("Deposit this cheque, please!");
-                pItem->SetNote(strNote);
+                const OTIdentifier ACCOUNT_ID(strFromAcct);
 
-                strCheque.Release();
-                theCheque.SaveContractRaw(strCheque);
+                if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else
+                {
+                    OTLog::Error("Unable to purchase voucher without a 'FROM' account. Try adding:  --myacct ACCOUNT_ID\n");
+                    return (-1);
+                }
+            }
+            else
+            {
+                pAccount->GetIdentifier(strFromAcct);
+                CONTRACT_ID = pAccount->GetAssetTypeID();
+                CONTRACT_ID.GetString(strContractID);
+            }
 
-                // Add the cheque string as the attachment on the transaction item.
-                pItem->SetAttachment(strCheque); // The cheque is contained in the reference string.
+            const OTIdentifier ACCOUNT_ID(strFromAcct);
 
-                // sign the item
-                pItem->SignContract(theNym);
-                pItem->SaveContract();
+            if (pAccount->GetPurportedServerID() != SERVER_ID)
+            {
+                OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                    "(Try adding:  --server SERVER_ID)\n");
+                return (-1);
+            }
+            // ---------------------------------------------------------
+            OTString strRecipientNym;
 
-                // the Transaction "owns" the item now and will handle cleaning it up.
-                pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+            if (NULL == pHisNymID)
+            {
+                OTLog::Output(0, "Enter Recipient's Nym ID (full ID -- no partials here.) Blank IS allowed: ");
 
-                // ---------------------------------------------
+                // User input.
+                // I need a from account
+                strRecipientNym.OTfgets(std::cin);
+
+                //			if (strRecipientNym.GetLength() < 2) // blank cheques are allowed.
+                //				return (-1);			
+            }
+            else
+            {
+                pHisNymID->GetString(strRecipientNym);            
+            }
+
+            // Todo add partial lookups here from wallet and/or address book.
+
+            const OTIdentifier MY_NYM_ID (theNym);
+            const OTIdentifier HIS_NYM_ID(strRecipientNym);
+            // ----------------------------------------------   
+            OTString strAmount;
+            if (0 == lTransactionAmount)
+            {
+                OTLog::Output(0, "Please enter an amount: ");
+                // User input.
+                // I need an amount
+                strAmount.OTfgets(std::cin);
+            }
+
+            const long lTotalAmount	= (0 == lTransactionAmount) ?  // If nothing was passed in, then use atol(strAmount),
+                (atol(strAmount.Exists() ? strAmount.Get() : "0")) : lTransactionAmount; // otherwise lTransactionAmount.
+            // ----------------------------------------------
+            long lWithdrawTransNum = 0,
+                lVoucherTransNum  = 0;
+
+            bool bGotTransNum1 = theNym.GetNextTransactionNum(theNym, strServerID, lWithdrawTransNum);
+            bool bGotTransNum2 = theNym.GetNextTransactionNum(theNym, strServerID, lVoucherTransNum);
+
+            if (!bGotTransNum1 || !bGotTransNum2)
+            {
+                OTLog::vOutput(0, "%s: Not enough Transaction Numbers were available. "
+                    "(Suggest requesting the server for more.)\n", __FUNCTION__);
+
+                if (bGotTransNum1)
+                    theNym.AddTransactionNum(theNym, strServerID, lWithdrawTransNum, true); // bSave=true
+                if (bGotTransNum2)
+                    theNym.AddTransactionNum(theNym, strServerID, lVoucherTransNum,  true); // bSave=true
+            }
+            else
+            {
+                // -----------------------------------------------------------------------
+                // Memo
+                OTLog::Output(0, "Enter a memo for your check: ");
+                OTString strChequeMemo;
+                strChequeMemo.OTfgets(std::cin);
+                // -----------------------------------------------------------------------
+                // Expiration (ignored by server -- it sets its own for its vouchers.)
+                const	time_t	VALID_FROM	= time(NULL); // This time is set to TODAY NOW
+                const	time_t	VALID_TO	= VALID_FROM + 15552000; // 6 months.
+                // -----------------------------------------------------------------------
+                // The server only uses the memo, amount, and recipient from this cheque when it
+                // constructs the actual voucher.
+                OTCheque theRequestVoucher(SERVER_ID, CONTRACT_ID);
+                bool bIssueCheque = theRequestVoucher.IssueCheque(lTotalAmount, lVoucherTransNum,
+                    VALID_FROM, VALID_TO, ACCOUNT_ID, MY_NYM_ID, strChequeMemo,
+                    (strRecipientNym.GetLength() > 2) ? &(HIS_NYM_ID) : NULL);
 
                 OTLedger * pInbox	= pAccount->LoadInbox(theNym);
                 OTLedger * pOutbox	= pAccount->LoadOutbox(theNym);
@@ -8701,44 +8954,69 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                     OTLog::Output(0, "Failed loading inbox!\n");
 
                     // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-                    theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
+                    theNym.AddTransactionNum(theNym, strServerID, lWithdrawTransNum, true); // bSave=true
+                    theNym.AddTransactionNum(theNym, strServerID, lVoucherTransNum,  true); // bSave=true
                 }
                 else if (NULL == pOutbox)
                 {
                     OTLog::Output(0, "Failed loading outbox!\n");
 
                     // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-                    theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true				
-                }
-                else 
+                    theNym.AddTransactionNum(theNym, strServerID, lWithdrawTransNum, true); // bSave=true
+                    theNym.AddTransactionNum(theNym, strServerID, lVoucherTransNum,  true); // bSave=true
+                }			
+                else if (bIssueCheque)
                 {
+                    // Create a transaction
+                    OTTransaction * pTransaction = OTTransaction::GenerateTransaction (MY_NYM_ID, ACCOUNT_ID, SERVER_ID, 
+                        OTTransaction::withdrawal, lWithdrawTransNum); 
+
+                    // set up the transaction item (each transaction may have multiple items...)
+                    OTItem * pItem = OTItem::CreateItemFromTransaction(*pTransaction, OTItem::withdrawVoucher);
+                    pItem->SetAmount(lTotalAmount);
+                    OTString strNote("Withdraw Voucher: ");
+                    pItem->SetNote(strNote);
+
+                    // Add the voucher request string as the attachment on the transaction item.
+                    OTString strVoucher;
+                    theRequestVoucher.SignContract(theNym);
+                    theRequestVoucher.SaveContract();
+                    theRequestVoucher.SaveContractRaw(strVoucher);			
+                    pItem->SetAttachment(strVoucher); // The voucher request is contained in the reference string.
+
+                    // sign the item
+                    pItem->SignContract(theNym);
+                    pItem->SaveContract();
+
+                    pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+                    // ---------------------------------------------
                     // BALANCE AGREEMENT 
-                    // ---------------------------------------------
 
-                    // pBalanceItem is signed and saved within this call. No need to do that again.
-                    OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(theCheque.GetAmount(), *pTransaction, theNym, *pAccount, *pOutbox);
+                    // The item is signed and saved within this call as well. No need to do that again.
+                    OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(lTotalAmount*(-1), *pTransaction, theNym, *pAccount, *pOutbox);
 
-                    if (NULL != pBalanceItem) // will never be NULL. Will assert above before it gets here.
+                    if (NULL != pBalanceItem)
                         pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
-
                     // ---------------------------------------------
-
                     // sign the transaction
                     pTransaction->SignContract(theNym);
                     pTransaction->SaveContract();
 
                     // set up the ledger
-                    OTLedger theLedger(USER_ID, ACCT_FROM_ID, SERVER_ID);
-                    theLedger.GenerateLedger(ACCT_FROM_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
-                    theLedger.AddTransaction(*pTransaction); // now the ledger "owns" and will handle cleaning up the transaction.
+                    OTLedger theLedger(MY_NYM_ID, ACCOUNT_ID, SERVER_ID);
+                    theLedger.GenerateLedger(ACCOUNT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+                    theLedger.AddTransaction(*pTransaction);
 
                     // sign the ledger
                     theLedger.SignContract(theNym);
                     theLedger.SaveContract();
 
-                    // extract the ledger in ascii-armored form... encoding...
+                    // extract the ledger in ascii-armored form
                     OTString		strLedger(theLedger);
-                    OTASCIIArmor	ascLedger(strLedger);
+                    OTASCIIArmor	ascLedger; // I can't pass strLedger into this constructor because I want to encode it
+
+                    // Encoding...
+                    ascLedger.SetString(strLedger);
 
                     // (0) Set up the REQUEST NUMBER and then INCREMENT IT
                     theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
@@ -8771,143 +9049,102 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                     theMessage.SaveContract();
 
                     bSendCommand = true;
-                    lReturnValue = lRequestNumber;        
-
-                } // inbox/outbox loaded
-            } // the cheque is blank, or is made out to me
-        } // cheque loaded
-        else // cheque failed to load 
-        {
-            // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-            theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true
-        }		
-    } // else if (OTClient::notarizeCheque == requestedCommand) // DEPOSIT CHEQUE
-
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::withdrawVoucher == requestedCommand) // WITHDRAW VOUCHER
-    {		
-        OT_ASSERT(NULL != m_pWallet);
-        // --------------------------------
-        OTString strFromAcct;
-
-        if (NULL == pAccount)
-        {
-            OTLog::Output(0, "This is like a banker's cheque, aka cashier's cheque.\n"
-                "Please enter an asset Account ID (FROM acct): ");
-            // User input.
-            // I need a from account
-            strFromAcct.OTfgets(std::cin);
-
-            if (strFromAcct.GetLength() < 2)
-                return (-1);
-
-            const OTIdentifier ACCOUNT_ID(strFromAcct);
-
-            if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
+                    lReturnValue = lRequestNumber;
+                }
+                else 
+                {
+                    // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                    theNym.AddTransactionNum(theNym, strServerID, lWithdrawTransNum, true); // bSave=true
+                    theNym.AddTransactionNum(theNym, strServerID, lVoucherTransNum,  true); // bSave=true
+                }
             }
-            else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
+        }
+
+        // ------------------------------------------------------------------------
+
+        /*
+        bool ProcessUserCommand(OT_CLIENT_CMD_TYPE requestedCommand,
+        OTMessage & theMessage,
+        OTPseudonym & theNym,
+        //							OTAssetContract & theContract,
+        OTServerContract & theServer,
+        OTAccount * pAccount=NULL,
+        long lTransactionAmount = 0,
+        OTAssetContract * pMyAssetContract=NULL,
+        OTAccount * pHisAcct=NULL,
+        OTPseudonym * pHisNym=NULL);
+        */
+
+        break;
+    case OTClient::notarizeWithdrawal: // NOTARIZE WITHDRAWAL
+        {	
+            OTString strFromAcct;
+
+            if (NULL == pAccount)
             {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
+                OTLog::Output(0, "Please enter an Asset Account ID: ");
+                // User input.
+                // I need a from account
+                strFromAcct.OTfgets(std::cin);
+
+                if (strFromAcct.GetLength() < 2)
+                    return (-1);
+
+                const OTIdentifier ACCOUNT_ID(strFromAcct);
+
+                if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else
+                {
+                    OTLog::Error("Unable to withdraw without account. Try adding:  --myacct ACCOUNT_ID\n");
+                    return (-1);
+                }
             }
             else
             {
-                OTLog::Error("Unable to purchase voucher without a 'FROM' account. Try adding:  --myacct ACCOUNT_ID\n");
+                pAccount->GetIdentifier(strFromAcct);
+                CONTRACT_ID = pAccount->GetAssetTypeID();
+                CONTRACT_ID.GetString(strContractID);
+            }
+
+            if (pAccount->GetPurportedServerID() != SERVER_ID)
+            {
+                OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                    "(Try adding:  --server SERVER_ID)\n");
                 return (-1);
             }
-        }
-        else
-        {
-            pAccount->GetIdentifier(strFromAcct);
-            CONTRACT_ID = pAccount->GetAssetTypeID();
-            CONTRACT_ID.GetString(strContractID);
-        }
 
-        const OTIdentifier ACCOUNT_ID(strFromAcct);
+            // ----------------------------------------------
 
-        if (pAccount->GetPurportedServerID() != SERVER_ID)
-        {
-            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
-                "(Try adding:  --server SERVER_ID)\n");
-            return (-1);
-        }
-        // ---------------------------------------------------------
-        OTString strRecipientNym;
+            OTString strAmount;
+            if (0 == lTransactionAmount)
+            {
+                OTLog::Output(0, "Please enter an amount: ");
+                // User input.
+                // I need an amount
+                strAmount.OTfgets(std::cin);
+            }
 
-        if (NULL == pHisNymID)
-        {
-            OTLog::Output(0, "Enter Recipient's Nym ID (full ID -- no partials here.) Blank IS allowed: ");
+            const	long lTotalAmount	= (0 == lTransactionAmount) ?  // If nothing was passed in, then use atol(strAmount), 
+                (atol(strAmount.Exists() ? strAmount.Get() : "0")) : lTransactionAmount; // otherwise lTransactionAmount.
+            long lAmount		= lTotalAmount; // Used in calculating the denominations of tokens needed for the withdrawal.
 
-            // User input.
-            // I need a from account
-            strRecipientNym.OTfgets(std::cin);
+            const OTIdentifier ACCT_FROM_ID(strFromAcct), USER_ID(theNym);
 
-            //			if (strRecipientNym.GetLength() < 2) // blank cheques are allowed.
-            //				return (-1);			
-        }
-        else
-        {
-            pHisNymID->GetString(strRecipientNym);            
-        }
+            long lStoredTransactionNumber=0;
+            bool bGotTransNum = false;
 
-        // Todo add partial lookups here from wallet and/or address book.
-
-        const OTIdentifier MY_NYM_ID (theNym);
-        const OTIdentifier HIS_NYM_ID(strRecipientNym);
-        // ----------------------------------------------   
-        OTString strAmount;
-        if (0 == lTransactionAmount)
-        {
-            OTLog::Output(0, "Please enter an amount: ");
-            // User input.
-            // I need an amount
-            strAmount.OTfgets(std::cin);
-        }
-
-        const long lTotalAmount	= (0 == lTransactionAmount) ?  // If nothing was passed in, then use atol(strAmount),
-            (atol(strAmount.Exists() ? strAmount.Get() : "0")) : lTransactionAmount; // otherwise lTransactionAmount.
-        // ----------------------------------------------
-        long lWithdrawTransNum = 0,
-            lVoucherTransNum  = 0;
-
-        bool bGotTransNum1 = theNym.GetNextTransactionNum(theNym, strServerID, lWithdrawTransNum);
-        bool bGotTransNum2 = theNym.GetNextTransactionNum(theNym, strServerID, lVoucherTransNum);
-
-        if (!bGotTransNum1 || !bGotTransNum2)
-        {
-            OTLog::vOutput(0, "%s: Not enough Transaction Numbers were available. "
-                "(Suggest requesting the server for more.)\n", __FUNCTION__);
-
-            if (bGotTransNum1)
-                theNym.AddTransactionNum(theNym, strServerID, lWithdrawTransNum, true); // bSave=true
-            if (bGotTransNum2)
-                theNym.AddTransactionNum(theNym, strServerID, lVoucherTransNum,  true); // bSave=true
-        }
-        else
-        {
-            // -----------------------------------------------------------------------
-            // Memo
-            OTLog::Output(0, "Enter a memo for your check: ");
-            OTString strChequeMemo;
-            strChequeMemo.OTfgets(std::cin);
-            // -----------------------------------------------------------------------
-            // Expiration (ignored by server -- it sets its own for its vouchers.)
-            const	time_t	VALID_FROM	= time(NULL); // This time is set to TODAY NOW
-            const	time_t	VALID_TO	= VALID_FROM + 15552000; // 6 months.
-            // -----------------------------------------------------------------------
-            // The server only uses the memo, amount, and recipient from this cheque when it
-            // constructs the actual voucher.
-            OTCheque theRequestVoucher(SERVER_ID, CONTRACT_ID);
-            bool bIssueCheque = theRequestVoucher.IssueCheque(lTotalAmount, lVoucherTransNum,
-                VALID_FROM, VALID_TO, ACCOUNT_ID, MY_NYM_ID, strChequeMemo,
-                (strRecipientNym.GetLength() > 2) ? &(HIS_NYM_ID) : NULL);
+            // ---------------------------------------------
 
             OTLedger * pInbox	= pAccount->LoadInbox(theNym);
             OTLedger * pOutbox	= pAccount->LoadOutbox(theNym);
@@ -8918,217 +9155,22 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             if (NULL == pInbox)
             {
                 OTLog::Output(0, "Failed loading inbox!\n");
-
-                // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-                theNym.AddTransactionNum(theNym, strServerID, lWithdrawTransNum, true); // bSave=true
-                theNym.AddTransactionNum(theNym, strServerID, lVoucherTransNum,  true); // bSave=true
+                break;
             }
+
             else if (NULL == pOutbox)
             {
                 OTLog::Output(0, "Failed loading outbox!\n");
-
-                // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-                theNym.AddTransactionNum(theNym, strServerID, lWithdrawTransNum, true); // bSave=true
-                theNym.AddTransactionNum(theNym, strServerID, lVoucherTransNum,  true); // bSave=true
-            }			
-            else if (bIssueCheque)
-            {
-                // Create a transaction
-                OTTransaction * pTransaction = OTTransaction::GenerateTransaction (MY_NYM_ID, ACCOUNT_ID, SERVER_ID, 
-                    OTTransaction::withdrawal, lWithdrawTransNum); 
-
-                // set up the transaction item (each transaction may have multiple items...)
-                OTItem * pItem = OTItem::CreateItemFromTransaction(*pTransaction, OTItem::withdrawVoucher);
-                pItem->SetAmount(lTotalAmount);
-                OTString strNote("Withdraw Voucher: ");
-                pItem->SetNote(strNote);
-
-                // Add the voucher request string as the attachment on the transaction item.
-                OTString strVoucher;
-                theRequestVoucher.SignContract(theNym);
-                theRequestVoucher.SaveContract();
-                theRequestVoucher.SaveContractRaw(strVoucher);			
-                pItem->SetAttachment(strVoucher); // The voucher request is contained in the reference string.
-
-                // sign the item
-                pItem->SignContract(theNym);
-                pItem->SaveContract();
-
-                pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
-                // ---------------------------------------------
-                // BALANCE AGREEMENT 
-
-                // The item is signed and saved within this call as well. No need to do that again.
-                OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(lTotalAmount*(-1), *pTransaction, theNym, *pAccount, *pOutbox);
-
-                if (NULL != pBalanceItem)
-                    pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
-                // ---------------------------------------------
-                // sign the transaction
-                pTransaction->SignContract(theNym);
-                pTransaction->SaveContract();
-
-                // set up the ledger
-                OTLedger theLedger(MY_NYM_ID, ACCOUNT_ID, SERVER_ID);
-                theLedger.GenerateLedger(ACCOUNT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
-                theLedger.AddTransaction(*pTransaction);
-
-                // sign the ledger
-                theLedger.SignContract(theNym);
-                theLedger.SaveContract();
-
-                // extract the ledger in ascii-armored form
-                OTString		strLedger(theLedger);
-                OTASCIIArmor	ascLedger; // I can't pass strLedger into this constructor because I want to encode it
-
-                // Encoding...
-                ascLedger.SetString(strLedger);
-
-                // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-                theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-                theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-                theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-                // (1) Set up member variables 
-                theMessage.m_strCommand			= "notarizeTransactions";
-                theMessage.m_strNymID			= strNymID;
-                theMessage.m_strServerID		= strServerID;
-                theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-                theMessage.m_strAcctID			= strFromAcct;
-                theMessage.m_ascPayload			= ascLedger;
-
-                OTIdentifier NYMBOX_HASH;
-                const std::string str_server(strServerID.Get());
-                const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
-
-                if (bNymboxHash)
-                    NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
-                else
-                    OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
-                    str_server.c_str());
-
-                // (2) Sign the Message 
-                theMessage.SignContract(theNym);		
-
-                // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-                theMessage.SaveContract();
-
-                bSendCommand = true;
-                lReturnValue = lRequestNumber;
+                break;
             }
-            else 
+
+            bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber);
+            if (!bGotTransNum)
             {
-                // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-                theNym.AddTransactionNum(theNym, strServerID, lWithdrawTransNum, true); // bSave=true
-                theNym.AddTransactionNum(theNym, strServerID, lVoucherTransNum,  true); // bSave=true
+                OTLog::Output(0, "No Transaction Numbers were available. Suggest requesting the server for a new one.\n");
+                break;
             }
-        }
-    }
 
-    // ------------------------------------------------------------------------
-
-    /*
-    bool ProcessUserCommand(OT_CLIENT_CMD_TYPE requestedCommand,
-    OTMessage & theMessage,
-    OTPseudonym & theNym,
-    //							OTAssetContract & theContract,
-    OTServerContract & theServer,
-    OTAccount * pAccount=NULL,
-    long lTransactionAmount = 0,
-    OTAssetContract * pMyAssetContract=NULL,
-    OTAccount * pHisAcct=NULL,
-    OTPseudonym * pHisNym=NULL);
-    */
-
-    else if (OTClient::notarizeWithdrawal == requestedCommand) // NOTARIZE WITHDRAWAL
-    {	
-        OTString strFromAcct;
-
-        if (NULL == pAccount)
-        {
-            OTLog::Output(0, "Please enter an Asset Account ID: ");
-            // User input.
-            // I need a from account
-            strFromAcct.OTfgets(std::cin);
-
-            if (strFromAcct.GetLength() < 2)
-                return (-1);
-
-            const OTIdentifier ACCOUNT_ID(strFromAcct);
-
-            if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else
-            {
-                OTLog::Error("Unable to withdraw without account. Try adding:  --myacct ACCOUNT_ID\n");
-                return (-1);
-            }
-        }
-        else
-        {
-            pAccount->GetIdentifier(strFromAcct);
-            CONTRACT_ID = pAccount->GetAssetTypeID();
-            CONTRACT_ID.GetString(strContractID);
-        }
-
-        if (pAccount->GetPurportedServerID() != SERVER_ID)
-        {
-            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
-                "(Try adding:  --server SERVER_ID)\n");
-            return (-1);
-        }
-
-        // ----------------------------------------------
-
-        OTString strAmount;
-        if (0 == lTransactionAmount)
-        {
-            OTLog::Output(0, "Please enter an amount: ");
-            // User input.
-            // I need an amount
-            strAmount.OTfgets(std::cin);
-        }
-
-        const	long lTotalAmount	= (0 == lTransactionAmount) ?  // If nothing was passed in, then use atol(strAmount), 
-            (atol(strAmount.Exists() ? strAmount.Get() : "0")) : lTransactionAmount; // otherwise lTransactionAmount.
-        long lAmount		= lTotalAmount; // Used in calculating the denominations of tokens needed for the withdrawal.
-
-        const OTIdentifier ACCT_FROM_ID(strFromAcct), USER_ID(theNym);
-
-        long lStoredTransactionNumber=0;
-        bool bGotTransNum = false;
-
-        // ---------------------------------------------
-
-        OTLedger * pInbox	= pAccount->LoadInbox(theNym);
-        OTLedger * pOutbox	= pAccount->LoadOutbox(theNym);
-
-        OTCleanup<OTLedger> theInboxAngel(pInbox);
-        OTCleanup<OTLedger> theOutboxAngel(pOutbox);
-
-        if (NULL == pInbox)
-        {
-            OTLog::Output(0, "Failed loading inbox!\n");
-        }
-
-        else if (NULL == pOutbox)
-        {
-            OTLog::Output(0, "Failed loading outbox!\n");
-        }
-
-        else if ((bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber)))
-        {
             // Create a transaction
             OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_FROM_ID, SERVER_ID, 
                 OTTransaction::withdrawal, lStoredTransactionNumber); 
@@ -9294,237 +9336,1027 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                 // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
                 theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
             }
-        }
-        else 
-        {
-            OTLog::Output(0, "No Transaction Numbers were available. Suggest requesting the server for a new one.\n");
+
         }
 
-    }
+        // ------------------------------------------------------------------------
 
-    // ------------------------------------------------------------------------
+        break;
+    case OTClient::getTransactionNum: // GET TRANSACTION NUM
+        {	
+            // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+            theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+            theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+            theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 
-    else if (OTClient::getTransactionNum == requestedCommand) // GET TRANSACTION NUM
-    {	
-        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+            // (1) Set up member variables 
+            theMessage.m_strCommand			= "getTransactionNum";
+            theMessage.m_strNymID			= strNymID;
+            theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 
-        // (1) Set up member variables 
-        theMessage.m_strCommand			= "getTransactionNum";
-        theMessage.m_strNymID			= strNymID;
-        theMessage.m_strServerID		= strServerID;
-        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+            OTIdentifier NYMBOX_HASH;
+            const std::string str_server(strServerID.Get());
+            const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
 
-        OTIdentifier NYMBOX_HASH;
-        const std::string str_server(strServerID.Get());
-        const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+            if (bNymboxHash)
+                NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+            else
+                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                str_server.c_str());
 
-        if (bNymboxHash)
-            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
-        else
-            OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
-            str_server.c_str());
+            // (2) Sign the Message 
+            theMessage.SignContract(theNym);		
 
-        // (2) Sign the Message 
-        theMessage.SignContract(theNym);		
+            // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+            theMessage.SaveContract();
 
-        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-        theMessage.SaveContract();
-
-        bSendCommand = true;
-        lReturnValue = lRequestNumber;        
-    }
-
-
-    // ------------------------------------------------------------------------
-
-
-    else if (OTClient::marketOffer == requestedCommand) // PUT AN OFFER ON A MARKET
-    {			
-        if (theNym.GetTransactionNumCount(strServerID) < 3)
-        {
-            OTLog::Output(0, "You need at least 3 transaction numbers to do this (You don't have enough.)\n");
+            bSendCommand = true;
+            lReturnValue = lRequestNumber;        
         }
-        else
-        {
-            long lStoredTransactionNumber=0, lClosingTransactionNoAssetAcct=0, lClosingTransactionNoCurrencyAcct=0;
-            bool bGotTransNum   = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber, false);
-            bool bGotClosingNumAssetAcct = theNym.GetNextTransactionNum(theNym, strServerID, lClosingTransactionNoAssetAcct, false);
-            bool bGotClosingNumCurrencyAcct = theNym.GetNextTransactionNum(theNym, strServerID, lClosingTransactionNoCurrencyAcct, true);
 
-            if (!bGotTransNum || !bGotClosingNumAssetAcct || !bGotClosingNumCurrencyAcct)
+
+        // ------------------------------------------------------------------------
+
+
+        break;
+    case OTClient::marketOffer: // PUT AN OFFER ON A MARKET
+        {
+            if (theNym.GetTransactionNumCount(strServerID) < 3)
             {
-                OTLog::Output(0, "Strange... had enough transcation numbers, but error trying to get one (or both.)\n");
-
-                if (bGotTransNum)
-                    theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, false);
-
-                if (bGotClosingNumAssetAcct)
-                    theNym.AddTransactionNum(theNym, strServerID, lClosingTransactionNoAssetAcct, false);
-
-                if (bGotClosingNumCurrencyAcct)
-                    theNym.AddTransactionNum(theNym, strServerID, lClosingTransactionNoCurrencyAcct, false);
-
-                if (bGotTransNum || bGotClosingNumAssetAcct || bGotClosingNumCurrencyAcct)
-                    theNym.SaveSignedNymfile(theNym);
+                OTLog::Output(0, "You need at least 3 transaction numbers to do this (You don't have enough.)\n");
             }
             else
             {
-                OTString str_ASSET_TYPE_ID, str_CURRENCY_TYPE_ID, str_ASSET_ACCT_ID, str_CURRENCY_ACCT_ID;
+                long lStoredTransactionNumber=0, lClosingTransactionNoAssetAcct=0, lClosingTransactionNoCurrencyAcct=0;
+                bool bGotTransNum   = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber, false);
+                bool bGotClosingNumAssetAcct = theNym.GetNextTransactionNum(theNym, strServerID, lClosingTransactionNoAssetAcct, false);
+                bool bGotClosingNumCurrencyAcct = theNym.GetNextTransactionNum(theNym, strServerID, lClosingTransactionNoCurrencyAcct, true);
 
-                // FIRST get the Asset Type ID
-                OTLog::Output(0, "Enter the Asset Type ID of the market you want to trade in: ");
-                str_ASSET_TYPE_ID.OTfgets(std::cin);
-
-                // THEN GET AN ACCOUNT ID FOR THAT ASSET TYPE
-                OTLog::Output(0, "Enter an ACCOUNT ID of yours for an account of the same asset type: ");
-                str_ASSET_ACCT_ID.OTfgets(std::cin);		
-
-                // NEXT get the Currency Type ID (which is also an asset type ID, FYI.)
-                // The trader just chooses one of them to be the "asset" and the other, the "currency".
-                OTLog::Output(0, "Enter the Currency Type ID of the market you want to trade in: ");
-                str_CURRENCY_TYPE_ID.OTfgets(std::cin);
-
-                // THEN GET AN ACCOUNT ID FOR THAT CURRENCY TYPE
-                OTLog::Output(0, "Enter an ACCOUNT ID of yours, for an account of that same currency type: ");
-                str_CURRENCY_ACCT_ID.OTfgets(std::cin);		
-
-
-                // Get a few long integers that we need...
-
-                OTString strTemp;
-                long	lTotalAssetsOnOffer = 0, 
-                    lMinimumIncrement = 0, 
-                    lPriceLimit = 0,
-                    lMarketScale = 1;
-
-                // -------------------------------------------------------------------
-
-                OTLog::Output(0, "What is the market granularity (or 'scale')? [1]: ");
-                strTemp.Release(); strTemp.OTfgets(std::cin);
-                lMarketScale = atol(strTemp.Get());
-
-                if (lMarketScale < 1)
-                    lMarketScale = 1;
-
-                // -------------------------------------------------------------------
-
-                OTLog::Output(0, "What is the minimum increment per trade? (will be multiplied by the scale) [1]: ");
-                strTemp.Release(); strTemp.OTfgets(std::cin);
-                lMinimumIncrement = atol(strTemp.Get());
-
-                lMinimumIncrement *= lMarketScale;
-
-                // In case they entered 0.
-                if (lMinimumIncrement < 1)
-                    lMinimumIncrement = lMarketScale;
-
-                // -------------------------------------------------------------------
-
-                OTLog::Output(0, "How many assets total do you have available for sale or purchase?\n"
-                    "(Will be multiplied by minimum increment) [1]: ");
-                strTemp.Release(); strTemp.OTfgets(std::cin);
-                lTotalAssetsOnOffer = atol(strTemp.Get());
-
-                //              lTotalAssetsOnOffer *= lMinimumIncrement;  // this was a bug.
-
-                if (lTotalAssetsOnOffer < 1)
-                    lTotalAssetsOnOffer = lMinimumIncrement;
-
-
-
-                for (;;)
+                if (!bGotTransNum || !bGotClosingNumAssetAcct || !bGotClosingNumCurrencyAcct)
                 {
-                    OTLog::vOutput(0, "The Market Scale is: %ld\n"
-                        "What is your price limit, in currency, PER SCALE of assets?\n"
-                        "That is, what is the lowest amount of currency you'd sell for, (if selling)\n"
-                        "Or the highest amount you'd pay (if you are buying).\nAgain, PER SCALE: ",
-                        lMarketScale);
-                    strTemp.Release(); strTemp.OTfgets(std::cin);
-                    lPriceLimit = atol(strTemp.Get());
+                    OTLog::Output(0, "Strange... had enough transcation numbers, but error trying to get one (or both.)\n");
 
-                    if (lPriceLimit < 1)
-                        OTLog::Output(0, "Price must be at least 1.\n\n");
-                    else
-                        break;			
+                    if (bGotTransNum)
+                        theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, false);
+
+                    if (bGotClosingNumAssetAcct)
+                        theNym.AddTransactionNum(theNym, strServerID, lClosingTransactionNoAssetAcct, false);
+
+                    if (bGotClosingNumCurrencyAcct)
+                        theNym.AddTransactionNum(theNym, strServerID, lClosingTransactionNoCurrencyAcct, false);
+
+                    if (bGotTransNum || bGotClosingNumAssetAcct || bGotClosingNumCurrencyAcct)
+                        theNym.SaveSignedNymfile(theNym);
                 }
-
-                // which direction is the offer? Buy or sell?
-                bool bBuyingOrSelling;
-                OTString strDirection;
-                OTLog::Output(0, "Are you in the market to buy the asset type, or to sell? [buy]: ");
-                strDirection.OTfgets(std::cin);
-
-                if (strDirection.Compare("sell") || strDirection.Compare("Sell"))
-                    bBuyingOrSelling	= true;
                 else
-                    bBuyingOrSelling	= false;
-
-
-                OTIdentifier USER_ID(strNymID),
-                    ASSET_TYPE_ID(str_ASSET_TYPE_ID),	CURRENCY_TYPE_ID(str_CURRENCY_TYPE_ID),
-                    ASSET_ACCT_ID(str_ASSET_ACCT_ID),	CURRENCY_ACCT_ID(str_CURRENCY_ACCT_ID);
-
-
-                OTOffer theOffer(SERVER_ID, ASSET_TYPE_ID, CURRENCY_TYPE_ID, lMarketScale);
-
-
-                bool bCreateOffer = theOffer.MakeOffer(bBuyingOrSelling,	// True == SELLING, False == BUYING
-                    lPriceLimit,			// Per Minimum Increment...
-                    lTotalAssetsOnOffer,	// Total assets available for sale or purchase.
-                    lMinimumIncrement,	// The minimum increment that must be bought or sold for each transaction
-                    lStoredTransactionNumber); // Transaction number matches on transaction, item, offer, and trade.
-
-                if (bCreateOffer)
                 {
-                    bCreateOffer = 	theOffer.SignContract(theNym);
+                    OTString str_ASSET_TYPE_ID, str_CURRENCY_TYPE_ID, str_ASSET_ACCT_ID, str_CURRENCY_ACCT_ID;
+
+                    // FIRST get the Asset Type ID
+                    OTLog::Output(0, "Enter the Asset Type ID of the market you want to trade in: ");
+                    str_ASSET_TYPE_ID.OTfgets(std::cin);
+
+                    // THEN GET AN ACCOUNT ID FOR THAT ASSET TYPE
+                    OTLog::Output(0, "Enter an ACCOUNT ID of yours for an account of the same asset type: ");
+                    str_ASSET_ACCT_ID.OTfgets(std::cin);		
+
+                    // NEXT get the Currency Type ID (which is also an asset type ID, FYI.)
+                    // The trader just chooses one of them to be the "asset" and the other, the "currency".
+                    OTLog::Output(0, "Enter the Currency Type ID of the market you want to trade in: ");
+                    str_CURRENCY_TYPE_ID.OTfgets(std::cin);
+
+                    // THEN GET AN ACCOUNT ID FOR THAT CURRENCY TYPE
+                    OTLog::Output(0, "Enter an ACCOUNT ID of yours, for an account of that same currency type: ");
+                    str_CURRENCY_ACCT_ID.OTfgets(std::cin);		
+
+
+                    // Get a few long integers that we need...
+
+                    OTString strTemp;
+                    long	lTotalAssetsOnOffer = 0, 
+                        lMinimumIncrement = 0, 
+                        lPriceLimit = 0,
+                        lMarketScale = 1;
+
+                    // -------------------------------------------------------------------
+
+                    OTLog::Output(0, "What is the market granularity (or 'scale')? [1]: ");
+                    strTemp.Release(); strTemp.OTfgets(std::cin);
+                    lMarketScale = atol(strTemp.Get());
+
+                    if (lMarketScale < 1)
+                        lMarketScale = 1;
+
+                    // -------------------------------------------------------------------
+
+                    OTLog::Output(0, "What is the minimum increment per trade? (will be multiplied by the scale) [1]: ");
+                    strTemp.Release(); strTemp.OTfgets(std::cin);
+                    lMinimumIncrement = atol(strTemp.Get());
+
+                    lMinimumIncrement *= lMarketScale;
+
+                    // In case they entered 0.
+                    if (lMinimumIncrement < 1)
+                        lMinimumIncrement = lMarketScale;
+
+                    // -------------------------------------------------------------------
+
+                    OTLog::Output(0, "How many assets total do you have available for sale or purchase?\n"
+                        "(Will be multiplied by minimum increment) [1]: ");
+                    strTemp.Release(); strTemp.OTfgets(std::cin);
+                    lTotalAssetsOnOffer = atol(strTemp.Get());
+
+                    //              lTotalAssetsOnOffer *= lMinimumIncrement;  // this was a bug.
+
+                    if (lTotalAssetsOnOffer < 1)
+                        lTotalAssetsOnOffer = lMinimumIncrement;
+
+
+
+                    for (;;)
+                    {
+                        OTLog::vOutput(0, "The Market Scale is: %ld\n"
+                            "What is your price limit, in currency, PER SCALE of assets?\n"
+                            "That is, what is the lowest amount of currency you'd sell for, (if selling)\n"
+                            "Or the highest amount you'd pay (if you are buying).\nAgain, PER SCALE: ",
+                            lMarketScale);
+                        strTemp.Release(); strTemp.OTfgets(std::cin);
+                        lPriceLimit = atol(strTemp.Get());
+
+                        if (lPriceLimit < 1)
+                            OTLog::Output(0, "Price must be at least 1.\n\n");
+                        else
+                            break;			
+                    }
+
+                    // which direction is the offer? Buy or sell?
+                    bool bBuyingOrSelling;
+                    OTString strDirection;
+                    OTLog::Output(0, "Are you in the market to buy the asset type, or to sell? [buy]: ");
+                    strDirection.OTfgets(std::cin);
+
+                    if (strDirection.Compare("sell") || strDirection.Compare("Sell"))
+                        bBuyingOrSelling	= true;
+                    else
+                        bBuyingOrSelling	= false;
+
+
+                    OTIdentifier USER_ID(strNymID),
+                        ASSET_TYPE_ID(str_ASSET_TYPE_ID),	CURRENCY_TYPE_ID(str_CURRENCY_TYPE_ID),
+                        ASSET_ACCT_ID(str_ASSET_ACCT_ID),	CURRENCY_ACCT_ID(str_CURRENCY_ACCT_ID);
+
+
+                    OTOffer theOffer(SERVER_ID, ASSET_TYPE_ID, CURRENCY_TYPE_ID, lMarketScale);
+
+
+                    bool bCreateOffer = theOffer.MakeOffer(bBuyingOrSelling,	// True == SELLING, False == BUYING
+                        lPriceLimit,			// Per Minimum Increment...
+                        lTotalAssetsOnOffer,	// Total assets available for sale or purchase.
+                        lMinimumIncrement,	// The minimum increment that must be bought or sold for each transaction
+                        lStoredTransactionNumber); // Transaction number matches on transaction, item, offer, and trade.
 
                     if (bCreateOffer)
-                        bCreateOffer = theOffer.SaveContract();
-                }
+                    {
+                        bCreateOffer = 	theOffer.SignContract(theNym);
 
-                OTTrade theTrade(SERVER_ID, 
-                    ASSET_TYPE_ID, ASSET_ACCT_ID, 
-                    USER_ID, 
-                    CURRENCY_TYPE_ID, CURRENCY_ACCT_ID);
+                        if (bCreateOffer)
+                            bCreateOffer = theOffer.SaveContract();
+                    }
+
+                    OTTrade theTrade(SERVER_ID, 
+                        ASSET_TYPE_ID, ASSET_ACCT_ID, 
+                        USER_ID, 
+                        CURRENCY_TYPE_ID, CURRENCY_ACCT_ID);
 
 
-                bool bIssueTrade = theTrade.IssueTrade(theOffer);
-
-                if (bIssueTrade)
-                {
-                    theTrade.AddClosingTransactionNo(lClosingTransactionNoAssetAcct);
-                    theTrade.AddClosingTransactionNo(lClosingTransactionNoCurrencyAcct);
-
-                    bIssueTrade = 	theTrade.SignContract(theNym);
+                    bool bIssueTrade = theTrade.IssueTrade(theOffer);
 
                     if (bIssueTrade)
-                        bIssueTrade = theTrade.SaveContract();
+                    {
+                        theTrade.AddClosingTransactionNo(lClosingTransactionNoAssetAcct);
+                        theTrade.AddClosingTransactionNo(lClosingTransactionNoCurrencyAcct);
+
+                        bIssueTrade = 	theTrade.SignContract(theNym);
+
+                        if (bIssueTrade)
+                            bIssueTrade = theTrade.SaveContract();
+                    }
+
+
+                    if (bCreateOffer && bIssueTrade)
+                    {
+                        // Create a transaction
+                        OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ASSET_ACCT_ID, SERVER_ID, 
+                            OTTransaction::marketOffer, lStoredTransactionNumber); 
+
+                        // set up the transaction item (each transaction may have multiple items...)
+                        OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::marketOffer, 
+                            &CURRENCY_ACCT_ID); // the "To" account (normally used for a TRANSFER transaction) is used here 
+                        // storing the Currency Acct ID. The Server will expect the Trade object bundled 
+                        // within this item to have an Asset Acct ID and "Currency" Acct ID that match
+                        // those on this Item. Otherwise it will reject the offer.
+
+                        OT_ASSERT(NULL != pItem);
+
+                        OTString strTrade;
+                        theTrade.SaveContractRaw(strTrade);
+
+                        // Add the trade string as the attachment on the transaction item.
+                        pItem->SetAttachment(strTrade); // The trade is contained in the attachment string. (The offer is within the trade.)
+
+                        // sign the item
+                        pItem->SignContract(theNym);
+                        pItem->SaveContract();
+
+                        // the Transaction "owns" the item now and will handle cleaning it up.
+                        pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+
+                        // ---------------------------------------------
+                        // TRANSACTION AGREEMENT
+
+                        // pBalanceItem is signed and saved within this call. No need to do that again.
+                        OTItem * pStatementItem = theNym.GenerateTransactionStatement(*pTransaction);
+
+                        if (NULL != pStatementItem) // will never be NULL. Will assert above before it gets here.
+                            pTransaction->AddItem(*pStatementItem); // Better not be NULL... message will fail... But better check anyway.
+
+                        // ---------------------------------------------
+
+                        // sign the transaction
+                        pTransaction->SignContract(theNym);
+                        pTransaction->SaveContract();
+
+                        // set up the ledger
+                        OTLedger theLedger(USER_ID, ASSET_ACCT_ID, SERVER_ID);
+                        theLedger.GenerateLedger(ASSET_ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+                        theLedger.AddTransaction(*pTransaction); // now the ledger "owns" and will handle cleaning up the transaction.
+
+                        // sign the ledger
+                        theLedger.SignContract(theNym);
+                        theLedger.SaveContract();
+
+                        // extract the ledger in ascii-armored form... encoding...
+                        OTString		strLedger(theLedger);
+                        OTASCIIArmor	ascLedger(strLedger);
+
+                        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+                        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+                        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+                        theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+
+                        // (1) Set up member variables 
+                        theMessage.m_strCommand			= "notarizeTransactions";
+                        theMessage.m_strNymID			= strNymID;
+                        theMessage.m_strServerID		= strServerID;
+                        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+                        theMessage.m_strAcctID			= str_ASSET_ACCT_ID;
+                        theMessage.m_ascPayload			= ascLedger;
+
+                        OTIdentifier NYMBOX_HASH;
+                        const std::string str_server(strServerID.Get());
+                        const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+
+                        if (bNymboxHash)
+                            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                        else
+                            OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                            str_server.c_str());
+
+                        // (2) Sign the Message 
+                        theMessage.SignContract(theNym);		
+
+                        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+                        theMessage.SaveContract();
+
+                        bSendCommand = true;
+                        lReturnValue = lRequestNumber;
+                    }
+
+                    if (false == bSendCommand)	
+                    {
+                        // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                        theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, false); // bSave=true
+                        theNym.AddTransactionNum(theNym, strServerID, lClosingTransactionNoAssetAcct, false); // bSave=true
+                        theNym.AddTransactionNum(theNym, strServerID, lClosingTransactionNoCurrencyAcct, true); // bSave=true
+                    }
+                } // Got Transaction Num
+            }
+        } // else if (OTClient::marketOffer == requestedCommand) // MARKET OFFER
+
+
+        // ------------------------------------------------------------------------
+
+        break;
+    case OTClient::signContract: // Sign a CONTRACT. (Sends no message to server.)
+        {
+            OTLog::Output(0, "Is the contract a server contract, or an asset contract [s/a]: ");
+            OTString strContractType;
+            strContractType.OTfgets(std::cin);
+
+            char cContractType='s';
+            bool bIsAssetContract = strContractType.At(0, cContractType);
+
+            if (bIsAssetContract)
+            {
+                if ('S' == cContractType || 's' == cContractType)
+                    bIsAssetContract = false;
+            }
+            // ----------------------------
+
+            OTLog::Output(0, "Is the contract properly escaped already? (If escaped, all lines beginning with ----- will instead appear as - ----- ) [y/n]: ");
+            // User input.
+            // I need a from account, Yes even in a deposit, it's still the "From" account.
+            // The "To" account is only used for a transfer. (And perhaps for a 2-way trade.)
+            OTString strEscape;
+            strEscape.OTfgets(std::cin);
+
+            char cEscape='n';
+            bool bEscaped = strEscape.At(0, cEscape);
+
+            if (bEscaped)
+            {
+                if ('N' == cEscape || 'n' == cEscape)
+                    bEscaped = false;
+            }
+
+            OTLog::Output(0, "Please enter an unsigned asset contract; terminate with ~ on a new line:\n> ");
+            OTString strContract;
+            char decode_buffer[200]; // Safe since we only read sizeof(decode_buffer)-1
+
+            do {
+                decode_buffer[0] = 0; // Make it fresh.
+
+                if ((NULL != fgets(decode_buffer, sizeof(decode_buffer)-1, stdin)) &&
+                    (decode_buffer[0] != '~'))
+                {
+                    if (!bEscaped && decode_buffer[0] == '-')
+                    {
+                        strContract.Concatenate("- ");
+                    }
+                    strContract.Concatenate("%s", decode_buffer);
+                    OTLog::Output(0, "> ");
+                }
+                else 
+                {
+                    break;
                 }
 
+            } while (decode_buffer[0] != '~');
 
-                if (bCreateOffer && bIssueTrade)
+            OTServerContract theServerContract;
+            OTAssetContract theAssetContract;
+
+            OTContract * pContract = bIsAssetContract ? dynamic_cast<OTContract*>(&theAssetContract) : dynamic_cast<OTContract*>(&theServerContract);
+
+            pContract->CreateContract(strContract, theNym);
+
+            // re-using strContract here for output this time.
+            strContract.Release();
+            pContract->SaveContractRaw(strContract);
+
+            OTString strNewID;
+            pContract->GetIdentifier(strNewID);
+
+            OTLog::vOutput(0, ".\n..\n...\n....\n.....\n......\n.......\n........\n.........\n\n"
+                "NEW CONTRACT ID:  %s\n\n", strNewID.Get());
+
+            std::cout << strContract.Get() << std::endl;
+
+            // ------------------------------------------------------------------------
+
+            return 0;
+        }
+
+        break;
+    case OTClient::writeCheque: // Write a CHEQUE. (Sends no message to server.)
+        {
+            OTString strFromAcct;
+
+            if (NULL == pAccount)
+            {
+                OTLog::Output(0, "Please enter an Asset Account ID (to draw the cheque from): ");
+                // User input.
+                // I need a from account
+                strFromAcct.OTfgets(std::cin);
+
+                if (strFromAcct.GetLength() < 2)
+                    return (-1);
+
+                const OTIdentifier ACCOUNT_ID(strFromAcct);
+
+                if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
                 {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
+                {
+                    pAccount->GetIdentifier(strFromAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else
+                {
+                    OTLog::Error("Unable to write cheque without account to draw from. On comand line, try adding:  --myacct ACCOUNT_ID\n");
+                    return (-1);
+                }
+            }
+            else
+            {
+                pAccount->GetIdentifier(strFromAcct);
+                CONTRACT_ID = pAccount->GetAssetTypeID();
+                CONTRACT_ID.GetString(strContractID);
+            }
+
+            const OTIdentifier ACCOUNT_ID(strFromAcct);
+
+            if (pAccount->GetPurportedServerID() != SERVER_ID)
+            {
+                OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                    "(Try adding:  --server SERVER_ID)\n");
+                return (-1);
+            }
+
+            // ---------------------------------------------------------
+
+            OTString strRecipientNym;
+
+            if (NULL == pHisNymID)
+            {
+                OTLog::Output(0, "Enter Recipient's Nym ID (full ID -- no partials here.) Blank IS allowed: ");
+
+                // User input.
+                // I need a from account
+                strRecipientNym.OTfgets(std::cin);
+
+                //			if (strRecipientNym.GetLength() < 2) // blank cheques are allowed.
+                //				return (-1);			
+            }
+            else
+            {
+                pHisNymID->GetString(strRecipientNym);
+            }
+
+            // Todo add partial lookups here from wallet and/or address book.
+
+            const OTIdentifier MY_NYM_ID(theNym);
+
+            const OTIdentifier HIS_NYM_ID(strRecipientNym);
+
+            // ----------------------------------------------   
+            OTString strAmount;
+            if (0 == lTransactionAmount)
+            {
+                OTLog::Output(0, "Please enter an amount: ");
+                // User input.
+                // I need an amount
+                strAmount.OTfgets(std::cin);
+            }
+
+            const long lTotalAmount	= (0 == lTransactionAmount) ?  // If nothing was passed in, then use atol(strAmount), 
+                (atol(strAmount.Exists() ? strAmount.Get() : "0")) : lTransactionAmount; // otherwise lTransactionAmount.
+            // ----------------------------------------------
+
+            // To write a cheque, we need to burn one of our transaction numbers. (Presumably the wallet
+            // is also storing a couple of these, since they are needed to perform any transaction.)
+            //
+            // I don't have to contact the server to write a cheque -- as long as I already have a transaction
+            // number I can use to write it. Otherwise I'd have to ask the server to send me one first.
+
+            long lTransactionNumber=0;
+
+            if (false == theNym.GetNextTransactionNum(theNym, strServerID, lTransactionNumber))
+            {
+                OTLog::Output(0, "Cheques are written offline, but you still need a transaction number\n"
+                    "(and you have none, currently.) Try using 'n' to request another transaction number.\n");
+                return (-1);
+            }
+
+
+            OTCheque theCheque(pAccount->GetRealServerID(), pAccount->GetAssetTypeID());
+
+            // -----------------------------------------------------------------------
+
+            // Memo
+            OTLog::Output(0, "Enter a memo for your check: ");
+            OTString strChequeMemo;
+            strChequeMemo.OTfgets(std::cin);
+
+            // -----------------------------------------------------------------------
+
+            // Valid date range (in seconds)
+            OTLog::Output(0, 
+                " 6 minutes	==      360 Seconds\n"
+                "10 minutes	==      600 Seconds\n"
+                "1 hour		==     3600 Seconds\n"
+                "1 day		==    86400 Seconds\n"
+                "30 days	==  2592000 Seconds\n"
+                "3 months	==  7776000 Seconds\n"
+                "6 months	== 15552000 Seconds\n\n"
+                );
+
+            long lExpirationInSeconds = 3600;
+            OTLog::vOutput(0, "How many seconds before cheque expires? (defaults to 1 hour: %ld): ", lExpirationInSeconds);
+            OTString strTemp;
+            strTemp.OTfgets(std::cin);
+
+            if (strTemp.GetLength() > 1)
+                lExpirationInSeconds = atol(strTemp.Get());
+
+
+            // -----------------------------------------------------------------------
+
+            time_t	VALID_FROM	= time(NULL); // This time is set to TODAY NOW
+
+            OTLog::vOutput(0, "Cheque may be cashed STARTING date (defaults to now, in seconds) [%ld]: ", VALID_FROM);
+            strTemp.Release();
+            strTemp.OTfgets(std::cin);
+
+            if (strTemp.GetLength() > 2)
+                VALID_FROM = atol(strTemp.Get());
+
+
+            const time_t VALID_TO = VALID_FROM + lExpirationInSeconds; // now + 3600
+
+            // -----------------------------------------------------------------------
+
+            bool bIssueCheque = theCheque.IssueCheque(lTotalAmount, lTransactionNumber, VALID_FROM, VALID_TO, 
+                ACCOUNT_ID, MY_NYM_ID, strChequeMemo,
+                (strRecipientNym.GetLength() > 2) ? &(HIS_NYM_ID) : NULL); // blank cheques are allowed.
+
+            if (bIssueCheque)
+            {
+                theCheque.SignContract(theNym);
+                theCheque.SaveContract();
+
+                OTString strCheque(theCheque);
+
+                OTLog::Output(0, "\n\nOUTPUT (writeCheque):\n\n\n");
+                // OTLog::Output actually goes to stderr, whereas the cout below is actually sent to standard output.
+                std::cout << strCheque.Get() << std::endl;
+            }
+            else 
+            {
+                OTLog::Output(0, "Failed trying to issue the cheque!\n");
+
+                // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                theNym.AddTransactionNum(theNym, strServerID, lTransactionNumber, true); // bSave=true								
+            }
+
+            return -1;
+        }
+
+        // ------------------------------------------------------------------------
+
+        break;
+    case OTClient::proposePaymentPlan : // Propose a payment plan (sends no message to server.)
+        {	
+            OTString strMerchantAcct;
+
+            if (NULL == pAccount)
+            {
+                OTLog::Output(0, "You are the Merchant, proposing this payment plan so your customer can confirm it.\n"
+                    "After this command, use 'confirm' (customer) to confirm it, and then activate it using\n"
+                    "'plan' (customer) from the OT prompt, or '--activateplan' from the command line.\n\n"
+                    "Enter the Merchant's (your) Asset Account ID that the payments will go to: ");
+                // User input.
+                // I need a from account
+                strMerchantAcct.OTfgets(std::cin);
+
+                if (strMerchantAcct.GetLength() < 2)
+                    return -1;
+
+                const OTIdentifier ACCOUNT_ID(strMerchantAcct);
+
+                if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
+                {
+                    pAccount->GetIdentifier(strMerchantAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else if ((pAccount = m_pWallet->GetAccountPartialMatch(strMerchantAcct.Get())) != NULL)
+                {
+                    pAccount->GetIdentifier(strMerchantAcct);
+                    CONTRACT_ID = pAccount->GetAssetTypeID();
+                    CONTRACT_ID.GetString(strContractID);
+                }
+                else
+                {
+                    OTLog::Error("Unable to propose payment plan without account to pay to. Try adding:  --myacct ACCOUNT_ID\n");
+                    return -1;
+                }
+            }
+            else
+            {
+                pAccount->GetIdentifier(strMerchantAcct);
+                CONTRACT_ID = pAccount->GetAssetTypeID();
+                CONTRACT_ID.GetString(strContractID);
+            }
+
+            const OTIdentifier MY_ACCT_ID(strMerchantAcct);
+
+            if (pAccount->GetPurportedServerID() != SERVER_ID)
+            {
+                OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                    "(Try adding:  --server SERVER_ID)\n");
+                return -1;
+            }
+
+            // pAccount is the MERCHANT's (recipient) account. CONTRACT_ID is its ASSET_TYPE.
+            // strContractID is the string version of that. And strMerchantAcct is the string
+            // version of pAccount's ID.
+            // theNym, FYI, is the Merchant's Nym.
+
+            // -----------------------------------------------------
+
+            OTString strCustomerAcct;
+
+            if (NULL == pHisAcctID)
+            {
+                OTLog::Output(0, "Enter Customer's Asset Account ID that payments will come FROM (no partials): ");
+
+                // User input.
+                // I need a from account
+                strCustomerAcct.OTfgets(std::cin);
+
+                if (strCustomerAcct.GetLength() < 2)
+                    return -1;			
+            }
+            else
+            {
+                pHisAcctID->GetString(strCustomerAcct);            
+            }
+
+            const OTIdentifier HIS_ACCT_ID(strCustomerAcct);
+
+            // HIS_ACCT_ID is the Customer's asset account id.
+            // strCustomerAcct is the OTString version of that.
+            // -----------------------------------------------------
+
+            OTString strCustomerNym;
+
+            if (NULL == pHisNymID)
+            {
+                OTLog::Output(0, "Enter Customer's Nym ID (full ID -- no partials here): ");
+
+                // User input.
+                // I need a from account
+                strCustomerNym.OTfgets(std::cin);
+
+                if (strCustomerNym.GetLength() < 2)
+                    return -1;			
+            }
+            else
+            {
+                pHisNymID->GetString(strCustomerNym);
+            }
+
+            // Todo add partial lookups here from wallet and/or address book.
+
+            const OTIdentifier MY_NYM_ID(theNym);
+
+            const OTIdentifier HIS_NYM_ID(strCustomerNym);
+
+            // HIS_NYM_ID is the Customer's nym id. MY_NYM_ID is the Merchant's.
+            // strCustomerNym is the OTString version of HIS_NYM_ID.
+            // -----------------------------------------------------
+
+            OTString strConsideration, strTemp;
+
+            OTLog::Output(0, "Enter a memo describing consideration for the payment plan: ");
+            strConsideration.OTfgets(std::cin);		
+
+            // To write a payment plan, like a cheque, we need to burn one of our transaction numbers. (Presumably
+            // the wallet is also storing a couple of these, since they are needed to perform any transaction.)
+            //
+            // I don't have to contact the server to write a payment plan -- as long as I already have a transaction
+            // number I can use to write it. Otherwise I'd have to ask the server to send me one first.
+
+            if (theNym.GetTransactionNumCount(strServerID) < 2)
+            {
+                OTLog::Output(0, "Payment Plans are written offline, but you still need a 2 transaction numbers\n"
+                    "(and you don't, currently.) Try using 'n' to request another transaction number.\n");
+                return -1;
+            }
+
+            // -----------------------------------------------------------------------
+
+            /*
+            OTPaymentPlan( const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
+            const OTIdentifier & SENDER_ACCT_ID,	const OTIdentifier & SENDER_USER_ID,
+            const OTIdentifier & RECIPIENT_ACCT_ID, const OTIdentifier & RECIPIENT_USER_ID);
+
+            */
+            OTPaymentPlan thePlan(pAccount->GetRealServerID(), pAccount->GetAssetTypeID(),
+                HIS_ACCT_ID,  HIS_NYM_ID,
+                MY_ACCT_ID,   MY_NYM_ID);
+
+            // -----------------------------------------------------------------------
+
+            // Valid date range (in seconds)
+            OTLog::Output(0, 
+                " 6 minutes	==      360 Seconds\n"
+                "10 minutes	==      600 Seconds\n"
+                "1 hour		==     3600 Seconds\n"
+                "1 day		==    86400 Seconds\n"
+                "30 days			==  2592000 Seconds\n"
+                "3 months		==  7776000 Seconds\n"
+                "6 months		== 15552000 Seconds\n\n"
+                );
+
+            long lExpirationInSeconds = 86400;
+            OTLog::vOutput(0, "How many seconds before payment plan expires? (defaults to 1 day: %ld): ", 
+                lExpirationInSeconds);
+            strTemp.Release();
+            strTemp.OTfgets(std::cin);
+
+            if (strTemp.GetLength() > 1)
+                lExpirationInSeconds = atol(strTemp.Get());
+
+
+            // -----------------------------------------------------------------------
+
+            time_t	VALID_FROM	= time(NULL); // This time is set to TODAY NOW
+
+            OTLog::vOutput(0, "Payment plan becomes valid for processing STARTING date\n"
+                "(defaults to now, in seconds) [%ld]: ", VALID_FROM);
+            strTemp.Release();
+            strTemp.OTfgets(std::cin);
+
+            if (strTemp.GetLength() > 2)
+                VALID_FROM = atol(strTemp.Get());
+
+            const time_t VALID_TO = VALID_FROM + lExpirationInSeconds; // now + 86400
+
+            // ************************************************************************
+            // This pulls two transaction numbers off of pMerchantNym.
+            // (So we have to put them back if there is some early failure and crap-out...)
+            //
+            bool bSuccessSetAgreement = thePlan.SetProposal(theNym, strConsideration, VALID_FROM, VALID_TO);
+
+            if (!bSuccessSetAgreement)
+            {
+                OTLog::Output(0, "Failed trying to set the proposal!\n");
+
+                return -1;
+            }
+            // ************************************************************************
+
+            bool bSuccessSetInitialPayment	= true; // the default, in case user chooses not to even have this payment.
+            bool bSuccessSetPaymentPlan		= true; // the default, in case user chooses not to have a payment plan
+
+            OTLog::Output(0, "What is the Initial Payment Amount, if any? [0]: ");
+            strTemp.Release(); strTemp.OTfgets(std::cin);
+            long lInitialPayment = atol(strTemp.Get());
+
+            if (lInitialPayment > 0)
+            {
+                time_t	PAYMENT_DELAY = 60; // 60 seconds.
+
+                OTLog::vOutput(0, "From the Start Date forward, how long until the Initial Payment should charge?\n"
+                    "(defaults to one minute, in seconds) [%d]: ", PAYMENT_DELAY);
+                strTemp.Release();
+                strTemp.OTfgets(std::cin);
+
+                if ((strTemp.GetLength() > 1) && atol(strTemp.Get())>0)
+                    PAYMENT_DELAY = atol(strTemp.Get());
+
+                // -----------------------------------------------------------------------
+
+                bSuccessSetInitialPayment = thePlan.SetInitialPayment(lInitialPayment, PAYMENT_DELAY);
+            }
+
+            if (!bSuccessSetInitialPayment)
+            {
+                OTLog::Output(0, "Failed trying to set the initial payment!\n");
+
+                // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                thePlan.HarvestClosingNumbers(theNym); // puts the relevant numbers back onto Nym.
+
+                return -1;
+            }
+
+            // -----------------------------------------------------------------------
+
+            OTLog::Output(0, "What is the regular payment amount, if any? [0]: ");
+            strTemp.Release(); strTemp.OTfgets(std::cin);
+            long lRegularPayment = atol(strTemp.Get());
+
+            if (lRegularPayment > 0) // If there are regular payments.
+            {
+                // -----------------------------------------------------------------------
+
+                time_t	PAYMENT_DELAY = 120; // 120 seconds.
+
+                OTLog::vOutput(0, "From the Start Date forward, how long until the Regular Payments start?\n"
+                    "(defaults to two minutes, in seconds) [%d]: ", PAYMENT_DELAY);
+                strTemp.Release();
+                strTemp.OTfgets(std::cin);
+
+                if ((strTemp.GetLength() > 1) && atol(strTemp.Get())>0)
+                    PAYMENT_DELAY = atol(strTemp.Get());
+
+                // -----------------------------------------------------------------------
+
+                time_t	PAYMENT_PERIOD = 30; // 30 seconds.
+
+                OTLog::vOutput(0, "Once payments begin, how much time should elapse between each payment?\n"
+                    "(defaults to thirty seconds) [%d]: ", PAYMENT_PERIOD);
+                strTemp.Release();
+                strTemp.OTfgets(std::cin);
+
+                if ((strTemp.GetLength() > 1) && atol(strTemp.Get())>0)
+                    PAYMENT_PERIOD = atol(strTemp.Get());
+
+                // -----------------------------------------------------------------------
+
+                time_t	PLAN_LENGTH = 0; // 0 seconds (for no max length).
+
+                OTLog::vOutput(0, "From start date, do you want the plan to expire after a certain maximum time?\n"
+                    "(defaults to 0 for no) [%d]: ", PLAN_LENGTH);
+                strTemp.Release();
+                strTemp.OTfgets(std::cin);
+
+                if (strTemp.GetLength() > 1)
+                    PLAN_LENGTH = atol(strTemp.Get());
+
+                // -----------------------------------------------------------------------
+
+                OTLog::Output(0, "Should there be some maximum number of payments? (Zero for no maximum.) [0]: ");
+                strTemp.Release(); strTemp.OTfgets(std::cin);
+                int nMaxPayments = atoi(strTemp.Get());
+
+                bSuccessSetPaymentPlan = thePlan.SetPaymentPlan(lRegularPayment, PAYMENT_DELAY, 
+                    PAYMENT_PERIOD, PLAN_LENGTH, nMaxPayments);
+            }
+
+            if (!bSuccessSetPaymentPlan)
+            {
+                OTLog::Output(0, "Failed trying to set the payment plan!\n");
+
+                // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+                thePlan.HarvestClosingNumbers(theNym); // puts the relevant numbers back onto Nym.
+
+                return -1;
+            }
+
+            thePlan.SignContract(theNym);
+            thePlan.SaveContract();
+
+            OTString strPlan(thePlan);
+
+            OTLog::Output(0, "\n\n(Make sure to have your Customer 'confirm' the payment plan, before he activates it at "
+                "the server using the 'plan' command in the OT prompt, or --activateplan at the command-line):\n\n");
+
+            std::cout << strPlan.Get() << std::endl;
+
+            return 0; // sends no server message in this case.
+        }
+
+        // ------------------------------------------------------------------------
+
+        break;
+    case OTClient::confirmPaymentPlan: // Confirm a payment plan (sends no message to server.)
+        {	
+            OTLog::Output(0, "(You are the customer, confirming a payment plan that the merchant has just sent you.)\n\n");
+
+            // -----------------------------------------------
+
+            OTPaymentPlan thePlan;
+
+            OTLog::Output(0, "Please enter plaintext payment plan. Terminate with ~ on a new line:\n> ");
+            OTString strPlan;
+            char decode_buffer[200]; // Safe since we only read sizeof(decode_buffer)-1
+
+            do {
+                decode_buffer[0] = 0; // Make it fresh.
+
+                if ((NULL != fgets(decode_buffer, sizeof(decode_buffer)-1, stdin)) &&
+                    (decode_buffer[0] != '~'))
+                {
+                    strPlan.Concatenate("%s", decode_buffer);
+                    OTLog::Output(0, "> ");
+                }
+                else 
+                {
+                    break;
+                }
+
+            } while (decode_buffer[0] != '~');
+
+
+            if (!thePlan.LoadContractFromString(strPlan))
+            {
+                OTLog::Output(0, "Unable to load payment plan from string.\n");
+                return -1;
+            }
+
+            // -----------------------------------------------------------------------
+
+            OTPseudonym * pCustomerNym = m_pWallet->GetNymByID(thePlan.GetSenderUserID());
+
+            if (NULL == pCustomerNym)
+            {
+                OTLog::Output(0, "The customer Nym on this payment plan (you, supposedly) wasn't found in the wallet. Try 'load'.\n");
+                return -1;
+            }
+            // -----------------------------------------------------------------------
+            OTPseudonym * pMerchantNym = m_pWallet->GetNymByID(thePlan.GetRecipientUserID());
+
+            //      if (NULL == pMerchantNym)
+            //      {
+            //          OTLog::Output(0, "Merchant Nym wasn't found in the wallet. Try 'load'.\n");
+            //          // TODO add lookups from address book here as well?
+            //          return -1;
+            //      }
+            // -----------------------------------------------------------------------
+            if (false == thePlan.Confirm(*pCustomerNym, pMerchantNym, &thePlan.GetRecipientUserID()))
+            {
+                OTLog::Output(0, "Error while confirming payment plan. Sorry.\n");
+                return -1;
+            }
+
+            thePlan.SignContract(*pCustomerNym);
+            thePlan.SaveContract();
+
+            OTString strOutput(thePlan);
+
+            OTLog::Output(0, "\n\nMake sure to submit the payment plan to the server, to activate it:\n\n");
+
+            // The above OTLog::Output() actually outputs to stderr (cerr). That's on purpose.
+            // But the below output actually outputs to stdout, which is also on purpose.
+            //
+            std::cout << strOutput.Get() << std::endl;
+
+            return 0; // no server message being sent, in this case.
+        }
+
+        // ------------------------------------------------------------------------
+
+        break;
+    case OTClient::paymentPlan: // Activate a PAYMENT PLAN
+        {	
+            const OTIdentifier USER_ID(theNym);
+
+            OTPaymentPlan thePlan;
+
+            OTLog::Output(0, "Please enter plaintext payment plan. Terminate with ~ on a new line:\n> ");
+            OTString strPlan;
+            char decode_buffer[200]; // Safe since we only read sizeof(decode_buffer)-1
+
+            do {
+                decode_buffer[0] = 0; // Make it fresh.
+
+                if ((NULL != fgets(decode_buffer, sizeof(decode_buffer)-1, stdin)) &&
+                    (decode_buffer[0] != '~'))
+                {
+                    strPlan.Concatenate("%s", decode_buffer);
+                    OTLog::Output(0, "> ");
+                }
+                else 
+                {
+                    break;
+                }
+
+            } while (decode_buffer[0] != '~');
+
+
+            if (thePlan.LoadContractFromString(strPlan))
+            {
+                const OTIdentifier ACCOUNT_ID(thePlan.GetSenderAcctID());
+
+                OTAccount * pSenderAccount = m_pWallet->GetAccount(ACCOUNT_ID);
+
+                if (NULL == pSenderAccount)
+                {
+                    OTLog::Output(0, "There is no account loaded on this wallet with that sender acct ID, sorry.\n");
+                }
+                if ((NULL != pAccount) && (pSenderAccount != pAccount))
+                {
+                    OTLog::Output(0, "This Payment Plan is already confirmed, yet now you try to activate it, and you \n"
+                        "have supplied a different account ID than the one that originally confirmed it.\n"
+                        "Perhaps it's just an unfortunate default in your ~/.ot/command-line-ot.opt file.\n"
+                        "Be explicit, and use:  --myacct <acct_id>\n");
+                }
+                else
+                {	
+                    OTString strFromAcct(ACCOUNT_ID);
+
                     // Create a transaction
-                    OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ASSET_ACCT_ID, SERVER_ID, 
-                        OTTransaction::marketOffer, lStoredTransactionNumber); 
+                    OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCOUNT_ID, SERVER_ID, 
+                        OTTransaction::paymentPlan, thePlan.GetTransactionNum()); 
 
                     // set up the transaction item (each transaction may have multiple items...)
-                    OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::marketOffer, 
-                        &CURRENCY_ACCT_ID); // the "To" account (normally used for a TRANSFER transaction) is used here 
-                    // storing the Currency Acct ID. The Server will expect the Trade object bundled 
-                    // within this item to have an Asset Acct ID and "Currency" Acct ID that match
-                    // those on this Item. Otherwise it will reject the offer.
+                    OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::paymentPlan);
 
-                    OT_ASSERT(NULL != pItem);
+                    strPlan.Release();
+                    thePlan.SaveContractRaw(strPlan);
 
-                    OTString strTrade;
-                    theTrade.SaveContractRaw(strTrade);
-
-                    // Add the trade string as the attachment on the transaction item.
-                    pItem->SetAttachment(strTrade); // The trade is contained in the attachment string. (The offer is within the trade.)
+                    // Add the payment plan string as the attachment on the transaction item.
+                    pItem->SetAttachment(strPlan); // The payment plan is contained in the reference string.
 
                     // sign the item
                     pItem->SignContract(theNym);
@@ -9549,8 +10381,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                     pTransaction->SaveContract();
 
                     // set up the ledger
-                    OTLedger theLedger(USER_ID, ASSET_ACCT_ID, SERVER_ID);
-                    theLedger.GenerateLedger(ASSET_ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+                    OTLedger theLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+                    theLedger.GenerateLedger(ACCOUNT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
                     theLedger.AddTransaction(*pTransaction); // now the ledger "owns" and will handle cleaning up the transaction.
 
                     // sign the ledger
@@ -9572,7 +10404,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                     theMessage.m_strServerID		= strServerID;
                     theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 
-                    theMessage.m_strAcctID			= str_ASSET_ACCT_ID;
+                    theMessage.m_strAcctID			= strFromAcct;
                     theMessage.m_ascPayload			= ascLedger;
 
                     OTIdentifier NYMBOX_HASH;
@@ -9593,838 +10425,53 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 
                     bSendCommand = true;
                     lReturnValue = lRequestNumber;
-                }
 
-                if (false == bSendCommand)	
-                {
-                    // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-                    theNym.AddTransactionNum(theNym, strServerID, lStoredTransactionNumber, false); // bSave=true
-                    theNym.AddTransactionNum(theNym, strServerID, lClosingTransactionNoAssetAcct, false); // bSave=true
-                    theNym.AddTransactionNum(theNym, strServerID, lClosingTransactionNoCurrencyAcct, true); // bSave=true
-                }
-            } // Got Transaction Num
-        }
-    } // else if (OTClient::marketOffer == requestedCommand) // MARKET OFFER
-
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::signContract == requestedCommand) // Sign a CONTRACT. (Sends no message to server.)
-    {
-        OTLog::Output(0, "Is the contract a server contract, or an asset contract [s/a]: ");
-        OTString strContractType;
-        strContractType.OTfgets(std::cin);
-
-        char cContractType='s';
-        bool bIsAssetContract = strContractType.At(0, cContractType);
-
-        if (bIsAssetContract)
-        {
-            if ('S' == cContractType || 's' == cContractType)
-                bIsAssetContract = false;
-        }
-        // ----------------------------
-
-        OTLog::Output(0, "Is the contract properly escaped already? (If escaped, all lines beginning with ----- will instead appear as - ----- ) [y/n]: ");
-        // User input.
-        // I need a from account, Yes even in a deposit, it's still the "From" account.
-        // The "To" account is only used for a transfer. (And perhaps for a 2-way trade.)
-        OTString strEscape;
-        strEscape.OTfgets(std::cin);
-
-        char cEscape='n';
-        bool bEscaped = strEscape.At(0, cEscape);
-
-        if (bEscaped)
-        {
-            if ('N' == cEscape || 'n' == cEscape)
-                bEscaped = false;
-        }
-
-        OTLog::Output(0, "Please enter an unsigned asset contract; terminate with ~ on a new line:\n> ");
-        OTString strContract;
-        char decode_buffer[200]; // Safe since we only read sizeof(decode_buffer)-1
-
-        do {
-            decode_buffer[0] = 0; // Make it fresh.
-
-            if ((NULL != fgets(decode_buffer, sizeof(decode_buffer)-1, stdin)) &&
-                (decode_buffer[0] != '~'))
-            {
-                if (!bEscaped && decode_buffer[0] == '-')
-                {
-                    strContract.Concatenate("- ");
-                }
-                strContract.Concatenate("%s", decode_buffer);
-                OTLog::Output(0, "> ");
-            }
+                } // pAccount not NULL			
+            } // thePlan.LoadContractFromString()
             else 
             {
-                break;
+                OTLog::Output(0, "Unable to load payment plan from string. Sorry.\n");
             }
 
-        } while (decode_buffer[0] != '~');
+        } // else if (OTClient::paymentPlan == requestedCommand) // PAYMENT PLAN
 
-        OTServerContract theServerContract;
-        OTAssetContract theAssetContract;
-
-        OTContract * pContract = bIsAssetContract ? dynamic_cast<OTContract*>(&theAssetContract) : dynamic_cast<OTContract*>(&theServerContract);
-
-        pContract->CreateContract(strContract, theNym);
-
-        // re-using strContract here for output this time.
-        strContract.Release();
-        pContract->SaveContractRaw(strContract);
-
-        OTString strNewID;
-        pContract->GetIdentifier(strNewID);
-
-        OTLog::vOutput(0, ".\n..\n...\n....\n.....\n......\n.......\n........\n.........\n\n"
-            "NEW CONTRACT ID:  %s\n\n", strNewID.Get());
-
-        std::cout << strContract.Get() << std::endl;
 
         // ------------------------------------------------------------------------
 
-        return 0;
-    }
-    else if (OTClient::writeCheque == requestedCommand) // Write a CHEQUE. (Sends no message to server.)
-    {
-        OTString strFromAcct;
-
-        if (NULL == pAccount)
-        {
-            OTLog::Output(0, "Please enter an Asset Account ID (to draw the cheque from): ");
-            // User input.
-            // I need a from account
-            strFromAcct.OTfgets(std::cin);
-
-            if (strFromAcct.GetLength() < 2)
-                return (-1);
-
-            const OTIdentifier ACCOUNT_ID(strFromAcct);
-
-            if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
-            {
-                pAccount->GetIdentifier(strFromAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else
-            {
-                OTLog::Error("Unable to write cheque without account to draw from. On comand line, try adding:  --myacct ACCOUNT_ID\n");
-                return (-1);
-            }
-        }
-        else
-        {
-            pAccount->GetIdentifier(strFromAcct);
-            CONTRACT_ID = pAccount->GetAssetTypeID();
-            CONTRACT_ID.GetString(strContractID);
-        }
-
-        const OTIdentifier ACCOUNT_ID(strFromAcct);
-
-        if (pAccount->GetPurportedServerID() != SERVER_ID)
-        {
-            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
-                "(Try adding:  --server SERVER_ID)\n");
-            return (-1);
-        }
-
-        // ---------------------------------------------------------
-
-        OTString strRecipientNym;
-
-        if (NULL == pHisNymID)
-        {
-            OTLog::Output(0, "Enter Recipient's Nym ID (full ID -- no partials here.) Blank IS allowed: ");
-
-            // User input.
-            // I need a from account
-            strRecipientNym.OTfgets(std::cin);
-
-            //			if (strRecipientNym.GetLength() < 2) // blank cheques are allowed.
-            //				return (-1);			
-        }
-        else
-        {
-            pHisNymID->GetString(strRecipientNym);
-        }
-
-        // Todo add partial lookups here from wallet and/or address book.
-
-        const OTIdentifier MY_NYM_ID(theNym);
-
-        const OTIdentifier HIS_NYM_ID(strRecipientNym);
-
-        // ----------------------------------------------   
-        OTString strAmount;
-        if (0 == lTransactionAmount)
-        {
-            OTLog::Output(0, "Please enter an amount: ");
-            // User input.
-            // I need an amount
-            strAmount.OTfgets(std::cin);
-        }
-
-        const long lTotalAmount	= (0 == lTransactionAmount) ?  // If nothing was passed in, then use atol(strAmount), 
-            (atol(strAmount.Exists() ? strAmount.Get() : "0")) : lTransactionAmount; // otherwise lTransactionAmount.
-        // ----------------------------------------------
-
-        // To write a cheque, we need to burn one of our transaction numbers. (Presumably the wallet
-        // is also storing a couple of these, since they are needed to perform any transaction.)
-        //
-        // I don't have to contact the server to write a cheque -- as long as I already have a transaction
-        // number I can use to write it. Otherwise I'd have to ask the server to send me one first.
-
-        long lTransactionNumber=0;
-
-        if (false == theNym.GetNextTransactionNum(theNym, strServerID, lTransactionNumber))
-        {
-            OTLog::Output(0, "Cheques are written offline, but you still need a transaction number\n"
-                "(and you have none, currently.) Try using 'n' to request another transaction number.\n");
-            return (-1);
-        }
-
-
-        OTCheque theCheque(pAccount->GetRealServerID(), pAccount->GetAssetTypeID());
-
-        // -----------------------------------------------------------------------
-
-        // Memo
-        OTLog::Output(0, "Enter a memo for your check: ");
-        OTString strChequeMemo;
-        strChequeMemo.OTfgets(std::cin);
-
-        // -----------------------------------------------------------------------
-
-        // Valid date range (in seconds)
-        OTLog::Output(0, 
-            " 6 minutes	==      360 Seconds\n"
-            "10 minutes	==      600 Seconds\n"
-            "1 hour		==     3600 Seconds\n"
-            "1 day		==    86400 Seconds\n"
-            "30 days	==  2592000 Seconds\n"
-            "3 months	==  7776000 Seconds\n"
-            "6 months	== 15552000 Seconds\n\n"
-            );
-
-        long lExpirationInSeconds = 3600;
-        OTLog::vOutput(0, "How many seconds before cheque expires? (defaults to 1 hour: %ld): ", lExpirationInSeconds);
-        OTString strTemp;
-        strTemp.OTfgets(std::cin);
-
-        if (strTemp.GetLength() > 1)
-            lExpirationInSeconds = atol(strTemp.Get());
-
-
-        // -----------------------------------------------------------------------
-
-        time_t	VALID_FROM	= time(NULL); // This time is set to TODAY NOW
-
-        OTLog::vOutput(0, "Cheque may be cashed STARTING date (defaults to now, in seconds) [%ld]: ", VALID_FROM);
-        strTemp.Release();
-        strTemp.OTfgets(std::cin);
-
-        if (strTemp.GetLength() > 2)
-            VALID_FROM = atol(strTemp.Get());
-
-
-        const time_t VALID_TO = VALID_FROM + lExpirationInSeconds; // now + 3600
-
-        // -----------------------------------------------------------------------
-
-        bool bIssueCheque = theCheque.IssueCheque(lTotalAmount, lTransactionNumber, VALID_FROM, VALID_TO, 
-            ACCOUNT_ID, MY_NYM_ID, strChequeMemo,
-            (strRecipientNym.GetLength() > 2) ? &(HIS_NYM_ID) : NULL); // blank cheques are allowed.
-
-        if (bIssueCheque)
-        {
-            theCheque.SignContract(theNym);
-            theCheque.SaveContract();
-
-            OTString strCheque(theCheque);
-
-            OTLog::Output(0, "\n\nOUTPUT (writeCheque):\n\n\n");
-            // OTLog::Output actually goes to stderr, whereas the cout below is actually sent to standard output.
-            std::cout << strCheque.Get() << std::endl;
-        }
-        else 
-        {
-            OTLog::Output(0, "Failed trying to issue the cheque!\n");
-
-            // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-            theNym.AddTransactionNum(theNym, strServerID, lTransactionNumber, true); // bSave=true								
-        }
-
-        return -1;
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::proposePaymentPlan == requestedCommand) // Propose a payment plan (sends no message to server.)
-    {	
-        OTString strMerchantAcct;
-
-        if (NULL == pAccount)
-        {
-            OTLog::Output(0, "You are the Merchant, proposing this payment plan so your customer can confirm it.\n"
-                "After this command, use 'confirm' (customer) to confirm it, and then activate it using\n"
-                "'plan' (customer) from the OT prompt, or '--activateplan' from the command line.\n\n"
-                "Enter the Merchant's (your) Asset Account ID that the payments will go to: ");
-            // User input.
-            // I need a from account
-            strMerchantAcct.OTfgets(std::cin);
-
-            if (strMerchantAcct.GetLength() < 2)
-                return -1;
-
-            const OTIdentifier ACCOUNT_ID(strMerchantAcct);
-
-            if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
-            {
-                pAccount->GetIdentifier(strMerchantAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else if ((pAccount = m_pWallet->GetAccountPartialMatch(strMerchantAcct.Get())) != NULL)
-            {
-                pAccount->GetIdentifier(strMerchantAcct);
-                CONTRACT_ID = pAccount->GetAssetTypeID();
-                CONTRACT_ID.GetString(strContractID);
-            }
-            else
-            {
-                OTLog::Error("Unable to propose payment plan without account to pay to. Try adding:  --myacct ACCOUNT_ID\n");
-                return -1;
-            }
-        }
-        else
-        {
-            pAccount->GetIdentifier(strMerchantAcct);
-            CONTRACT_ID = pAccount->GetAssetTypeID();
-            CONTRACT_ID.GetString(strContractID);
-        }
-
-        const OTIdentifier MY_ACCT_ID(strMerchantAcct);
-
-        if (pAccount->GetPurportedServerID() != SERVER_ID)
-        {
-            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
-                "(Try adding:  --server SERVER_ID)\n");
-            return -1;
-        }
-
-        // pAccount is the MERCHANT's (recipient) account. CONTRACT_ID is its ASSET_TYPE.
-        // strContractID is the string version of that. And strMerchantAcct is the string
-        // version of pAccount's ID.
-        // theNym, FYI, is the Merchant's Nym.
-
-        // -----------------------------------------------------
-
-        OTString strCustomerAcct;
-
-        if (NULL == pHisAcctID)
-        {
-            OTLog::Output(0, "Enter Customer's Asset Account ID that payments will come FROM (no partials): ");
-
-            // User input.
-            // I need a from account
-            strCustomerAcct.OTfgets(std::cin);
-
-            if (strCustomerAcct.GetLength() < 2)
-                return -1;			
-        }
-        else
-        {
-            pHisAcctID->GetString(strCustomerAcct);            
-        }
-
-        const OTIdentifier HIS_ACCT_ID(strCustomerAcct);
-
-        // HIS_ACCT_ID is the Customer's asset account id.
-        // strCustomerAcct is the OTString version of that.
-        // -----------------------------------------------------
-
-        OTString strCustomerNym;
-
-        if (NULL == pHisNymID)
-        {
-            OTLog::Output(0, "Enter Customer's Nym ID (full ID -- no partials here): ");
-
-            // User input.
-            // I need a from account
-            strCustomerNym.OTfgets(std::cin);
-
-            if (strCustomerNym.GetLength() < 2)
-                return -1;			
-        }
-        else
-        {
-            pHisNymID->GetString(strCustomerNym);
-        }
-
-        // Todo add partial lookups here from wallet and/or address book.
-
-        const OTIdentifier MY_NYM_ID(theNym);
-
-        const OTIdentifier HIS_NYM_ID(strCustomerNym);
-
-        // HIS_NYM_ID is the Customer's nym id. MY_NYM_ID is the Merchant's.
-        // strCustomerNym is the OTString version of HIS_NYM_ID.
-        // -----------------------------------------------------
-
-        OTString strConsideration, strTemp;
-
-        OTLog::Output(0, "Enter a memo describing consideration for the payment plan: ");
-        strConsideration.OTfgets(std::cin);		
-
-        // To write a payment plan, like a cheque, we need to burn one of our transaction numbers. (Presumably
-        // the wallet is also storing a couple of these, since they are needed to perform any transaction.)
-        //
-        // I don't have to contact the server to write a payment plan -- as long as I already have a transaction
-        // number I can use to write it. Otherwise I'd have to ask the server to send me one first.
-
-        if (theNym.GetTransactionNumCount(strServerID) < 2)
-        {
-            OTLog::Output(0, "Payment Plans are written offline, but you still need a 2 transaction numbers\n"
-                "(and you don't, currently.) Try using 'n' to request another transaction number.\n");
-            return -1;
-        }
-
-        // -----------------------------------------------------------------------
-
         /*
-        OTPaymentPlan( const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
-        const OTIdentifier & SENDER_ACCT_ID,	const OTIdentifier & SENDER_USER_ID,
-        const OTIdentifier & RECIPIENT_ACCT_ID, const OTIdentifier & RECIPIENT_USER_ID);
+        else if (OTClient::withdrawTest == requestedCommand) // TEST OF TOKEN BLINDING. NOT PART OF THE REAL PROTOCOL.
+        {	
+        // (0) Set up the REQUEST NUMBER and then INCREMENT IT
+        theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+        theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+        theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
 
+        // (1) Set up member variables 
+        theMessage.m_strCommand			= "debitAccount";
+        theMessage.m_strNymID			= strNymID;
+        theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+        theMessage.m_strAssetID			= strContractID;// the hash of the contract is the AssetID
+
+        // (2) Sign the Message 
+        OTContract & aSigningDoc = theMessage;
+        aSigningDoc.SignContract(theNym);		
+
+        // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+        theMessage.SaveContract();
+
+        bSendCommand = true;
+        }
         */
-        OTPaymentPlan thePlan(pAccount->GetRealServerID(), pAccount->GetAssetTypeID(),
-            HIS_ACCT_ID,  HIS_NYM_ID,
-            MY_ACCT_ID,   MY_NYM_ID);
+        // ------------------------------------------------------------------------
+        break;
 
-        // -----------------------------------------------------------------------
-
-        // Valid date range (in seconds)
-        OTLog::Output(0, 
-            " 6 minutes	==      360 Seconds\n"
-            "10 minutes	==      600 Seconds\n"
-            "1 hour		==     3600 Seconds\n"
-            "1 day		==    86400 Seconds\n"
-            "30 days			==  2592000 Seconds\n"
-            "3 months		==  7776000 Seconds\n"
-            "6 months		== 15552000 Seconds\n\n"
-            );
-
-        long lExpirationInSeconds = 86400;
-        OTLog::vOutput(0, "How many seconds before payment plan expires? (defaults to 1 day: %ld): ", 
-            lExpirationInSeconds);
-        strTemp.Release();
-        strTemp.OTfgets(std::cin);
-
-        if (strTemp.GetLength() > 1)
-            lExpirationInSeconds = atol(strTemp.Get());
-
-
-        // -----------------------------------------------------------------------
-
-        time_t	VALID_FROM	= time(NULL); // This time is set to TODAY NOW
-
-        OTLog::vOutput(0, "Payment plan becomes valid for processing STARTING date\n"
-            "(defaults to now, in seconds) [%ld]: ", VALID_FROM);
-        strTemp.Release();
-        strTemp.OTfgets(std::cin);
-
-        if (strTemp.GetLength() > 2)
-            VALID_FROM = atol(strTemp.Get());
-
-        const time_t VALID_TO = VALID_FROM + lExpirationInSeconds; // now + 86400
-
-        // ************************************************************************
-        // This pulls two transaction numbers off of pMerchantNym.
-        // (So we have to put them back if there is some early failure and crap-out...)
-        //
-        bool bSuccessSetAgreement = thePlan.SetProposal(theNym, strConsideration, VALID_FROM, VALID_TO);
-
-        if (!bSuccessSetAgreement)
+    default:
         {
-            OTLog::Output(0, "Failed trying to set the proposal!\n");
-
-            return -1;
+            OTLog::Output(0, "\n");
         }
-        // ************************************************************************
-
-        bool bSuccessSetInitialPayment	= true; // the default, in case user chooses not to even have this payment.
-        bool bSuccessSetPaymentPlan		= true; // the default, in case user chooses not to have a payment plan
-
-        OTLog::Output(0, "What is the Initial Payment Amount, if any? [0]: ");
-        strTemp.Release(); strTemp.OTfgets(std::cin);
-        long lInitialPayment = atol(strTemp.Get());
-
-        if (lInitialPayment > 0)
-        {
-            time_t	PAYMENT_DELAY = 60; // 60 seconds.
-
-            OTLog::vOutput(0, "From the Start Date forward, how long until the Initial Payment should charge?\n"
-                "(defaults to one minute, in seconds) [%d]: ", PAYMENT_DELAY);
-            strTemp.Release();
-            strTemp.OTfgets(std::cin);
-
-            if ((strTemp.GetLength() > 1) && atol(strTemp.Get())>0)
-                PAYMENT_DELAY = atol(strTemp.Get());
-
-            // -----------------------------------------------------------------------
-
-            bSuccessSetInitialPayment = thePlan.SetInitialPayment(lInitialPayment, PAYMENT_DELAY);
-        }
-
-        if (!bSuccessSetInitialPayment)
-        {
-            OTLog::Output(0, "Failed trying to set the initial payment!\n");
-
-            // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-            thePlan.HarvestClosingNumbers(theNym); // puts the relevant numbers back onto Nym.
-
-            return -1;
-        }
-
-        // -----------------------------------------------------------------------
-
-        OTLog::Output(0, "What is the regular payment amount, if any? [0]: ");
-        strTemp.Release(); strTemp.OTfgets(std::cin);
-        long lRegularPayment = atol(strTemp.Get());
-
-        if (lRegularPayment > 0) // If there are regular payments.
-        {
-            // -----------------------------------------------------------------------
-
-            time_t	PAYMENT_DELAY = 120; // 120 seconds.
-
-            OTLog::vOutput(0, "From the Start Date forward, how long until the Regular Payments start?\n"
-                "(defaults to two minutes, in seconds) [%d]: ", PAYMENT_DELAY);
-            strTemp.Release();
-            strTemp.OTfgets(std::cin);
-
-            if ((strTemp.GetLength() > 1) && atol(strTemp.Get())>0)
-                PAYMENT_DELAY = atol(strTemp.Get());
-
-            // -----------------------------------------------------------------------
-
-            time_t	PAYMENT_PERIOD = 30; // 30 seconds.
-
-            OTLog::vOutput(0, "Once payments begin, how much time should elapse between each payment?\n"
-                "(defaults to thirty seconds) [%d]: ", PAYMENT_PERIOD);
-            strTemp.Release();
-            strTemp.OTfgets(std::cin);
-
-            if ((strTemp.GetLength() > 1) && atol(strTemp.Get())>0)
-                PAYMENT_PERIOD = atol(strTemp.Get());
-
-            // -----------------------------------------------------------------------
-
-            time_t	PLAN_LENGTH = 0; // 0 seconds (for no max length).
-
-            OTLog::vOutput(0, "From start date, do you want the plan to expire after a certain maximum time?\n"
-                "(defaults to 0 for no) [%d]: ", PLAN_LENGTH);
-            strTemp.Release();
-            strTemp.OTfgets(std::cin);
-
-            if (strTemp.GetLength() > 1)
-                PLAN_LENGTH = atol(strTemp.Get());
-
-            // -----------------------------------------------------------------------
-
-            OTLog::Output(0, "Should there be some maximum number of payments? (Zero for no maximum.) [0]: ");
-            strTemp.Release(); strTemp.OTfgets(std::cin);
-            int nMaxPayments = atoi(strTemp.Get());
-
-            bSuccessSetPaymentPlan = thePlan.SetPaymentPlan(lRegularPayment, PAYMENT_DELAY, 
-                PAYMENT_PERIOD, PLAN_LENGTH, nMaxPayments);
-        }
-
-        if (!bSuccessSetPaymentPlan)
-        {
-            OTLog::Output(0, "Failed trying to set the payment plan!\n");
-
-            // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
-            thePlan.HarvestClosingNumbers(theNym); // puts the relevant numbers back onto Nym.
-
-            return -1;
-        }
-
-        thePlan.SignContract(theNym);
-        thePlan.SaveContract();
-
-        OTString strPlan(thePlan);
-
-        OTLog::Output(0, "\n\n(Make sure to have your Customer 'confirm' the payment plan, before he activates it at "
-            "the server using the 'plan' command in the OT prompt, or --activateplan at the command-line):\n\n");
-
-        std::cout << strPlan.Get() << std::endl;
-
-        return 0; // sends no server message in this case.
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::confirmPaymentPlan == requestedCommand) // Confirm a payment plan (sends no message to server.)
-    {	
-        OTLog::Output(0, "(You are the customer, confirming a payment plan that the merchant has just sent you.)\n\n");
-
-        // -----------------------------------------------
-
-        OTPaymentPlan thePlan;
-
-        OTLog::Output(0, "Please enter plaintext payment plan. Terminate with ~ on a new line:\n> ");
-        OTString strPlan;
-        char decode_buffer[200]; // Safe since we only read sizeof(decode_buffer)-1
-
-        do {
-            decode_buffer[0] = 0; // Make it fresh.
-
-            if ((NULL != fgets(decode_buffer, sizeof(decode_buffer)-1, stdin)) &&
-                (decode_buffer[0] != '~'))
-            {
-                strPlan.Concatenate("%s", decode_buffer);
-                OTLog::Output(0, "> ");
-            }
-            else 
-            {
-                break;
-            }
-
-        } while (decode_buffer[0] != '~');
-
-
-        if (!thePlan.LoadContractFromString(strPlan))
-        {
-            OTLog::Output(0, "Unable to load payment plan from string.\n");
-            return -1;
-        }
-
-        // -----------------------------------------------------------------------
-
-        OTPseudonym * pCustomerNym = m_pWallet->GetNymByID(thePlan.GetSenderUserID());
-
-        if (NULL == pCustomerNym)
-        {
-            OTLog::Output(0, "The customer Nym on this payment plan (you, supposedly) wasn't found in the wallet. Try 'load'.\n");
-            return -1;
-        }
-        // -----------------------------------------------------------------------
-        OTPseudonym * pMerchantNym = m_pWallet->GetNymByID(thePlan.GetRecipientUserID());
-
-        //      if (NULL == pMerchantNym)
-        //      {
-        //          OTLog::Output(0, "Merchant Nym wasn't found in the wallet. Try 'load'.\n");
-        //          // TODO add lookups from address book here as well?
-        //          return -1;
-        //      }
-        // -----------------------------------------------------------------------
-        if (false == thePlan.Confirm(*pCustomerNym, pMerchantNym, &thePlan.GetRecipientUserID()))
-        {
-            OTLog::Output(0, "Error while confirming payment plan. Sorry.\n");
-            return -1;
-        }
-
-        thePlan.SignContract(*pCustomerNym);
-        thePlan.SaveContract();
-
-        OTString strOutput(thePlan);
-
-        OTLog::Output(0, "\n\nMake sure to submit the payment plan to the server, to activate it:\n\n");
-
-        // The above OTLog::Output() actually outputs to stderr (cerr). That's on purpose.
-        // But the below output actually outputs to stdout, which is also on purpose.
-        //
-        std::cout << strOutput.Get() << std::endl;
-
-        return 0; // no server message being sent, in this case.
-    }
-
-    // ------------------------------------------------------------------------
-
-    else if (OTClient::paymentPlan == requestedCommand) // Activate a PAYMENT PLAN
-    {	
-        const OTIdentifier USER_ID(theNym);
-
-        OTPaymentPlan thePlan;
-
-        OTLog::Output(0, "Please enter plaintext payment plan. Terminate with ~ on a new line:\n> ");
-        OTString strPlan;
-        char decode_buffer[200]; // Safe since we only read sizeof(decode_buffer)-1
-
-        do {
-            decode_buffer[0] = 0; // Make it fresh.
-
-            if ((NULL != fgets(decode_buffer, sizeof(decode_buffer)-1, stdin)) &&
-                (decode_buffer[0] != '~'))
-            {
-                strPlan.Concatenate("%s", decode_buffer);
-                OTLog::Output(0, "> ");
-            }
-            else 
-            {
-                break;
-            }
-
-        } while (decode_buffer[0] != '~');
-
-
-        if (thePlan.LoadContractFromString(strPlan))
-        {
-            const OTIdentifier ACCOUNT_ID(thePlan.GetSenderAcctID());
-
-            OTAccount * pSenderAccount = m_pWallet->GetAccount(ACCOUNT_ID);
-
-            if (NULL == pSenderAccount)
-            {
-                OTLog::Output(0, "There is no account loaded on this wallet with that sender acct ID, sorry.\n");
-            }
-            if ((NULL != pAccount) && (pSenderAccount != pAccount))
-            {
-                OTLog::Output(0, "This Payment Plan is already confirmed, yet now you try to activate it, and you \n"
-                    "have supplied a different account ID than the one that originally confirmed it.\n"
-                    "Perhaps it's just an unfortunate default in your ~/.ot/command-line-ot.opt file.\n"
-                    "Be explicit, and use:  --myacct <acct_id>\n");
-            }
-            else
-            {	
-                OTString strFromAcct(ACCOUNT_ID);
-
-                // Create a transaction
-                OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCOUNT_ID, SERVER_ID, 
-                    OTTransaction::paymentPlan, thePlan.GetTransactionNum()); 
-
-                // set up the transaction item (each transaction may have multiple items...)
-                OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::paymentPlan);
-
-                strPlan.Release();
-                thePlan.SaveContractRaw(strPlan);
-
-                // Add the payment plan string as the attachment on the transaction item.
-                pItem->SetAttachment(strPlan); // The payment plan is contained in the reference string.
-
-                // sign the item
-                pItem->SignContract(theNym);
-                pItem->SaveContract();
-
-                // the Transaction "owns" the item now and will handle cleaning it up.
-                pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
-
-                // ---------------------------------------------
-                // TRANSACTION AGREEMENT
-
-                // pBalanceItem is signed and saved within this call. No need to do that again.
-                OTItem * pStatementItem = theNym.GenerateTransactionStatement(*pTransaction);
-
-                if (NULL != pStatementItem) // will never be NULL. Will assert above before it gets here.
-                    pTransaction->AddItem(*pStatementItem); // Better not be NULL... message will fail... But better check anyway.
-
-                // ---------------------------------------------
-
-                // sign the transaction
-                pTransaction->SignContract(theNym);
-                pTransaction->SaveContract();
-
-                // set up the ledger
-                OTLedger theLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
-                theLedger.GenerateLedger(ACCOUNT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
-                theLedger.AddTransaction(*pTransaction); // now the ledger "owns" and will handle cleaning up the transaction.
-
-                // sign the ledger
-                theLedger.SignContract(theNym);
-                theLedger.SaveContract();
-
-                // extract the ledger in ascii-armored form... encoding...
-                OTString		strLedger(theLedger);
-                OTASCIIArmor	ascLedger(strLedger);
-
-                // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-                theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-                theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-                theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
-
-                // (1) Set up member variables 
-                theMessage.m_strCommand			= "notarizeTransactions";
-                theMessage.m_strNymID			= strNymID;
-                theMessage.m_strServerID		= strServerID;
-                theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-                theMessage.m_strAcctID			= strFromAcct;
-                theMessage.m_ascPayload			= ascLedger;
-
-                OTIdentifier NYMBOX_HASH;
-                const std::string str_server(strServerID.Get());
-                const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
-
-                if (bNymboxHash)
-                    NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
-                else
-                    OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
-                    str_server.c_str());
-
-                // (2) Sign the Message 
-                theMessage.SignContract(theNym);		
-
-                // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-                theMessage.SaveContract();
-
-                bSendCommand = true;
-                lReturnValue = lRequestNumber;
-
-            } // pAccount not NULL			
-        } // thePlan.LoadContractFromString()
-        else 
-        {
-            OTLog::Output(0, "Unable to load payment plan from string. Sorry.\n");
-        }
-
-    } // else if (OTClient::paymentPlan == requestedCommand) // PAYMENT PLAN
-
-
-    // ------------------------------------------------------------------------
-
-    /*
-    else if (OTClient::withdrawTest == requestedCommand) // TEST OF TOKEN BLINDING. NOT PART OF THE REAL PROTOCOL.
-    {	
-    // (0) Set up the REQUEST NUMBER and then INCREMENT IT
-    theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
-    theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-    theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
-
-    // (1) Set up member variables 
-    theMessage.m_strCommand			= "debitAccount";
-    theMessage.m_strNymID			= strNymID;
-    theMessage.m_strServerID		= strServerID;
-    theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
-
-    theMessage.m_strAssetID			= strContractID;// the hash of the contract is the AssetID
-
-    // (2) Sign the Message 
-    OTContract & aSigningDoc = theMessage;
-    aSigningDoc.SignContract(theNym);		
-
-    // (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-    theMessage.SaveContract();
-
-    bSendCommand = true;
-    }
-    */
-    // ------------------------------------------------------------------------
-
-    else 
-    {
-        OTLog::Output(0, "\n");
-    }
+    } // Get out og the big switch statement!
 
 
     return CalcReturnVal(lReturnValue);
