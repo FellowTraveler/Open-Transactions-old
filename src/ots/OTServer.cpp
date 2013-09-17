@@ -9924,22 +9924,20 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
     if (bGotNymboxHashServerSide)  // theSrvrNymboxHash is the hash stored on the server side
         theSrvrNymboxHash.GetString(msgOut.m_strNymboxHash);
     else {
-        OTLog::vError("%s: Error: We cannot obtain server side nymbox hash, abort.\n",__FUNCTION__);
-        msgOut.m_bSuccess = false;
-        return;
+        OTLog::vOutput(1,"%s: We cannot obtain server side nymbox hash, will continue.\n",__FUNCTION__);
     }
 
     const bool bGotNymboxHashClientSide = MsgIn.m_strNymboxHash.Exists();
 
     if (!bGotNymboxHashClientSide) {
-        OTLog::vOutput(0, "%s: We don't have a client side nymbox hash, Will resync.\n", __FUNCTION__);
-        goto send_message;
+        OTLog::vOutput(1, "%s: We don't have a client side nymbox hash, will continue\n", __FUNCTION__);
     }
 
-    if (theMsgNymboxHash != theSrvrNymboxHash) {
-        OTLog::vOutput(0, "%s: The server and client nymbox hashes missmatch! Will resync.\n", __FUNCTION__);
-        goto send_message;
-    }
+    if (bGotNymboxHashServerSide && bGotNymboxHashClientSide)
+        if (theMsgNymboxHash != theSrvrNymboxHash) {
+            OTLog::vOutput(0, "%s: The server and client nymbox hashes missmatch! rejecting message.\n", __FUNCTION__);
+            goto send_message;
+        }
 
 
     // as long as the request ledger loads from the message into memory, success is true
@@ -11327,22 +11325,20 @@ void OTServer::UserCmdProcessNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTM
     if (bGotNymboxHashServerSide)  // theSrvrNymboxHash is the hash stored on the server side
         theSrvrNymboxHash.GetString(msgOut.m_strNymboxHash);
     else {
-        OTLog::vError("%s: Error: We cannot obtain server side nymbox hash, abort.\n",__FUNCTION__);
-        msgOut.m_bSuccess = false;
-        return;
+        OTLog::vOutput(1,"%s: We cannot obtain server side nymbox hash, will continue.\n",__FUNCTION__);
     }
 
     const bool bGotNymboxHashClientSide = MsgIn.m_strNymboxHash.Exists();
 
     if (!bGotNymboxHashClientSide) {
-        OTLog::vOutput(0, "%s: We don't have a client side nymbox hash, Will resync.\n", __FUNCTION__);
-        goto send_message;
+        OTLog::vOutput(1, "%s: We don't have a client side nymbox hash, will continue\n", __FUNCTION__);
     }
 
-    if (theMsgNymboxHash != theSrvrNymboxHash) {
-        OTLog::vOutput(0, "%s: The server and client nymbox hashes missmatch! Will resync.\n", __FUNCTION__);
-        goto send_message;
-    }
+    if (bGotNymboxHashServerSide && bGotNymboxHashClientSide)
+        if (theMsgNymboxHash != theSrvrNymboxHash) {
+            OTLog::vOutput(0, "%s: The server and client nymbox hashes missmatch! rejecting message.\n", __FUNCTION__);
+            goto send_message;
+        }
 
 
 	// theLedger contains a single transaction from the client, with an item inside
@@ -12085,22 +12081,20 @@ void OTServer::UserCmdProcessInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
     if (bGotNymboxHashServerSide)  // theSrvrNymboxHash is the hash stored on the server side
         theSrvrNymboxHash.GetString(msgOut.m_strNymboxHash);
     else {
-        OTLog::vError("%s: Error: We cannot obtain server side nymbox hash, abort.\n",__FUNCTION__);
-        msgOut.m_bSuccess = false;
-        return;
+        OTLog::vOutput(1,"%s: We cannot obtain server side nymbox hash, will continue.\n",__FUNCTION__);
     }
 
     const bool bGotNymboxHashClientSide = MsgIn.m_strNymboxHash.Exists();
 
     if (!bGotNymboxHashClientSide) {
-        OTLog::vOutput(0, "%s: We don't have a client side nymbox hash, Will resync.\n", __FUNCTION__);
-        goto send_message;
+        OTLog::vOutput(1, "%s: We don't have a client side nymbox hash, will continue\n", __FUNCTION__);
     }
 
-    if (theMsgNymboxHash != theSrvrNymboxHash) {
-        OTLog::vOutput(0, "%s: The server and client nymbox hashes missmatch! Will resync.\n", __FUNCTION__);
-        goto send_message;
-    }
+    if (bGotNymboxHashServerSide && bGotNymboxHashClientSide)
+        if (theMsgNymboxHash != theSrvrNymboxHash) {
+            OTLog::vOutput(0, "%s: The server and client nymbox hashes missmatch! rejecting message.\n", __FUNCTION__);
+            goto send_message;
+        }
 
 	// theLedger contains a single transaction from the client, with an item inside
 	// for each inbox transaction the client wants to accept or reject.

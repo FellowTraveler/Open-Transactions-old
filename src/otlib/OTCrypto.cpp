@@ -1138,13 +1138,11 @@ extern "C"
     char * ot_openssl_base64_encode(const uint8_t * input, int in_len, int bLineBreaks)
     {
         char    * buf  = NULL;
-        OpenSSL_BIO bmem = NULL;
-        OpenSSL_BIO b64  = NULL;
         BUF_MEM * bptr = NULL;
         
         OT_ASSERT_MSG(in_len >= 0, "OT_base64_encode: Abort: in_len is a negative number!");
         // -------------------------------
-        b64 = BIO_new(BIO_f_base64());
+        OpenSSL_BIO b64 = BIO_new(BIO_f_base64());
         
         if (!b64)
             return buf;
@@ -1152,16 +1150,16 @@ extern "C"
         if (!bLineBreaks)
             BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
         // -------------------------------
-        bmem = BIO_new(BIO_s_mem());
+        OpenSSL_BIO bmem = BIO_new(BIO_s_mem());
         
         if (bmem)
         {
-            b64 = BIO_push(b64, bmem);
+            OpenSSL_BIO b64join = BIO_push(b64, bmem); b64.release(); bmem.release();
             
-            if (BIO_write(b64, input, in_len)==in_len)
+            if (BIO_write(b64join, input, in_len)==in_len)
             {
-                (void)BIO_flush(b64);
-                BIO_get_mem_ptr(b64, &bptr);
+                (void)BIO_flush(b64join);
+                BIO_get_mem_ptr(b64join, &bptr);
     //			OTLog::vOutput(5, "DEBUG base64_encode size: %ld,  in_len: %ld\n", bptr->length+1, in_len);
                 buf = new char[bptr->length+1];
                 OT_ASSERT(NULL != buf);
@@ -1179,7 +1177,6 @@ extern "C"
     
     uint8_t * ot_openssl_base64_decode(const char * input, size_t * out_len, int bLineBreaks)
     {
-        OpenSSL_BIO bmem(NULL), b64(NULL);
         // -------------------------------
         OT_ASSERT(NULL != input);
         // -------------------------------
@@ -1189,20 +1186,20 @@ extern "C"
         OT_ASSERT(NULL != buf);
         memset(buf, 0, out_max_len); // todo security
         // -------------------------------
-        b64 = BIO_new(BIO_f_base64());
+        OpenSSL_BIO b64 = BIO_new(BIO_f_base64());
         
         if (b64)
         {
             if (!bLineBreaks)
                 BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
             // -------------------------------
-            bmem = BIO_new_mem_buf((char*)input, in_len); // todo casting.
+            OpenSSL_BIO bmem = BIO_new_mem_buf((char*)input, in_len); // todo casting.
             OT_ASSERT(NULL != bmem);
             // -------------------------------
-            b64 = BIO_push(b64, bmem);
-            OT_ASSERT(NULL != b64);
+            OpenSSL_BIO b64join = BIO_push(b64, bmem); b64.release(); bmem.release();
+            OT_ASSERT(NULL != b64join);
             // -------------------------------
-            *out_len = BIO_read(b64, buf, out_max_len);
+            *out_len = BIO_read(b64join, buf, out_max_len);
             // -------------------------------
         }
         else 
@@ -4674,6 +4671,52 @@ bool OTCrypto_OpenSSL::VerifySignature(const OTString    & strContractToVerify,
 }
 
 
+// *********************************************************
+
+// OpenSSL_BIO
+
+
+//static
+BIO * OpenSSL_BIO::assertBioNotNull(BIO * pBIO)
+{
+    if (NULL == pBIO) OT_FAIL;
+    return pBIO;
+}
+
+OpenSSL_BIO::OpenSSL_BIO(BIO * pBIO) : m_refBIO(*assertBioNotNull(pBIO)), bCleanup(true), bFreeOnly(false)
+{
+}
+
+OpenSSL_BIO::~OpenSSL_BIO()
+{
+    if(bCleanup) {
+        if(NULL != &m_refBIO) {
+            if (bFreeOnly)
+            {
+                BIO_free(&m_refBIO);
+            }
+            else
+            {
+                BIO_free_all(&m_refBIO);
+            }
+        }
+    }
+}
+
+OpenSSL_BIO::operator BIO *() const
+{
+    return (&m_refBIO);
+}
+
+void OpenSSL_BIO::release()
+{
+    bCleanup = false;
+}
+
+void OpenSSL_BIO::setFreeOnly()
+{
+    bFreeOnly = true;
+}
 
 
 

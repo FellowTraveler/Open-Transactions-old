@@ -670,26 +670,25 @@ public:
     virtual ~OTCrypto_OpenSSL();
 };
 
-
+// is immutable 
 class OpenSSL_BIO {
 private:
-	BIO & m_refBIO;
+    BIO & m_refBIO;
+    bool bCleanup;
+    bool bFreeOnly;
+
+    EXPORT static BIO * assertBioNotNull(BIO * pBIO);
 
 public:
 
-	OpenSSL_BIO(BIO * pBIO) : m_refBIO(*pBIO) { };
-	~OpenSSL_BIO() { if(NULL != &m_refBIO) BIO_free_all(&m_refBIO); };
+    EXPORT	OpenSSL_BIO(BIO * pBIO);
 
-	operator BIO *() { return (&m_refBIO); };
+    EXPORT  ~OpenSSL_BIO();
 
-	void operator=(BIO * pBIO) { m_refBIO = *pBIO; };
+    EXPORT	operator BIO *() const;
 
-	void reset(BIO * pBIO) {
-		if(NULL != &m_refBIO) BIO_free_all(&m_refBIO);
-		this->operator=(pBIO);
-	};
-
-	void new_bio() { this->reset(BIO_new(BIO_s_mem())); };
+    EXPORT  void release();
+    EXPORT  void setFreeOnly();
 };
 
 

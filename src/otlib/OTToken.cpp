@@ -1257,8 +1257,6 @@ bool OTToken_Lucre::GenerateTokenRequest(const OTPseudonym & theNym,
     _OT_Lucre_Dumper setDumper;  // todo security.
     // -----------------------------------------------------------------
     OpenSSL_BIO bioBank		=	BIO_new(BIO_s_mem()); // Input. We must supply the bank's public lucre info
-    OpenSSL_BIO bioCoin		=	BIO_new(BIO_s_mem()); // These two are output. We must write these bios, after
-    OpenSSL_BIO bioPublicCoin	=	BIO_new(BIO_s_mem()); // the operation, back into some form we can use
 	
 	// This version base64-DECODES the ascii-armored string passed in,
 	// and then sets the decoded plaintext string onto the string.
@@ -1303,6 +1301,9 @@ bool OTToken_Lucre::GenerateTokenRequest(const OTPseudonym & theNym,
 	// multiple proto-tokens, you can see this loop as though it always executes just once.
 	for (int i = 0; i < nFinalTokenCount; i++)
 	{
+        OpenSSL_BIO bioCoin		    =	BIO_new(BIO_s_mem()); // These two are output. We must write these bios, after
+        OpenSSL_BIO bioPublicCoin	=	BIO_new(BIO_s_mem()); // the operation, back into some form we can use
+
 		CoinRequest req(bank);
 
 		// write the private coin request to BIO
@@ -1346,10 +1347,6 @@ bool OTToken_Lucre::GenerateTokenRequest(const OTPseudonym & theNym,
         {
 			// Error condition todo
 		}
-
-		// automatically cleans up old bio.
-		bioCoin.new_bio();
-		bioPublicCoin.new_bio();
 	}
 	
 	return true;

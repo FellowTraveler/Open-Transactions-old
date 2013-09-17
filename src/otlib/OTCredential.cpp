@@ -2988,7 +2988,7 @@ void OTKeyCredential::SetMetadata()
 
 	if (!bNymID || !bCredID || !bSubID)
 	{
-		OTLog::vError("%s: Error getting Metadata:\n %s is %s, %s is %s, %s is %s", __FUNCTION__,
+		OTLog::vOutput(1,"%s: No metadata available:\n %s is %s, %s is %s, %s is %s", __FUNCTION__,
 			"bNymID", bNymID ? "True": "False",
 			"bCredID",bNymID ? "True": "False",
 			"bSubID", bNymID ? "True": "False");
@@ -3449,7 +3449,7 @@ const OTSubcredential * OTCredential::GetSubcredentialByIndex(int nIndex) const
 
 const std::string OTCredential::GetSubcredentialIDByIndex(size_t nIndex) const
 {
-    if ((nIndex < 0) || (nIndex >= m_mapSubcredentials.size()))
+    if (nIndex >= m_mapSubcredentials.size())
     {
         OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
     }

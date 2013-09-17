@@ -859,11 +859,8 @@ EVP_PKEY * OTAsymmetricKey_OpenSSL::CopyPublicKey(EVP_PKEY & theKey, OTPasswordD
                     pReturnKey = PEM_read_bio_PUBKEY(keyBio, NULL, 0, pImportPassword);
                 // -------------------------------------------
                 // We don't need the BIO anymore.
-                // Free the BIO and related buffers, filters, etc.
+                // Free the BIO and related buffers, filters, etc. (auto with scope).
                 //
-//              if (theData.GetSize() > 0)
-//                  OPENSSL_cleanse(keyBio, theData.GetSize());
-                keyBio = NULL;
             }
             else 
                 OTLog::vError("%s: Error: Failed copying memory from BIO into OTPayload.\n");
@@ -1445,7 +1442,7 @@ bool OTAsymmetricKey_OpenSSL::SaveCertToString(OTString & strOutput, const OTStr
         return false;
     }
     // ---------------------------------------    
-	OpenSSL_BIO bio_out_x509 = NULL; // we now have auto-cleanup
+    OpenSSL_BIO bio_out_x509 = BIO_new(BIO_s_mem()); // we now have auto-cleanup
     // ---------------------------------------
 	PEM_write_bio_X509(bio_out_x509, x509);
     // ---------------------------------------
@@ -1503,7 +1500,8 @@ bool OTAsymmetricKey_OpenSSL::SavePrivateKeyToString(OTString & strOutput, const
         return false;
     }
     // ---------------------------------------
-    OpenSSL_BIO bio_out_pri  = NULL;
+    OpenSSL_BIO bio_out_pri  = BIO_new(BIO_s_mem()); bio_out_pri.setFreeOnly(); // only BIO_free(), not BIO_free_all();
+
     // ---------------------------------------
     OTPasswordData thePWData((NULL != pstrReason) ? pstrReason->Get() : 
                              "OTAsymmetricKey_OpenSSL::SavePrivateKeyToString is calling PEM_write_bio_PrivateKey...");
@@ -1531,6 +1529,7 @@ bool OTAsymmetricKey_OpenSSL::SavePrivateKeyToString(OTString & strOutput, const
         strOutput.Set((const char *)buffer_pri); // so I can write this string to file in a sec... todo cast
         bSuccess = true;
     }
+    else OTLog::vError("%s: Error: key length is not 1 or more!", __FUNCTION__);
 	// ---------------------------------------
 	return bSuccess;    
 }
@@ -1751,20 +1750,19 @@ bool OTAsymmetricKey_OpenSSL::LoadPublicKeyFromPGPKey(const OTASCIIArmor & strKe
 	 * 
 	 */
 	int iRet =-1, len;
-	OpenSSL_BIO  bio(NULL), b64(NULL), bio_out(NULL);
 	unsigned char buffer[520]; // Making it a bit bigger than 512 for safety reasons.
 	BUF_MEM *bptr;
 	PgpKeys pgpKeys;
 	
-	b64 = BIO_new(BIO_f_base64());
-	bio = BIO_new_mem_buf((void*)strKey.Get(), -1);
-	bio_out = BIO_new(BIO_s_mem());
-	bio = BIO_push(b64, bio);
+	OpenSSL_BIO b64 = BIO_new(BIO_f_base64());
+	OpenSSL_BIO bio = BIO_new_mem_buf((void*)strKey.Get(), -1);
+	OpenSSL_BIO bio_out = BIO_new(BIO_s_mem());
+    OpenSSL_BIO bioJoin = BIO_push(b64, bio); b64.release(); bio.release();
 
-	while((len = BIO_read(bio, buffer, 512)) > 0)
+	while((len = BIO_read(bioJoin, buffer, 512)) > 0)
 		BIO_write(bio_out, buffer, len);
 
-	BIO_get_mem_ptr(bio_out, &bptr);
+    BIO_get_mem_ptr(bio_out, &bptr); bio_out.setFreeOnly();
 	
 	pgpKeys = ExportRsaKey((unsigned char*)bptr->data, static_cast<int> (bptr->length));
 	
@@ -1829,9 +1827,6 @@ bool OTAsymmetricKey_OpenSSL::LoadPublicKeyFromPGPKey(const OTASCIIArmor & strKe
 	}
 	
 	iRet = 0;
-	
-	BIO_free(bio_out);
-	bio_out = NULL;
 	
 	/*
 	if (pgpKeys.pRsa)

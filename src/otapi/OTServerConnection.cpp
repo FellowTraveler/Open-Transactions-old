@@ -196,8 +196,8 @@ void SetupHeader( u_header & theCMD, int nTypeID, int nCmdID, OTPayload & thePay
 {
 	uint32_t lSize = thePayload.GetSize(); // outputting in normal byte order, but sent to network in network byte order.
 
-	theCMD.fields.type_id	= (nTypeID > 0) ? static_cast<BYTE>(nTypeID) : NULL;
-	theCMD.fields.command_id= (nCmdID > 0) ? static_cast<BYTE>(nCmdID) : NULL;;
+	theCMD.fields.type_id	= (nTypeID > 0) ? static_cast<BYTE>(nTypeID) : '\0';
+	theCMD.fields.command_id= (nCmdID > 0) ? static_cast<BYTE>(nCmdID) : '\0';;
 //	theCMD.fields.size		= thePayload.GetSize();
 	theCMD.fields.size		= htonl(lSize); // think this is causing problems.. maybe not...
 	theCMD.fields.checksum	= CalcChecksum(theCMD.buf, OT_CMD_HEADER_SIZE-1);	
@@ -588,7 +588,8 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 			{
 				OTLog::Output(4, "Successfully parsed payload message.\n");
 				
-				const OTPseudonym * pServerNym = m_pServerContract->GetContractPublicNym();
+				const OTPseudonym * pServerNym =
+                    (NULL != m_pServerContract) ? m_pServerContract->GetContractPublicNym() : NULL;
 				
 				if (m_pServerContract && pServerNym) // todo casting.
 				{
@@ -644,7 +645,8 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 				{
 					OTLog::Output(4, "Success decrypting the message out of the envelope and parsing it.\n");
 					
-					const OTPseudonym * pServerNym = m_pServerContract->GetContractPublicNym();
+					const OTPseudonym * pServerNym =
+                        (NULL != m_pServerContract) ? m_pServerContract->GetContractPublicNym() : NULL;
 					
 					if (m_pServerContract && pServerNym) // todo casting.
 					{

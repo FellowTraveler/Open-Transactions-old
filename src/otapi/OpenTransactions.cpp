@@ -9731,7 +9731,7 @@ int OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
         return (-1);
     }
 
-    if (NULL != pServerNym) OT_FAIL;
+    if (NULL == pServerNym) OT_FAIL;
 
     // -----------------------------------------
     bool bSuccess = false;

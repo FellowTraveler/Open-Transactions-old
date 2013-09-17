@@ -680,7 +680,7 @@ int OTLog::Assert(const char * szFilename, int nLinenumber)
 		print_stacktrace();
 #endif
 	}
-	return true;
+	return 1; // normal
 }
 
 

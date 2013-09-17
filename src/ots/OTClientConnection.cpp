@@ -187,8 +187,8 @@ void SetupHeader( union u_header * pCMD, int nTypeID, int nCmdID, OTPayload & th
 {
 	OT_ASSERT(NULL != pCMD);
 	
-	pCMD->fields.type_id	= (nTypeID > 0) ? static_cast<BYTE>(nTypeID) : NULL;
-	pCMD->fields.command_id	= (nCmdID > 0) ? static_cast<BYTE>(nCmdID) : NULL;
+	pCMD->fields.type_id	= (nTypeID > 0) ? static_cast<BYTE>(nTypeID) : '\0';
+	pCMD->fields.command_id	= (nCmdID > 0) ? static_cast<BYTE>(nCmdID) : '\0';
 //	pCMD->fields.size		= thePayload.GetSize();
 	pCMD->fields.size		= htonl(thePayload.GetSize()); // think this is causing problems
 	pCMD->fields.checksum	= CalcChecksum(pCMD->buf, OT_CMD_HEADER_SIZE-1);

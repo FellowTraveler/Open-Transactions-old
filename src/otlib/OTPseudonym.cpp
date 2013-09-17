@@ -405,8 +405,8 @@ bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
         // That means to use (or generate) my existing keypair as the signing key,
         // and generate the other two keypairs also.
         // ----------------------------------------------
-        const uint32_t sizeMapPublic  = mapPublic .size();
-        const uint32_t sizeMapPrivate = mapPrivate.size();
+        const size_t sizeMapPublic  = mapPublic .size();
+        const size_t sizeMapPrivate = mapPrivate.size();
         // ----------------------------------------------
         OTString strReason, strPublicError, strPrivateError;
         // ----------------------------------------------
@@ -6012,7 +6012,7 @@ const OTAsymmetricKey & OTPseudonym::GetPrivateEncrKey() const
         }
 		if (NULL == pCredential) OT_FAIL;
 
-		return pCredential->GetPrivateAuthKey(&m_listRevokedIDs); // success
+		return pCredential->GetPrivateEncrKey(&m_listRevokedIDs);; // success
     }
     else
     {
@@ -6050,7 +6050,7 @@ const OTAsymmetricKey & OTPseudonym::GetPrivateSignKey() const
         }
 		if (NULL == pCredential) OT_FAIL;
 
-		return pCredential->GetPrivateAuthKey(&m_listRevokedIDs); // success
+		return pCredential->GetPrivateSignKey(&m_listRevokedIDs); // success
     }
     else
     {
@@ -6088,7 +6088,7 @@ const OTAsymmetricKey & OTPseudonym::GetPublicAuthKey() const
         }
 		if (NULL == pCredential) OT_FAIL;
 
-		return pCredential->GetPrivateAuthKey(&m_listRevokedIDs); // success
+		return pCredential->GetPublicAuthKey(&m_listRevokedIDs); // success
     }
     else
     {
@@ -6121,11 +6121,11 @@ const OTAsymmetricKey & OTPseudonym::GetPublicEncrKey() const
             // going to return the first one that's valid (not null).
             // ------------------
             pCredential = (*it).second;
-			if(NULL != pCredential) break;
+            if(NULL != pCredential) break;
         }
-		if (NULL == pCredential) OT_FAIL;
+        if (NULL == pCredential) OT_FAIL;
 
-		return pCredential->GetPrivateAuthKey(&m_listRevokedIDs); // success
+        return pCredential->GetPublicEncrKey(&m_listRevokedIDs); // success
     }
     else
     {
@@ -6163,7 +6163,7 @@ const OTAsymmetricKey & OTPseudonym::GetPublicSignKey() const
         }
 		if (NULL == pCredential) OT_FAIL;
 
-		return pCredential->GetPrivateAuthKey(&m_listRevokedIDs); // success
+		return pCredential->GetPublicSignKey(&m_listRevokedIDs); // success
     }
     else
     {
