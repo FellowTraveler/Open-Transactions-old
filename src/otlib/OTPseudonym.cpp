@@ -366,8 +366,9 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 //
 // hash of pstrSourceForNymID is the NymID, and hash of pstrCredentialContents
 // is the credential ID for this new master credential.
+//
 bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
-                                         const OTString * pstrSourceForNymID/*=NULL*/, // If NULL, it uses the Nym's (presumed) existing pubkey as the source.
+                                         const OTString * pstrSourceForNymID/*=NULL*/, // If NULL, it uses the Nym's (presumed) existing source as the source.
                                          const int            nBits/*=1024*/,       // Ignored unless pmapPrivate is NULL.
                                          const mapOfStrings * pmapPrivate/*=NULL*/, // If NULL, then the keys are generated in here.
                                          const mapOfStrings * pmapPublic /*=NULL*/, // In the case of key credentials, public is optional since it can already be derived from private. For now we pass it through... May eliminate this parameter later if not needed.
@@ -376,13 +377,190 @@ bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
 {
     const
     OTString * pstrSourceToUse  = NULL;
-    OTString   strTempPublicKey; // Used sometimes.
-    
+    OTString   strTempSource; // Used sometimes.
+    bool       bCreatedKeypair = false;
+    // -----------------------------------------------------------------------
     const mapOfStrings * pmapActualPrivate = NULL;
     const mapOfStrings * pmapActualPublic  = NULL;
-    
+    // -----------------------------------------------------------------------    
     mapOfStrings   mapPrivate, mapPublic; // Used sometimes.
-    
+    // -----------------------------------------------------------------------
+    // If keys are passed in, then those are the keys we're meant to use for the credential.
+    //
+    // Note: if the Nym is self-signed, then his "source" is his public key, which can thus
+    // never change (because it would change his ID.) We only allow this in the case where a
+    // Nym is first being created.
+    //
+    // But if the Nym has a real source (such as a URL, or Namecoin address, etc) then he should
+    // be able to create new credentials, and should BOTH be able to generate keys on the spot,
+    // OR pass in keys to use that were generated before this function was called.
+    //
+    // Therefore here, we choose to use the keys passed in--if they were passed--and otherwise
+    // we generate the keys.
+    //
+    OT_ASSERT(NULL != m_pkeypair);
+    // ----------------------------------------------
+    if (NULL == pmapPrivate) // If no keys were passed in...
+    {
+        // That means to use (or generate) my existing keypair as the signing key,
+        // and generate the other two keypairs also.
+        // ----------------------------------------------
+        const uint32_t sizeMapPublic  = mapPublic .size();
+        const uint32_t sizeMapPrivate = mapPrivate.size();
+        // ----------------------------------------------
+        OTString strReason, strPublicError, strPrivateError;
+        // ----------------------------------------------
+        // Nym already has a keypair. (Use it as the signing key.)
+        //
+        // NOTE: We only want to do this if the Nym doesn't already have any credentials.
+        // Presumably if there are already credentials, then we want any NEW credentials to
+        // have their own keys. Only when there are none (meaning, we are currently creating
+        // the FIRST one) do we want to use the existing keypair. Otherwise we want to generate
+        // a new signing key.
+        //
+        // Exception: "Presumably if there are already credentials, then we want any NEW credentials
+        // to have their own keys" ==> If it's a self-signed Nym, then EVEN if there are existing
+        // credentials, we want to use the existing signing key, since in that case, all credentials
+        // would have the same signing key, which is also the Nym ID source (we cannot ever change it,
+        // since that would also change the Nym's ID. That is the drawback of self-signed Nyms.)
+        //
+        // Therefore we need to check here to see if the Nym is self-signed:
+        //
+        OTIdentifier theSelfSignedNymID;
+        m_pkeypair->CalculateID(theSelfSignedNymID);
+        // ----------------------------------------------        
+        if ((!(m_mapCredentials.size() > 0)      ||
+            this->CompareID(theSelfSignedNymID)) &&  // If there AREN'T any credentials yet, or if the Nym is self-signed,
+            (this->HasPublicKey () ||                // and if we have a keypair already, use it
+             this->LoadPublicKey() ))                // to create the first credential.
+        {
+            strReason      .Set("Using existing signing key for new master credential (preserving existing Nym keypair.)");
+            strPublicError .Set("In %s, line %d: Failed using existing public key as public signing key in OTPseudonym::%s.\n");
+            strPrivateError.Set("In %s, line %d: Failed using existing private key as private signing key in OTPseudonym::%s.\n");
+        }
+        // ----------------------------------------------
+        else // GENERATE A NEW KEYPAIR.
+        {
+            const bool bCreateKeySigning = m_pkeypair->MakeNewKeypair(nBits);
+            OT_ASSERT (bCreateKeySigning);
+            // ----------------------------------------------
+            m_pkeypair->SaveAndReloadBothKeysFromTempFile();  // Keys won't be right until this happens. (Necessary evil until better fix.) Todo: eliminate need to do this.
+            bCreatedKeypair = true;
+            // ----------------------------------------------
+            strReason      .Set("Generating signing key for new master credential.");
+            strPublicError .Set("In %s, line %d: Failed creating public signing key in OTPseudonym::%s.\n");
+            strPrivateError.Set("In %s, line %d: Failed creating private signing key in OTPseudonym::%s.\n");
+        }
+        // ------------------------------------------
+        // SIGNING KEY
+        //
+        OTString strPublicKey, strPrivateCert;
+        // ------------------------------------------
+        const bool b1 = m_pkeypair->GetPublicKey(strPublicKey, false); // bEscaped=true by default.
+        const bool b2 = m_pkeypair->SaveCertAndPrivateKeyToString(strPrivateCert, &strReason);
+        // ----------------------------------------------
+        if (b1 && b2)
+        {
+            mapPublic. insert(std::pair<std::string, std::string>("S", strPublicKey.Get()));
+            mapPrivate.insert(std::pair<std::string, std::string>("S", strPrivateCert.Get()));
+        }
+        // ------------------------------------------
+        if (!b1 || !(mapPublic.size() > sizeMapPublic))
+        {
+            OTLog::vError(strPublicError.Get(),
+                          __FILE__, __LINE__, __FUNCTION__);
+            return false;
+        }
+        // ------------------------------------------
+        if (!b2 || !(mapPrivate.size() > sizeMapPrivate))
+        {
+            OTLog::vError(strPrivateError.Get(),
+                          __FILE__, __LINE__, __FUNCTION__);
+            return false;
+        }
+        // *************************************************************************************8
+        // Whether the Nym already had a keypair, and we used it as the signing key,
+        // or whether we generated the signing key on the spot, either way we still
+        // need to generate the other two keys.
+        //
+        // Create 2 keypairs here (for authentication and for encryption.)
+        //
+        // Use the public/private data for all 3 keypairs onto mapPublic and
+        // mapPrivate.
+        //
+        // ----------------------------------------------
+        OTKeypair keyAuth, keyEncr;  // (The signing keypair already exists by this point. These are the other two we need.)
+        // ----------------------------------------------
+        const bool bCreateKeyAuth = keyAuth.MakeNewKeypair();
+        const bool bCreateKeyEncr = keyEncr.MakeNewKeypair();
+        // ----------------------------------------------
+        OT_ASSERT(bCreateKeyAuth && bCreateKeyEncr);
+        // ----------------------------------------------
+        keyAuth.SaveAndReloadBothKeysFromTempFile();  // Keys won't be right until this happens.
+        keyEncr.SaveAndReloadBothKeysFromTempFile();  // (Necessary evil until better fix.) Todo: eliminate need to do this.
+        // ---------------------------------------------------------------------------------
+        strPublicKey.  Release();
+        strPrivateCert.Release();
+        // ----------------------------------------------
+        const bool b3 = keyAuth.GetPublicKey(strPublicKey, false); // bEscaped=true by default.
+        const bool b4 = keyAuth.SaveCertAndPrivateKeyToString(strPrivateCert, &strReason);
+        // ------------------------------------------
+        if (b3 && b4)
+        {
+            mapPublic. insert(std::pair<std::string, std::string>("A", strPublicKey.Get()));
+            mapPrivate.insert(std::pair<std::string, std::string>("A", strPrivateCert.Get()));
+        }
+        // ---------------------------------------------------------------------------------
+        strPublicKey.  Release();
+        strPrivateCert.Release();
+        // ----------------------------------------------
+        const bool b5 = keyEncr.GetPublicKey(strPublicKey, false); // bEscaped=true by default.
+        const bool b6 = keyEncr.SaveCertAndPrivateKeyToString(strPrivateCert, &strReason);
+        // ------------------------------------------
+        if (b5 && b6)
+        {
+            mapPublic. insert(std::pair<std::string, std::string>("E", strPublicKey.Get()));
+            mapPrivate.insert(std::pair<std::string, std::string>("E", strPrivateCert.Get()));
+        }
+        // ------------------------------------------
+        if (!(mapPublic.size() >= (sizeMapPublic + 3)))
+        {
+            OTLog::vError("In %s, line %d: Failed adding (auth or encr) public keys in OTPseudonym::%s.\n",
+                          __FILE__, __LINE__, __FUNCTION__);
+            return false;
+        }
+        // --------------------------------
+        if (!(mapPrivate.size() >= (sizeMapPrivate + 3)))
+        {
+            OTLog::vError("In %s, line %d: Failed adding (auth or encr) private keys in OTPseudonym::%s.\n",
+                          __FILE__, __LINE__, __FUNCTION__);
+            return false;
+        }
+        // --------------------------------
+        pmapActualPrivate = &mapPrivate;
+        pmapActualPublic  = &mapPublic;
+        // --------------------------------
+    } // A private key wasn't passed in.
+    // ----------------------------------------------
+    // A keypair WAS passed in...
+    //
+    else
+    {
+        // If keys were passed in, then we're going to use those to create the new credential.
+        //
+        pmapActualPrivate = pmapPrivate;
+        pmapActualPublic  = pmapPublic;
+        
+        // Therefore in that case, the Nym had better not be self-signed, since if he was,
+        // he couldn't change the key (since his NymID is a hash of the public key.)
+        //
+        // Thus the Nym should have some other source besides his own key, or at least he
+        // should be a new Nym being created.
+    }
+    // ************************************************************************************
+    //
+    // SOURCE
+    //
     // A source was passed in. We know it's not a public key, since its hash will not match the existing
     // Nym ID. (Only the existing public key will match that when hashed, and you can use that by passing NULL
     // already, which is the following block.) Therefore it must be one of the other choices: a Freenet/I2P/Tor URL,
@@ -391,40 +569,51 @@ bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
     // enough that we will potentially change the NymID here based on that option. But we won't do that for a public
     // key, unless you pass NULL.
     //
-    if ((NULL != pstrSourceForNymID) && pstrSourceForNymID->Exists())
+    if ((NULL != pstrSourceForNymID) && pstrSourceForNymID->Exists()) // A source was passed in.
     {
-        pstrSourceToUse   = pstrSourceForNymID;
-        
-        pmapActualPrivate = pmapPrivate;
-        pmapActualPublic  = pmapPublic;
-        
-        // Public are optional, since they can be derived from private.
-        // But private are NOT optional -- must be passed in this case.
-        OT_ASSERT(NULL != pmapPrivate);
-    }
-    // ----------------------------
-    else
-    {   // pstrSourceForNymID was NULL, which means by default,
-        // use the Nym's existing public key as the source.
-        // (Does one exist?)
+        // -- Perhaps he already has a source, in which case he one he already has should match the
+        //    one that was passed in. (If one was.)
+        // -- Or perhaps he doesn't have a source, in which case one SHOULD have been passed in.
+        // -- Assuming that's the case, that's what we'll use.
+        // -- But if he doesn't have one, AND one wasn't passed in, then we will just created a self-signed Nym.
         //
-        if ((false == this->HasPublicKey()) && (false == this->LoadPublicKey()))
+        pstrSourceToUse = pstrSourceForNymID;
+        
+        if (!bChangeNymID && this->m_strSourceForNymID.Exists() && !pstrSourceForNymID->Compare(this->m_strSourceForNymID))
         {
-            OTLog::vError("In %s, line %d: in OTPseudonym::AddNewMasterCredential, we tried to generate a new master credential based on the Nym's existing public key. Unfortunately, the Nym apparently has no public key, or it wasn't properly loaded before this function was called. So I tried to load it, but the attempt failed.\n", __FILE__, __LINE__);
+            OTLog::vError("In %s, line %d, OTPseudonym::%s: The Nym already has a source, but a different "
+                          "source was passed in (they should be identical, since you can't change a Nym's "
+                          "source without changing his ID.)\n",
+                          __FILE__, __LINE__, __FUNCTION__);
             return false;
         }
-        // ----------------------------------------------        
-        m_pkeypair->GetPublicKey(strTempPublicKey); // bEscaped=true by default.
-        pstrSourceToUse = &strTempPublicKey;
+    }
+    // ----------------------------
+    else // No source was passed in. That means use the existing one if it exists,
+    {    // or otherwise create it based on the key (self-signed Nym.)
+         //
+        if (this->m_strSourceForNymID.Exists()) // Use existing source.
+            strTempSource = this->m_strSourceForNymID;
+        // No source exists (nor was one passed in.) Thus create it based on the signing key (self-signed Nym.)
+        else if ((this->HasPublicKey () ||
+                  this->LoadPublicKey() ))
+            m_pkeypair->GetPublicKey(strTempSource); // bEscaped=true by default. Todo: someday change this to false. (It will invalidate existing NymIDs.)
+        else
+        {
+            OTLog::vError("In %s, line %d, OTPseudonym::%s: Error: The Nym had no ID source, nor were we able "
+                          "to derive one from his (non-existent) public key.\n", __FILE__, __LINE__, __FUNCTION__);
+            return false;            
+        }
         // ----------------------------------------------
-        // Hash the Nym's public key and see if it's the NymID.
-        // Return false if failure here.
+        pstrSourceToUse = &strTempSource;
+        // ----------------------------------------------
+        // Hash the purported source, and see if it matches the existing NymID.
         //
         OTIdentifier theTempID;
         theTempID.CalculateDigest(*pstrSourceToUse);
 //      m_pkeypair->CalculateID(theTempID);
-
-        if (false == this->CompareID(theTempID))
+        
+        if (!bChangeNymID && !this->CompareID(theTempID))
         {
             OTString strNymID;
             this->GetIdentifier(strNymID);
@@ -434,79 +623,23 @@ bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
             
             const OTString strKeypairNymID(theKeypairNymID), strCalculatedNymID(theTempID);
             
-            OTLog::vOutput(0, "%s: No NymID Source was passed in, so I tried to use the existing public key for "
-                           "Nym, but hashing that failed to produce the Nym's ID. Meaning the Nym must have "
-                           "some other source already, which needs to be passed into this function, for it to work "
-                           "on this Nym.\n NYM ID: %s \n KEY PAIR CALCULATED ID: %s \n CONTENTS CALCULATED ID: %s \n NYM ID SOURCE: \n%s\n",
+            OTLog::vOutput(0, "%s: No NymID Source was passed in, so I tried to use the existing source (or if that was missing, the existing public key) for "
+                           "the Nym, but hashing that failed to produce the Nym's ID. Meaning the Nym must have "
+                           "some other source already, which needs to be passed into this function, for it to work on this Nym.\n"
+                           "NOTE: Pass 'bChangeNymID' into this function as true, if you want to override this behavior.\n"
+                           "NYM ID: %s \n KEY PAIR CALCULATED ID: %s \n CONTENTS CALCULATED ID: %s \n NYM ID SOURCE: %s\n",
                            __FUNCTION__, strNymID.Get(), strKeypairNymID.Get(), strCalculatedNymID.Get(), pstrSourceToUse->Get());
             return false;
         }
-        // ----------------------------------------------
-        // Create 2 keypairs here (for authentication and for encryption) and
-        // use the Nym's existing keypair as the 3rd (the signing key.)
-        // Use the public/private data for all 3 keypairs onto mapPublic and
-        // mapPrivate
-        //
-        OT_ASSERT(NULL == pmapPrivate); // Since we are expected to use the existing keypair and generate 2 others,
-        OT_ASSERT(NULL == pmapPublic);  // then there is no reason for anyone to be passing keypair data in here.
-        pmapActualPrivate = &mapPrivate;
-        pmapActualPublic  = &mapPublic;
-        // ----------------------------------------------
-        OTKeypair keyAuth, keyEncr;  // (The signing keypair already exists. These are the other two we need.)
-        const bool bCreateKeyAuth = keyAuth.MakeNewKeypair();
-        const bool bCreateKeyEncr = keyEncr.MakeNewKeypair();
-        OT_ASSERT(bCreateKeyAuth && bCreateKeyEncr);
-        // ----------------------------------------------        
-        keyAuth.SaveAndReloadBothKeysFromTempFile();  // Keys won't be right until this happens.
-        keyEncr.SaveAndReloadBothKeysFromTempFile();  // (Necessary evil until better fix.)
-        // ----------------------------------------------
-        OTString strPublicKey, strPrivateCert;
-        // ------------------------------------------
-        const OTString strReason("Generating keys for new master credential (preserving existing Nym keypair for signing...)");
-        // ------------------------------------------
-        const bool b1 = m_pkeypair->GetPublicKey(strPublicKey, false); // bEscaped=true by default.
-        const bool b2 = m_pkeypair->SaveCertAndPrivateKeyToString(strPrivateCert, &strReason);
-        
-        if (b1)
-            mapPublic. insert(std::pair<std::string, std::string>("S", strPublicKey.Get()));
-        if (b2)
-            mapPrivate.insert(std::pair<std::string, std::string>("S", strPrivateCert.Get()));
-        // ------------------------------------------------------------------------------------------
-        strPublicKey.  Release();
-        strPrivateCert.Release();
-        const bool b3 = keyAuth.GetPublicKey(strPublicKey, false); // bEscaped=true by default.
-        const bool b4 = keyAuth.SaveCertAndPrivateKeyToString(strPrivateCert, &strReason);
-        
-        if (b3)
-            mapPublic. insert(std::pair<std::string, std::string>("A", strPublicKey.Get()));
-        if (b4)
-            mapPrivate.insert(std::pair<std::string, std::string>("A", strPrivateCert.Get()));
-        // ------------------------------------------------------------------------------------------
-        strPublicKey.  Release();
-        strPrivateCert.Release();
-        const bool b5 = keyEncr.GetPublicKey(strPublicKey, false); // bEscaped=true by default.
-        const bool b6 = keyEncr.SaveCertAndPrivateKeyToString(strPrivateCert, &strReason);
-        
-        if (b5)
-            mapPublic. insert(std::pair<std::string, std::string>("E", strPublicKey.Get()));
-        if (b6)
-            mapPrivate.insert(std::pair<std::string, std::string>("E", strPrivateCert.Get()));
-        // ------------------------------------------
-        if (3 != mapPublic.size())
-        {
-            OTLog::vError("In %s, line %d: Failed getting public keys in OTPseudonym::AddNewMasterCredential.\n",
-                          __FILE__, __LINE__);
-            return false;
-        }
-        // --------------------------------
-        if (3 != mapPrivate.size())
-        {
-            OTLog::vError("In %s, line %d: Failed getting private keys in OTPseudonym::AddNewMasterCredential.\n",
-                          __FILE__, __LINE__);
-            return false;
-        }
     }
-    // --------------------------------------------------
+    // ----------------------------------------------------------------------------------------------
+    // By this point, pstrSourceToUse is good to go, and calculates to the correct ID for this Nym.
+    // Also by this point, the Nym's source and ID are both definitely set and correct (before this function is even called.)
+    // Also by this point, pmapActualPrivate and pmapActualPublic are each set with their 3 keys.
+    // **************************************************************************************************
+    //
+    OT_ASSERT(NULL != pstrSourceToUse);
+    // -------------------------------------------------
     // See if there are any other master credentials already. If there are, make
     // sure they have the same source string calculated above. 
     //
@@ -535,8 +668,6 @@ bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
                           "already has credentials.\n", __FUNCTION__);
             return false;
         }
-        // --------------------------------------------------
-
     }
     // --------------------------------------------------
     // Can't change the NymID if it's already registered at a server somewhere.
@@ -547,6 +678,9 @@ bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
                       "transaction servers.\n", __FUNCTION__);
         return false;
     }
+    // --------------------------------------------------
+    OT_ASSERT(NULL != pmapActualPrivate);
+    OT_ASSERT(NULL != pmapActualPublic);
     // --------------------------------------------------
     // Create a new master credential, and set its source string (which also sets
     // the NymID).
@@ -578,8 +712,8 @@ bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
         theTempID.CalculateDigest(*pstrSourceToUse);
         const OTString strTempID(theTempID);
         OTLog::vError("%s: Failed trying to verify the new master credential.\n"
-                      "Nym ID: %s\n Source:\n%s\n Hash of Source: %s\n", __FUNCTION__,
-                      strNymID.Get(), pstrSourceToUse->Get(), strTempID.Get());
+                      "Nym ID: %s\nHash of Source: %s\n Source: %s\n", __FUNCTION__,
+                      strNymID.Get(), strTempID.Get(), pstrSourceToUse->Get());
         delete pMaster;
         pMaster = NULL;
         return false;
@@ -587,7 +721,7 @@ bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
     // ----------------------------------------------------
     // OTFolders::Credential() is for private credentials (I've created.)
     // OTFolders::Pubcred() is for public credentials (I've downloaded.)
-    // FYI.
+    // ...(FYI.)
     //
     if (OTDB::Exists(OTFolders::Credential().Get(), strNymID.Get(), pMaster->GetMasterCredID().Get()))
     {
@@ -606,6 +740,7 @@ bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
     strFoldername.Format("%s%s%s", OTFolders::Credential().Get(), OTLog::PathSeparator(), strNymID.Get());
     strFilename.  Format("%s",     pMaster->GetMasterCredID().Get());
     const bool bSaved = const_cast<OTMasterkey&>(pMaster->GetMasterkey()).SaveContract(strFoldername.Get(), strFilename.Get());
+    
     if (!bSaved)
     {
         OTLog::vError("%s: Failed trying to save new master credential to local storage.\n", __FUNCTION__);
@@ -617,7 +752,12 @@ bool OTPseudonym::AddNewMasterCredential(      OTString & strOutputMasterCredID,
     m_mapCredentials.insert(std::pair<std::string, OTCredential *>(pMaster->GetMasterCredID().Get(), pMaster));
     strOutputMasterCredID = pMaster->GetMasterCredID();
     // --------------------------------------------------
-    this->m_strSourceForNymID = *pstrSourceToUse;
+    this->m_strSourceForNymID = *pstrSourceToUse; // This may be superfluous. (Or may just go inside the below block.)
+    
+    if (bChangeNymID)
+    {
+        m_nymID.CalculateDigest(this->m_strSourceForNymID);
+    }
     //
     // Todo: someday we'll add "source" and "altLocation" to CreateNym
     // (currently the public key is just assumed to be the source.)
@@ -1096,7 +1236,7 @@ bool OTPseudonym::Savex509CertAndPrivateKeyToString(OTString & strOutput, const 
 
 // ---------------------------------
 
-bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/,
+bool OTPseudonym::Savex509CertAndPrivateKey(bool  bCreateFile/*=true*/,
                                             const OTString * pstrReason/*=NULL*/)
 {
     // ---------------------------------------
@@ -1112,20 +1252,39 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/,
 	if (bSuccess)
 	{
 		// ------------------------------------------
-        if (false == this->SetIdentifierByPubkey())
+        // NYM ID based on SOURCE
+        //
+        if (this->m_strSourceForNymID.Exists())
+            m_nymID.CalculateDigest(this->m_strSourceForNymID);
+		// ------------------------------------------
+        // (or) NYM ID based on PUBLIC SIGNING KEY
+        //
+        else if (false == this->SetIdentifierByPubkey())
         {
-			OTLog::vError("%s: Error calculating Nym ID (as a digest of Nym's public key.)\n", __FUNCTION__);
+			OTLog::vError("%s: Error calculating Nym ID (as a digest of Nym's public (signing) key.)\n",
+                          __FUNCTION__);
 			return false;	
         }
+		// ------------------------------------------
+        // If we set the ID based on the public key (above block),
+        // then we should set the source to contain that public key.
+        else
+        {
+            OTString strTempSource;
+            m_pkeypair->GetPublicKey(strTempSource); // bEscaped=true by default
+
+            this->SetNymIDSource(strTempSource);
+        }
         // ---------------------------------------
-		const OTString strFilenameByID(m_nymID);
+		const OTString strFilenameByID(m_nymID); // FILENAME based on NYM ID
 		// ---------------------------------------
         if (bCreateFile &&
             (false == OTDB::StorePlainString(strOutput.Get(),
                                              OTFolders::Cert().Get(),
                                              strFilenameByID.Get()))) // Store as actual Nym ID this time instead of temp.nym
 		{
-			OTLog::vError("%s: Failure storing cert for new nym: %s\n", __FUNCTION__, strFilenameByID.Get());
+			OTLog::vError("%s: Failure storing cert for new nym: %s\n",
+                          __FUNCTION__, strFilenameByID.Get());
 			return false;
 		}
 	}
@@ -1153,14 +1312,14 @@ bool OTPseudonym::GenerateNym(int  nBits/*=1024*/,
         this->SetNymIDSource(strSource);
         this->SetAltLocation(strAltLocation);
         // ---------------------------------------------------------------
-        OTString strReason("Creating new Nym.");
+        OTString strReason("Creating new Nym."); // NOTE: Savex509CertAndPrivateKey sets the ID and sometimes if necessary, the source.
         bool bSaved = this->Savex509CertAndPrivateKey(bCreateFile, &strReason);  // Todo: remove this. Credentials code will supercede.        
         // ---------------------------------------------------------------
         if (bSaved && bCreateFile)
         {		
             bSaved = this->SaveSignedNymfile(*this); // Now we'll generate the NymFile as well! (bCreateFile will be false for temp Nyms..)
         }
-        
+        // ---------------------------------------------------------------        
         if (bCreateFile && !bSaved)
             OTLog::vError("%s: Failed trying to save new Nym's cert or nymfile.\n", __FUNCTION__);
         else
@@ -1172,9 +1331,15 @@ bool OTPseudonym::GenerateNym(int  nBits/*=1024*/,
             // or a public key. (OT originally was written to hash a public key to form the NymID -- so we
             // will just continue to support that as an option.)
             //
-            // If the SOURCE parameter is not passed, we will assume by default that the Nym uses its own
-            // public key as its source. This will become the first master credential, which can then be used
-            // to issue keyCredentials and other types of subCredentials.
+            // If the SOURCE parameter is not passed, we will assume by default that the Nym has an existing one,
+            // or uses its own public key as its source. This will become the first master credential, which can
+            // then be used to issue keyCredentials and other types of subCredentials.
+            //
+            // UPDATE: Huh? I STILL need to be able to pass in a source, and STILL have it generate the key,
+            // so I can't have it ONLY pass in the source when there's no key -- because sometimes I want to
+            // pass the source and ALSO use the key that was generated. (Just, in that case, we want it to
+            // use the hash of that source as the NymID, instead of the hash of the public key.)
+            // (I will update AddNewMasterCredential so it allows that.)
             //
             OTString strMasterCredID;
             
@@ -3145,7 +3310,7 @@ bool OTPseudonym::VerifyPseudonym() const
             if (false == pCredential->VerifyAgainstSource()) // todo optimize, warning: time-intensive.
             {
                 OTLog::vOutput(0, "%s: Credential failed against its source. Credential ID: %s\n"
-                               "NymID: %s\nSource:\n%s\n", __FUNCTION__,
+                               "NymID: %s\nSource: %s\n", __FUNCTION__,
                                pCredential->GetMasterCredID().Get(), pCredential->GetNymID().Get(),
                                pCredential->GetSourceForNymID().Get());
                 return false;

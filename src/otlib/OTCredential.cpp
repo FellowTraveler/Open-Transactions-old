@@ -1832,7 +1832,13 @@ bool OTMasterkey::VerifySource_HTTP(const OTString strSource) const
     
     OTLog::vError("%s: Failure: this function has not yet been written, so this HTTP source cannot be verified.\n",
                   __FUNCTION__);
-    return false;
+//    return false;
+    
+    // Todo security
+    OTLog::vError("\nNOTE: Returning TRUE for TESTING PURPOSES, as if HTTP source had verified."
+                  "\n\n\n ----------------------- \n\n");
+
+    return true;
 }
 
 bool OTMasterkey::VerifySource_HTTPS(const OTString strSource) const
@@ -1845,7 +1851,13 @@ bool OTMasterkey::VerifySource_HTTPS(const OTString strSource) const
 
     OTLog::vError("%s: Failure: this function has not yet been written, so this HTTPS source cannot be verified.\n",
                   __FUNCTION__);
-    return false;
+//    return false;
+
+    // Todo security
+    OTLog::vError("\nNOTE: Returning TRUE for TESTING PURPOSES, as if HTTPS source had verified."
+                  "\n\n\n ----------------------- \n\n");
+    
+    return true;
 }
 
 bool OTMasterkey::VerifySource_Bitcoin(const OTString strSource) const
@@ -1861,7 +1873,13 @@ bool OTMasterkey::VerifySource_Bitcoin(const OTString strSource) const
 
     OTLog::vError("%s: Failure: this function has not yet been written, so this Bitcoin source cannot be verified.\n",
                   __FUNCTION__);
-    return false;
+//    return false;
+
+    // Todo security
+    OTLog::vError("\nNOTE: Returning TRUE for TESTING PURPOSES, as if Bitcoin had verified."
+                  "\n\n\n ----------------------- \n\n");
+    
+    return true;
 }
 
 bool OTMasterkey::VerifySource_Namecoin(const OTString strSource) const
@@ -1874,7 +1892,13 @@ bool OTMasterkey::VerifySource_Namecoin(const OTString strSource) const
 
     OTLog::vError("%s: Failure: this function has not yet been written, so this Namecoin source cannot be verified.\n",
                   __FUNCTION__);
-    return false;
+//    return false;
+
+    // Todo security
+    OTLog::vError("\nNOTE: Returning TRUE for TESTING PURPOSES, as if Namecoin had verified."
+                  "\n\n\n ----------------------- \n\n");
+    
+    return true;
 }
 
 bool OTMasterkey::VerifySource_Freenet(const OTString strSource) const
@@ -1928,7 +1952,7 @@ bool OTMasterkey::VerifySource_Pubkey(const OTString strSource) const
 
 // ***************************************************************************************
 
-//         OTLog::vError("%s line %d: \n", __FILE__, __LINE__);
+// OTLog::vError("%s line %d: \n", __FILE__, __LINE__);
 
 
 OTKeyCredential::OTKeyCredential()                        : ot_super()         { }
