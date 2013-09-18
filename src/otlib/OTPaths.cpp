@@ -297,7 +297,8 @@ const OTString & OTPaths::ScriptsFolder()
 
 
 // The LoadSet Functions will update the static values.
-const bool OTPaths::LoadSetPrefixFolder    // eg. /usr/local/  
+//static
+bool OTPaths::LoadSetPrefixFolder    // eg. /usr/local/  
     (    
     OTSettings & config,    //optional
     const OTString & strPrefixFolder                //optional
@@ -427,7 +428,8 @@ const bool OTPaths::LoadSetPrefixFolder    // eg. /usr/local/
     return true;
 }
 
-const bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
+//static
+bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
     (
     OTSettings & config, //optional
     const OTString & strScriptsFolder,    //optional
@@ -509,8 +511,8 @@ const bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 }
 
 
-
-const bool OTPaths::Get(
+//static
+bool OTPaths::Get(
     OTSettings & config,
     const                  OTString      & strSection,
     const                  OTString      & strKey,
@@ -574,7 +576,8 @@ const bool OTPaths::Get(
     OT_FAIL;
 }
 
-const bool OTPaths::Set(
+//static
+bool OTPaths::Set(
     OTSettings & config,
     const                  OTString      & strSection,
     const                  OTString      & strKey,
@@ -626,7 +629,8 @@ const bool OTPaths::Set(
 }
 
 
-const bool OTPaths::FixPath(const OTString & strPath, OTString & out_strFixedPath, const bool & bIsFolder)
+//static
+bool OTPaths::FixPath(const OTString & strPath, OTString & out_strFixedPath, const bool & bIsFolder)
 {
     if (!strPath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strPath"    ); OT_FAIL; }
 
@@ -665,8 +669,8 @@ const bool OTPaths::FixPath(const OTString & strPath, OTString & out_strFixedPat
     }
 }
 
-
-const bool OTPaths::PathExists(const OTString & strPath)
+//static
+bool OTPaths::PathExists(const OTString & strPath)
 {
     if (!strPath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strPath" ); OT_FAIL; }
 
@@ -700,7 +704,8 @@ const bool OTPaths::PathExists(const OTString & strPath)
     return false;
 }
 
-const bool OTPaths::FileExists(const OTString & strFilePath, long & nFileLength)
+//static
+bool OTPaths::FileExists(const OTString & strFilePath, long & nFileLength)
 {
     if (!strFilePath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strFilePath" ); OT_FAIL; }
 
@@ -747,7 +752,8 @@ const bool OTPaths::FileExists(const OTString & strFilePath, long & nFileLength)
     return false;
 }
 
-const bool OTPaths::FolderExists(const OTString & strFolderPath)
+//static
+bool OTPaths::FolderExists(const OTString & strFolderPath)
 {
     if (!strFolderPath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strFolderPath" ); OT_FAIL; }
 
@@ -791,8 +797,8 @@ const bool OTPaths::FolderExists(const OTString & strFolderPath)
 }
 
 
-
-const bool OTPaths::ConfirmCreateFolder(const OTString & strExactPath, bool & out_Exists, bool & out_IsNew)
+//static
+bool OTPaths::ConfirmCreateFolder(const OTString & strExactPath, bool & out_Exists, bool & out_IsNew)
 {
     const bool bExists = (strExactPath.Exists() && !strExactPath.Compare(""));
     OT_ASSERT_MSG(bExists,"OTPaths::ConfirmCreateFolder: Assert failed: no strFolderName\n");
@@ -856,10 +862,8 @@ const bool OTPaths::ConfirmCreateFolder(const OTString & strExactPath, bool & ou
 }
 
 
-
-
-
-const bool OTPaths::ToReal(const OTString & strExactPath, OTString & out_strCanonicalPath)
+//static
+bool OTPaths::ToReal(const OTString & strExactPath, OTString & out_strCanonicalPath)
 {
     if (!strExactPath.Exists())        { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strExactPath"); OT_FAIL; }
 
@@ -1025,7 +1029,8 @@ const bool GetCurrentWorking(OTString & strCurrentWorkingPath)
     return true;
 }
 
-const bool OTPaths::GetHomeFromSystem(OTString & out_strHomeFolder)
+//static
+bool OTPaths::GetHomeFromSystem(OTString & out_strHomeFolder)
 {
 #ifdef _WIN32
 #ifdef _UNICODE
@@ -1050,7 +1055,8 @@ const bool OTPaths::GetHomeFromSystem(OTString & out_strHomeFolder)
 
 #ifdef _WIN32
 
-const bool OTPaths::Win_GetInstallFolderFromRegistry(OTString & out_InstallFolderPath)
+//static
+bool OTPaths::Win_GetInstallFolderFromRegistry(OTString & out_InstallFolderPath)
 {
     WindowsRegistryTools windowsRegistryTools;
 
@@ -1080,8 +1086,8 @@ const bool OTPaths::Win_GetInstallFolderFromRegistry(OTString & out_InstallFolde
 #endif
 
 
-
-const bool OTPaths::AppendFolder(OTString & out_strPath, const OTString & strBasePath, const OTString & strFolderName)
+//static
+bool OTPaths::AppendFolder(OTString & out_strPath, const OTString & strBasePath, const OTString & strFolderName)
 {
     if (!strBasePath.Exists())        { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strBasePath"); OT_FAIL; }
     if (!strFolderName.Exists())    { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strFolderName"); OT_FAIL; }
@@ -1101,7 +1107,8 @@ const bool OTPaths::AppendFolder(OTString & out_strPath, const OTString & strBas
     return true;
 }
 
-const bool OTPaths::AppendFile(OTString & out_strPath, const OTString & strBasePath, const OTString & strFileName)
+//static
+bool OTPaths::AppendFile(OTString & out_strPath, const OTString & strBasePath, const OTString & strFileName)
 {
     if (!strBasePath.Exists())    { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strBasePath"); OT_FAIL; }
     if (!strFileName.Exists())    { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strFileName"); OT_FAIL; }
@@ -1122,7 +1129,8 @@ const bool OTPaths::AppendFile(OTString & out_strPath, const OTString & strBaseP
 }
 
 // this function dosn't change the "strRelativePath" so.  It will only fix the strBasePath.
-const bool OTPaths::RelativeToCanonical(OTString & out_strCanonicalPath, const OTString & strBasePath, const OTString & strRelativePath)
+//static
+bool OTPaths::RelativeToCanonical(OTString & out_strCanonicalPath, const OTString & strBasePath, const OTString & strRelativePath)
 {
     if (!strBasePath.Exists())       { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strBasePath"    ); OT_FAIL; }
     if (!strRelativePath.Exists()) { OTLog::sError("%s: Null: %s passed in!\n", __FUNCTION__, "strRelativePath" ); OT_FAIL; }
@@ -1145,8 +1153,8 @@ const bool OTPaths::RelativeToCanonical(OTString & out_strCanonicalPath, const O
     return true;
 }
 
-
-const bool OTPaths::BuildFolderPath(const OTString & strFolderPath, bool & out_bFolderCreated)
+//static
+bool OTPaths::BuildFolderPath(const OTString & strFolderPath, bool & out_bFolderCreated)
 {
     out_bFolderCreated = false;
 
@@ -1190,8 +1198,8 @@ const bool OTPaths::BuildFolderPath(const OTString & strFolderPath, bool & out_b
 }
 
 
-
-const bool OTPaths::BuildFilePath(const OTString & strFolderPath, bool & out_bFolderCreated)
+//static
+bool OTPaths::BuildFilePath(const OTString & strFolderPath, bool & out_bFolderCreated)
 {
     out_bFolderCreated = false;
 
@@ -1299,8 +1307,9 @@ LONG WindowsRegistryTools::GetStringRegKey(HKEY hKey, const std::wstring &strVal
 #endif
 OTDataFolder * OTDataFolder::pDataFolder;
 
+
 // static
-const bool OTDataFolder::Init(const OTString & strThreadContext)
+bool OTDataFolder::Init(const OTString & strThreadContext)
 {
     if (NULL != pDataFolder) return false; // we already have a data dir setup.
 
@@ -1381,7 +1390,7 @@ const bool OTDataFolder::Init(const OTString & strThreadContext)
 }
 
 // static
-const bool OTDataFolder::IsInitialized()
+bool OTDataFolder::IsInitialized()
 {
     if (NULL == pDataFolder) return false; // we already have a data dir setup.
 
@@ -1389,7 +1398,7 @@ const bool OTDataFolder::IsInitialized()
 }
 
 // static
-const bool OTDataFolder::Cleanup()
+bool OTDataFolder::Cleanup()
 {
     if (NULL != pDataFolder)
     {
@@ -1424,7 +1433,7 @@ const OTString OTDataFolder::Get()
 
 
 // static
-const bool OTDataFolder::Get(OTString & strDataFolder)
+bool OTDataFolder::Get(OTString & strDataFolder)
 {
     if (NULL != pDataFolder)
     {
@@ -1442,7 +1451,7 @@ const bool OTDataFolder::Get(OTString & strDataFolder)
 }
 
 // static
-const bool OTDataFolder::GetConfigFilePath(OTString & strConfigFilePath)
+bool OTDataFolder::GetConfigFilePath(OTString & strConfigFilePath)
 {
     if (NULL != pDataFolder)
     {

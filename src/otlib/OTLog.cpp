@@ -312,7 +312,8 @@ const OTString OTLog::m_strPathSeparator = "/";
 //  OTLog Init, must run this befor useing any OTLog function.
 //
 
-const bool OTLog::Init(const OTString & strThreadContext, const int & nLogLevel)
+//static
+bool OTLog::Init(const OTString & strThreadContext, const int & nLogLevel)
 {
 	if (NULL == pLogger)
 	{
@@ -364,15 +365,16 @@ const bool OTLog::Init(const OTString & strThreadContext, const int & nLogLevel)
 
 }
 
-const bool OTLog::IsInitialized()
+//static
+bool OTLog::IsInitialized()
 {
 	if (NULL == pLogger)
 		return false;
 	else return pLogger->m_bInitialized;
 }
 
-
-const bool OTLog::Cleanup()
+//static
+bool OTLog::Cleanup()
 {
 	if (NULL != pLogger)
 		{
@@ -406,8 +408,11 @@ const OTString &	OTLog::GetThreadContext()   { return pLogger->m_strThreadContex
 const char *		OTLog::LogFilePath()   { return OTLog::GetLogFilePath().Get(); }
 const OTString &	OTLog::GetLogFilePath() { return pLogger->m_strLogFilePath; }
 
-const int			OTLog::LogLevel()  { if (NULL != pLogger) return pLogger->m_nLogLevel; else return 0; }
-const bool			OTLog::SetLogLevel(const int & nLogLevel)
+//static
+int                 OTLog::LogLevel()  { if (NULL != pLogger) return pLogger->m_nLogLevel; else return 0; }
+
+//static
+bool			    OTLog::SetLogLevel(const int & nLogLevel)
 {
     if (NULL == pLogger) { OT_FAIL; }
     else { pLogger->m_nLogLevel = nLogLevel; return true; }
@@ -426,7 +431,8 @@ const bool			OTLog::SetLogLevel(const int & nLogLevel)
 // command line utilities who might otherwise interpret it as their own input,
 // if I was actually writing to stdout.)
 //
-const bool OTLog::LogToFile(const OTString & strOutput)
+//static
+bool OTLog::LogToFile(const OTString & strOutput)
 {
 	// We now do this either way. 
 	{
@@ -540,8 +546,8 @@ const OTString OTLog::PeekMemlogBack()
 	else return "";	
 }
 
-
-const bool OTLog::PopMemlogFront()
+//static
+bool OTLog::PopMemlogFront()
 {
 	// lets check if we are Initialized in this context
 	CheckLogger(OTLog::pLogger);
@@ -558,8 +564,8 @@ const bool OTLog::PopMemlogFront()
 	return true;		
 }
 
-
-const bool OTLog::PopMemlogBack()
+//static
+bool OTLog::PopMemlogBack()
 {
 	// lets check if we are Initialized in this context
 	CheckLogger(OTLog::pLogger);
@@ -576,8 +582,8 @@ const bool OTLog::PopMemlogBack()
 	return true;			
 }
 
-
-const bool OTLog::PushMemlogFront(const OTString & strLog)
+//static
+bool OTLog::PushMemlogFront(const OTString & strLog)
 {
 	// lets check if we are Initialized in this context
 	CheckLogger(OTLog::pLogger);
@@ -594,7 +600,8 @@ const bool OTLog::PushMemlogFront(const OTString & strLog)
 	return true;
 }
 
-const bool OTLog::PushMemlogBack(const OTString & strLog)
+//static
+bool OTLog::PushMemlogBack(const OTString & strLog)
 {
 	// lets check if we are Initialized in this context
 	CheckLogger(OTLog::pLogger);
@@ -608,7 +615,8 @@ const bool OTLog::PushMemlogBack(const OTString & strLog)
 
 // -------------------------------------------------------
 
-const bool OTLog::SleepSeconds(long lSeconds)
+//static
+bool OTLog::SleepSeconds(long lSeconds)
 {
 #ifdef _WIN32
 	Sleep(1000 * lSeconds);
@@ -618,8 +626,8 @@ const bool OTLog::SleepSeconds(long lSeconds)
 	return true;
 }
 
-
-const bool OTLog::SleepMilliseconds(long lMilliseconds)
+//static
+bool OTLog::SleepMilliseconds(long lMilliseconds)
 {
 #ifdef _WIN32
 	Sleep( lMilliseconds );

@@ -177,21 +177,21 @@ public:
 
 	// The LoadSet Functions will update the static values.
 
-	EXPORT static const bool LoadSetPrefixFolder	// eg. /usr/local/  (cannot be relative);
+	EXPORT static bool LoadSetPrefixFolder	// eg. /usr/local/  (cannot be relative);
 		(	
 		OTSettings & config = s_settings, //optional
 		const OTString & strPrefixFolder = ""	//optional
 		//const bool & bIsRelative = false
 		);
 
-	EXPORT static const bool LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
+	EXPORT static bool LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
 		(
 		OTSettings & config = s_settings, //optional
 		const OTString & strScriptsFolder = "",	//optional
 		const bool & bIsRelative = true			//optional
 		);
 
-	EXPORT static const bool Get(
+	EXPORT static bool Get(
 		OTSettings & config,
 		const				  OTString	  & strSection,
 		const				  OTString	  & strKey,
@@ -200,7 +200,7 @@ public:
 							  bool		  & out_bKeyExist
 		);
 
-	EXPORT static const bool Set(
+	EXPORT static bool Set(
 		OTSettings & config,
 		const				  OTString	  & strSection,
 		const				  OTString	  & strKey,
@@ -211,35 +211,35 @@ public:
 		);
 
 	// ------------------------------------------------------------
-	EXPORT static const bool FixPath(const OTString & strPath, OTString & out_strFixedPath, const bool & bIsFolder);
-	EXPORT static const bool PathExists(const OTString & strPath); // returns true if path exists.
+	EXPORT static bool FixPath(const OTString & strPath, OTString & out_strFixedPath, const bool & bIsFolder);
+	EXPORT static bool PathExists(const OTString & strPath); // returns true if path exists.
 
-	EXPORT static const bool FileExists(const OTString & strFilePath, long & nFileLength); // returns true if file exists and its length.
-	EXPORT static const bool FolderExists(const OTString & strFolderPath); // returns true if folder exists
+	EXPORT static bool FileExists(const OTString & strFilePath, long & nFileLength); // returns true if file exists and its length.
+	EXPORT static bool FolderExists(const OTString & strFolderPath); // returns true if folder exists
 
-	EXPORT static const bool ConfirmCreateFolder(const OTString & strExactPath, bool & out_Exists, bool & out_IsNew);
+	EXPORT static bool ConfirmCreateFolder(const OTString & strExactPath, bool & out_Exists, bool & out_IsNew);
 
-	EXPORT static const bool ToReal(const OTString & strExactPath, OTString & out_strCanonicalPath);
-	EXPORT static const bool GetExecutable(OTString & strExecutablePath);
-	EXPORT static const bool GetCurrentWorking(OTString & strCurrentWorkingPath);
-	EXPORT static const bool GetHomeFromSystem(OTString & out_strHomeFolder);
+	EXPORT static bool ToReal(const OTString & strExactPath, OTString & out_strCanonicalPath);
+	EXPORT static bool GetExecutable(OTString & strExecutablePath);
+	EXPORT static bool GetCurrentWorking(OTString & strCurrentWorkingPath);
+	EXPORT static bool GetHomeFromSystem(OTString & out_strHomeFolder);
 
 #ifdef _WIN32
 
-	EXPORT static const bool Win_GetInstallFolderFromRegistry(OTString & out_InstallFolderPath);
+	EXPORT static bool Win_GetInstallFolderFromRegistry(OTString & out_InstallFolderPath);
 
 #endif
 
 	// ------------------------------------------------------------
 	// High Level Helper Functions
 	//
-	EXPORT static const bool AppendFolder(OTString & out_strPath, const OTString & strBasePath, const OTString & strFolderName); // the trailing "/" is optional for the strFolderName
-	EXPORT static const bool AppendFile	 (OTString & out_strPath, const OTString & strBasePath, const OTString & strFileName); // the trailing "/" is optional for the strFolderName
+	EXPORT static bool AppendFolder(OTString & out_strPath, const OTString & strBasePath, const OTString & strFolderName); // the trailing "/" is optional for the strFolderName
+	EXPORT static bool AppendFile	 (OTString & out_strPath, const OTString & strBasePath, const OTString & strFileName); // the trailing "/" is optional for the strFolderName
 
-	EXPORT static const bool RelativeToCanonical(OTString & out_strCanonicalPath, const OTString & strBasePath, const OTString & strRelativePath);
+	EXPORT static bool RelativeToCanonical(OTString & out_strCanonicalPath, const OTString & strBasePath, const OTString & strRelativePath);
 
-	EXPORT static const bool BuildFolderPath(const OTString & strFolderPath, bool & out_bFolderCreated);	// will build all the folders to a path.  Will return false if unable to build path.
-	EXPORT static const bool BuildFilePath(const OTString & strFolderPath, bool & out_bFolderCreated);		// will build all the folders up to the file.  Will return false if unable to build path.
+	EXPORT static bool BuildFolderPath(const OTString & strFolderPath, bool & out_bFolderCreated);	// will build all the folders to a path.  Will return false if unable to build path.
+	EXPORT static bool BuildFilePath(const OTString & strFolderPath, bool & out_bFolderCreated);		// will build all the folders up to the file.  Will return false if unable to build path.
 
 }; // class OTPaths
 
@@ -286,16 +286,16 @@ private:
 
 public:
 
-	EXPORT static const bool Init(const OTString & strThreadContext);
+	EXPORT static bool Init(const OTString & strThreadContext);
 
-	EXPORT static const bool IsInitialized();
+	EXPORT static bool IsInitialized();
 
-	EXPORT static const bool Cleanup();
+	EXPORT static bool Cleanup();
 
 	EXPORT static const OTString Get();
-	EXPORT static const bool Get(OTString & strDataFolder);
+	EXPORT static bool Get(OTString & strDataFolder);
 
-	EXPORT static const bool GetConfigFilePath(OTString & strConfigFilePath);
+	EXPORT static bool GetConfigFilePath(OTString & strConfigFilePath);
 };
 
 
