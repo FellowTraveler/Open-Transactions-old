@@ -137,7 +137,7 @@
 #include "OTSettings.h"
 #include "OTLog.h"
 
-const bool	OTSettings::Load(const OTString & strConfigurationFileExactPath)
+bool	OTSettings::Load(const OTString & strConfigurationFileExactPath)
 {
 	if (! strConfigurationFileExactPath.Exists()) { OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strConfigurationFileExactPath"); return false; }
 
@@ -162,7 +162,7 @@ const bool	OTSettings::Load(const OTString & strConfigurationFileExactPath)
 	else return true;
 }
 
-const bool	OTSettings::Save(const OTString & strConfigurationFileExactPath)
+bool	OTSettings::Save(const OTString & strConfigurationFileExactPath)
 {
 	if (! strConfigurationFileExactPath.Exists()) { OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strConfigurationFileExactPath"); return false; }
 
@@ -171,7 +171,7 @@ const bool	OTSettings::Save(const OTString & strConfigurationFileExactPath)
 	else return true;
 }
 
-const bool	OTSettings::LogChange_str (const OTString & strSection,const OTString & strKey,const OTString & strValue)
+bool	OTSettings::LogChange_str (const OTString & strSection,const OTString & strKey,const OTString & strValue)
 {
 	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
 	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_FAIL; }
@@ -186,7 +186,7 @@ const bool	OTSettings::LogChange_str (const OTString & strSection,const OTString
 	return true;
 }
 
-const bool	OTSettings::LogChange_long(const OTString & strSection,const OTString & strKey,const long	  & lValue	)
+bool	OTSettings::LogChange_long(const OTString & strSection,const OTString & strKey,const long	  & lValue	)
 {
 	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
 	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_FAIL; }
@@ -199,7 +199,7 @@ const bool	OTSettings::LogChange_long(const OTString & strSection,const OTString
 	return true;
 }
 
-const bool	OTSettings::LogChange_bool(const OTString & strSection,const OTString & strKey,const bool	  & bValue	)
+bool	OTSettings::LogChange_bool(const OTString & strSection,const OTString & strKey,const bool	  & bValue	)
 {
 	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
 	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_FAIL; }
@@ -223,7 +223,7 @@ OTSettings::~OTSettings() {
 	if (NULL != this->m_pIniSimple) { delete this->m_pIniSimple; this->m_pIniSimple = NULL; }
 }
 
-const bool	OTSettings::Load()
+bool	OTSettings::Load()
 {
 	b_Loaded = false;
 
@@ -235,7 +235,7 @@ const bool	OTSettings::Load()
 	else return false;
 }
 
-const bool	OTSettings::Save()
+bool	OTSettings::Save()
 {
 	return Save(m_strConfigurationFileExactPath);
 }
@@ -245,19 +245,19 @@ const bool & OTSettings::IsLoaded() const
 	return b_Loaded;
 }
 
-const bool	OTSettings::Reset()
+bool	OTSettings::Reset()
 {
 	b_Loaded = false;
 	this->m_pIniSimple->Reset();
 	return true;
 }
 
-const bool	OTSettings::IsEmpty() const
+bool	OTSettings::IsEmpty() const
 {
 	return this->m_pIniSimple->IsEmpty();
 }
 
-const bool	OTSettings::Check_str (const OTString & strSection, const OTString & strKey, OTString & out_strResult,	bool & out_bKeyExist) const
+bool	OTSettings::Check_str (const OTString & strSection, const OTString & strKey, OTString & out_strResult,	bool & out_bKeyExist) const
 {
 	if (! strSection.Exists())		{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
 	if (strSection.Compare(""))		{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
@@ -274,7 +274,7 @@ const bool	OTSettings::Check_str (const OTString & strSection, const OTString & 
 	return true;
 }
 
-const bool	OTSettings::Check_long(const OTString & strSection, const OTString & strKey, long	  & out_lResult,	bool & out_bKeyExist) const
+bool	OTSettings::Check_long(const OTString & strSection, const OTString & strKey, long	  & out_lResult,	bool & out_bKeyExist) const
 {
 	if (! strSection.Exists())		{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
 	if (strSection.Compare(""))		{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
@@ -299,7 +299,7 @@ const bool	OTSettings::Check_long(const OTString & strSection, const OTString & 
 	return true;
 }
 
-const bool	OTSettings::Check_bool(const OTString & strSection, const OTString & strKey, bool     &	out_bResult,	bool & out_bKeyExist) const
+bool	OTSettings::Check_bool(const OTString & strSection, const OTString & strKey, bool     &	out_bResult,	bool & out_bKeyExist) const
 {
 	if (! strSection.Exists())		{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
 	if (strSection.Compare(""))		{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
@@ -324,7 +324,7 @@ const bool	OTSettings::Check_bool(const OTString & strSection, const OTString & 
 	return true;
 }
 
-const bool	OTSettings::Set_str (const OTString & strSection, const OTString & strKey, const OTString & strValue, bool & out_bNewOrUpdate, const OTString & strComment)
+bool	OTSettings::Set_str (const OTString & strSection, const OTString & strKey, const OTString & strValue, bool & out_bNewOrUpdate, const OTString & strComment)
 {
 	if (! strSection.Exists())		{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
 	if (strSection.Compare(""))		{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strSection"			); OT_FAIL;  }
@@ -386,7 +386,7 @@ const bool	OTSettings::Set_str (const OTString & strSection, const OTString & st
 	OT_FAIL;
 }
 
-const bool	OTSettings::Set_long(const OTString & strSection, const OTString & strKey, const long	  & lValue,   bool & out_bNewOrUpdate, const OTString & strComment)
+bool	OTSettings::Set_long(const OTString & strSection, const OTString & strKey, const long	  & lValue,   bool & out_bNewOrUpdate, const OTString & strComment)
 {
 	if (! strSection.Exists())		{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
 	if (strSection.Compare(""))		{ OTLog::vError("%s: Error: %s is Blank!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
@@ -437,7 +437,7 @@ const bool	OTSettings::Set_long(const OTString & strSection, const OTString & st
 	OT_FAIL;
 }
 
-const bool	OTSettings::Set_bool(const OTString & strSection, const OTString & strKey, const bool	  & bValue,   bool & out_bNewOrUpdate, const OTString & strComment)
+bool	OTSettings::Set_bool(const OTString & strSection, const OTString & strKey, const bool	  & bValue,   bool & out_bNewOrUpdate, const OTString & strComment)
 {
 	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
 	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_FAIL; }
@@ -446,7 +446,7 @@ const bool	OTSettings::Set_bool(const OTString & strSection, const OTString & st
 	return Set_str(strSection,strKey,strValue,out_bNewOrUpdate,strComment);
 }
 
-const bool	OTSettings::CheckSetSection(const OTString & strSection, const OTString & strComment, bool & out_bIsNewSection)
+bool	OTSettings::CheckSetSection(const OTString & strSection, const OTString & strComment, bool & out_bIsNewSection)
 {
 	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
 	if (! strComment.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strComment"			); OT_FAIL; }
@@ -468,7 +468,7 @@ const bool	OTSettings::CheckSetSection(const OTString & strSection, const OTStri
 	return true;
 }
 
-const bool	OTSettings::CheckSet_str (const OTString & strSection, const OTString & strKey, const OTString & strDefault, OTString & out_strResult, bool & out_bIsNew, const OTString & strComment)
+bool	OTSettings::CheckSet_str (const OTString & strSection, const OTString & strKey, const OTString & strDefault, OTString & out_strResult, bool & out_bIsNew, const OTString & strComment)
 {
 	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
 	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_FAIL; }
@@ -511,7 +511,7 @@ const bool	OTSettings::CheckSet_str (const OTString & strSection, const OTString
 	OT_FAIL;
 }
 
-const bool	OTSettings::CheckSet_long(const OTString & strSection, const OTString & strKey, const long	   & lDefault,	 long	  & out_lResult,   bool & out_bIsNew, const OTString & strComment)
+bool	OTSettings::CheckSet_long(const OTString & strSection, const OTString & strKey, const long	   & lDefault,	 long	  & out_lResult,   bool & out_bIsNew, const OTString & strComment)
 {
 	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
 	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_FAIL; }
@@ -543,7 +543,7 @@ const bool	OTSettings::CheckSet_long(const OTString & strSection, const OTString
 	OT_FAIL;
 }
 
-const bool	OTSettings::CheckSet_bool(const OTString & strSection, const OTString & strKey, const bool	   & bDefault,	 bool	  & out_bResult,   bool & out_bIsNew, const OTString & strComment)
+bool	OTSettings::CheckSet_bool(const OTString & strSection, const OTString & strKey, const bool	   & bDefault,	 bool	  & out_bResult,   bool & out_bIsNew, const OTString & strComment)
 {
 	if (! strSection.Exists())			{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strSection"			); OT_FAIL; }
 	if (! strKey.Exists())				{ OTLog::vError("%s: Error: %s is Empty!\n", __FUNCTION__, "strKey"				); OT_FAIL; }
@@ -574,7 +574,7 @@ const bool	OTSettings::CheckSet_bool(const OTString & strSection, const OTString
 	OT_FAIL;
 }
 
-const bool	OTSettings::SetOption_bool(const OTString & strSection, const OTString & strKey, bool & bVariableName)
+bool	OTSettings::SetOption_bool(const OTString & strSection, const OTString & strKey, bool & bVariableName)
 {
 	bool bNewOrUpdate;
 	return CheckSet_bool(strSection,strKey,bVariableName,bVariableName,bNewOrUpdate);
