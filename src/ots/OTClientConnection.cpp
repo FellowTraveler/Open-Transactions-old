@@ -187,8 +187,8 @@ void SetupHeader( union u_header * pCMD, int nTypeID, int nCmdID, OTPayload & th
 {
 	OT_ASSERT(NULL != pCMD);
 	
-	pCMD->fields.type_id	= nTypeID;
-	pCMD->fields.command_id	= nCmdID;
+	pCMD->fields.type_id	= (nTypeID > 0) ? static_cast<BYTE>(nTypeID) : '\0';
+	pCMD->fields.command_id	= (nCmdID > 0) ? static_cast<BYTE>(nCmdID) : '\0';
 //	pCMD->fields.size		= thePayload.GetSize();
 	pCMD->fields.size		= htonl(thePayload.GetSize()); // think this is causing problems
 	pCMD->fields.checksum	= CalcChecksum(pCMD->buf, OT_CMD_HEADER_SIZE-1);
@@ -445,10 +445,7 @@ void OTClientConnection::ProcessMessage(u_header & theCMD)
 	{
 		int  err = 0, nread = 0;
 		
-//		char buffer[1024];
-		int sizeJunkData = 1024;
-		
-		while (1)
+		for(;;)
 		{
 //			err = SFSocketRead(m_pSocket, buffer, sizeJunkData);
 			
@@ -822,12 +819,10 @@ OTMessage * OTClientConnection::GetNextInputMessage()
 //#if !defined(OT_ZMQ_MODE)    
 //	return m_listIn.Pop();
 //#else
-//    OT_ASSERT_MSG(false, "OTClientConnection::GetNextInputMessage: ASSERT: Should not be calling this...");
+//    OT_FAIL_MSG("OTClientConnection::GetNextInputMessage: ASSERT: Should not be calling this...");
 //#endif
 
-    OT_ASSERT_MSG(false, "OTClientConnection::GetNextInputMessage: ASSERT: Should not be calling this...");
-
-    return NULL;
+    OT_FAIL_MSG("OTClientConnection::GetNextInputMessage: ASSERT: Should not be calling this...");
 }
 
 
@@ -843,12 +838,10 @@ OTMessage * OTClientConnection::GetNextOutputMessage()
 //#if !defined(OT_ZMQ_MODE)    
 //	return m_listOut.Pop();
 //#else
-//    OT_ASSERT_MSG(false, "OTClientConnection::GetNextOutputMessage: ASSERT: Should not be calling this...");
+//    OT_FAIL_MSG("OTClientConnection::GetNextOutputMessage: ASSERT: Should not be calling this...");
 //#endif
 
-    OT_ASSERT_MSG(false, "OTClientConnection::GetNextOutputMessage: ASSERT: Should not be calling this...");
-
-    return  NULL;
+    OT_FAIL_MSG("OTClientConnection::GetNextOutputMessage: ASSERT: Should not be calling this...");
 }
 
 

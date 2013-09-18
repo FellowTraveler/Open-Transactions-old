@@ -849,8 +849,6 @@ bool OTMarket::AddOffer(OTOffer & theOffer, bool bSaveFile/*=true*/)
 		OTLog::Error("Attempt to add Invalid Offer to market.\n");
 		return false;
 	}
-	
-	return false;
 }
 
 

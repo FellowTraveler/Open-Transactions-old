@@ -78,6 +78,7 @@ extern "C"
 
 #include "anyoption.h"
 
+
 AnyOption::AnyOption()
 {
 	init();
@@ -721,6 +722,7 @@ AnyOption::parseGNU( char *arg )
 	}
 	if( split_at > 0 ){ /* it is an option value pair */
 		char* tmp = (char*) malloc(  (split_at+1)*sizeof(char) );
+		if (NULL == tmp) assert(false);
 		for( int i = 0 ; i < split_at ; i++ )
 			tmp[i] = arg[i];
 		tmp[split_at] = '\0';
@@ -796,7 +798,8 @@ AnyOption::valueStoreOK( )
 	if( !set ){
 		if( g_value_counter > 0 ){
 			size = g_value_counter * sizeof(char*);
-			values = (char**)malloc( size );	
+			values = (char**)malloc( size + 1 );
+			if (NULL == values) assert(false);
 			for( int i = 0 ; i < g_value_counter ; i++)
 				values[i] = NULL;
 			set = true;
@@ -894,8 +897,10 @@ AnyOption::setFlagOn( const char *option )
 		return false;
         for( int i = 0 ; i < option_counter ; i++ ){
                 if( strcmp( options[i], option ) == 0 ){
-                        values[ optionindex[i] ] = (char*) malloc((strlen(TRUE_FLAG)+1)*sizeof(char));
-                        strcpy( values[ optionindex[i] ]  ,  TRUE_FLAG );
+                         char * pValues = (char*) malloc((strlen(TRUE_FLAG)+1)*sizeof(char));
+						 assert(NULL != pValues);
+						 values[ optionindex[i] ] = pValues;
+						 strcpy( values[ optionindex[i] ]  ,  TRUE_FLAG );
 			return true;
 		}
         }
@@ -918,18 +923,20 @@ AnyOption::setValue( char option , char *value )
 }
 
 bool
-AnyOption::setFlagOn( char option )
+	AnyOption::setFlagOn( char option )
 {
 	if( !valueStoreOK() )
 		return false;
-        for( int i = 0 ; i < optchar_counter ; i++ ){
-                if( optionchars[i] == option ){
-                        values[ optcharindex[i] ] = (char*) malloc((strlen(TRUE_FLAG)+1)*sizeof(char));
+	for( int i = 0 ; i < optchar_counter ; i++ ){
+		if( optionchars[i] == option ){
+			char * pValues = (char*) malloc((strlen(TRUE_FLAG)+1)*sizeof(char));
+			assert(NULL != pValues);
+			values[ optcharindex[i] ] = pValues;
 			strcpy( values[ optcharindex[i] ] , TRUE_FLAG );
 			return true;
 		}
-        }
-        return false;
+	}
+	return false;
 }
 
 
@@ -995,6 +1002,7 @@ AnyOption::readFile( const char* fname )
         length = static_cast<int>(is.tellg());
         is.seekg (0, ios::beg);
         buffer = (char*) malloc((length + 1)*sizeof(char));
+		assert(NULL != buffer);
         is.read (buffer,length);
         buffer[length] = nullterminate;
         is.close();
@@ -1074,6 +1082,7 @@ AnyOption::processLine( char *theline, int length )
     
         bool found = false;
         char *pline = (char*) malloc( (length+1)*sizeof(char) );
+		assert(NULL != pline);
     
     for( int i = 0 ; i < length ; i ++ )
         pline[i]= *(theline++);

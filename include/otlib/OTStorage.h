@@ -422,12 +422,12 @@ namespace OTDB
 #endif // NOT_SWIG
 #ifdef SWIG // swig version
 #define DEFINE_OT_DYNAMIC_CAST(CLASS_NAME_A) \
-	CLASS_NAME_A * clone () const { return NULL; std::cerr << "********* THIS SHOULD NEVER HAPPEN!!!!! *****************" << std::endl;} \
+	CLASS_NAME_A * clone () const { std::cerr << "********* THIS SHOULD NEVER HAPPEN!!!!! *****************" << std::endl; return NULL; } \
 	static CLASS_NAME_A *		ot_dynamic_cast(		Storable *pObject) { return dynamic_cast<CLASS_NAME_A *>(pObject); }
 //	static const CLASS_NAME_A*	ot_dynamic_cast(const	Storable *pObject) { return dynamic_cast<const CLASS_NAME_A *>(pObject); }
 #else
 #define DEFINE_OT_DYNAMIC_CAST(CLASS_NAME) \
-	virtual CLASS_NAME * clone () const { OT_ASSERT(false); std::cout << "********* THIS SHOULD NEVER HAPPEN!!!!! *****************" << std::endl; return NULL; } \
+	virtual CLASS_NAME * clone () const { std::cout << "********* THIS SHOULD NEVER HAPPEN!!!!! *****************" << std::endl; OT_FAIL; } \
 	static CLASS_NAME *			ot_dynamic_cast(		Storable *pObject) { return dynamic_cast<CLASS_NAME *>(pObject); }
 #endif
 
@@ -2229,10 +2229,17 @@ namespace OTDB
 		{ rhs.CopyToObject(*this); return *this; } 
 
 		void CopyToObject(ProtobufSubclass<theBaseType,theInternalType,theObjectType> & theNewStorable) const
-		{	OTPacker * pPacker = OTPacker::Create(PACK_PROTOCOL_BUFFERS);
-		const OTDB::Storable * pIntermediate = dynamic_cast<const OTDB::Storable *>(this);
-		OT_ASSERT(NULL != pPacker); PackedBuffer * pBuffer = pPacker->Pack(*(const_cast<OTDB::Storable*>(pIntermediate))); OT_ASSERT(NULL != pBuffer);
-		OT_ASSERT(pPacker->Unpack(*pBuffer, theNewStorable)); delete pPacker; delete pBuffer; }	
+		{
+			OTPacker * pPacker = OTPacker::Create(PACK_PROTOCOL_BUFFERS);
+			const OTDB::Storable * pIntermediate = dynamic_cast<const OTDB::Storable *>(this);
+
+			if (NULL == pPacker) { OT_FAIL; }
+			PackedBuffer * pBuffer = pPacker->Pack(*(const_cast<OTDB::Storable*>(pIntermediate)));
+			if (NULL == pBuffer) { OT_FAIL; }
+			if (!pPacker->Unpack(*pBuffer, theNewStorable)) { OT_FAIL; }
+			if (NULL != pPacker) { delete pPacker; pPacker = NULL; }
+			if (NULL != pBuffer) { delete pBuffer; pBuffer = NULL; }
+		}
 
 		virtual ::google::protobuf::Message * getPBMessage(); 
 
@@ -2244,7 +2251,8 @@ namespace OTDB
 
 		IStorable * do_clone(void) const
 		{  Storable * pNewStorable = Storable::Create(theObjectType, PACK_PROTOCOL_BUFFERS);
-		OT_ASSERT(NULL != pNewStorable); CopyToObject(*(dynamic_cast< ProtobufSubclass<theBaseType,theInternalType,theObjectType> * > (pNewStorable))); return dynamic_cast<IStorable *>(pNewStorable);}
+		if(NULL == pNewStorable) OT_FAIL;
+		CopyToObject(*(dynamic_cast< ProtobufSubclass<theBaseType,theInternalType,theObjectType> * > (pNewStorable))); return dynamic_cast<IStorable *>(pNewStorable);}
 
 		virtual ~ProtobufSubclass() { } 
 		OT_USING_ISTORABLE_HOOKS;

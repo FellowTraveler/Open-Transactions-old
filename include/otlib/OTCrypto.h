@@ -271,6 +271,7 @@ private:
         if(NULL == pValue)
             if(!GetSetAll())
                 assert(false);
+		if(NULL == pValue) assert(false);
         return *pValue;
 	}
 
@@ -668,6 +669,28 @@ public:
     
     virtual ~OTCrypto_OpenSSL();
 };
+
+// is immutable 
+class OpenSSL_BIO {
+private:
+    BIO & m_refBIO;
+    bool bCleanup;
+    bool bFreeOnly;
+
+    EXPORT static BIO * assertBioNotNull(BIO * pBIO);
+
+public:
+
+    EXPORT	OpenSSL_BIO(BIO * pBIO);
+
+    EXPORT  ~OpenSSL_BIO();
+
+    EXPORT	operator BIO *() const;
+
+    EXPORT  void release();
+    EXPORT  void setFreeOnly();
+};
+
 
 // ------------------------------------------------------------------------
 #else // Apparently NO crypto engine is defined! 

@@ -196,8 +196,8 @@ void SetupHeader( u_header & theCMD, int nTypeID, int nCmdID, OTPayload & thePay
 {
 	uint32_t lSize = thePayload.GetSize(); // outputting in normal byte order, but sent to network in network byte order.
 
-	theCMD.fields.type_id	= nTypeID;
-	theCMD.fields.command_id= nCmdID;
+	theCMD.fields.type_id	= (nTypeID > 0) ? static_cast<BYTE>(nTypeID) : '\0';
+	theCMD.fields.command_id= (nCmdID > 0) ? static_cast<BYTE>(nCmdID) : '\0';;
 //	theCMD.fields.size		= thePayload.GetSize();
 	theCMD.fields.size		= htonl(lSize); // think this is causing problems.. maybe not...
 	theCMD.fields.checksum	= CalcChecksum(theCMD.buf, OT_CMD_HEADER_SIZE-1);	
@@ -246,7 +246,7 @@ void OTServerConnection::Initialize()
 //
 bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theServerContract, TransportCallback * pCallback)
 {
-	if (NULL == pCallback) { OTLog::vError("%s: pCallback is NULL",__FUNCTION__); OT_ASSERT(false); };
+	if (NULL == pCallback) { OTLog::vError("%s: pCallback is NULL",__FUNCTION__); OT_FAIL; };
 
 	// We're already connected! You can't use SetFocus if you're in connection mode (TCP instead of HTTP.)
 	//if (IsConnected())
@@ -488,10 +488,7 @@ bool OTServerConnection::ProcessReply(u_header & theCMD, OTMessage & theServerRe
 	{
 		int  err = 0, nread = 0;
 		
-//		char buffer[1024];
-		int sizeJunkData = 1020; // We'll make this a bit smaller than the buffer, for safety reasons.
-		
-		while (1)
+		for (;;)
 		{
 			//err = SFSocketRead(m_pSocket, buffer, sizeJunkData);
 			
@@ -591,11 +588,12 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 			{
 				OTLog::Output(4, "Successfully parsed payload message.\n");
 				
-				OTPseudonym * pServerNym = NULL;
+				const OTPseudonym * pServerNym =
+                    (NULL != m_pServerContract) ? m_pServerContract->GetContractPublicNym() : NULL;
 				
-				if (m_pServerContract && (pServerNym = (OTPseudonym *)m_pServerContract->GetContractPublicNym())) // todo casting.
+				if (m_pServerContract && pServerNym) // todo casting.
 				{
-					if (theServerReply.VerifySignature((const OTPseudonym &)*pServerNym)) // todo casting.
+					if (theServerReply.VerifySignature(*pServerNym)) // todo casting.
 					{
 						OTLog::Output(0, "VERIFIED -- this message was signed by the Server.\n");
 					}
@@ -647,11 +645,12 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 				{
 					OTLog::Output(4, "Success decrypting the message out of the envelope and parsing it.\n");
 					
-					OTPseudonym * pServerNym = NULL;
+					const OTPseudonym * pServerNym =
+                        (NULL != m_pServerContract) ? m_pServerContract->GetContractPublicNym() : NULL;
 					
-					if (m_pServerContract && (pServerNym = (OTPseudonym *)m_pServerContract->GetContractPublicNym())) // todo casting.
+					if (m_pServerContract && pServerNym) // todo casting.
 					{
-						if (theServerReply.VerifySignature((const OTPseudonym &)*pServerNym)) // todo casting.
+						if (theServerReply.VerifySignature(*pServerNym)) // todo casting.
 						{
 							OTLog::Output(0, "VERIFIED -- this message was signed by the Server.\n");
 //							OTLog::vOutput(0,  "VERIFIED -- this message was signed by the Server:\n%s\n", strEnvelopeContents.Get());
@@ -693,8 +692,6 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 		OTLog::Error("Error retrieving message from payload. Unknown type.\n");
 		return false;
 	}
-	
-	return true;
 }
 
 

@@ -347,86 +347,82 @@ int main()
 
 bool OTCrypto::GetPasswordFromConsoleLowLevel(OTPassword & theOutput, const char * szPrompt) const
 {
-    OT_ASSERT(NULL != szPrompt);
-    // -----------------------------------------
-#ifdef _WIN32
-    
-	std::cout << szPrompt;
+	OT_ASSERT(NULL != szPrompt);
 
+#ifdef _WIN32
 	{
-		std::string strPassword = "";
+		std::cout << szPrompt;
+
+		{
+			std::string strPassword = "";
 
 #ifdef UNICODE
 
-		const wchar_t enter[] = {L'\x000D', L'\x0000'};  // carrage return
-		const std::wstring wstrENTER = enter;
+			const wchar_t enter[] = {L'\x000D', L'\x0000'};  // carrage return
+			const std::wstring wstrENTER = enter;
 
-		std::wstring wstrPass = L"";
+			std::wstring wstrPass = L"";
 
-		for (;;) {
-			const wchar_t ch[] = {_getwch(), L'\x0000'}; 
-			const std::wstring wstrCH = ch;
-
-			if (wstrENTER == wstrCH) break;
-
-			wstrPass.append(wstrCH);
-		}
-
-		strPassword = OTString::ws2s(wstrPass);
+			for (;;) {
+				const wchar_t ch[] = {_getwch(), L'\x0000'}; 
+				const std::wstring wstrCH = ch;
+				if (wstrENTER == wstrCH) break;
+				wstrPass.append(wstrCH);
+			}
+			strPassword = OTString::ws2s(wstrPass);
 
 #else
 
-		const char enter[] = {'\x0D', '\x00'}; // carrage return
-		const std::string strENTER = enter;
+			const char enter[] = {'\x0D', '\x00'}; // carrage return
+			const std::string strENTER = enter;
 
-		std::string strPass = "";
+			std::string strPass = "";
 
-		for (;;) {
-			const char ch[] = {_getch(), '\x00'};
-			const std::string strCH = ch;
-
-			if (strENTER == strCH) break;
-
-			strPass.append(strCH);
-		}
-
-		strPassword = strPass;
+			for (;;) {
+				const char ch[] = {_getch(), '\x00'};
+				const std::string strCH = ch;
+				if (strENTER == strCH) break;
+				strPass.append(strCH);
+			}
+			strPassword = strPass;
 
 #endif
+			theOutput.setPassword(strPassword.c_str(), static_cast<int>(strPassword.length() -1));
+		}
 
-		theOutput.setPassword(strPassword.c_str(), static_cast<int>(strPassword.length() -1));
+		std::cout << std::endl; //new line.
+		return true;
 	}
-
-	std::cout << std::endl; //new line.
-	return true;
-
-    // -----------------------------------------
 #elif defined (OT_CRYPTO_USING_OPENSSL)
-    // todo security: might want to allow to set OTPassword's size and copy directly into it,
-    // so that we aren't using this temp buf in between, which, although we're zeroing it, could
-    // technically end up getting swapped to disk.
-    //
-    char buf[_PASSWORD_LEN + 10] = "", buff[_PASSWORD_LEN + 10] = "";
-    
-    int nReadPW = 0;
-        
-//  char * szPass = getpass(szPrompt); // "This function is obsolete. Do not use it."
-	if ((nReadPW = UI_UTIL_read_pw(buf,buff,_PASSWORD_LEN,szPrompt,0)) == 0) // verify=0
-    {
-        size_t nPassLength = OTString::safe_strlen(buf, _PASSWORD_LEN);
-        theOutput.setPassword_uint8(reinterpret_cast<uint8_t*>(buf), nPassLength);
-        OTPassword::zeroMemory(buf, nPassLength);
-        OTPassword::zeroMemory(buff, nPassLength);
-        return true;
-    }
-    // -----------------------------------------
-#else
-    OTLog::vError("%s: Open-Transactions is not compiled to collect "
-                  "the passphrase from the console!\n", __FUNCTION__);
-#endif
-    // -----------------------------------------
+	// todo security: might want to allow to set OTPassword's size and copy directly into it,
+	// so that we aren't using this temp buf in between, which, although we're zeroing it, could
+	// technically end up getting swapped to disk.
+	//
+	{
+		char buf[_PASSWORD_LEN + 10] = "", buff[_PASSWORD_LEN + 10] = "";
 
-    return false;
+		int nReadPW = 0;
+
+		//  char * szPass = getpass(szPrompt); // "This function is obsolete. Do not use it."
+		if ((nReadPW = UI_UTIL_read_pw(buf,buff,_PASSWORD_LEN,szPrompt,0)) == 0) // verify=0
+		{
+			size_t nPassLength = OTString::safe_strlen(buf, _PASSWORD_LEN);
+			theOutput.setPassword_uint8(reinterpret_cast<uint8_t*>(buf), nPassLength);
+			OTPassword::zeroMemory(buf, nPassLength);
+			OTPassword::zeroMemory(buff, nPassLength);
+			return true;
+		}
+		else
+			return false;
+		// -----------------------------------------
+	}
+#else
+	{
+		OTLog::vError("%s: Open-Transactions is not compiled to collect "
+			"the passphrase from the console!\n", __FUNCTION__);
+		return false;
+	}
+#endif
 }
 
 
@@ -547,7 +543,7 @@ void OTCrypto::Init()
         rlim.rlim_max = rlim.rlim_cur = 0;
         if (setrlimit(RLIMIT_CORE, &rlim))
         {
-            OT_ASSERT_MSG(false, "OTCrypto::Init: ASSERT: setrlimit failed. (Used for preventing core dumps.)\n");
+            OT_FAIL_MSG("OTCrypto::Init: ASSERT: setrlimit failed. (Used for preventing core dumps.)\n");
         }
 #endif
         
@@ -1057,16 +1053,15 @@ void ot_openssl_locking_callback(int mode, int type, const char *file, int line)
                   int& outLen)
 {
     // create a memory buffer containing base64 encoded data
-    BIO* bmem = BIO_new_mem_buf((void*)pIn, inLen);
+    OpenSSL_BIO bmem = BIO_new_mem_buf((void*)pIn, inLen);
     
     // push a Base64 filter so that reading from buffer decodes it
-    BIO *bioCmd = BIO_new(BIO_f_base64());
+    OpenSSL_BIO bioCmd = BIO_new(BIO_f_base64());
     // we don't want newlines
     BIO_set_flags(bioCmd, BIO_FLAGS_BASE64_NO_NL);
     bmem = BIO_push(bioCmd, bmem);
     
     int finalLen = BIO_read(bmem, (void*)pOut, outLen);
-    BIO_free_all(bmem);
     outLen = finalLen;
 }
 
@@ -1074,7 +1069,7 @@ void ot_openssl_locking_callback(int mode, int type, const char *file, int line)
 
 char *unbase64(unsigned char *input, int length)
 {
-    BIO *b64, *bmem;
+    OpenSSL_BIO b64(NULL), bmem(NULL);
     
     char *buffer = (char *)malloc(length);
     memset(buffer, 0, length);
@@ -1084,8 +1079,6 @@ char *unbase64(unsigned char *input, int length)
     bmem = BIO_push(b64, bmem);
     
     BIO_read(bmem, buffer, length);
-    
-    BIO_free_all(bmem);
     
     return buffer;
 }
@@ -1145,13 +1138,11 @@ extern "C"
     char * ot_openssl_base64_encode(const uint8_t * input, int in_len, int bLineBreaks)
     {
         char    * buf  = NULL;
-        BIO     * bmem = NULL;
-        BIO     * b64  = NULL;
         BUF_MEM * bptr = NULL;
         
         OT_ASSERT_MSG(in_len >= 0, "OT_base64_encode: Abort: in_len is a negative number!");
         // -------------------------------
-        b64 = BIO_new(BIO_f_base64());
+        OpenSSL_BIO b64 = BIO_new(BIO_f_base64());
         
         if (!b64)
             return buf;
@@ -1159,16 +1150,16 @@ extern "C"
         if (!bLineBreaks)
             BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
         // -------------------------------
-        bmem = BIO_new(BIO_s_mem());
+        OpenSSL_BIO bmem = BIO_new(BIO_s_mem());
         
         if (bmem)
         {
-            b64 = BIO_push(b64, bmem);
+            OpenSSL_BIO b64join = BIO_push(b64, bmem); b64.release(); bmem.release();
             
-            if (BIO_write(b64, input, in_len)==in_len)
+            if (BIO_write(b64join, input, in_len)==in_len)
             {
-                (void)BIO_flush(b64);
-                BIO_get_mem_ptr(b64, &bptr);
+                (void)BIO_flush(b64join);
+                BIO_get_mem_ptr(b64join, &bptr);
     //			OTLog::vOutput(5, "DEBUG base64_encode size: %ld,  in_len: %ld\n", bptr->length+1, in_len);
                 buf = new char[bptr->length+1];
                 OT_ASSERT(NULL != buf);
@@ -1178,18 +1169,14 @@ extern "C"
         }
         else
         {
-            OT_ASSERT_MSG(false, "Failed creating new Bio in base64_encode.\n");
+            OT_FAIL_MSG("Failed creating new Bio in base64_encode.\n");
         }
-        // -------------------------------
-        BIO_free_all(b64);
         // -------------------------------
         return buf;
     }
     
     uint8_t * ot_openssl_base64_decode(const char * input, size_t * out_len, int bLineBreaks)
     {
-        BIO * bmem = NULL,
-        * b64  = NULL;
         // -------------------------------
         OT_ASSERT(NULL != input);
         // -------------------------------
@@ -1199,26 +1186,25 @@ extern "C"
         OT_ASSERT(NULL != buf);
         memset(buf, 0, out_max_len); // todo security
         // -------------------------------
-        b64 = BIO_new(BIO_f_base64());
+        OpenSSL_BIO b64 = BIO_new(BIO_f_base64());
         
         if (b64)
         {
             if (!bLineBreaks)
                 BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
             // -------------------------------
-            bmem = BIO_new_mem_buf((char*)input, in_len); // todo casting.
+            OpenSSL_BIO bmem = BIO_new_mem_buf((char*)input, in_len); // todo casting.
             OT_ASSERT(NULL != bmem);
             // -------------------------------
-            b64 = BIO_push(b64, bmem);
-            OT_ASSERT(NULL != b64);
+            OpenSSL_BIO b64join = BIO_push(b64, bmem); b64.release(); bmem.release();
+            OT_ASSERT(NULL != b64join);
             // -------------------------------
-            *out_len = BIO_read(b64, buf, out_max_len);
-            BIO_free_all(b64);
+            *out_len = BIO_read(b64join, buf, out_max_len);
             // -------------------------------
         }
         else 
         {
-            OT_ASSERT_MSG(false, "Failed creating new Bio in base64_decode.\n");
+            OT_FAIL_MSG("Failed creating new Bio in base64_decode.\n");
         }
         
         return buf;
@@ -1744,7 +1730,7 @@ void OTCrypto_OpenSSL::Init_Override()
      
      */
 #if !defined(OPENSSL_VERSION_NUMBER) || OPENSSL_VERSION_NUMBER-0 < 0x10000000L    
-    OT_ASSERT_MSG(false, "ASSERT: Must use OpenSSL version 1.0.0 or higher.\n");
+    OT_FAIL_MSG("ASSERT: Must use OpenSSL version 1.0.0 or higher.\n");
 #endif
 
     
@@ -1854,7 +1840,7 @@ void OTCrypto_OpenSSL::Init_Override()
     
     /*
     Try to activate OpenSSL debug memory procedure:
-        BIO *pbio - BIO_new(BIO_s_file());
+        OpenSSL_BIO pbio = BIO_new(BIO_s_file());
         BIO_set_fp(out,stdout,BIO_NOCLOSE);
         CRYPTO_malloc_debug_init();
         MemCheck_start();
@@ -2427,10 +2413,10 @@ bool OTCrypto_OpenSSL::Seal(mapOfAsymmetricKeys & RecipPubKeys, const OTString &
             m_nLastPopulatedIndex(-1),
             m_bFinalized(param_Finalized)
         {
-            OT_ASSERT(NULL != param_szFunc);
-            OT_ASSERT(NULL != param_array_pubkey);
-            OT_ASSERT(NULL != param_ek);
-            OT_ASSERT(NULL != param_eklen);
+            if (NULL == param_szFunc)		OT_FAIL;
+            if (NULL == param_array_pubkey) OT_FAIL;
+            if (NULL == param_ek)           OT_FAIL;
+            if (NULL == param_eklen)        OT_FAIL;
             OT_ASSERT(m_RecipPubKeys.size() > 0);
             // ----------------------------
             // Notice that each variable is a "pointer to" the actual array that was passed in.
@@ -2459,7 +2445,7 @@ bool OTCrypto_OpenSSL::Seal(mapOfAsymmetricKeys & RecipPubKeys, const OTString &
             // (*m_ek)[] array must have m_RecipPubKeys.size() no. of elements (each will contain a pointer from OpenSSL that we must clean up.)
             //
             *m_ek = (uint8_t**)malloc(m_RecipPubKeys.size() * sizeof(uint8_t*));  
-            OT_ASSERT(NULL != *m_ek);
+            if (NULL == *m_ek) OT_FAIL;
             memset(*m_ek, 0, m_RecipPubKeys.size() * sizeof(uint8_t*)); // size of array length * sizeof(pointer)
             // ----------------------------------------------
             // (*m_eklen)[] array must also have m_RecipPubKeys.size() no. of elements (each containing a size as integer.)
@@ -4410,9 +4396,7 @@ bool OTCrypto_OpenSSL::SignContract(const OTString    & strContractUnsigned,
 		theSignature.SetData(tempData);
 		
 		return true;
-	}    
-    // ----------------------------------------------
-    return false; // should never happen.
+	}
 }
 
 
@@ -4593,7 +4577,7 @@ bool OTCrypto_OpenSSL::SignContract(const OTString    & strContractUnsigned,
 	// --------------------------------------------------------------------
 	// Create a new memory buffer on the OpenSSL side
     //
-	BIO * bio = BIO_new_mem_buf((void*)strCertFileContents.c_str(), -1);  // todo cast.
+	OpenSSL_BIO bio = BIO_new_mem_buf((void*)strCertFileContents.c_str(), -1);  // todo cast.
 	OT_ASSERT(NULL != bio);
 	// --------------------------------------------------------------------
     // TODO security:
@@ -4611,7 +4595,6 @@ bool OTCrypto_OpenSSL::SignContract(const OTString    & strContractUnsigned,
     bool       bSigned = false;
     EVP_PKEY * pkey    = PEM_read_bio_PrivateKey( bio, NULL, OTAsymmetricKey::GetPasswordCallback(), pPWData);
     
-    BIO_free_all(bio); bio = NULL;
     // --------------------------------------------------------------------
     if (NULL == pkey) 
     { 
@@ -4649,7 +4632,7 @@ bool OTCrypto_OpenSSL::VerifySignature(const OTString    & strContractToVerify,
 	// --------------------------------------------------------------------    
 	// Create a new memory buffer on the OpenSSL side
     //
-	BIO * bio = BIO_new_mem_buf((void*)strCertFileContents.c_str(), -1); // todo cast
+	OpenSSL_BIO bio = BIO_new_mem_buf((void*)strCertFileContents.c_str(), -1); // todo cast
 	OT_ASSERT(NULL != bio);	
 	// --------------------------------------------------------------------
     OTPasswordData thePWData("(OTCrypto_OpenSSL::VerifySignature is trying to read the public key...)");
@@ -4659,7 +4642,6 @@ bool OTCrypto_OpenSSL::VerifySignature(const OTString    & strContractToVerify,
     // --------------------------------------------------------------------
     X509  *  x509  = PEM_read_bio_X509(bio, NULL, OTAsymmetricKey::GetPasswordCallback(), pPWData);
     
-	BIO_free_all(bio);	bio = NULL;
 	// --------------------------
 	if (NULL == x509) 
 	{ 
@@ -4689,6 +4671,52 @@ bool OTCrypto_OpenSSL::VerifySignature(const OTString    & strContractToVerify,
 }
 
 
+// *********************************************************
+
+// OpenSSL_BIO
+
+
+//static
+BIO * OpenSSL_BIO::assertBioNotNull(BIO * pBIO)
+{
+    if (NULL == pBIO) OT_FAIL;
+    return pBIO;
+}
+
+OpenSSL_BIO::OpenSSL_BIO(BIO * pBIO) : m_refBIO(*assertBioNotNull(pBIO)), bCleanup(true), bFreeOnly(false)
+{
+}
+
+OpenSSL_BIO::~OpenSSL_BIO()
+{
+    if(bCleanup) {
+        if(NULL != &m_refBIO) {
+            if (bFreeOnly)
+            {
+                BIO_free(&m_refBIO);
+            }
+            else
+            {
+                BIO_free_all(&m_refBIO);
+            }
+        }
+    }
+}
+
+OpenSSL_BIO::operator BIO *() const
+{
+    return (&m_refBIO);
+}
+
+void OpenSSL_BIO::release()
+{
+    bCleanup = false;
+}
+
+void OpenSSL_BIO::setFreeOnly()
+{
+    bFreeOnly = true;
+}
 
 
 

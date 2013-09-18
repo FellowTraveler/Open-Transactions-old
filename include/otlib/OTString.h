@@ -342,8 +342,8 @@ EXPORT  static const std::string   replace_chars
                                      const char & charTo);
 // ----------------------------------------------
 #ifdef _WIN32
-EXPORT static inline std::wstring s2ws(const std::string  & s);
-EXPORT static inline std::string  ws2s(const std::wstring & s);
+EXPORT static std::wstring s2ws(const std::string  & s);
+EXPORT static std::string  ws2s(const std::wstring & s);
 #endif
 // ----------------------------------------------
 
@@ -459,7 +459,7 @@ EXPORT	void OTfgets(std::istream & ofs);
     EXPORT   virtual void Release(void);
     void Release_String(void);
 	// ----------------------------------------------
-    void zeroMemory();
+	EXPORT   void zeroMemory();
     // ----------------------------------------------
    // Internal properties
 protected:

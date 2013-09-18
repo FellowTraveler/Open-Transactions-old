@@ -149,9 +149,18 @@
 #define PREDEF_MODE_DEBUG 1
 #endif
 
-// x must be a boolean expression
-#define    OT_ASSERT(x)			( (false == (x)) ? OTLog::Assert(__FILE__, __LINE__)		: (1))
-#define    OT_ASSERT_MSG(x, s)	( (false == (x)) ? OTLog::Assert(__FILE__, __LINE__, (s))	: (1))
+// old, before we used std::terminate
+//#define    OT_ASSERT(x)			( (false == (x)) ? OTLog::Assert(__FILE__, __LINE__)		: (1))
+//#define    OT_ASSERT_MSG(x, s)	( (false == (x)) ? OTLog::Assert(__FILE__, __LINE__, (s))	: (1))
+
+// new, more simple OT_ASSERT, for static analysis.
+
+#define    OT_FAIL                               { OTLog::Assert(__FILE__, __LINE__);      std::terminate(); };
+#define    OT_FAIL_MSG(s)                        { OTLog::Assert(__FILE__, __LINE__, (s)); std::terminate(); };
+
+#define    OT_ASSERT(x)			if(false == (x)) { OTLog::Assert(__FILE__, __LINE__);      std::terminate(); };
+#define    OT_ASSERT_MSG(x, s)  if(false == (x)) { OTLog::Assert(__FILE__, __LINE__, (s)); std::terminate(); };
+
 
 
 #include <deque>
@@ -193,11 +202,11 @@ public:
 	//EXPORT static OTLog & It();
 
 	// now the logger checks the global config file itself for the log-filename.
-	EXPORT static const bool Init(const OTString & strThreadContext = "", const int & nLogLevel = 0);
+	EXPORT static bool Init(const OTString & strThreadContext = "", const int & nLogLevel = 0);
 
-	EXPORT static const bool IsInitialized();
+	EXPORT static bool IsInitialized();
 
-	EXPORT static const bool Cleanup();
+	EXPORT static bool Cleanup();
 
 	EXPORT static inline const bool CheckLogger(OTLog * pLogger)
 	{
@@ -227,14 +236,14 @@ public:
 	EXPORT static const char *	   LogFilePath();
 	EXPORT static const OTString & GetLogFilePath();
 
-	EXPORT static const int 	   LogLevel();
-	EXPORT static const bool	   SetLogLevel(const int & nLogLevel);
+	EXPORT static int 	   LogLevel();
+	EXPORT static bool	   SetLogLevel(const int & nLogLevel);
 
 	// --------------------------------------------------------
 	// OTLog Functions:
 	//
 
-	EXPORT static const bool		LogToFile(const OTString & strOutput);
+	EXPORT static bool		LogToFile(const OTString & strOutput);
 
 	// --------------------------------------------------
 	// We keep 1024 logs in memory, to make them available via the API.
@@ -242,13 +251,13 @@ public:
 	EXPORT static const OTString	GetMemlogAtIndex(const int nIndex);
 	EXPORT static const OTString	PeekMemlogFront();
 	EXPORT static const OTString	PeekMemlogBack(); 
-	EXPORT static const bool		PopMemlogFront();
-	EXPORT static const bool		PopMemlogBack();
-	EXPORT static const bool		PushMemlogFront(const OTString & strLog);
-	EXPORT static const bool		PushMemlogBack(const OTString & strLog);
+	EXPORT static bool		PopMemlogFront();
+	EXPORT static bool		PopMemlogBack();
+	EXPORT static bool		PushMemlogFront(const OTString & strLog);
+	EXPORT static bool		PushMemlogBack(const OTString & strLog);
 	// -------------------------------------------------
-	EXPORT static const bool		SleepSeconds(const long lSeconds);
-	EXPORT static const bool		SleepMilliseconds(const long lMilliseconds);
+	EXPORT static bool		SleepSeconds(const long lSeconds);
+	EXPORT static bool		SleepMilliseconds(const long lMilliseconds);
 
 
 	// For things that represent internal inconsistency in the code. 

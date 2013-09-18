@@ -53,7 +53,6 @@ int main(int argc, char **argv)
         CRYPTO_cleanup_all_ex_data();
 
         CRYPTO_mem_leaks(bio_err);
-        BIO_free(bio_err);
         return(0);
         }
  */
@@ -84,7 +83,7 @@ int mkcert(X509 **x509p, EVP_PKEY **pkeyp, int bits, int serial, int days)
                 if ((pk=EVP_PKEY_new()) == NULL)
                         {
                         abort(); 
-                        return(0);
+                        //return(0); undeeded after abort.
                         }
                 }
         else
@@ -159,6 +158,9 @@ int mkcert(X509 **x509p, EVP_PKEY **pkeyp, int bits, int serial, int days)
         
         if (!X509_sign(x,pk,EVP_md5()))
                 goto err;
+
+		if (NULL == x509p) goto err;
+		if (NULL == pkeyp) goto err;
 
         *x509p=x;
         *pkeyp=pk;

@@ -265,15 +265,7 @@ using namespace tthread;
 
 // ---------------------------------------------------------------------------
 
-#ifndef _WIN32
 
-void ot_terminate(void);
-
-namespace {
-	// invoke set_terminate as part of global constant initialization
-	static const bool SET_TERMINATE = std::set_terminate(ot_terminate);
-}
-#endif
 
 #ifdef ANDROID
 #include <android/log.h>
@@ -320,7 +312,8 @@ const OTString OTLog::m_strPathSeparator = "/";
 //  OTLog Init, must run this befor useing any OTLog function.
 //
 
-const bool OTLog::Init(const OTString & strThreadContext, const int & nLogLevel)
+//static
+bool OTLog::Init(const OTString & strThreadContext, const int & nLogLevel)
 {
 	if (NULL == pLogger)
 	{
@@ -372,15 +365,16 @@ const bool OTLog::Init(const OTString & strThreadContext, const int & nLogLevel)
 
 }
 
-const bool OTLog::IsInitialized()
+//static
+bool OTLog::IsInitialized()
 {
 	if (NULL == pLogger)
 		return false;
 	else return pLogger->m_bInitialized;
 }
 
-
-const bool OTLog::Cleanup()
+//static
+bool OTLog::Cleanup()
 {
 	if (NULL != pLogger)
 		{
@@ -414,12 +408,14 @@ const OTString &	OTLog::GetThreadContext()   { return pLogger->m_strThreadContex
 const char *		OTLog::LogFilePath()   { return OTLog::GetLogFilePath().Get(); }
 const OTString &	OTLog::GetLogFilePath() { return pLogger->m_strLogFilePath; }
 
-const int			OTLog::LogLevel()  { if (NULL != pLogger) return pLogger->m_nLogLevel; else return 0; }
-const bool			OTLog::SetLogLevel(const int & nLogLevel)
+//static
+int                 OTLog::LogLevel()  { if (NULL != pLogger) return pLogger->m_nLogLevel; else return 0; }
+
+//static
+bool			    OTLog::SetLogLevel(const int & nLogLevel)
 {
-    if (NULL == pLogger) { OT_ASSERT(false); }
+    if (NULL == pLogger) { OT_FAIL; }
     else { pLogger->m_nLogLevel = nLogLevel; return true; }
-    return false;
 }
 
 
@@ -435,8 +431,17 @@ const bool			OTLog::SetLogLevel(const int & nLogLevel)
 // command line utilities who might otherwise interpret it as their own input,
 // if I was actually writing to stdout.)
 //
-const bool OTLog::LogToFile(const OTString & strOutput)
+//static
+bool OTLog::LogToFile(const OTString & strOutput)
 {
+	// We now do this either way. 
+	{
+		std::cerr << strOutput.Get();	
+		std::cerr.flush();
+	}
+
+	// now log to file, if we can.
+
 	bool bHaveLogger(false);
 	if (NULL != pLogger)
 		if (pLogger->IsInitialized())
@@ -462,11 +467,6 @@ const bool OTLog::LogToFile(const OTString & strOutput)
 			}
 		}
 	}
-	//	else // We now do this either way. 
-	{
-		std::cerr << strOutput.Get();	
-		std::cerr.flush();
-	}
 
 
 	return bSuccess;
@@ -490,7 +490,7 @@ const OTString OTLog::GetMemlogAtIndex(const int nIndex)
 	}
 
 	if (NULL != OTLog::pLogger->logDeque.at(uIndex));  // check for null
-	else OT_ASSERT(false);
+	else OT_FAIL;
 
 	const OTString strLogEntry = *OTLog::pLogger->logDeque.at(uIndex);
 
@@ -520,7 +520,7 @@ const OTString OTLog::PeekMemlogFront()
 		return NULL;
 
 	if (NULL != OTLog::pLogger->logDeque.front());  // check for null
-	else OT_ASSERT(false);
+	else OT_FAIL;
 
 	const OTString strLogEntry = *OTLog::pLogger->logDeque.front();
 
@@ -538,7 +538,7 @@ const OTString OTLog::PeekMemlogBack()
 		return NULL;
 
 	if (NULL != OTLog::pLogger->logDeque.back());  // check for null
-	else OT_ASSERT(false);
+	else OT_FAIL;
 
 	const OTString strLogEntry = *OTLog::pLogger->logDeque.back();
 
@@ -546,8 +546,8 @@ const OTString OTLog::PeekMemlogBack()
 	else return "";	
 }
 
-
-const bool OTLog::PopMemlogFront()
+//static
+bool OTLog::PopMemlogFront()
 {
 	// lets check if we are Initialized in this context
 	CheckLogger(OTLog::pLogger);
@@ -564,8 +564,8 @@ const bool OTLog::PopMemlogFront()
 	return true;		
 }
 
-
-const bool OTLog::PopMemlogBack()
+//static
+bool OTLog::PopMemlogBack()
 {
 	// lets check if we are Initialized in this context
 	CheckLogger(OTLog::pLogger);
@@ -582,8 +582,8 @@ const bool OTLog::PopMemlogBack()
 	return true;			
 }
 
-
-const bool OTLog::PushMemlogFront(const OTString & strLog)
+//static
+bool OTLog::PushMemlogFront(const OTString & strLog)
 {
 	// lets check if we are Initialized in this context
 	CheckLogger(OTLog::pLogger);
@@ -600,7 +600,8 @@ const bool OTLog::PushMemlogFront(const OTString & strLog)
 	return true;
 }
 
-const bool OTLog::PushMemlogBack(const OTString & strLog)
+//static
+bool OTLog::PushMemlogBack(const OTString & strLog)
 {
 	// lets check if we are Initialized in this context
 	CheckLogger(OTLog::pLogger);
@@ -614,7 +615,8 @@ const bool OTLog::PushMemlogBack(const OTString & strLog)
 
 // -------------------------------------------------------
 
-const bool OTLog::SleepSeconds(long lSeconds)
+//static
+bool OTLog::SleepSeconds(long lSeconds)
 {
 #ifdef _WIN32
 	Sleep(1000 * lSeconds);
@@ -624,8 +626,8 @@ const bool OTLog::SleepSeconds(long lSeconds)
 	return true;
 }
 
-
-const bool OTLog::SleepMilliseconds(long lMilliseconds)
+//static
+bool OTLog::SleepMilliseconds(long lMilliseconds)
 {
 #ifdef _WIN32
 	Sleep( lMilliseconds );
@@ -639,6 +641,7 @@ const bool OTLog::SleepMilliseconds(long lMilliseconds)
 
 // This function is for things that should NEVER happen.
 // In fact you should never even call it -- use the OT_ASSERT() macro instead.
+// This Function is now only for logging, you 
 
 int OTLog::Assert(const char * szFilename, int nLinenumber, const char * szMessage)
 {
@@ -651,7 +654,7 @@ int OTLog::Assert(const char * szFilename, int nLinenumber, const char * szMessa
 		// -----------------------------
 
 #else // if Android
-		__android_log_write(ANDROID_LOG_FATAL,"OT Assert", szMessage);
+		__android_log_write(ANDROID_LOG_FATAL,"OT Assert (or Fail)", szMessage);
 #endif
 
 #ifndef _WIN32
@@ -667,13 +670,11 @@ int OTLog::Assert(const char * szFilename, int nLinenumber)
 	if ((NULL != szFilename))
 	{
 #ifndef ANDROID // if NOT android
-		std::cerr << "OT_ASSERT in " << szFilename << " at line " << nLinenumber << "\n";
-
 		// -----------------------------
-		// Grab this if we can, too...
+		// Pass it to LogToFile, as this always logs.
 		//
 		OTString strTemp;
-		strTemp.Format("OT_ASSERT in %s at line %d\n", szFilename, nLinenumber);
+		strTemp.Format("\nOT_ASSERT in %s at line %d\n", szFilename, nLinenumber);
 		LogToFile(strTemp.Get());
 		// -----------------------------
 
@@ -686,11 +687,8 @@ int OTLog::Assert(const char * szFilename, int nLinenumber)
 #ifndef _WIN32
 		print_stacktrace();
 #endif
-
 	}
-
-	abort();
-	//return -1;
+	return 1; // normal
 }
 
 
@@ -806,7 +804,7 @@ void OTLog::vOutput(int nVerbosity, const char *szOutput, ...)
 	if (bFormatted)
 		OTLog::Output(nVerbosity, strOutput.c_str());
 	else
-		if (bHaveLogger) OT_ASSERT(false);
+		if (bHaveLogger) { OT_FAIL; }
 		else assert(false); //error
 		return;
 }
@@ -841,7 +839,7 @@ void OTLog::vError(const char *szError, ...)
     // -------------------
     if (bFormatted)
         OTLog::Error(strOutput.c_str());
-	else OT_ASSERT(false);
+	else OT_FAIL;
 
 }
     
@@ -1032,6 +1030,116 @@ bool OTLog::StringFill(OTString & out_strString, const char * szString, const in
 //
 
 
+void ot_terminate(void);
+
+namespace {
+	// invoke set_terminate as part of global constant initialization
+	static const bool SET_TERMINATE = std::set_terminate(ot_terminate);
+}
+
+// This is our custom std::terminate handler for SIGABRT (and any std::terminate() call)
+//
+void ot_terminate() 
+{
+	static tthread::mutex the_Mutex;
+
+	tthread::lock_guard<tthread::mutex> lock(the_Mutex);
+
+	static bool tried_throw = false;
+
+	try {
+		// try once to re-throw currently active exception
+		if (!tried_throw) {
+			tried_throw = true;
+			throw;
+		}
+	}
+	catch (const std::exception &e) {
+		std::cerr << "ot_terminate: " << __FUNCTION__ << " caught unhandled exception. type: " << typeid(e).name() << " what(): "
+			<< e.what() << std::endl;
+	}
+	catch (...) {
+		std::cerr << "ot_terminate: " << __FUNCTION__ << " caught unknown/unhandled exception." 
+			<< std::endl;
+	}
+
+	// UNIX
+
+#ifndef _WIN32 // we don't have to deal with mangled_names on windows. (well I'm not going to atempt to).
+
+	void * array[50];
+	int size = backtrace(array, 50);
+
+	char ** messages = backtrace_symbols(array, size);    
+
+	// skip first stack frame (points here)
+	for (int i = 1; i < size && messages != NULL; ++i)
+	{
+		char *mangled_name = 0, *offset_begin = 0, *offset_end = 0;
+
+		// find parantheses and +address offset surrounding mangled name
+		for (char *p = messages[i]; *p; ++p)
+		{
+			if (*p == '(') 
+			{
+				mangled_name = p; 
+			}
+			else if (*p == '+') 
+			{
+				offset_begin = p;
+			}
+			else if (*p == ')')
+			{
+				offset_end = p;
+				break;
+			}
+		}
+
+		// if the line could be processed, attempt to demangle the symbol
+		if (mangled_name && offset_begin && offset_end && 
+			mangled_name < offset_begin)
+		{
+			*mangled_name++ = '\0';
+			*offset_begin++ = '\0';
+			*offset_end++ = '\0';
+
+			int status;
+			char * real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
+
+			// if demangling is successful, output the demangled function name
+			if (status == 0)
+			{    
+				std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
+					<< real_name << "+" << offset_begin << offset_end 
+					<< std::endl;
+
+			}
+			// otherwise, output the mangled function name
+			else
+			{
+				std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
+					<< mangled_name << "+" << offset_begin << offset_end 
+					<< std::endl;
+			}
+			if (NULL != real_name) free(real_name);
+		}
+		// otherwise, print the whole line
+		else
+		{
+			std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
+		}
+	}
+	std::cerr << std::endl;
+
+	free(messages);
+
+#endif
+
+	abort(); 
+}
+
+
+
 #ifdef _WIN32   // Windows SIGNALS
 
 // The windows version is from Stefan Wörthmüller, who wrote an excellent article
@@ -1148,8 +1256,11 @@ void   LogStackFrames(void *FaultAdress, char *eNextBP)
 #if defined(_WIN64)
 
 	typedef USHORT (WINAPI *CaptureStackBackTraceType)(__in ULONG, __in ULONG, __out PVOID*, __out_opt PULONG);
+
+	HMODULE lLoadedLib = LoadLibrary(L"kernel32.dll");
+	if (NULL == lLoadedLib) OT_FAIL;
 	CaptureStackBackTraceType func = (CaptureStackBackTraceType)
-		(GetProcAddress(LoadLibrary(L"kernel32.dll"), "RtlCaptureStackBackTrace"));
+		(GetProcAddress(lLoadedLib, "RtlCaptureStackBackTrace"));
 
 	if(func == NULL)
 		return;
@@ -1162,7 +1273,7 @@ void   LogStackFrames(void *FaultAdress, char *eNextBP)
 	void* callers[kMaxCallers];
 	int count = (func)(0, kMaxCallers, callers, NULL);
 	for(int i = 0; i < count; i++)
-		fprintf(stderr, "*** %d called from %016I64LX\n", i, callers[i]);
+		fprintf(stderr, "*** %d called from %p\n", i, callers[i]);
 
 #elif defined (_WIN32) // not _WIN64 ? Must be _WIN32
 
@@ -1249,120 +1360,6 @@ void   LogStackFrames(void *FaultAdress, char *eNextBP)
 
 #else  // if _WIN32, else:      UNIX -- SIGNALS
 
-// UNIX
-
-// This is our custom std::terminate handler for SIGABRT
-//
-void ot_terminate() 
-{
-	static tthread::mutex the_Mutex;
-
-	tthread::lock_guard<tthread::mutex> lock(the_Mutex);
-
-	static bool tried_throw = false;
-
-	try {
-		// try once to re-throw currently active exception
-		if (!tried_throw) {
-			tried_throw = true;
-			throw;
-		}
-	}
-	catch (const std::exception &e) {
-		std::cerr << "ot_terminate: " << __FUNCTION__ << " caught unhandled exception. type: " << typeid(e).name() << " what(): "
-			<< e.what() << std::endl;
-	}
-	catch (...) {
-		std::cerr << "ot_terminate: " << __FUNCTION__ << " caught unknown/unhandled exception." 
-			<< std::endl;
-	}
-
-	/*
-	void * array[50];
-	int size = backtrace(array, 50);    
-
-	std::cerr << "ot_terminate: " << __FUNCTION__ << " backtrace returned " << size << " frames\n\n";
-
-	char ** messages = backtrace_symbols(array, size);
-
-	for (int i = 0; i < size && messages != NULL; ++i) {
-	std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
-	}
-	std::cerr << std::endl;
-
-	free(messages);
-
-	abort();
-	*/
-
-	void * array[50];
-	int size = backtrace(array, 50);
-
-	char ** messages = backtrace_symbols(array, size);    
-
-	// skip first stack frame (points here)
-	for (int i = 1; i < size && messages != NULL; ++i)
-	{
-		char *mangled_name = 0, *offset_begin = 0, *offset_end = 0;
-
-		// find parantheses and +address offset surrounding mangled name
-		for (char *p = messages[i]; *p; ++p)
-		{
-			if (*p == '(') 
-			{
-				mangled_name = p; 
-			}
-			else if (*p == '+') 
-			{
-				offset_begin = p;
-			}
-			else if (*p == ')')
-			{
-				offset_end = p;
-				break;
-			}
-		}
-
-		// if the line could be processed, attempt to demangle the symbol
-		if (mangled_name && offset_begin && offset_end && 
-			mangled_name < offset_begin)
-		{
-			*mangled_name++ = '\0';
-			*offset_begin++ = '\0';
-			*offset_end++ = '\0';
-
-			int status;
-			char * real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
-
-			// if demangling is successful, output the demangled function name
-			if (status == 0)
-			{    
-				std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
-					<< real_name << "+" << offset_begin << offset_end 
-					<< std::endl;
-
-			}
-			// otherwise, output the mangled function name
-			else
-			{
-				std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
-					<< mangled_name << "+" << offset_begin << offset_end 
-					<< std::endl;
-			}
-			free(real_name);
-		}
-		// otherwise, print the whole line
-		else
-		{
-			std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
-		}
-	}
-	std::cerr << std::endl;
-
-	free(messages);
-
-	abort(); 
-}
 
 
 

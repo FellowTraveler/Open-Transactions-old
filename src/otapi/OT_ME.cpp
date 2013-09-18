@@ -2348,8 +2348,6 @@ bool OT_ME::Register_OTDB_With_Script_Chai(OTScriptChai & theScript)
 		// ----------------------------------------------------------------------
 		return true; // Success (hopefully!)
 	}
-    // ----------------------------------------------------------------------
-	return false;
 }
 
 
@@ -2373,8 +2371,6 @@ bool OT_ME::Register_CLI_With_Script_Chai(OTScriptChai & theScript)
 		// ------------------------------------------------------------------
 		return true; // Success (hopefully!)
 	}
-    // ------------------------------------------------------------------
-	return false;
 }
 
 
@@ -2775,8 +2771,6 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 
 		return true; // Success (hopefully!)
 	}
-
-	return false;
 }
 
 
@@ -2801,7 +2795,7 @@ bool NewScriptExists(const OTString & strScriptFilename, bool bIsHeader, OTStrin
 	if (3 > strScriptFilename.GetLength())
     {
 		OTLog::vError("NewScriptHeaderExists: Filename: %s  is too short!\n",strScriptFilename.Get());
-		OT_ASSERT(false);
+		OT_FAIL;
 	}
 
 	OTString strScriptsFolder(OTPaths::ScriptsFolder()); //	/usr/local   /   lib    /  opentxs
@@ -2998,8 +2992,6 @@ bool OT_ME::Register_Headers_With_Script_Chai(OTScriptChai & theScript)
 
 		return true; // Success (hopefully!)
 	}
-
-	return false;
 }
 
 

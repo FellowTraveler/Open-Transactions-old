@@ -260,7 +260,7 @@ bool ot_lockPage(void* addr, size_t len)
     }
     return true;
 #else
-	OT_ASSERT_MSG(false, "ASSERT: ot_lockPage unable to lock memory.");
+	OT_FAIL_MSG("ASSERT: ot_lockPage unable to lock memory.");
 #endif
     return false;
 }
@@ -283,7 +283,7 @@ bool ot_unlockPage(void* addr, size_t len)
     }
     return true;        
 #else
-	OT_ASSERT_MSG(false, "ASSERT: ot_unlockPage unable to unlock secret memory.");
+	OT_FAIL_MSG("ASSERT: ot_unlockPage unable to unlock secret memory.");
 #endif
     return false;
 }
@@ -980,7 +980,6 @@ bool OTPassword::randomizePassword_uint8(uint8_t * szDestination, uint32_t nNewS
 //
 int32_t OTPassword::randomizePassword(uint32_t nNewSize/*=DEFAULT_SIZE*/)
 {
-    const char * szFunc = "OTPassword::randomizePassword";
     uint32_t nSize = nNewSize;
     // ---------------------------------
 	// Wipe whatever was in there before.
@@ -1010,7 +1009,7 @@ int32_t OTPassword::randomizePassword(uint32_t nNewSize/*=DEFAULT_SIZE*/)
             m_bIsPageLocked = true;
         }
         else
-            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", __FUNCTION__);
     }    
 #endif
 	// ---------------------------------
@@ -1051,7 +1050,6 @@ bool OTPassword::randomizeMemory_uint8(uint8_t * szDestination, uint32_t nNewSiz
 //
 int32_t OTPassword::randomizeMemory(uint32_t nNewSize/*=DEFAULT_SIZE*/)
 {
-    const char * szFunc = "OTPassword::randomizeMemory";
     uint32_t nSize = nNewSize;
     // ---------------------------------
 	// Wipe whatever was in there before.
@@ -1082,7 +1080,7 @@ int32_t OTPassword::randomizeMemory(uint32_t nNewSize/*=DEFAULT_SIZE*/)
             m_bIsPageLocked = true;
         }
         else
-            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", __FUNCTION__);
     }  
 #endif
 	// ---------------------------------
@@ -1159,8 +1157,6 @@ int32_t OTPassword::addMemory(const void * vAppend, uint32_t nAppendSize)
 int32_t OTPassword::setMemory(const void * vInput, uint32_t nInputSize)
 {		
     OT_ASSERT(NULL != vInput);
-    
-    const char * szFunc = "OTPassword::setMemory";
     // ---------------------------------
 	// Wipe whatever was in there before.
     //
@@ -1191,7 +1187,7 @@ int32_t OTPassword::setMemory(const void * vInput, uint32_t nInputSize)
             m_bIsPageLocked = true;
         }
         else
-            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", __FUNCTION__);
     }    
 #endif
 
@@ -1226,14 +1222,14 @@ OTCallback::~OTCallback()
 //
 void OTCallback::runOne(const char * szDisplay, OTPassword & theOutput) // child class will override.
 { 
-	OT_ASSERT_MSG(false, "OTCallback::runOne: ASSERT (The child class was supposed to override this method.)\n");
+	OT_FAIL_MSG("OTCallback::runOne: ASSERT (The child class was supposed to override this method.)\n");
 }
 
 // Asks for password twice. (For confirmation when changing password or creating nym.)
 //
 void OTCallback::runTwo(const char * szDisplay, OTPassword & theOutput) // child class will override.
 { 
-	OT_ASSERT_MSG(false, "OTCallback::runTwo: ASSERT (The child class was supposed to override this method.)\n");
+	OT_FAIL_MSG("OTCallback::runTwo: ASSERT (The child class was supposed to override this method.)\n");
 }
 
 
