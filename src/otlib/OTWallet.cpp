@@ -1366,7 +1366,7 @@ bool OTWallet::SaveWallet(const char * szFilename/*=NULL*/)
 {	
 	if (NULL != szFilename) m_strFilename.Set(szFilename);
 	
-	if (!m_strFilename.Exists()) { OTLog::vError("%s: Filename Dosn't Exist!\n", __FUNCTION__); OT_ASSERT(false); return false; }
+	if (!m_strFilename.Exists()) { OTLog::vError("%s: Filename Dosn't Exist!\n", __FUNCTION__); OT_FAIL; }
 	
 	// ---------------------------------------------------------------
 	bool        bSuccess = false;
@@ -1451,7 +1451,7 @@ bool OTWallet::LoadWallet(const char * szFilename/*=NULL*/)
         if (!OTDB::StorePlainString(szContents, ".", szFilename))
         {
             OTLog::vError("%s: Error: Unable to create blank wallet file.\n", __FUNCTION__);
-            OT_ASSERT(false); // the end.
+            OT_FAIL; // the end.
         }
 	}
 	// --------------------------------------------------------------------
@@ -1555,7 +1555,7 @@ bool OTWallet::LoadWallet(const char * szFilename/*=NULL*/)
                         NymID = xml->getAttributeValue("id"); // message digest from hash of x.509 cert or public key.
                         
                         OTLog::vOutput(1, "NymID using Cached Key: %s\n", NymID.Get());
-						if (!NymID.Exists()) { OTLog::vError("%s: NymID using Cached Key was empty when loading wallet!\n", __FUNCTION__); OT_ASSERT(false); return false; }
+						if (!NymID.Exists()) { OTLog::vError("%s: NymID using Cached Key was empty when loading wallet!\n", __FUNCTION__); OT_FAIL; }
                         // ----------------------
                         const OTIdentifier theNymID(NymID);
                         
@@ -1573,7 +1573,7 @@ bool OTWallet::LoadWallet(const char * szFilename/*=NULL*/)
                         
                         OTLog::vOutput(2, "\n\n** Pseudonym ** (wallet listing): %s\nID: %s\n",
                                        NymName.Get(), NymID.Get());
-						if (!NymID.Exists()) { OTLog::vError("%s: NymID dosn't Exist!\n", __FUNCTION__); OT_ASSERT(false); return false; }
+						if (!NymID.Exists()) { OTLog::vError("%s: NymID dosn't Exist!\n", __FUNCTION__); OT_FAIL; }
 
                         // ----------------------
                         const OTIdentifier theNymID(NymID);

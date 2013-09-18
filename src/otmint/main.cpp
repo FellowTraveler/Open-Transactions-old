@@ -257,7 +257,7 @@ int main (int argc, char * const argv[])
 			//
 			{
 				bool bSetupPathsSuccess = false;
-				if(!OTDataFolder::Init(SERVER_CONFIG_KEY)) { OT_ASSERT(false); }
+				if(!OTDataFolder::Init(SERVER_CONFIG_KEY)) { OT_FAIL; }
 				else
 					bSetupPathsSuccess = true;
 
@@ -431,7 +431,7 @@ int main (int argc, char * const argv[])
 //			strFilename.		Format("%s%s%s",		strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get());
 //			strPUBLICFilename.	Format("%s%s%s%sPUBLIC",strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get(), ".");
 
-			if (!OTDataFolder::IsInitialized()) { OT_ASSERT(false); }
+			if (!OTDataFolder::IsInitialized()) { OT_FAIL; }
 
 			OTString strServerFolder(""), strMintFolder("");
             
@@ -439,8 +439,8 @@ int main (int argc, char * const argv[])
 //            OTLog::vError("DEBUGGING: OTFolders::Mint().Get(): %s \n",   OTFolders::Mint().Get());
 //            OTLog::vError("DEBUGGING: strServerID.Get(): %s \n",   strServerID.Get());
             
-			if (!OTPaths::AppendFolder(strMintFolder,	OTDataFolder::Get(), OTFolders::Mint())) { OT_ASSERT(false); } // mint/
-			if (!OTPaths::AppendFolder(strServerFolder,	strMintFolder,		 strServerID.Get())) { OT_ASSERT(false); } // mint/serverID
+			if (!OTPaths::AppendFolder(strMintFolder,	OTDataFolder::Get(), OTFolders::Mint())) { OT_FAIL; } // mint/
+			if (!OTPaths::AppendFolder(strServerFolder,	strMintFolder,		 strServerID.Get())) { OT_FAIL; } // mint/serverID
 
 			bool bFolderCreated;
 			if (OTPaths::BuildFolderPath(strServerFolder, bFolderCreated))

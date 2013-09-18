@@ -568,8 +568,6 @@ bool OTKeypair::SetPublicKey(const OTString & strKey, bool bEscaped/*=false*/)
 	else // the below function SetPublicKey (in the return call) expects the
         // bookends to still be there, and it will handle removing them. (Unlike PGP code above.)
 		return m_pkeyPublic->SetPublicKey(strKey, bEscaped);
-
-    return false;
 }
 
 // ***************************************************************************************
@@ -2619,7 +2617,7 @@ bool OTKeyCredential::ReEncryptKeys(OTPassword & theExportPassword, bool bImport
             else // Should never happen, but if there are other keys here, we'll preserve 'em.
             {
                 mapPrivate.insert(std::pair<std::string, std::string>(str_key_type, str_key_contents));
-                OT_ASSERT(false); // really this should never happen.
+                OT_FAIL; // really this should never happen.
             }
         }
         // ----------------------------------------
@@ -2759,8 +2757,10 @@ bool OTCredential::SignNewSubcredential(OTSubcredential & theSubCred, OTIdentifi
     OTSubkey * pSubkey   = dynamic_cast<OTSubkey *>(&theSubCred);
     const bool bIsSubkey = (NULL != pSubkey); // It's not just any subcredential -- it's a subkey!
     // --------------------------------------------------------------
-    if (!bIsSubkey) // If it's not a subkey, but rather, a normal subcredential with no keys, then it doesn't need to contain a
-        pSubkey->SetMasterSigned(OTString("")); // "master signed" version, since the entire subcredential will already be master signed, since there's no subkey to sign in that case.
+	// If it's not a subkey, but rather, a normal subcredential with no keys, then it doesn't need to contain a "master signed" version,
+	// since the entire subcredential will already be master signed, since there's no subkey to sign in that case.
+    if (!bIsSubkey) 
+        theSubCred.SetMasterSigned(OTString("")); 
     // ------------------------
     // ELSE It's a subkey...
     else // Subkeys must be self-signed, and must contain a master-signed version of themselves where the data is actually stored.
@@ -2985,6 +2985,15 @@ void OTKeyCredential::SetMetadata()
     const bool bNymID  = this->GetNymID()           .At(0, cMetaNymID);
     const bool bCredID = m_pOwner->GetMasterCredID().At(0, cMetaMasterCredID);
     const bool bSubID  = strSubcredID               .At(0, cMetaSubCredID); // In the case of the master credential, this will repeat the previous one.
+
+	if (!bNymID || !bCredID || !bSubID)
+	{
+		OTLog::vOutput(1,"%s: No metadata available:\n %s is %s, %s is %s, %s is %s", __FUNCTION__,
+			"bNymID", bNymID ? "True": "False",
+			"bCredID",bNymID ? "True": "False",
+			"bSubID", bNymID ? "True": "False");
+	}
+
     // ----------------------------------------------------
     OTSignatureMetadata theMetadata;
     // ----------------------------------------------------
@@ -3231,8 +3240,6 @@ bool OTCredential::AddNewSubkey(const int            nBits       /*=1024*/, // I
         
         return true;
     }
-    // -------------------------------------
-    return false; // Probably unreachable.
 }
 
 // --------------------------------------------------------------------------
@@ -3292,8 +3299,6 @@ bool OTCredential::AddNewSubcredential(const mapOfStrings & mapPrivate,
             *ppSubcred = pSub;
         return true;
     }
-    // -------------------------------------
-    return false; // Probably unreachable.
 }
 
 // ---------------------------------------------------------------------------------
@@ -3382,7 +3387,7 @@ OTCredential * OTCredential::CreateMaster(const OTString     & strSourceForNymID
 
 // ----------------------------------
 
-int OTCredential::GetSubcredentialCount() const
+size_t OTCredential::GetSubcredentialCount() const
 {
     return m_mapSubcredentials.size();
 }
@@ -3442,9 +3447,9 @@ const OTSubcredential * OTCredential::GetSubcredentialByIndex(int nIndex) const
 
 
 
-const std::string OTCredential::GetSubcredentialIDByIndex(int nIndex) const
+const std::string OTCredential::GetSubcredentialIDByIndex(size_t nIndex) const
 {
-    if ((nIndex < 0) || (nIndex >= m_mapSubcredentials.size()))
+    if (nIndex >= m_mapSubcredentials.size())
     {
         OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
     }

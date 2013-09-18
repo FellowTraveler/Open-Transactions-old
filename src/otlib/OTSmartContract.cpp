@@ -2421,7 +2421,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 			bSuccessLoadingPartyInbox		= thePartyInbox.VerifyAccount(*pServerNym);
 		else 
 			OTLog::Error("OTSmartContract::StashFunds: Failed trying to load party's inbox.\n");
-//			OT_ASSERT_MSG(false, "ASSERT:  TRYING TO GENERATE INBOX IN STASH FUNDS!!!\n");
+//			OT_FAIL_MSG("ASSERT:  TRYING TO GENERATE INBOX IN STASH FUNDS!!!\n");
 //			bSuccessLoadingPartyInbox		= thePartyInbox.GenerateLedger(PARTY_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
 		// --------------------------------------------------------------------
 		

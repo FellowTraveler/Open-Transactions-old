@@ -207,7 +207,7 @@ public :
 
 	EXPORT static OT_API * OTAPI();
 
-//	EXPORT static const bool & Cleanup();
+//	EXPORT static bool & Cleanup();
 
 	EXPORT static int64_t     StringToLong(const std::string & strNumber);
 	EXPORT static std::string LongToString(const int64_t     & lNumber);

@@ -3791,7 +3791,7 @@ OTItem * OTTransaction::GetItemInRefTo(const long lReference)
 {
     if (this->GetItemCountInRefTo(lReference) > 1)
     {
-        OT_ASSERT_MSG(false, "CAN'T USE GetItemInRefTo! (There are multiple items in reference to the same number...) SWITCH to using NumberOfOrigin?");
+        OT_FAIL_MSG("CAN'T USE GetItemInRefTo! (There are multiple items in reference to the same number...) SWITCH to using NumberOfOrigin?");
     }
     // -----------------------------------
 	FOR_EACH(listOfItems, m_listItems)
@@ -4936,7 +4936,7 @@ void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
                            "in payment inbox while making abbreviated payment inbox record.\n",
                           __FUNCTION__, GetTypeString());
             
-            OT_ASSERT_MSG(true == false, "ASSERT: OTTransaction::SaveAbbrevPaymentInboxRecord: Unexpected transaction type.");
+            OT_FAIL_MSG("ASSERT: OTTransaction::SaveAbbrevPaymentInboxRecord: Unexpected transaction type.");
             
             return;
     }
@@ -5008,7 +5008,7 @@ void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
 
 void OTTransaction::SaveAbbrevExpiredBoxRecord(OTString & strOutput)
 {
-	long lAdjustment = 0, lDisplayValue = 0;
+	long lDisplayValue = 0;
 	// ----------------------------------------------
     switch (m_Type) 
     {
@@ -5040,7 +5040,7 @@ void OTTransaction::SaveAbbrevExpiredBoxRecord(OTString & strOutput)
                            "in expired box while making abbreviated expired-box record.\n",
                           __FUNCTION__, GetTypeString());
             
-            OT_ASSERT_MSG(true == false, "ASSERT: OTTransaction::SaveAbbrevExpiredBoxRecord: Unexpected transaction type.");
+            OT_FAIL_MSG("ASSERT: OTTransaction::SaveAbbrevExpiredBoxRecord: Unexpected transaction type.");
 
         }
             return;
@@ -5477,7 +5477,7 @@ void OTTransaction::SaveAbbreviatedNymboxRecord(OTString & strOutput)
 		default: // All other types are irrelevant for nymbox reports.
 			OTLog::vError("%s: Unexpected %s transaction in nymbox while making abbreviated nymbox record.\n",
                           __FUNCTION__, GetTypeString());
-            OT_ASSERT_MSG(true == false, "ASSERT: OTTransaction::SaveAbbreviatedNymboxRecord: Unexpected transaction in this Nymbox.");
+            OT_FAIL_MSG("ASSERT: OTTransaction::SaveAbbreviatedNymboxRecord: Unexpected transaction in this Nymbox.");
             
 			return;
 	}
@@ -5572,7 +5572,7 @@ void OTTransaction::SaveAbbreviatedOutboxRecord(OTString & strOutput)
             OTLog::vError("OTTransaction::SaveAbbreviatedOutboxRecord: Unexpected %s transaction "
                           "in outbox while making abbreviated outbox record.\n", GetTypeString());
             
-            OT_ASSERT_MSG(true == false, "ASSERT: OTTransaction::SaveAbbreviatedOutboxRecord: unexpected transaction type.");
+            OT_FAIL_MSG("ASSERT: OTTransaction::SaveAbbreviatedOutboxRecord: unexpected transaction type.");
             
             return;
     }
@@ -5701,7 +5701,7 @@ void OTTransaction::SaveAbbreviatedInboxRecord(OTString & strOutput)
                            "in inbox while making abbreviated inbox record.\n",
                           __FUNCTION__, GetTypeString());
             
-            OT_ASSERT_MSG(true == false, "ASSERT: OTTransaction::SaveAbbreviatedInboxRecord: unexpected transaction type.");
+            OT_FAIL_MSG("ASSERT: OTTransaction::SaveAbbreviatedInboxRecord: unexpected transaction type.");
             
         }
             return;
@@ -6200,7 +6200,7 @@ long OTTransaction::GetNumberOfOrigin()
                               __FUNCTION__);
                 this->SetNumberOfOrigin(0);  // Not applicable.
                 // Comment this out later so people can't use it to crash the server:
-                OT_ASSERT_MSG(false, "In this case, you can't calculate the origin number, you must set it explicitly.");
+                OT_FAIL_MSG("In this case, you can't calculate the origin number, you must set it explicitly.");
                 break;
             default:
                 break;
@@ -6247,7 +6247,7 @@ void OTTransaction::CalculateNumberOfOrigin()
                           __FUNCTION__);
             this->SetNumberOfOrigin(0);  // Not applicable.
             // Comment this out later so people can't use it to crash the server:
-            OT_ASSERT_MSG(false, "In this case, you can't calculate the origin number, you must set it explicitly.");
+            OT_FAIL_MSG("In this case, you can't calculate the origin number, you must set it explicitly.");
             break;
         // --------------------------------------------------------------------------------------
         case chequeReceipt:   // the server drops this into your inbox, when someone deposits your cheque.
@@ -6342,7 +6342,6 @@ long OTTransaction::GetReferenceNumForDisplay()
    // ----------------------------
    long lReferenceNum = 0;
    
-	OTItem * pOriginalItem = NULL;
 	OTCleanup<OTItem> theItemAngel;
 		
 	switch (GetType()) 
@@ -6752,8 +6751,6 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
                               __FUNCTION__, this->GetTransactionNum(), this->GetNumberOfOrigin());
                 return false;
             }
-
-            return false;
         }
             break; // this break never actually happens. Above always returns, if triggered.
             // --------------------------------------------------
@@ -6947,8 +6944,6 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
                               __FUNCTION__, this->GetTransactionNum(), this->GetNumberOfOrigin());
                 return false;
             }
-			
-            return false;
         }
             break;
 		case OTTransaction::pending: // amount is stored on the transfer item, on my list of items.
@@ -7086,8 +7081,6 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
                               __FUNCTION__, this->GetTransactionNum(), this->GetNumberOfOrigin());
                 return false;
             }
-			
-            return false;
         }
             break; // this break never actually happens. Above always returns, if triggered.
         // ------------------------------------------
@@ -7222,8 +7215,6 @@ bool OTTransaction::GetMemo(OTString & strMemo)
                               __FUNCTION__, this->GetTransactionNum(), this->GetNumberOfOrigin());
                 return false;
             }
-			
-            return false;
         }
             break; // this break never actually happens. Above always returns, if triggered.
         // ------------------------------------------

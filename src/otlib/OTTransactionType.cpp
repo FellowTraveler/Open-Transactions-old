@@ -426,7 +426,7 @@ bool OTTransactionType::VerifyContractID()
 				"m_ID: %s\n m_AcctID: %s\n m_ServerID: %s\n m_AcctServerID: %s\n",
 				str1.Get(), str2.Get(), str3.Get(), str4.Get());
         
-//        OT_ASSERT(false);  // I was debugging.
+//        OT_FAIL;  // I was debugging.
         
 		return false;
 	}

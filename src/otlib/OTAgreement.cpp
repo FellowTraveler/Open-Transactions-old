@@ -454,17 +454,17 @@ bool OTAgreement::HasTransactionNum(const long & lInput) const
     if (lInput == GetTransactionNum())
         return true;
     // --------------------------------------------------
-    const int nSizeClosing = m_dequeClosingNumbers.size();
+    const size_t nSizeClosing = m_dequeClosingNumbers.size();
     
-    for (int nIndex = 0; nIndex < nSizeClosing; ++nIndex)
+    for (size_t nIndex = 0; nIndex < nSizeClosing; ++nIndex)
     {
         if (lInput == m_dequeClosingNumbers.at(nIndex))
             return true;
     }
     // --------------------------------------------------
-    const int nSizeRecipient = m_dequeRecipientClosingNumbers.size();
+    const size_t nSizeRecipient = m_dequeRecipientClosingNumbers.size();
     
-    for (int nIndex = 0; nIndex < nSizeRecipient; ++nIndex)
+    for (size_t nIndex = 0; nIndex < nSizeRecipient; ++nIndex)
     {
         if (lInput == m_dequeRecipientClosingNumbers.at(nIndex))
             return true;
@@ -480,18 +480,18 @@ void OTAgreement::GetAllTransactionNumbers(OTNumList & numlistOutput) const
     if (GetTransactionNum() > 0)
         numlistOutput.Add(GetTransactionNum());
     // --------------------------------------------------
-    const int nSizeClosing = m_dequeClosingNumbers.size();
+    const size_t nSizeClosing = m_dequeClosingNumbers.size();
     
-    for (int nIndex = 0; nIndex < nSizeClosing; ++nIndex)
+    for (size_t nIndex = 0; nIndex < nSizeClosing; ++nIndex)
     {
         const long lTemp = m_dequeClosingNumbers.at(nIndex);
         if (lTemp > 0)
             numlistOutput.Add(lTemp);
     }
     // --------------------------------------------------
-    const int nSizeRecipient = m_dequeRecipientClosingNumbers.size();
+    const size_t nSizeRecipient = m_dequeRecipientClosingNumbers.size();
     
-    for (int nIndex = 0; nIndex < nSizeRecipient; ++nIndex)
+    for (size_t nIndex = 0; nIndex < nSizeRecipient; ++nIndex)
     {
         const long lTemp = m_dequeRecipientClosingNumbers.at(nIndex);
         if (lTemp > 0)

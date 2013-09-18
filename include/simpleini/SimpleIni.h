@@ -1763,6 +1763,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::LoadMultiLineText(
         }
 
         // end the line with a NULL
+		assert(NULL != a_pData);
         cEndOfLineChar = *a_pData;
         *a_pData = 0;
 

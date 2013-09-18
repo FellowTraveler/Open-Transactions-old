@@ -831,10 +831,8 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 						return false;
 					}
 				} // for (numbers for a specific server.)
-			} // If the server ID matches
-
             break; // Only one server ID should match, so we can break after finding it.
-            
+			} // If the server ID matches  
 		} // for (deques of numbers for each server)
 	}
 	
@@ -1058,7 +1056,7 @@ long OTItem::GetNumberOfOrigin()
                 OTLog::vError("%s: In this case, you can't calculate the origin number, you must set it explicitly.\n",
                               __FUNCTION__);
                 // Comment this out later so people can't use it to crash the server:
-                OT_ASSERT_MSG(false, "In this case, you can't calculate the origin number, you must set it explicitly.");
+                OT_FAIL_MSG("In this case, you can't calculate the origin number, you must set it explicitly.");
                 break;
             default:
                 break;
@@ -1109,7 +1107,7 @@ void OTItem::CalculateNumberOfOrigin()
                           __FUNCTION__);
             this->SetNumberOfOrigin(0);  // Not applicable.
             // Comment this out later so people can't use it to crash the server:
-            OT_ASSERT_MSG(false, "In this case, you can't calculate the origin number, you must set it explicitly.");
+            OT_FAIL_MSG("In this case, you can't calculate the origin number, you must set it explicitly.");
             break;
         // ------------------------------------------------------------------------------
         case marketReceipt:         // server receipt dropped into inbox as result of market trading. Also used in inbox report.
