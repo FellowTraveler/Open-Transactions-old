@@ -143,11 +143,132 @@ using namespace io;
 
 #include "OTStorage.h"
 
+#include "OTData.h"
 
 #include "OTSignedFile.h"
 #include "OTPseudonym.h"
 #include "OTLog.h"
 
+// -------------------------------
+
+// If this returns the pointer successfully (which caller is responsible to delete)
+// that means the file loaded and verified, and the signature verified also.
+//
+//static
+OTSignedFile * OTSignedFile::LoadSignedFile(      OTPseudonym   & SIGNER_NYM,
+                                            const OTString      & LOCAL_SUBDIR,
+                                            const OTString      & FILE_NAME)
+{
+    // Caller responsible to delete.
+    //
+    OTSignedFile * pFile = new OTSignedFile(LOCAL_SUBDIR, FILE_NAME);
+    OT_ASSERT(NULL != pFile);
+    OTCleanup<OTSignedFile> theFileAngel(pFile);
+    // --------------------------
+    if (false == pFile->LoadFile())
+	{
+		OTLog::vOutput(1, "%s: Failed loading a signed folder / file: %s / %s\n\n",
+                       __FUNCTION__, LOCAL_SUBDIR.Get(), FILE_NAME.Get());
+	}
+	// We verify:
+	//
+	// 1. That the file even exists and loads.
+	// 2. That the local subdir and filename match the versions inside the file.
+	// 3. That the signature matches for the signer nym who was passed in.
+	//
+    else if (false == pFile->VerifyFile())
+    {
+        OTLog::vError("%s: Failed verifying folder / file: %s / %s\n\n",
+                      __FUNCTION__, LOCAL_SUBDIR.Get(), FILE_NAME.Get());
+    }
+    else if (false == pFile->VerifySignature(SIGNER_NYM))
+    {
+        OTString strSignerNymID;
+        SIGNER_NYM.GetIdentifier(strSignerNymID);
+        OTLog::vError("%s: Failed verifying signature on folder / file: %s / %s\n Signer Nym ID: %s\n",
+                      __FUNCTION__, LOCAL_SUBDIR.Get(), FILE_NAME.Get(), strSignerNymID.Get());
+    }
+    // NOTE: Comment out the above two blocks if you want to load a Nym without having
+    // to verify his information. (For development reasons. Never do that normally.)
+    // -----------------------------------
+    else
+	{
+		if (pFile->GetFilePayload().GetLength() > 0)
+        {
+            theFileAngel.SetCleanupTargetPointer(NULL);
+            
+			return pFile; // <====== Success...
+        }
+		else
+		{
+			const long lLength = static_cast<long> (pFile->GetFilePayload().GetLength());
+			
+			OTLog::vError("%s: Bad length (%ld) while loading folder / file: %s / %s\n",
+                          __FUNCTION__, lLength, LOCAL_SUBDIR.Get(), FILE_NAME.Get());
+		}
+	}
+    // -----------------------------------
+	return NULL;
+}
+
+// -----------------------------------------------------------------
+
+
+//static
+bool OTSignedFile::SaveSignedFile(      OTPseudonym   & SIGNER_NYM,
+                                  const OTString      & LOCAL_SUBDIR,
+                                  const OTString      & FILE_NAME,
+                                  const OTString      & CONTENTS)
+{
+	// Create an OTSignedFile object, giving it the filename (the ID) and the local directory ("nyms")
+	OTSignedFile  theFile(LOCAL_SUBDIR, FILE_NAME);
+    
+    theFile.SetFilePayload(CONTENTS);
+    
+	return theFile.SaveSignedFile(SIGNER_NYM);
+}
+
+// -----------------------------------------------------------------
+
+bool OTSignedFile::SaveSignedFile(OTPseudonym & SIGNER_NYM)
+{
+    const OTString & LOCAL_SUBDIR(this->GetFolderName());
+    const OTString & FILE_NAME   (this->GetFileName());
+    // ------------------------------------------------------------
+	OTLog::vOutput(2, "Saving to folder / file: %s / %s\n",
+                   LOCAL_SUBDIR.Get(), FILE_NAME.Get());
+    // ------------------------------------------------------------
+	// We assume *this OTSignedFile already contains the path, the filename,
+    // AND the contents.
+	//
+    OTString strSignerNymID;
+
+	if (this->SignContract(SIGNER_NYM) &&
+		this->SaveContract())
+	{
+        const bool bSaved = this->SaveFile();
+        
+        if (!bSaved)
+        {
+            SIGNER_NYM.GetIdentifier(strSignerNymID);
+            OTLog::vError("OTSignedFile::%s: Failed while calling this->SaveFile() for folder / file: %s / %s\n "
+                          "Using Signer Nym %s\n",
+                          __FUNCTION__, LOCAL_SUBDIR.Get(), FILE_NAME.Get(), strSignerNymID.Get());
+        }
+        
+		return bSaved;
+	}
+    else
+    {
+        SIGNER_NYM.GetIdentifier(strSignerNymID);
+        OTLog::vError("OTSignedFile::%s: Failed trying to sign and save folder / file: %s / %s\n Using Signer Nym %s\n",
+                      __FUNCTION__, LOCAL_SUBDIR.Get(), FILE_NAME.Get(), strSignerNymID.Get());
+    }
+	
+	return false;
+}
+
+// -----------------------------------------------------------------
 
 
 void OTSignedFile::UpdateContents()

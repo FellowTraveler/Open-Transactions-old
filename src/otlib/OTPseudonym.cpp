@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTPseudonym.cpp
  *  
@@ -188,6 +188,56 @@
 using namespace irr;
 using namespace io;
 
+// -------------------------------------
+
+bool OTPseudonym::CompareID(const OTIdentifier & theIdentifier) const
+{
+    return (theIdentifier == m_nymID);
+}
+
+// -------------------------------------
+
+bool OTPseudonym::CompareID(const OTOwner & RHS) const
+{
+	return RHS.CompareID(m_nymID);
+}
+
+// -------------------------------------
+
+const OTIdentifier & OTOwner::GetConstID() const
+{
+    return m_nymID;
+}
+
+// ----------------------------------------------------------------------------------------
+// sets internal member based in ID passed in
+void OTPseudonym::SetIdentifier(const OTIdentifier & theIdentifier)
+{
+	m_nymID = theIdentifier;
+}
+// ----------------------------------------------------------------------------------------
+
+// sets argument based on internal member
+void OTPseudonym::GetIdentifier(OTIdentifier & theIdentifier) const
+{
+	theIdentifier = m_nymID;
+}
+// ----------------------------------------------------------------------------------------
+
+// sets internal member based in ID passed in
+void OTPseudonym::SetIdentifier(const OTString & theIdentifier)
+{
+	m_nymID.SetString(theIdentifier);
+}
+// ----------------------------------------------------------------------------------------
+
+// sets argument based on internal member
+void OTPseudonym::GetIdentifier(OTString & theIdentifier) const
+{	
+	m_nymID.GetString(theIdentifier);
+}
+
+// -------------------------------------
 
 //static
 OTPseudonym * OTPseudonym::LoadPublicNym(const OTIdentifier & NYM_ID,
@@ -3402,11 +3452,6 @@ bool OTPseudonym::VerifyPseudonym() const
 }
 
 
-bool OTPseudonym::CompareID(const OTPseudonym & RHS) const
-{ 
-	return RHS.CompareID(m_nymID); 
-}
-
 
 
 // --------------------------------------------------------------
@@ -3888,7 +3933,7 @@ void OTPseudonym::GetPublicCredentials(OTString & strCredList, mapOfStrings * pm
 	OTString strNymID;
 	this->GetIdentifier(strNymID);
 	
-	strCredList.Concatenate("<?xml version=\"%s\"?>\n", "2.0"); // todo hardcoding.
+	strCredList.Concatenate("<?xml version=\"%s\"?>\n", "1.0"); // todo hardcoding.
 	
     strCredList.Concatenate("<OTuser version=\"%s\"\n"
                             " nymID=\"%s\""
@@ -3917,7 +3962,7 @@ void OTPseudonym::GetPrivateCredentials(OTString & strCredList, mapOfStrings * p
 	OTString strNymID;
 	this->GetIdentifier(strNymID);
 	
-	strCredList.Concatenate("<?xml version=\"%s\"?>\n", "2.0"); // todo hardcoding.
+	strCredList.Concatenate("<?xml version=\"%s\"?>\n", "1.0"); // todo hardcoding.
 	
     strCredList.Concatenate("<OTuser version=\"%s\"\n"
                             " nymID=\"%s\""
@@ -3963,7 +4008,7 @@ void OTPseudonym::SaveCredentialListToString(OTString & strOutput)
 	OTString strNymID;
 	this->GetIdentifier(strNymID);
 	
-	strOutput.Concatenate("<?xml version=\"%s\"?>\n", "2.0"); // todo hardcoding.
+	strOutput.Concatenate("<?xml version=\"%s\"?>\n", "1.0"); // todo hardcoding.
 	
     strOutput.Concatenate("<OTuser version=\"%s\"\n"
                           " nymID=\"%s\""
@@ -4125,7 +4170,7 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	OTString nymID;
 	this->GetIdentifier(nymID);
 	
-	strNym.Concatenate("<?xml version=\"%s\"?>\n", "2.0");
+	strNym.Concatenate("<?xml version=\"%s\"?>\n", "1.0");
 	
 	if (m_lUsageCredits == 0)
 		strNym.Concatenate("<OTuser version=\"%s\"\n"
@@ -5478,107 +5523,66 @@ bool OTPseudonym::LoadFromString(const OTString & strNym,
 }
 
 
+// ------------------------------------------
 
-
-bool OTPseudonym::LoadSignedNymfile(OTPseudonym & SIGNER_NYM)
-{
-	// Get the Nym's ID in string form
-	OTString nymID;
-	this->GetIdentifier(nymID);
-	
-	// Create an OTSignedFile object, giving it the filename (the ID) and the local directory ("nyms")
-	OTSignedFile theNymfile(OTFolders::Nym(), nymID);
-	
-	if (false == theNymfile.LoadFile())
-	{
-		OTLog::vOutput(1, "%s: Failed loading a signed nymfile: %s\n\n",
-                       __FUNCTION__, nymID.Get());
-	}
-	// We verify:
-	//
-	// 1. That the file even exists and loads.
-	// 2. That the local subdir and filename match the versions inside the file.
-	// 3. That the signature matches for the signer nym who was passed in.
-	//
-    else if (false == theNymfile.VerifyFile())
-    {
-        OTLog::vError("%s: Failed verifying nymfile: %s\n\n",
-                      __FUNCTION__, nymID.Get());
-    }
-    else if (false == theNymfile.VerifySignature(SIGNER_NYM))
-    {
-        OTString strSignerNymID;
-        SIGNER_NYM.GetIdentifier(strSignerNymID);
-        OTLog::vError("%s: Failed verifying signature on nymfile: %s\n Signer Nym ID: %s\n",
-                      __FUNCTION__, nymID.Get(), strSignerNymID.Get());
-    }
-    // NOTE: Comment out the above two blocks if you want to load a Nym without having
-    // to verify his information. (For development reasons. Never do that normally.)
-    // -----------------------------------
-    else
-	{
-		OTLog::Output(2, "Loaded and verified signed nymfile. Reading from string...\n");
-		
-		if (theNymfile.GetFilePayload().GetLength() > 0)
-			return this->LoadFromString(theNymfile.GetFilePayload()); // <====== Success...
-		else 
-		{
-			const long lLength = static_cast<long> (theNymfile.GetFilePayload().GetLength());
-			
-			OTLog::vError("%s: Bad length (%ld) while loading nymfile: %s\n",
-                          __FUNCTION__, lLength, nymID.Get());
-		}
-	}
-    // -----------------------------------
-	return false;
-}
-
-
-
-bool OTPseudonym::SaveSignedNymfile(OTPseudonym & SIGNER_NYM)
+//virtual
+bool OTPseudonym::LoadSignedFile(OTPseudonym & SIGNER_NYM)
 {
 	// Get the Nym's ID in string form
 	OTString strNymID;
 	this->GetIdentifier(strNymID);
+    // -----------------------------------
+    OTSignedFile * pFile = OTSignedFile::LoadSignedFile(SIGNER_NYM, OTFolders::Nym(), strNymID); // asserts already.
+    OTCleanup<OTSignedFile> theFileAngel(pFile);
+    // -----------------------------------
+    if (NULL != pFile)
+	{
+		OTLog::Output(2, "Loaded and verified signed nymfile. Loading from string...\n");
+		
+        return this->LoadFromString(pFile->GetFilePayload()); // <====== Success...
+	}
+    // -----------------------------------
+	return false;    
+}
 
-	// Create an OTSignedFile object, giving it the filename (the ID) and the local directory ("nyms")
-	OTSignedFile	theNymfile(OTFolders::Nym().Get(), strNymID);
-	theNymfile.GetFilename(m_strNymfile);
-	
-	OTLog::vOutput(2, "Saving nym to: %s\n", m_strNymfile.Get());
-	
+// ------------------------------------------
+
+//virtual
+bool OTPseudonym::SaveSignedFile(OTPseudonym & SIGNER_NYM)
+{
+	// Get the Nym's ID in string form
+	OTString strNymID;
+	this->GetIdentifier(strNymID);
+    // ---------------------------------------
+	OTSignedFile theFile(OTFolders::Nym(), strNymID);
+
+	theFile.GetFilename(m_strNymfile);
+		
 	// First we save this nym to a string...
-	// Specifically, the file payload string on the OTSignedFile object.
-	this->SavePseudonym(theNymfile.GetFilePayload());
+	// Specifically, the payload contents string on the OTSignedFile object.
+	this->SavePseudonym(theFile.GetFilePayload());
 
 	// Now the OTSignedFile contains the path, the filename, AND the
-	// contents of the Nym itself, saved to a string inside the OTSignedFile object.
+	// contents of the Nym itself, in the payload.
 	
-	if (theNymfile.SignContract(SIGNER_NYM) && 
-		theNymfile.SaveContract())
-	{
-        const bool bSaved = theNymfile.SaveFile();
-        
-        if (!bSaved)
-        {
-            OTString strSignerNymID;
-            SIGNER_NYM.GetIdentifier(strSignerNymID);
-            OTLog::vError("%s: Failed while calling theNymfile.SaveFile() for Nym %s using Signer Nym %s\n",
-                          __FUNCTION__, strNymID.Get(), strSignerNymID.Get());
-        }
-        
-		return bSaved;
-	}
-    else
-    {
-        OTString strSignerNymID;
-        SIGNER_NYM.GetIdentifier(strSignerNymID);
-        OTLog::vError("%s: Failed trying to sign and save Nymfile for Nym %s using Signer Nym %s\n",
-                      __FUNCTION__, strNymID.Get(), strSignerNymID.Get());
-    }
-	
-	return false;
+    return theFile.SaveSignedFile(SIGNER_NYM);
 }
+
+// ------------------------------------------
+//Deprecated
+bool OTPseudonym::LoadSignedNymfile(OTPseudonym & SIGNER_NYM)
+{
+    return this->LoadSignedFile(SIGNER_NYM);
+}
+
+// ------------------------------------------
+//Deprecated
+bool OTPseudonym::SaveSignedNymfile(OTPseudonym & SIGNER_NYM)
+{
+    return this->SaveSignedFile(SIGNER_NYM);
+}
+
+// ------------------------------------------
 
 
 /// See if two nyms have identical lists of issued transaction numbers (#s currently signed for.)
@@ -6209,38 +6213,12 @@ int OTPseudonym::GetPublicKeysBySignature(listOfAsymmetricKeys & listOutput, con
     return nCount;
 }
 
-// ----------------------------------------------------------------------------------------
-// sets internal member based in ID passed in
-void OTPseudonym::SetIdentifier(const OTIdentifier & theIdentifier)
-{
-	m_nymID = theIdentifier;
-}
-// ----------------------------------------------------------------------------------------
-
-// sets argument based on internal member
-void OTPseudonym::GetIdentifier(OTIdentifier & theIdentifier) const
-{
-	theIdentifier = m_nymID;
-}
-// ----------------------------------------------------------------------------------------
-
-// sets internal member based in ID passed in
-void OTPseudonym::SetIdentifier(const OTString & theIdentifier)
-{
-	m_nymID.SetString(theIdentifier);
-}
-// ----------------------------------------------------------------------------------------
-
-// sets argument based on internal member
-void OTPseudonym::GetIdentifier(OTString & theIdentifier) const
-{	
-	m_nymID.GetString(theIdentifier);
-}
 
 // ----------------------------------------------------------------------------------------
 
 
-OTPseudonym::OTPseudonym() : m_bMarkForDeletion(false), m_pkeypair(new OTKeypair), m_lUsageCredits(0)
+OTPseudonym::OTPseudonym()
+: OTOwner(), m_bMarkForDeletion(false), m_pkeypair(new OTKeypair), m_lUsageCredits(0)
 {
     OT_ASSERT(NULL != m_pkeypair);
 
@@ -6254,7 +6232,7 @@ void OTPseudonym::Initialize()
 }
 
 OTPseudonym::OTPseudonym(const OTString & name, const OTString & filename, const OTString & nymID)
- : m_bMarkForDeletion(false), m_pkeypair(new OTKeypair), m_lUsageCredits(0)
+ : OTOwner(nymID), m_bMarkForDeletion(false), m_pkeypair(new OTKeypair), m_lUsageCredits(0)
 {
     OT_ASSERT(NULL != m_pkeypair);
 
@@ -6269,7 +6247,8 @@ OTPseudonym::OTPseudonym(const OTString & name, const OTString & filename, const
 // -----------------------------------------------
 
 
-OTPseudonym::OTPseudonym(const OTIdentifier & nymID) : m_bMarkForDeletion(false), m_pkeypair(new OTKeypair), m_lUsageCredits(0)
+OTPseudonym::OTPseudonym(const OTIdentifier & nymID)
+: OTOwner(nymID), m_bMarkForDeletion(false), m_pkeypair(new OTKeypair), m_lUsageCredits(0)
 {
     OT_ASSERT(NULL != m_pkeypair);
 
@@ -6279,7 +6258,8 @@ OTPseudonym::OTPseudonym(const OTIdentifier & nymID) : m_bMarkForDeletion(false)
 }
 // -----------------------------------------------
 
-OTPseudonym::OTPseudonym(const OTString & strNymID) : m_bMarkForDeletion(false), m_pkeypair(new OTKeypair), m_lUsageCredits(0)
+OTPseudonym::OTPseudonym(const OTString & strNymID)
+: OTOwner(strNymID), m_bMarkForDeletion(false), m_pkeypair(new OTKeypair), m_lUsageCredits(0)
 {
     OT_ASSERT(NULL != m_pkeypair);
 

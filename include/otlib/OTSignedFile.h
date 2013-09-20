@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTSignedFile.h
  *  
@@ -144,6 +144,7 @@
 #include "OTString.h"
 #include "OTContract.h"
 
+class OTPseudonym;
 
 class OTSignedFile : public OTContract 
 {	
@@ -184,10 +185,24 @@ EXPORT	OTSignedFile(const char     * LOCAL_SUBDIR, const char     * FILE_NAME);
 EXPORT	bool LoadFile();
 EXPORT	bool SaveFile();
 // ----------------------------------
+    // Caller responsible to delete.
+EXPORT  static OTSignedFile * LoadSignedFile(OTPseudonym & SIGNER_NYM,
+                                                             const OTString     & LOCAL_SUBDIR,
+                                                             const OTString     & FILE_NAME);
+EXPORT  static bool SaveSignedFile(OTPseudonym & SIGNER_NYM, const OTString     & LOCAL_SUBDIR,
+                                                             const OTString     & FILE_NAME, const OTString & CONTENTS);
+EXPORT  bool SaveSignedFile(OTPseudonym & SIGNER_NYM);
+// ----------------------------------
         bool VerifyFile();	// Returns true or false, whether actual subdir/file matches purported subdir/file.
                             // (You should still verify the signature on it as well, if you are doing this.)
         void SetFilename(const OTString & LOCAL_SUBDIR, const OTString & FILE_NAME);
-// ----------------------------------	
+// ----------------------------------
+inline OTString & GetFolderName()                        { return m_strLocalDir;   }
+inline void       SetFolderName(const OTString &strArg)  { m_strLocalDir = strArg; m_strFoldername = strArg; }
+// ----------------------------------
+inline OTString & GetFileName()                          { return m_strSignedFilename;   }
+inline void       SetFileName(const OTString &strArg)    { m_strSignedFilename = strArg; m_strFilename = strArg; }
+// ----------------------------------
 inline OTString & GetFilePayload()                       { return m_strSignedFilePayload;   }
 inline void       SetFilePayload(const OTString &strArg) { m_strSignedFilePayload = strArg; }
 // ----------------------------------

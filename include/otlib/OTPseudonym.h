@@ -159,6 +159,8 @@
 #include "OTASCIIArmor.h"
 #include "OTAsymmetricKey.h"
 
+#include "OTOwner.h"
+
 // --------------------------------------------
 class OTItem;
 class OTTransaction;
@@ -181,7 +183,7 @@ typedef std::set<OTIdentifier>                      setOfIdentifiers;
 typedef std::map<std::string, OTCredential *>       mapOfCredentials;
 // --------------------------------------------
 
-class OTPseudonym
+class OTPseudonym : public OTOwner
 {
 private:
     bool              m_bMarkForDeletion;  // Default FALSE. When set to true, saves a "DELETED" flag with this Nym, 
@@ -193,7 +195,6 @@ private:
 	OTString          m_strCertfile;       // Filename for pem file that contains the x509 Certificate. ----BEGIN etc...
                                            // Client-side only for now.
 
-	OTString		  m_strVersion;        // This goes with the Nymfile
 	OTASCIIArmor      m_ascCert;           // Just the ascii-armor portion without BEGIN and END
     // ----------------------------------------------------
     OTString          m_strSourceForNymID; // Hash this to form the NymID. Can be a public key, or a URL, or DN info from a cert, etc.
@@ -466,9 +467,12 @@ EXPORT  bool ReEncryptPrivateCredentials(bool bImporting, OTPasswordData * pPWDa
     // ------------------------------
 	// The signer is whoever wanted to make sure these nym files haven't changed.
 	// Usually that means the server nym.  Most of the time, m_nymServer will be used as signer.
-EXPORT	bool LoadSignedNymfile(OTPseudonym & SIGNER_NYM);
-EXPORT	bool SaveSignedNymfile(OTPseudonym & SIGNER_NYM);
-    // ------------------------------------------
+EXPORT	bool LoadSignedNymfile(OTPseudonym & SIGNER_NYM); // deprecated
+EXPORT	bool SaveSignedNymfile(OTPseudonym & SIGNER_NYM); // deprecated
+// ------------------------------------------
+EXPORT  virtual bool LoadSignedFile(OTPseudonym & SIGNER_NYM); // Phasing out LoadSignedNymfile for this (virtual) function.
+EXPORT  virtual bool SaveSignedFile(OTPseudonym & SIGNER_NYM); // Phasing out SaveSignedNymfile in favor of this function.
+// ------------------------------------------
 EXPORT	bool LoadNymfile(const char * szFilename=NULL);
 EXPORT	bool LoadFromString(const OTString & strNym,
                             mapOfStrings * pMapCredentials=NULL, //pMapCredentials can be passed, if you prefer to use a specific set, instead of just loading the actual set from storage (such as during registration, when the credentials have been sent inside a message.)
@@ -506,11 +510,6 @@ EXPORT	bool SavePseudonym(std::ofstream & ofs);
 	// ------------------------------------------
 EXPORT	bool SetIdentifierByPubkey();
 	// ------------------------------------------
-EXPORT	bool CompareID(const OTIdentifier & theIdentifier) const
-        { return (theIdentifier == m_nymID); }
-	
-EXPORT  bool CompareID(const OTPseudonym & RHS) const;    
-	// ------------------------------------------
 EXPORT  const OTString & GetNymIDSource() const { return m_strSourceForNymID; } // Source for NymID for this credential. (Hash it to get ID.)
 EXPORT  const OTString & GetAltLocation() const { return m_strAltLocation;    } // Alternate download location for Nym's credential IDs. (Primary location being the source itself, but sometimes that's not feasible.)
     
@@ -519,13 +518,17 @@ EXPORT  void  SetAltLocation(const OTString & strLocation) { m_strAltLocation   
     
 EXPORT  void  SerializeNymIDSource(OTString & strOutput);
 	// ------------------------------------------
-EXPORT	const OTIdentifier & GetConstID() const { return m_nymID; } // CONST VERSION
+    // These are virtual, from OTOwner.
+EXPORT	virtual bool CompareID(const OTIdentifier & theIdentifier) const;
+EXPORT  virtual bool CompareID(const OTOwner & RHS) const;
+	// ------------------------------------------
+EXPORT	virtual const OTIdentifier & GetConstID() const { return m_nymID; } // CONST VERSION
 	
-EXPORT	void GetIdentifier(OTIdentifier & theIdentifier) const;  // BINARY VERSION
-EXPORT	void SetIdentifier(const OTIdentifier & theIdentifier);
+EXPORT	virtual void GetIdentifier(OTIdentifier & theIdentifier) const;  // BINARY VERSION
+EXPORT	virtual void SetIdentifier(const OTIdentifier & theIdentifier);
 	
-EXPORT	void GetIdentifier(OTString & theIdentifier) const; // STRING VERSION
-EXPORT	void SetIdentifier(const OTString & theIdentifier);
+EXPORT	virtual void GetIdentifier(OTString & theIdentifier) const; // STRING VERSION
+EXPORT	virtual void SetIdentifier(const OTString & theIdentifier);
     // --------------------------------------------
 EXPORT	void HarvestTransactionNumbers(const OTIdentifier & theServerID, OTPseudonym & SIGNER_NYM,
                                        OTPseudonym & theOtherNym, // OtherNym is used as a container for the server to send
