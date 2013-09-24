@@ -142,11 +142,15 @@
 #include <fstream>
 #include <string>
 
+
 #ifdef _WIN32
+#include <memory>
+#elif __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
 #include <memory>
 #else
 #include <tr1/memory>
 #endif
+
 
 #include "OTTransactionType.h"
 #include "OTString.h"
@@ -283,9 +287,13 @@ typedef std::list <OTAccount *> listOfAccounts;
 
 // -------------------------------------------------------------
 
-
+#if __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
+typedef std::shared_ptr	<OTAccount>			OTAccount_SharedPtr;
+typedef std::weak_ptr	<OTAccount>         OTAccount_WeakPtr;
+#else
 typedef std::tr1::shared_ptr	<OTAccount>			OTAccount_SharedPtr;
 typedef std::tr1::weak_ptr		<OTAccount>			OTAccount_WeakPtr;
+#endif
 
 typedef std::map<std::string, OTAccount_WeakPtr>	mapOfWeakAccounts; // mapped by ACCT ID
 

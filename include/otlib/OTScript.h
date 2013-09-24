@@ -143,6 +143,8 @@
 
 #ifdef _WIN32
 #include <memory>
+#elif __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
+#include <memory>
 #else
 #include <tr1/memory>
 #endif
@@ -151,6 +153,12 @@
 
 
 #include "OTBylaw.h"
+
+
+
+
+
+
 
 // ------------------------------------------------------------
 
@@ -220,7 +228,13 @@ EXPORT  void RemoveVariable (OTVariable & theVar);
     virtual bool ExecuteScript(OTVariable * pReturnVar=NULL)=0;
 };
 
+
+#if __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
+typedef std::shared_ptr<OTScript>  OTScript_SharedPtr;
+#else
 typedef std::tr1::shared_ptr<OTScript>  OTScript_SharedPtr;
+#endif
+
 typedef std::auto_ptr<OTScript>         OTScript_AutoPtr;
 
 // -----------------------------------
@@ -258,8 +272,12 @@ public:
     chaiscript::ChaiScript chai;
 };
 
-
+#if __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
+typedef std::shared_ptr<OTScriptChai>  OTScriptChai_SharedPtr;
+#else
 typedef std::tr1::shared_ptr<OTScriptChai>  OTScriptChai_SharedPtr;
+#endif
+
 typedef std::auto_ptr<OTScriptChai>         OTScriptChai_AutoPtr;
 
 
