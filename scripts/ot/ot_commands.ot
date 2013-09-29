@@ -4550,7 +4550,7 @@ def main_sendcheque()
         if (1 != nReturnVal)
         {
             OT_API_Output(0, "sendcheque: Failed.\n")
-            OT_API_Msg_HarvestTransactionNumbers(strResponse, strNym, false, false, false, false, false)
+            OT_API_Msg_HarvestTransactionNumbers(strResponse, strSenderNymID, false, false, false, false, false)
         }
         else
         {

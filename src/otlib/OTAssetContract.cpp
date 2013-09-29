@@ -353,7 +353,10 @@ std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor
 {
     std::stringstream sss;
     OTString strRemainder;
-    
+    // --------------------------------------------------
+    // If the original value is 0, we still want to format the
+    // string properly for a 0 value. (And then return.)
+    //
     if (0 == lOriginalValue)
     {
         sss << szSymbol << " "; // Currency symbol
@@ -372,52 +375,54 @@ std::string OTAssetContract::formatLongAmount(long & lOriginalValue, int nFactor
     }
     // --------------------------------------------------
     long lAbsoluteValue = (lOriginalValue > 0) ? lOriginalValue : (lOriginalValue * (-1));
-    // --------------------------------------------------
-    int power = 0;
+    // --------------------------------------------------    
+    long lValue     = lAbsoluteValue / nFactor; // For example, if 506 is supposed to be $5.06, then dividing 506 by factor of 100 results in 5 dollars.
+    long lRemainder = lAbsoluteValue % nFactor; // For example, if 506 is supposed to be $5.06, then 506 mod 100 results in 6 cents.
     
-    long lValue     = lAbsoluteValue / nFactor;
-    long lRemainder = lAbsoluteValue % nFactor;
-    
-    strRemainder.Format((nFactor < 2) ? "" : "%0*ld", nPower, lRemainder);
+    if (nFactor < 2) // Basically, if nFactor is 1.
+        strRemainder.Set("");
+    else
+        strRemainder.Format("%0*ld", nPower, lRemainder); // If remainder is 6 (cents) and nPower is 2, strRemainder gets set here to 06.    
     // ------------------------------------------------------
-    while (lValue / static_cast<long>(pow(static_cast<long double>(1000), power)))
-    {
-        power += 1;
-    }
-    power -= 1;
-    // ------------------------------------------------------
+    // Here we add the negative sign, if the value itself is negative.
+    //
     if (lOriginalValue < 0)
     {
 //        const std::moneypunct<char, false> &mp = std::use_facet< std::moneypunct<char, false> >(std::locale ());
 //        sss << mp.negative_sign();
-        
+     
+        // For some reason the above code isn't working, so I've got the negative sign
+        // hardcoded here to '-'.
+        //
         sss << "-";
     }
+    // ------------------------------------------------------    
+    // Here we add the currency symbol.
+    //
     sss << szSymbol << " "; // Currency symbol
     // ------------------------------------------------------
-    while (power >= 0)
+    OTString strValue;
+    strValue.Format("%ld", lValue);
+    // ---------------------------------
+    char     cTemp = '\0';
+    uint32_t uValueStrLength = strValue.GetLength();
+    // ---------------------------------
+    // Here we add the main body of the amount, including separators (commas.)
+    //
+    while (uValueStrLength > 0)
     {
-        long lPow  = static_cast<long>(pow(static_cast<long double>(1000), power));
-        long lVal  = lValue / lPow;
-        long lMultiplier = lVal*lPow;
-        // -----------------------------
-        sss <<  lValue / lPow;
-        // -----------------------------
-        power -= 1;
-        // -----------------------------
-        lValue -= lMultiplier;
-        // -----------------------------
-        if ((power >= 0) && (lMultiplier > 1))
-        {
+        cTemp = strValue.sgetc();
+        
+        sss << cTemp;
+        
+        --uValueStrLength;
+        
+        if ((uValueStrLength > 0) && (0 == (uValueStrLength % 3)))
             sss << szSeparator;
-            
-            if (lValue < 100)
-                sss << "0";
-            if (lValue < 10)
-                sss << "0";
-        }
     }
-    // -----------------------------
+    // ------------------------------------------------------
+    // Here we deal with the decimal point, etc.
+    //
     if (!(nFactor < 2))
     {
         sss << szDecimalPoint;
