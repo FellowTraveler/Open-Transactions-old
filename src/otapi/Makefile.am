@@ -52,7 +52,7 @@ libotapi_java_la_SOURCES	=	$(opentxs_swig_dir)/otapi/OTAPI-java.cxx	\
 					$(opentxs_swig_dir)/otapi/OTAPI-java.h
 
 libotapi_java_la_CXXFLAGS	=	$(common_includes) $(JNI_CPPFLAGS)
-					
+
 libotapi_java_la_LIBADD 	=	libotapi.la $(otlib_build_dir)/libot.la $(DEPS_LIBS)
 libotapi_java_la_DEPENDENCIES	=	libotapi.la $(otlib_build_dir)/libot.la
 libotapi_java_la_LDFLAGS 	=	--no-undefined
@@ -188,6 +188,23 @@ libotapi_d_la_LDFLAGS		=	--no-undefined
 
 if TRANSPORT_ZMQ
 libotapi_d_la_CXXFLAGS		+=	-DOT_ZMQ_MODE
+endif
+
+#### OT API GO
+
+if WANT_GO
+lib_LTLIBRARIES		+=	libotapi-go.la
+endif
+
+libotapi_go_la_SOURCES		=	$(opentxs_swig_dir)/otapi/OTAPI-go.cxx
+	\				$(opentxs_swig_dir)/otapi/OTAPI-go.h
+libotapi_go_la_CXXFLAGS		=	$(common_includes)
+libotapi_go_la_LIBADD		=	libotapi.la $(otlib_build_dir)/libot.la $(DEPS_LIBS)
+libotapi_go_la_DEPENDENCIES	=	libotapi.la $(otlib_build_dir)/libot.la
+libotapi_go_la_LDFLAGS		=	--no-undefined
+
+if TRANSPORT_ZMQ
+libotapi_go_la_CXXFLAGS		+=	-DOT_ZMQ_MODE
 endif
 
 ########################

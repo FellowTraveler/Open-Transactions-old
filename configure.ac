@@ -393,6 +393,15 @@ if (test "x$with_d" == "xyes"); then
 	AC_PATH_PROG([GDC_PATH],[gdc])
 fi
 
+## (Option) Add SWIG Go ##
+
+AC_ARG_WITH(
+        [go],
+        [AS_HELP_STRING([--with-go], [build Go SWIG wrapper])],
+        [])
+
+AM_CONDITIONAL([WANT_GO], [test "x$with_go" == "xyes"])
+
 #####   Output to AM   #####
 
 if (test "x$acv_mesa_CLANG" == "xyes"); then
