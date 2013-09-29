@@ -7,7 +7,7 @@ if ! swig -version > /dev/null; then
     exit 1
 fi
 
-for x in csharp java perl5 php python ruby tcl d
+for x in csharp java perl5 php python ruby tcl d go
 do
     echo Generating for $x ...
 
@@ -20,7 +20,7 @@ do
     done
 
 
-    if [ "$x" != "java" ] && [ "$x" != "csharp" ]; then
+    if [ "$x" != "java" ] && [ "$x" != "csharp" ] && [ "$x" != "go" ]; then
 	echo swig -c++ -$x -outdir glue/$x otapi/OTAPI.i
 	swig -c++ -$x -outdir glue/$x otapi/OTAPI.i
     fi
@@ -33,6 +33,11 @@ do
     if [ "$x" == "csharp" ]; then
       echo swig -c++ -$x -namespace OpenTransactions.OTAPI -dllimport otapi-csharp -outdir glue/$x otapi/OTAPI.i
       swig -c++ -"$x" -namespace OpenTransactions.OTAPI -dllimport otapi-csharp -outdir glue/$x otapi/OTAPI.i
+    fi
+
+    if [ "$x" == "go" ]; then
+	echo swig -c++ -$x -intgosize 64 -soname libotapi-go.so -outdir glue/$x otapi/OTAPI.i
+        swig -c++ -$x -intgosize 64 -soname libotapi-go.so -outdir glue/$x otapi/OTAPI.i
     fi
 
     # Move and clean up wrapper files
