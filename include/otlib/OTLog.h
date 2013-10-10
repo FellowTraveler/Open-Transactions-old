@@ -208,7 +208,7 @@ public:
 
 	EXPORT static bool Cleanup();
 
-	EXPORT static inline const bool CheckLogger(OTLog * pLogger)
+	EXPORT static inline bool CheckLogger(OTLog * pLogger)
 	{
 		if (NULL != pLogger)
 			if (pLogger->m_bInitialized) return true;
@@ -247,7 +247,7 @@ public:
 
 	// --------------------------------------------------
 	// We keep 1024 logs in memory, to make them available via the API.
-	EXPORT static const	int			GetMemlogSize(); 
+	EXPORT static int		GetMemlogSize(); 
 	EXPORT static const OTString	GetMemlogAtIndex(const int nIndex);
 	EXPORT static const OTString	PeekMemlogFront();
 	EXPORT static const OTString	PeekMemlogBack(); 

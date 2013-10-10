@@ -258,16 +258,16 @@ const bool OTCryptoConfig::GetSetAll()
     return true;
 }
 
-const uint32_t OTCryptoConfig::IterationCount()       { return GetValue(sp_nIterationCount); }
-const uint32_t OTCryptoConfig::SymmetricSaltSize()    { return GetValue(sp_nSymmetricSaltSize); }
-const uint32_t OTCryptoConfig::SymmetricKeySize()     { return GetValue(sp_nSymmetricKeySize); }
-const uint32_t OTCryptoConfig::SymmetricKeySizeMax()  { return GetValue(sp_nSymmetricKeySizeMax); }
-const uint32_t OTCryptoConfig::SymmetricIvSize()      { return GetValue(sp_nSymmetricIvSize); }
-const uint32_t OTCryptoConfig::SymmetricBufferSize()  { return GetValue(sp_nSymmetricBufferSize); }
-const uint32_t OTCryptoConfig::PublicKeysize()        { return GetValue(sp_nPublicKeysize); }
-const uint32_t OTCryptoConfig::PublicKeysizeMax()     { return GetValue(sp_nPublicKeysizeMax); }
-const uint32_t OTCryptoConfig::Digest1Size()          { return GetValue(sp_nDigest1Size); }
-const uint32_t OTCryptoConfig::Digest2Size()          { return GetValue(sp_nDigest2Size); }
+uint32_t OTCryptoConfig::IterationCount()       { return GetValue(sp_nIterationCount); }
+uint32_t OTCryptoConfig::SymmetricSaltSize()    { return GetValue(sp_nSymmetricSaltSize); }
+uint32_t OTCryptoConfig::SymmetricKeySize()     { return GetValue(sp_nSymmetricKeySize); }
+uint32_t OTCryptoConfig::SymmetricKeySizeMax()  { return GetValue(sp_nSymmetricKeySizeMax); }
+uint32_t OTCryptoConfig::SymmetricIvSize()      { return GetValue(sp_nSymmetricIvSize); }
+uint32_t OTCryptoConfig::SymmetricBufferSize()  { return GetValue(sp_nSymmetricBufferSize); }
+uint32_t OTCryptoConfig::PublicKeysize()        { return GetValue(sp_nPublicKeysize); }
+uint32_t OTCryptoConfig::PublicKeysizeMax()     { return GetValue(sp_nPublicKeysizeMax); }
+uint32_t OTCryptoConfig::Digest1Size()          { return GetValue(sp_nDigest1Size); }
+uint32_t OTCryptoConfig::Digest2Size()          { return GetValue(sp_nDigest2Size); }
 
 
 

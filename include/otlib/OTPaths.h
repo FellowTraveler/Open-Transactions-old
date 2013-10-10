@@ -275,7 +275,7 @@ private:
 	OTString	m_strDataFolderPath;
 	OTString	m_strDataConifgFilePath;
 
-	static inline const bool CheckDataFolder(OTDataFolder * pDataFolder)
+	static inline bool CheckDataFolder(OTDataFolder * pDataFolder)
 	{
 		if (NULL != pDataFolder)
 			if (pDataFolder->m_bInitialized) return true;
@@ -309,9 +309,9 @@ class OTFolders
 {
 private:
 
-    static const bool GetSetAll();
+    static bool GetSetAll();
 
-    static inline const bool GetSetFolderName(OTSettings & config, const std::string strKeyName,
+    static inline bool GetSetFolderName(OTSettings & config, const std::string strKeyName,
                                               const std::string strDefaultName, OTString & ret_strName)
     {
         if (ret_strName.Exists()) return true;

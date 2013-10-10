@@ -209,7 +209,7 @@ char const * const __TypeStrings[] =
 	"err_acct"
 };
 
-char const * const OTAccount::_GetTypeString(AccountType theType) {
+char const * OTAccount::_GetTypeString(AccountType theType) {
 	int nType = static_cast<int> (theType);
 	return __TypeStrings[nType];
 }
