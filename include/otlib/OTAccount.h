@@ -276,8 +276,8 @@ EXPORT  bool  GetInboxHash(OTIdentifier & theOutput);
 EXPORT  void  SetOutboxHash(const OTIdentifier & theInput);   
 EXPORT  bool  GetOutboxHash(OTIdentifier & theOutput);
 	// --------------------------------------------------------------
-EXPORT	static char const * const _GetTypeString(AccountType theType);
-EXPORT	char const * const GetTypeString() { return OTAccount::_GetTypeString(m_AcctType); }
+EXPORT	static char const * _GetTypeString(AccountType theType);
+EXPORT	char const * GetTypeString() { return OTAccount::_GetTypeString(m_AcctType); }
 };
 
 
@@ -287,7 +287,7 @@ typedef std::list <OTAccount *> listOfAccounts;
 
 // -------------------------------------------------------------
 
-#if __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
+#if __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L || _WIN32
 typedef std::shared_ptr	<OTAccount>			OTAccount_SharedPtr;
 typedef std::weak_ptr	<OTAccount>         OTAccount_WeakPtr;
 #else

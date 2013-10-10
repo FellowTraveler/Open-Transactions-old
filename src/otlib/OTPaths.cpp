@@ -1542,7 +1542,7 @@ OTString OTFolders::s_strUserAcct("");
 
 
 
-const bool OTFolders::GetSetAll()
+bool OTFolders::GetSetAll()
 {
     OTSettings config = OTSettings(OTPaths::GlobalConfigFile());
 
