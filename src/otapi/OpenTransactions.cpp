@@ -310,7 +310,7 @@ OTSocket::~OTSocket()
 	if (NULL != m_pMutex)	delete m_pMutex;	m_pMutex	= NULL;
 }
 
-const bool OTSocket::Init()
+bool OTSocket::Init()
 {
 	if (m_bInitialized) return false;
 	if (m_HasContext) return false;
@@ -320,7 +320,7 @@ const bool OTSocket::Init()
 	return true;
 }
 
-const bool OTSocket::Init(
+bool OTSocket::Init(
 		const long	   & lLatencySendMs,
 		const int	   & nLatencySendNoTries,
 		const long	   & lLatencyReceiveMs,
@@ -344,7 +344,7 @@ const bool OTSocket::Init(
 	return true;
 }
 
-const bool OTSocket::Init(OTSettings * pSettings)
+bool OTSocket::Init(OTSettings * pSettings)
 {
 	if (m_bInitialized) return false;
 	if (m_HasContext) return false;
@@ -383,7 +383,7 @@ const bool OTSocket::Init(OTSettings * pSettings)
 
 
 
-const bool OTSocket::NewContext()
+bool OTSocket::NewContext()
 {
 	if (!m_bInitialized) return false;
 
@@ -401,7 +401,7 @@ const bool OTSocket::NewContext()
 	return true;
 }
 
-const bool OTSocket::Connect(const OTString & strConnectPath)
+bool OTSocket::Connect(const OTString & strConnectPath)
 {
 	OT_ASSERT(NULL != m_pContext);
 
@@ -439,7 +439,7 @@ const bool OTSocket::Connect(const OTString & strConnectPath)
 
 
 // The bool means true == try again soon, false == don't try again.
-const bool OTSocket::HandlePollingError()
+bool OTSocket::HandlePollingError()
 {
 	bool bRetVal = false;
 	
@@ -469,7 +469,7 @@ const bool OTSocket::HandlePollingError()
 
 // return value bool, true == try again, false == error, failed.
 //
-const bool OTSocket::HandleSendingError()
+bool OTSocket::HandleSendingError()
 {
 	bool bRetVal = false;
 	
@@ -520,7 +520,7 @@ const bool OTSocket::HandleSendingError()
 }
 
 
-const bool OTSocket::HandleReceivingError()
+bool OTSocket::HandleReceivingError()
 {
 	bool bRetVal = false;
 	
@@ -568,7 +568,7 @@ const bool OTSocket::HandleReceivingError()
 }
 
 
-const bool OTSocket::Send(OTASCIIArmor & ascEnvelope, const OTString & strConnectPath)
+bool OTSocket::Send(OTASCIIArmor & ascEnvelope, const OTString & strConnectPath)
 {
 	OT_ASSERT_MSG(ascEnvelope.GetLength() > 0, "ascEnvelope.GetLength() > 0");
 	OT_ASSERT_MSG(NULL != m_pContext, "m_pContext == NULL in OTSocket::Send()");
@@ -660,7 +660,7 @@ const bool OTSocket::Send(OTASCIIArmor & ascEnvelope, const OTString & strConnec
 }
 // -----------------------------------
 
-const bool OTSocket::Receive(OTString & strServerReply)
+bool OTSocket::Receive(OTString & strServerReply)
 {
 	OT_ASSERT_MSG(NULL != m_pContext, "m_pContext == NULL in OTSocket::Receive()");
 	OT_ASSERT_MSG(NULL != m_pSocket, "m_pSocket == NULL in OTSocket::Receive()");
@@ -1040,7 +1040,7 @@ void OT_API::Pid::ClosePid()
 	}
 }
 
-const bool OT_API::Pid::IsPidOpen() const
+bool OT_API::Pid::IsPidOpen() const
 {
 	return this->m_bIsPidOpen;
 }
@@ -2056,7 +2056,7 @@ bool OT_API::IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdent
 // So make sure you grab a fresh pointer in such situations, after calling this.
 // (Because the one you had before will crash you.)
 //
-const bool OT_API::Wallet_ChangePassphrase()
+bool OT_API::Wallet_ChangePassphrase()
 {
     // -----------------------------------------------------
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
@@ -2395,7 +2395,7 @@ const bool OT_API::Wallet_ChangePassphrase()
 
 
 
-const bool OT_API::Wallet_CanRemoveServer(const OTIdentifier & SERVER_ID)
+bool OT_API::Wallet_CanRemoveServer(const OTIdentifier & SERVER_ID)
 {
     // -----------------------------------------------------
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
@@ -2452,7 +2452,7 @@ const bool OT_API::Wallet_CanRemoveServer(const OTIdentifier & SERVER_ID)
 	// You cannot remove the asset contract from your wallet if there are accounts in there using it.
 	// This function tells you whether you can remove the asset contract or not.(Whether there are accounts...)
 	//
-const bool OT_API::Wallet_CanRemoveAssetType(const OTIdentifier & ASSET_ID)
+bool OT_API::Wallet_CanRemoveAssetType(const OTIdentifier & ASSET_ID)
 {
     // -----------------------------------------------------
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
@@ -2493,7 +2493,7 @@ const bool OT_API::Wallet_CanRemoveAssetType(const OTIdentifier & ASSET_ID)
 //
 // returns OT_BOOL
 //
-const bool OT_API::Wallet_CanRemoveNym(const OTIdentifier & NYM_ID) 
+bool OT_API::Wallet_CanRemoveNym(const OTIdentifier & NYM_ID) 
 {	
     // -----------------------------------------------------
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
@@ -2578,7 +2578,7 @@ const bool OT_API::Wallet_CanRemoveNym(const OTIdentifier & NYM_ID)
 //
 // returns OT_BOOL
 //
-const bool OT_API::Wallet_CanRemoveAccount(const OTIdentifier & ACCOUNT_ID)
+bool OT_API::Wallet_CanRemoveAccount(const OTIdentifier & ACCOUNT_ID)
 {
     // -----------------------------------------------------
 	bool bInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
@@ -2636,7 +2636,7 @@ const bool OT_API::Wallet_CanRemoveAccount(const OTIdentifier & ACCOUNT_ID)
 // Try to remove the server contract from the wallet.
 // This will not work if there are any accounts in the wallet for the same server ID.
 //
-const bool OT_API::Wallet_RemoveServer(const OTIdentifier & SERVER_ID)
+bool OT_API::Wallet_RemoveServer(const OTIdentifier & SERVER_ID)
 {
 	// -----------------------------------------------------
 	bool bInitialized = IsInitialized();
@@ -2680,7 +2680,7 @@ const bool OT_API::Wallet_RemoveServer(const OTIdentifier & SERVER_ID)
 // Try to remove the asset contract from the wallet.
 // This will not work if there are any accounts in the wallet for the same asset type ID.
 //
-const bool OT_API::Wallet_RemoveAssetType(const OTIdentifier & ASSET_ID)
+bool OT_API::Wallet_RemoveAssetType(const OTIdentifier & ASSET_ID)
 {
     // -----------------------------------------------------
 	bool bInitialized = IsInitialized();
@@ -2713,7 +2713,7 @@ const bool OT_API::Wallet_RemoveAssetType(const OTIdentifier & ASSET_ID)
 // Try to remove the Nym from the wallet.
 // This will not work if there are any nyms in the wallet for the same server ID.
 //
-const bool OT_API::Wallet_RemoveNym(const OTIdentifier & NYM_ID)
+bool OT_API::Wallet_RemoveNym(const OTIdentifier & NYM_ID)
 {
     // -----------------------------------------------------
 	bool bInitialized = IsInitialized();
@@ -2761,7 +2761,7 @@ const bool OT_API::Wallet_RemoveNym(const OTIdentifier & NYM_ID)
 //
 // Returns bool on success, and strOutput will contain the exported data.
 //
-const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput)
+bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput)
 {
 	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_FAIL; }
 	// -----------------------------------------------------
@@ -2936,7 +2936,7 @@ const bool OT_API::Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strO
 // Also on failure, if the Nym was already there with that ID, and if pNymID is passed,
 // then it will be set to the ID that was already there.
 //
-const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
+bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
 {
 	// -----------------------------------------------------
 	OTWallet * pWallet = GetWallet(__FUNCTION__); // This logs and ASSERTs already.
@@ -3245,7 +3245,7 @@ const bool OT_API::Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier
 // then it will be set to the ID that was already there.
 //
 
-const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
+bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & FILE_CONTENTS, OTIdentifier * pNymID/*=NULL*/)
 {
 	// -----------------------------------------------------
 	OTWallet * pWallet = GetWallet(__FUNCTION__); // This logs and ASSERTs already.
@@ -3332,7 +3332,7 @@ const bool OT_API::Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTStri
 
 
 
-const bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput)
+bool OT_API::Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput)
 {
 	if (NYM_ID.IsEmpty()) { OTLog::vError("%s: NYM_ID is empty!", __FUNCTION__); OT_FAIL; }
 	// -----------------------------------------------------

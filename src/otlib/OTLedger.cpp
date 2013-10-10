@@ -188,7 +188,7 @@ char const * const __TypeStrings[] =
 	"error_state"
 };
 
-char const * const OTLedger::_GetTypeString(ledgerType theType) {
+char const * OTLedger::_GetTypeString(ledgerType theType) {
 	int nType = static_cast<int> (theType);
 	return __TypeStrings[nType];
 }

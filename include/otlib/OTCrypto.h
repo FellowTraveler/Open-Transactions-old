@@ -244,7 +244,7 @@ class OTCryptoConfig
 private:
 	static const bool GetSetAll();
 
-    static inline const bool GetSetValue(OTSettings & config, const std::string strKeyName,
+    static inline bool GetSetValue(OTSettings & config, const std::string strKeyName,
 		                                 const int32_t nDefaultValue, const int32_t *& out_nValue)
 
 	{
@@ -288,16 +288,16 @@ private:
 
 public:
 
-	EXPORT static const uint32_t IterationCount();
-	EXPORT static const uint32_t SymmetricSaltSize();
-	EXPORT static const uint32_t SymmetricKeySize();
-	EXPORT static const uint32_t SymmetricKeySizeMax();
-	EXPORT static const uint32_t SymmetricIvSize();
-	EXPORT static const uint32_t SymmetricBufferSize();
-	EXPORT static const uint32_t PublicKeysize();
-	EXPORT static const uint32_t PublicKeysizeMax();
-	EXPORT static const uint32_t Digest1Size();
-	EXPORT static const uint32_t Digest2Size();
+	EXPORT static uint32_t IterationCount();
+	EXPORT static uint32_t SymmetricSaltSize();
+	EXPORT static uint32_t SymmetricKeySize();
+	EXPORT static uint32_t SymmetricKeySizeMax();
+	EXPORT static uint32_t SymmetricIvSize();
+	EXPORT static uint32_t SymmetricBufferSize();
+	EXPORT static uint32_t PublicKeysize();
+	EXPORT static uint32_t PublicKeysizeMax();
+	EXPORT static uint32_t Digest1Size();
+	EXPORT static uint32_t Digest2Size();
 
 
 };

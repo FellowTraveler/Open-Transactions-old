@@ -235,9 +235,9 @@ class OTSocket
 
 	OTASCIIArmor	m_ascLastMsgSent;
 
-	bool const HandlePollingError();
-	bool const HandleSendingError();
-	bool const HandleReceivingError();
+	bool HandlePollingError();
+	bool HandleSendingError();
+	bool HandleReceivingError();
 
 public:
 
@@ -246,9 +246,9 @@ public:
 	EXPORT	OTSocket();
 	EXPORT ~OTSocket();
 
-	EXPORT const bool Init();
+	EXPORT bool Init();
 
-	EXPORT const bool Init(
+	EXPORT bool Init(
 		const long	   & lLatencySendMs,
 		const int	   & nLatencySendNoTries,
 		const long	   & lLatencyReceiveMs,
@@ -257,14 +257,14 @@ public:
 		const bool	   & bIsBlocking
 		);
 
-	EXPORT const bool Init(OTSettings * pSettings);
+	EXPORT bool Init(OTSettings * pSettings);
 
-	EXPORT const bool NewContext();
+	EXPORT bool NewContext();
 
-	EXPORT const bool Connect(const OTString & strConnectPath);
+	EXPORT bool Connect(const OTString & strConnectPath);
 
-	EXPORT const bool Send(OTASCIIArmor & ascEnvelope, const OTString & strConnectPath);
-	EXPORT const bool Receive(OTString & strServerReply); // -----BEGIN OT ARMORED ENVELOPE  (or MESSAGE)
+	EXPORT bool Send(OTASCIIArmor & ascEnvelope, const OTString & strConnectPath);
+	EXPORT bool Receive(OTString & strServerReply); // -----BEGIN OT ARMORED ENVELOPE  (or MESSAGE)
 
 	EXPORT const bool &		IsInitialized()		 const { return m_bInitialized;	  }
 	EXPORT const bool &		HasContext()		 const { return m_HasContext;	  }
@@ -317,7 +317,7 @@ private:
 		~Pid();
 		void OpenPid(const OTString strPidFilePath);
 		void ClosePid();
-		const bool IsPidOpen() const;
+		bool IsPidOpen() const;
 	};
 
     Pid & m_refPid;  // only one pid reference per instance, must not change
@@ -479,24 +479,24 @@ public:
 	
     // --------------------------------------------
     
-	EXPORT const bool Wallet_ChangePassphrase();
+	EXPORT bool Wallet_ChangePassphrase();
 
 
-	EXPORT const bool Wallet_CanRemoveServer(const OTIdentifier & SERVER_ID);
-	EXPORT const bool Wallet_CanRemoveAssetType(const OTIdentifier & ASSET_ID);
-	EXPORT const bool Wallet_CanRemoveNym(const OTIdentifier & NYM_ID);
-	EXPORT const bool Wallet_CanRemoveAccount(const OTIdentifier & ACCOUNT_ID);
+	EXPORT bool Wallet_CanRemoveServer(const OTIdentifier & SERVER_ID);
+	EXPORT bool Wallet_CanRemoveAssetType(const OTIdentifier & ASSET_ID);
+	EXPORT bool Wallet_CanRemoveNym(const OTIdentifier & NYM_ID);
+	EXPORT bool Wallet_CanRemoveAccount(const OTIdentifier & ACCOUNT_ID);
 
-	EXPORT const bool Wallet_RemoveServer(const OTIdentifier & SERVER_ID);
-	EXPORT const bool Wallet_RemoveAssetType(const OTIdentifier & ASSET_ID);
-	EXPORT const bool Wallet_RemoveNym(const OTIdentifier & NYM_ID);
+	EXPORT bool Wallet_RemoveServer(const OTIdentifier & SERVER_ID);
+	EXPORT bool Wallet_RemoveAssetType(const OTIdentifier & ASSET_ID);
+	EXPORT bool Wallet_RemoveNym(const OTIdentifier & NYM_ID);
 
     // OT has the capability to export a Nym (normally stored in several files) as an encoded
     // object (in base64-encoded form) and then import it again.
     //
     // Returns bool on success, and strOutput will contain the exported data.
     //
-    EXPORT const bool Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput);
+    EXPORT bool Wallet_ExportNym(const OTIdentifier & NYM_ID, OTString & strOutput);
     
     // OT has the capability to export a Nym (normally stored in several files) as an encoded
     // object (in base64-encoded form) and then import it again.
@@ -505,7 +505,7 @@ public:
     // Also on failure, if the Nym was already there with that ID, and if pNymID is passed,
     // then it will be set to the ID that was already there.
     //
-    EXPORT const bool Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNymID=NULL);
+    EXPORT bool Wallet_ImportNym(const OTString & FILE_CONTENTS, OTIdentifier * pNymID=NULL);
     
     // In this case, instead of importing a special "OT Nym all-in-one exported" file format,
     // we are importing the public/private keys only, from their Cert file contents, and then
@@ -516,12 +516,12 @@ public:
     // Also on failure, if the Nym was already there with that ID, and if pNymID is passed,
     // then it will be set to the ID that was already there.
     //
-    EXPORT const bool Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & FILE_CONTENTS, OTIdentifier * pNymID=NULL);
+    EXPORT bool Wallet_ImportCert(const OTString & DISPLAY_NAME, const OTString & FILE_CONTENTS, OTIdentifier * pNymID=NULL);
     
     // Removes master key and sets a normal passphrase on the Cert.
     // Similar to ExportNym except it only exports the Cert portion.
     //
-    EXPORT const bool Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput);
+    EXPORT bool Wallet_ExportCert(const OTIdentifier & NYM_ID, OTString & strOutput);
     
 	// ----------------------------------------------------
     // First three arguments denote the existing purse.

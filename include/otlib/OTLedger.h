@@ -328,8 +328,8 @@ EXPORT	bool GenerateLedger(const OTIdentifier & theAcctID, const OTIdentifier & 
 
 EXPORT	virtual bool SaveContractWallet(std::ofstream & ofs);
 	// --------------------------------------------------------------
-EXPORT	static  char const * const _GetTypeString(ledgerType theType);
-EXPORT          char const * const GetTypeString() { return OTLedger::_GetTypeString(m_Type); }
+EXPORT	static  char const * _GetTypeString(ledgerType theType);
+EXPORT          char const * GetTypeString() { return OTLedger::_GetTypeString(m_Type); }
 	
 	// --------------------------------------------------------------
 };

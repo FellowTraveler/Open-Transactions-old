@@ -502,7 +502,7 @@ const OTString OTLog::GetMemlogAtIndex(const int nIndex)
 // --------------------------------------------------
 // We keep 1024 logs in memory, to make them available via the API.
 
-const int OTLog::GetMemlogSize() 
+int OTLog::GetMemlogSize() 
 {
 	// lets check if we are Initialized in this context
 	CheckLogger(OTLog::pLogger);

@@ -228,7 +228,7 @@ char const * const __TypeStrings[] =
 	"error_state"	
 };
 
-const char * const OTTransaction::_GetTypeString(transactionType theType) {
+const char * OTTransaction::_GetTypeString(transactionType theType) {
 	int nType = static_cast<int> (theType);
 	return __TypeStrings[nType];
 }
