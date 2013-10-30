@@ -54,7 +54,7 @@ test_command "showpurse" "opentxs showpurse --mynym ${FTNYM} --server ${SERVER} 
 
 #exportcash     export a cash purse.
 COMPLEX_COMMAND='opentxs exportcash --mypurse '${SILVERPURSE}' --mynym '${FTNYM}' --hisnym '${BOBNYM}' --server '${SERVER}''
-ARGS='memo \"Test export cash memo. \" amount 42'
+ARGS='memo "Test export cash memo. " amount 42'
 test_command "export" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #showpurse      show contents of cash purse.
@@ -72,7 +72,7 @@ test_command "showpurse" "opentxs showpurse --mynym ${BOBNYM} --server ${SERVER}
 
 #withdrawvoucher     withdraw from myacct as a voucher (cashier's cheque.)
 COMPLEX_COMMAND='opentxs buyvoucher --myacct '${FTACCT}' --hisnym '${BOBNYM}''
-ARGS='memo \"Test withdraw voucher memo. \" amount 3'
+ARGS='memo "Test withdraw voucher memo. " amount 3'
 test_command "buyvoucher" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #deposit		deposit cash, cheque, voucher, or tokens.
@@ -85,7 +85,7 @@ test_command "deposit" "${COMPLEX_COMMAND}"
 
 #writecheque	write a cheque and print it out to the screen.
 COMPLEX_COMMAND='opentxs writecheque --myacct '${FTACCT}' --hisnym '${BOBNYM}''
-ARGS='memo \"Test write cheque memo. \" amount 10 validfor 2592000'
+ARGS='memo "Test write cheque memo. " amount 10 validfor 2592000'
 test_command "writecheque" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #deposit		deposit cash, cheque, voucher, or tokens.
@@ -98,7 +98,7 @@ test_command "deposit" "${COMPLEX_COMMAND}"
 
 #writeinvoice	write an invoice and print it out to the screen.
 COMPLEX_COMMAND='opentxs writeinvoice --myacct '${FTACCT}' --hisnym '${BOBNYM}''
-ARGS='memo \"Test write invoice memo. \" amount 1 validfor 2592000'
+ARGS='memo "Test write invoice memo. " amount 1 validfor 2592000'
 test_command "writeinvoice" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #deposit		deposit cash, cheque, voucher, or tokens.

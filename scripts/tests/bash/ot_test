@@ -62,12 +62,13 @@ function test_command {
 
 # Example test command with good escapes/quotes
 #COMPLEX_COMMAND='opentxs testcommand --mynym '${FTNYM}' --hisnym '${BOBNYM}''
-#ARGS='memo \"Test testcommand memo. \" amount 2'
+#MEMO="memo \"Test FT's testcommand memo. \""
+#ARG1='amount 2'
+#ARGS=''${MEMO}' '${ARG1}''
 #test_command "testcommand" "${COMPLEX_COMMAND}" "${ARGS}"
 
 # (end test zone)
 # ----------------------------------------------------------------------------------------
-
 
 
 #showaccounts	show the asset accounts in the wallet.
@@ -147,7 +148,9 @@ test_command "showacct" "opentxs showacct --myacct ${BOBACCT}"
 
 #sendcash	send cash from mypurse to recipient, withdraw since purse should be empty.
 COMPLEX_COMMAND='opentxs sendcash --myacct '${FTACCT}' --hisnym '${BOBNYM}''
-ARGS='memo \"Test sendcash memo.\" amount 16'
+MEMO="memo \"Test FT's sendcash memo.\""
+ARG1='amount 16'
+ARGS=''${MEMO}' '${ARG1}''
 test_command "sendcash" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #acceptmoney	accept all incoming transfers and payments into MyAcct.
@@ -165,7 +168,9 @@ test_command "showacct" "opentxs showacct --myacct ${BOBACCT}"
 
 #transfer       send a transfer from myacct to hisacct.
 COMPLEX_COMMAND='opentxs transfer --myacct '${FTACCT}' --hisacct '${BOBACCT}''
-ARGS='memo \"Test transfer memo.\" amount 11'
+MEMO="memo \"Test FT's transfer memo.\""
+ARG1='amount 11'
+ARGS=''${MEMO}' '${ARG1}''
 test_command "transfer" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #outbox         display outbox of a particular account.
@@ -234,7 +239,10 @@ test_command "outmail" "${COMPLEX_COMMAND}"
 
 #sendcheque     write a cheque and then send it to the hisnym.
 COMPLEX_COMMAND='opentxs sendcheque --myacct '${FTACCT}' --hisnym '${BOBNYM}''
-ARGS='memo \"Test send cheque memo. \" amount 1 validfor 2592000'
+MEMO="memo \"Test FT's send cheque memo. \""
+ARG1='amount 1'
+ARG2='validfor 2592000'
+ARGS=''${MEMO}' '${ARG1}' '${ARG2}''
 test_command "sendcheque" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #outpayment    display contents of outgoing payments box.
@@ -296,7 +304,9 @@ test_command "outpayment" "opentxs outpayment --mynym ${FTNYM}"
 
 #transfer       send a transfer from myacct to hisacct.
 COMPLEX_COMMAND='opentxs transfer --myacct '${FTACCT}' --hisacct '${BOBACCT}''
-ARGS='memo \"Test transfer memo.\" amount 12'
+MEMO="memo \"Test FT's transfer memo.\""
+ARG1='amount 12'
+ARGS=''${MEMO}' '${ARG1}''
 test_command "transfer" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #refresh        refresh Bob's intermediary files before looking at his inbox.
@@ -317,7 +327,10 @@ test_command "inbox" "opentxs inbox --myacct ${BOBACCT}"
 
 #sendinvoice	write an invoice and then send it to the recipient.
 COMPLEX_COMMAND='opentxs sendinvoice --myacct '${FTACCT}' --hisnym '${BOBNYM}''
-ARGS='memo \"Test send invoice memo. \" amount 2 validfor 2592000'
+MEMO="memo \"Test FT's send invoice memo.\""
+ARG1='amount 2'
+ARG2='validfor 2592000'
+ARGS=''${MEMO}' '${ARG1}' '${ARG2}''
 test_command "sendinvoice" "${COMPLEX_COMMAND}" "${ARGS}"
 
 #outpayment    display contents of outgoing payments box.
@@ -378,8 +391,12 @@ test_command "outpayment" "opentxs outpayment --mynym ${FTNYM}"
 #
 #sendvoucher	withdraw a voucher and then send it to the recipient.
 COMPLEX_COMMAND='opentxs sendvoucher --mynym '${FTNYM}' --myacct '${FTACCT}' --hisnym '${BOBNYM}''
-ARGS='memo \"Test send voucher memo. \" amount 2'
+MEMO="memo \"Test FT's send voucher memo.\""
+ARG1='amount 2'
+ARGS=''${MEMO}' '${ARG1}''
 test_command "sendvoucher" "${COMPLEX_COMMAND}" "${ARGS}"
+
+
 
 #
 #
