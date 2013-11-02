@@ -968,13 +968,86 @@ bool OTAPI_Wrap::RevokeSubcredential(const std::string & NYM_ID, const std::stri
 }
 
 
+
+std::string OTAPI_Wrap::CalculateAssetContractID(const std::string & str_Contract)
+{
+	// -----------------------------------------------------
+	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
+	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);  OT_FAIL; }
+	// -----------------------------------------------------
+	if (str_Contract.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "str_Contract" ); OT_FAIL; }
+	// -----------------------------------------------------
+	std::string str_Trim(str_Contract);
+	std::string str_Trim2 = OTString::trim(str_Trim);
+	OTString strContract(str_Trim2.c_str());
+    
+	if (strContract.GetLength() < 2)
+	{
+		OTLog::vOutput(0, "%s: Empty contract passed in!\n", __FUNCTION__);
+		return "";
+	}
+	// -------------------------------------------
+	OTAssetContract theContract;
+
+    if (theContract.LoadContractFromString(strContract))
+    {
+        // -------------------------------------------
+        OTIdentifier idOutput;
+        theContract.CalculateContractID(idOutput);
+        const OTString strOutput(idOutput);
+        // -------------------------------------------
+        std::string pBuf = strOutput.Get();
+        
+        return pBuf;
+    }
+    // ----------------
+    return "";
+}
+
+
+std::string OTAPI_Wrap::CalculateServerContractID(const std::string & str_Contract)
+{
+	// -----------------------------------------------------
+	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
+	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);  OT_FAIL; }
+	// -----------------------------------------------------
+	if (str_Contract.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "str_Contract" ); OT_FAIL; }
+	// -----------------------------------------------------
+	std::string str_Trim(str_Contract);
+	std::string str_Trim2 = OTString::trim(str_Trim);
+	OTString strContract(str_Trim2.c_str());
+    
+	if (strContract.GetLength() < 2)
+	{
+		OTLog::vOutput(0, "%s: Empty contract passed in!\n", __FUNCTION__);
+		return "";
+	}
+	// -------------------------------------------
+	OTServerContract theContract;
+
+    if (theContract.LoadContractFromString(strContract))
+    {
+        // -------------------------------------------
+        OTIdentifier idOutput;
+        theContract.CalculateContractID(idOutput);
+        const OTString strOutput(idOutput);
+        // -------------------------------------------
+        std::string pBuf = strOutput.Get();
+        
+        return pBuf;
+    }
+    // ----------------
+    return "";
+}
+
+
 // Creates a contract based on the contents passed in,
 // then sets the contract key based on the NymID,
 // and signs it with that Nym.
 // This function will also ADD the contract to the wallet.
 // Returns: the new contract ID, or "" if failure.
 //
-std::string OTAPI_Wrap::CreateServerContract(const std::string & NYM_ID, const std::string & strXMLcontents )
+std::string OTAPI_Wrap::CreateServerContract(const std::string & NYM_ID, const std::string & strXMLcontents)
 {
 	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
@@ -1179,9 +1252,9 @@ std::string OTAPI_Wrap::GetServer_Contract(const std::string & SERVER_ID) // Ret
 {
 	// -----------------------------------------------------
 	bool bIsInitialized = OTAPI_Wrap::OTAPI()->IsInitialized();
-	if (!bIsInitialized) { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_FAIL; }
-
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_FAIL; }
+    
+	if (!bIsInitialized)   { OTLog::vError("%s: Not initialized; call OT_API::Init first.\n",__FUNCTION__);	OT_FAIL; }
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"        ); OT_FAIL; }
 	// -----------------------------------------------------
 
 	// --------------------------------------------------------------------
@@ -1284,8 +1357,7 @@ std::string OTAPI_Wrap::GetAssetType_Contract(const std::string & ASSET_TYPE_ID)
 //
 int32_t OTAPI_Wrap::AddServerContract(const std::string & strContract)
 {
-	if (strContract.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strContract"			); OT_FAIL; }
-
+	if (strContract.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strContract" ); OT_FAIL; }
 	// -----------------------------------------------------
 	OTWallet * pWallet = OTAPI_Wrap::OTAPI()->GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pWallet) return false;
@@ -1330,8 +1402,7 @@ int32_t OTAPI_Wrap::AddServerContract(const std::string & strContract)
 //
 int32_t OTAPI_Wrap::AddAssetContract(const std::string & strContract)
 {
-	if (strContract.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strContract"			); OT_FAIL; }
-
+	if (strContract.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "strContract" ); OT_FAIL; }
 	// -----------------------------------------------------
 	OTWallet * pWallet = OTAPI_Wrap::OTAPI()->GetWallet(__FUNCTION__); // This logs and ASSERTs already.
 	if (NULL == pWallet) return false;

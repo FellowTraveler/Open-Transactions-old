@@ -541,6 +541,18 @@ string OTAPI_Basic::CreateAssetContract(
 		);
 }
 
+
+std::string OTAPI_Basic::CalculateAssetContractID(const std::string & str_Contract)
+{
+	return OTAPI_Wrap::CalculateAssetContractID(str_Contract);
+}
+
+std::string OTAPI_Basic::CalculateServerContractID(const std::string & str_Contract)
+{
+	return OTAPI_Wrap::CalculateServerContractID(str_Contract);
+}
+
+
 long OTAPI_Basic::AddServerContract(const string & strContract)
 {
 	return OTAPI_Wrap::AddServerContract(

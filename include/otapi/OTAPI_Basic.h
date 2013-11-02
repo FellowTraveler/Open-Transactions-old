@@ -510,6 +510,9 @@ public:
 	EXPORT static std::string CreateServerContract(const std::string & NYM_ID, const std::string & strXMLcontents );
 	EXPORT static std::string CreateAssetContract (const std::string & NYM_ID, const std::string & strXMLcontents );
 
+    EXPORT static std::string CalculateAssetContractID (const std::string & str_Contract);
+    EXPORT static std::string CalculateServerContractID(const std::string & str_Contract);
+
 	// Use these below functions to get the new contract ITSELF, using its ID
 	// that was returned by the above two functions:
 	//
