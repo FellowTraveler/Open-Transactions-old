@@ -3149,7 +3149,9 @@ void OTServer::UserCmdUsageCredits(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 	msgOut.m_lDepth = 0; // Returns total Usage Credits on Nym at the end.
 	// -----------------------------------
 	OTPseudonym nym2;
+    OTIdentifier nym2ID, SERVER_ID(m_strServerID);
 	nym2.SetIdentifier(MsgIn.m_strNymID2);
+	nym2.GetIdentifier(nym2ID);
 	
 	const bool bIsSameNym	= nym2.CompareID(theNym);
 	OTPseudonym * pNym		= NULL;
@@ -3202,6 +3204,33 @@ void OTServer::UserCmdUsageCredits(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
         }
     }
 	// -----------------------------------------------------
+    OTLedger     theNymbox(nym2ID, nym2ID, SERVER_ID);
+    // ------------------------------------
+    bool bSuccessLoadingNymbox	= theNymbox.LoadNymbox();
+    
+    if (bSuccessLoadingNymbox)
+        bSuccessLoadingNymbox	= (theNymbox.VerifyContractID() && theNymbox.VerifyAccount(m_nymServer));
+    else
+    {
+        bSuccessLoadingNymbox	= theNymbox.GenerateLedger(nym2ID, SERVER_ID, OTLedger::nymbox, true); // bGenerateFile=true
+        
+        if (bSuccessLoadingNymbox)
+        {
+            bSuccessLoadingNymbox	= theNymbox.SignContract(m_nymServer);
+            
+            if (bSuccessLoadingNymbox)
+            {
+                bSuccessLoadingNymbox = theNymbox.SaveContract();
+                
+                if (bSuccessLoadingNymbox)
+                    bSuccessLoadingNymbox	= theNymbox.SaveNymbox();
+            }
+        }
+    }
+	// -----------------------------------------------------
+    if (!bSuccessLoadingNymbox)
+        bErrorCondition = true;
+	// -----------------------------------------------------
 	// By this point, pNym points to the correct Nym, if bErrorCondition=false;
 	//
 	if (!bErrorCondition)
@@ -3230,7 +3259,6 @@ void OTServer::UserCmdUsageCredits(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 		msgOut.m_lDepth = lNewCredits; // adjustment or not, we send the current usage credits balance back in the server reply.
 	}
 	// -----------------------------------------------------
-
 	// (2) Sign the Message 
 	msgOut.SignContract(m_nymServer);		
 	
@@ -13925,9 +13953,45 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
                                 
                                 OTString strNymContents;
                                 pNym->SavePseudonym(strNymContents);
-                                // ------------------
+                                // ------------------------
+                                OTIdentifier theNewNymID, SERVER_ID(m_strServerID);
+                                pNym->GetIdentifier(theNewNymID);
+                                // ------------------------------------
+                                OTLedger     theNymbox(theNewNymID, theNewNymID, SERVER_ID);
+                                // ------------------------------------
+                                bool bSuccessLoadingNymbox	= theNymbox.LoadNymbox();
+                                
+                                if (true == bSuccessLoadingNymbox)
+                                    bSuccessLoadingNymbox	= (theNymbox.VerifyContractID() && theNymbox.VerifyAccount(m_nymServer));
+//									bSuccessLoadingNymbox	= (theNymbox.VerifyAccount(m_nymServer)); // (No need here to load all the Box Receipts)
+                                else
+                                {
+                                    bSuccessLoadingNymbox	= theNymbox.GenerateLedger(theNewNymID, SERVER_ID, OTLedger::nymbox, true); // bGenerateFile=true
+                                    
+                                    if (bSuccessLoadingNymbox)
+                                    {
+                                        bSuccessLoadingNymbox	= theNymbox.SignContract(m_nymServer);
+                                        
+                                        if (bSuccessLoadingNymbox)
+                                        {
+                                            bSuccessLoadingNymbox = theNymbox.SaveContract();
+                                            
+                                            if (bSuccessLoadingNymbox)
+                                                bSuccessLoadingNymbox	= theNymbox.SaveNymbox();
+                                        }
+                                    }
+                                }
+                                // -----------------------------------------------------
+                                // by this point, the nymbox DEFINITELY exists -- or not. (generation might have failed, or verification.)
+                                //
+                                if (false == bSuccessLoadingNymbox)
+                                {
+                                    OTLog::vError("Error during user account re-registration. Failed verifying or generating nymbox for user: %s\n",
+                                                  theMessage.m_strNymID.Get());
+                                }
+                                // -----------------------------------------------------
                                 msgOut.m_ascPayload.SetString(strNymContents);
-                                msgOut.m_bSuccess	= true;
+                                msgOut.m_bSuccess	= bSuccessLoadingNymbox;
                                 msgOut.SignContract(m_nymServer);
                                 msgOut.SaveContract();
                                 return true;
@@ -13981,7 +14045,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
                                     
                                     if (false == bSuccessLoadingNymbox)
                                     {
-                                        OTLog::vError("Error during user account registration. Failed verifying or generating nymbox for user:\n%s\n",
+                                        OTLog::vError("Error during user account registration. Failed verifying or generating nymbox for user: %s\n",
                                                       theMessage.m_strNymID.Get());
                                     }
                                     // Either we loaded it up (it already existed) or we didn't, in which case we should
