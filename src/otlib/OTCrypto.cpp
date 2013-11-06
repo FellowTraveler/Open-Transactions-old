@@ -787,7 +787,7 @@ extern "C"
 #include <openssl/conf.h>
     
     // -----------------------
-#ifndef ANDROID // Android thus far only supports OpenSSL 0.9.8k
+//#ifndef ANDROID // Android thus far only supports OpenSSL 0.9.8k
 #include <openssl/whrlpool.h>
 	
 	// Just trying to get Whirlpool working since they added it to OpenSSL
@@ -817,7 +817,7 @@ extern "C"
 		WHIRLPOOL_BBLOCK/8,
 		sizeof(EVP_MD *)+sizeof(WHIRLPOOL_CTX),
 	};
-#endif // ANDROID
+//#endif // !ANDROID
     // -----------------------
     
 #ifndef OPENSSL_THREAD_DEFINES
@@ -1525,10 +1525,10 @@ const EVP_MD * OTCrypto_OpenSSL::GetOpenSSLDigestByName(const OTString & theName
 		return EVP_sha384();
 	else if (theName.Compare("SHA512"))
 		return EVP_sha512();
-#ifndef ANDROID
+//#ifndef ANDROID
 	else if (theName.Compare("WHIRLPOOL")) // Todo: follow up on any cleanup issues related to this. (Are the others dynamically allocated? This one isn't.)
 		return &whirlpool_md;
-#endif
+//#endif
 	return NULL;
 }
 
@@ -3569,7 +3569,7 @@ bool OTCrypto_OpenSSL::SignContractDefaultHash(const OTString    & strContractUn
 	 can efficiently reuse a digest context instead of initializing and cleaning it up on each call and allow non default implementations 
 	 of digests to be specified.
 	 */
-#ifndef ANDROID
+//#ifndef ANDROID
 	const EVP_MD * digest2 = OTCrypto_OpenSSL::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm2); // WHIRLPOOL (512)
 	
 	if (NULL == digest2)
@@ -3595,14 +3595,14 @@ bool OTCrypto_OpenSSL::SignContractDefaultHash(const OTString    & strContractUn
 	{
 		vDigest.at(i) = ((vOutputHash1.at(i)) ^ (vOutputHash2.at(i)));
 	}
-#else // ANDROID
-	const unsigned int uDigestMergedLength = uDigest1Len;
-    
-	for (int i = 0; i < uDigestMergedLength; i++)
-	{
-		pDigest[i] = (vOutputHash1.at(i));
-	}	
-#endif // ANDROID
+//#else // ANDROID
+//	const unsigned int uDigestMergedLength = uDigest1Len;
+//    
+//	for (int i = 0; i < uDigestMergedLength; i++)
+//	{
+//		pDigest[i] = (vOutputHash1.at(i));
+//	}	
+//#endif // ANDROID
 	
 	// pDigest is now set up.
 	// uDigestMergedLength contains its length in bytes.
@@ -3779,7 +3779,7 @@ bool OTCrypto_OpenSSL::VerifyContractDefaultHash(const OTString    & strContract
 	EVP_DigestFinal   (&mdHash1_ctx, &vOutputHash1.at(0), &uDigest1Len); // output and size
 	EVP_MD_CTX_cleanup(&mdHash1_ctx); // cleanup
     // ----------------------------
-#ifndef ANDROID   // NOT Android.
+//#ifndef ANDROID   // NOT Android.
 	const EVP_MD * digest2 = OTCrypto_OpenSSL::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm2); // WHIRLPOOL
 	if (NULL == digest2)
 	{
@@ -3803,16 +3803,16 @@ bool OTCrypto_OpenSSL::VerifyContractDefaultHash(const OTString    & strContract
 	{
 		vDigest.at(i) = ((vOutputHash1.at(i)) ^ (vOutputHash2.at(i)));
 	}
-#else // ** is ** ANDROID
-    // ----------------------------
-	// (Goes with the smaller size.)
-	const unsigned int uDigestMergedLength = uDigest1Len;
-    
-	for (int i = 0; i < uDigest1Len; i++)
-	{
-		pDigest[i] = (pOutputHash1[i]);
-	}	
-#endif // ANDROID
+//#else // ** is ** ANDROID
+//    // ----------------------------
+//	// (Goes with the smaller size.)
+//	const unsigned int uDigestMergedLength = uDigest1Len;
+//    
+//	for (int i = 0; i < uDigest1Len; i++)
+//	{
+//		pDigest[i] = (pOutputHash1[i]);
+//	}	
+//#endif // ANDROID
     
 	// Now we have the exact content in pDigest that we should also see if we decrypt
 	// the signature that was passed in.
