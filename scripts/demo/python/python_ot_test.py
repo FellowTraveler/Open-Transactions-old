@@ -48,8 +48,7 @@ objEasy = otapi.OTMadeEasy()
 # Use the High-level API to download a user's public key from
 # the server. (Obviously this will fail if the server is not
 # running, or if the test data is not installed.)
-
-strCheck = objEasy.check_user('tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1', 'T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV', 'T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV')
+strCheck = objEasy.check_user('r1fUoHwJOWCuK3WBAAySjmKYqsG6G2TYIxdqY6YNuuG', 'DYEB6U7dcpbwdGrftPnslNKz76BDuBTFAjiAgKaiY2n', 'HpDoVBTix9GRLvZZoKBi2zv2f4IFVLmRrW2Q0nAA0OH')
 
 # ---------------------------------------------------------
 # objEasy.check_user corresponds to the command-line:
@@ -82,10 +81,9 @@ else:
 # installed to ~/.ot )
 
 # Make sure we have the proper mint...
-
-objEasy.load_or_retrieve_mint("tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1", \
-    "T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV", \
-    "CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA")
+objEasy.load_or_retrieve_mint("r1fUoHwJOWCuK3WBAAySjmKYqsG6G2TYIxdqY6YNuuG", \
+    "DYEB6U7dcpbwdGrftPnslNKz76BDuBTFAjiAgKaiY2n", \
+    "7f8nlUn795x8931JParRnmKAyw8cegRyBMcFg9FccaF")
 
 if objEasy.VerifyMessageSuccess(strCheck) < 0:
   print 'Failure: Unable to load or retrieve necessary mint file for withdrawal...'
@@ -93,7 +91,7 @@ if objEasy.VerifyMessageSuccess(strCheck) < 0:
 
 # This is a "real" financial transaction:
 #
-strWithdraw = objEasy.withdraw_cash('tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1', 'T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV', 'eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn', '1')
+strWithdraw = objEasy.withdraw_cash('r1fUoHwJOWCuK3WBAAySjmKYqsG6G2TYIxdqY6YNuuG', 'DYEB6U7dcpbwdGrftPnslNKz76BDuBTFAjiAgKaiY2n', 'yQGh0vgm9YiqYOh6bfLDxyAA7Nnh2NmturCQmOt4LTo', '1')
 
 # ---------------------------------------------------------
 # InterpretTransactionMsgReply
@@ -113,7 +111,7 @@ strWithdraw = objEasy.withdraw_cash('tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1
 # to fail. Or maybe there wasn't enough money in the account. Etc. All of
 # the above work is done in the below call:
 
-nResult = objEasy.InterpretTransactionMsgReply('tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1', 'T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV', 'eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn', 'withdraw_cash', strWithdraw)
+nResult = objEasy.InterpretTransactionMsgReply('r1fUoHwJOWCuK3WBAAySjmKYqsG6G2TYIxdqY6YNuuG', 'DYEB6U7dcpbwdGrftPnslNKz76BDuBTFAjiAgKaiY2n', 'yQGh0vgm9YiqYOh6bfLDxyAA7Nnh2NmturCQmOt4LTo', 'withdraw_cash', strWithdraw)
 
 if nResult < 0:
     print '\nError in withdraw cash. Is the server running? Is the test data in ~/.ot ?'

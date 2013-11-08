@@ -66,9 +66,9 @@ namespace OTAPITest
             // the server. (Obviously this will fail if the server is not
             // running, or if the test data is not installed.)
 
-            string strCheck = otme.check_user("tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1", 
-                            "T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV", 
-                            "T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV");
+            string strCheck = otme.check_user("r1fUoHwJOWCuK3WBAAySjmKYqsG6G2TYIxdqY6YNuuG", 
+                            "DYEB6U7dcpbwdGrftPnslNKz76BDuBTFAjiAgKaiY2n", 
+                            "HpDoVBTix9GRLvZZoKBi2zv2f4IFVLmRrW2Q0nAA0OH");
 
             // ---------------------------------------------------------
             // objEasy.check_user corresponds to the command-line:
@@ -105,17 +105,17 @@ namespace OTAPITest
             //
 
             // Make sure we ahve the proper mint...
-            string strMint = otme.load_or_retrieve_mint("tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1",
-                                       "T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV",
-                                       "CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA");
+            string strMint = otme.load_or_retrieve_mint("r1fUoHwJOWCuK3WBAAySjmKYqsG6G2TYIxdqY6YNuuG",
+                                       "DYEB6U7dcpbwdGrftPnslNKz76BDuBTFAjiAgKaiY2n",
+                                       "7f8nlUn795x8931JParRnmKAyw8cegRyBMcFg9FccaF");
 
             if(otme.VerifyMessageSuccess(strMint) < 0)
                 Console.Out.WriteLine("Failure: Unable to load or retrieve necessary mint file for withdrawal..");
       
 
-            string strWithdraw = otme.withdraw_cash("tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1", 
-                               "T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV", 
-                               "eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn", "1");
+            string strWithdraw = otme.withdraw_cash("r1fUoHwJOWCuK3WBAAySjmKYqsG6G2TYIxdqY6YNuuG", 
+                               "DYEB6U7dcpbwdGrftPnslNKz76BDuBTFAjiAgKaiY2n", 
+                               "yQGh0vgm9YiqYOh6bfLDxyAA7Nnh2NmturCQmOt4LTo", "1");
 
             // ---------------------------------------------------------
             // InterpretTransactionMsgReply
@@ -137,9 +137,9 @@ namespace OTAPITest
             // enough money in the account. Etc. All of the above work is done
             // in the below call:
 
-            nResult = otme.InterpretTransactionMsgReply("tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1", 
-                                                        "T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV", 
-                                                        "eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn", 
+            nResult = otme.InterpretTransactionMsgReply("r1fUoHwJOWCuK3WBAAySjmKYqsG6G2TYIxdqY6YNuuG", 
+                                                        "DYEB6U7dcpbwdGrftPnslNKz76BDuBTFAjiAgKaiY2n", 
+                                                        "yQGh0vgm9YiqYOh6bfLDxyAA7Nnh2NmturCQmOt4LTo", 
                                                         "withdraw_cash", strWithdraw);
 
             if(nResult < 0)
