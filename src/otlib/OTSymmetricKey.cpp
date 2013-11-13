@@ -1270,8 +1270,8 @@ OTSymmetricKey::OTSymmetricKey(const OTPassword & thePassword)
     m_nKeySize(OTCryptoConfig::SymmetricKeySize() * 8), // 128 (in bits)
     m_uIterationCount(OTCryptoConfig::IterationCount())
 {
-//    const bool bGenerated = 
-        this->GenerateKey(thePassword);
+//  const bool bGenerated =
+    this->GenerateKey(thePassword);
 }
 
 

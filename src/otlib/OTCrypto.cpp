@@ -1427,7 +1427,8 @@ OTPassword * OTCrypto_OpenSSL::DeriveNewKey(const OTPassword &   userPassword,
 		(
 		userPassword.isPassword() ? userPassword.getPassword_uint8() : userPassword.getMemory_uint8()
 		),
-		static_cast <const int>             (userPassword.getPasswordSize()),       // Password Length
+        static_cast <const int>             (userPassword.isPassword() ? userPassword.getPasswordSize() :
+                                             userPassword.getMemorySize()),         // Password Length
 		static_cast <const unsigned char *> (dataSalt.GetPayloadPointer()),         // Salt Data
 		static_cast <const int>             (dataSalt.GetSize()),                   // Salt Length
 		static_cast <const int>             (uIterations),                          // Number Of Iterations

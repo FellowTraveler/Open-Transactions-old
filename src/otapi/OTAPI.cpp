@@ -11301,20 +11301,18 @@ std::string OTAPI_Wrap::CreatePurse_Passphrase(const std::string & SERVER_ID,
 										  const std::string & ASSET_TYPE_ID,
 										  const std::string & SIGNER_ID)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_FAIL; }
-	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_FAIL; }
-	if (SIGNER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_ID"			); OT_FAIL; }
-
-
-	std::string strFunc = __FUNCTION__;
-
-	const OTIdentifier  theServerID(SERVER_ID),
+	if (SERVER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_FAIL; }
+	if (ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_FAIL; }
+	if (SIGNER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SIGNER_ID"			); OT_FAIL; }
+	// -----------------------------------------------------
+	const OTIdentifier
+        theServerID(SERVER_ID),
 		theAssetTypeID(ASSET_TYPE_ID),
 		theSignerID(SIGNER_ID);
 	// -----------------------------------------------------
 	OTPasswordData thePWData("Creating a password-protected cash purse.");
 	// -----------------------------------------------------
-	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, false, strFunc.c_str(), &thePWData); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = OTAPI_Wrap::OTAPI()->GetOrLoadPrivateNym(theSignerID, false, __FUNCTION__, &thePWData); // These copiously log, and ASSERT.
 	if (NULL == pNym) return "";
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------

@@ -581,6 +581,25 @@ long OTMadeEasy::easy_withdraw_cash(const std::string  & ACCT_ID,
                                                        OTAPI_Wrap::StringToLong(AMOUNT)));
 }
 
+
+std::string OTMadeEasy::export_cash(const std::string  & SERVER_ID,
+                                    const std::string  & FROM_NYM_ID,
+                                    const std::string  & ASSET_TYPE_ID,
+                                    const std::string  & TO_NYM_ID,
+                                    const std::string  & STR_INDICES,
+                                          bool           bPasswordProtected,
+                                          std::string  & STR_RETAINED_COPY) // output
+{
+    return m_pME->export_cash(SERVER_ID,
+                              FROM_NYM_ID,
+                              ASSET_TYPE_ID,
+                              TO_NYM_ID,
+                              STR_INDICES,
+                              bPasswordProtected,
+                              STR_RETAINED_COPY);
+}
+
+
 bool OTMadeEasy::withdraw_and_send_cash(const std::string & ACCT_ID,
                                         const std::string & RECIPIENT_NYM_ID,
                                         const std::string & MEMO,

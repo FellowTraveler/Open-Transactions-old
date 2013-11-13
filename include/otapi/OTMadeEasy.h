@@ -335,6 +335,13 @@ public:
                                       const std::string  & AMOUNT);
     EXPORT  long easy_withdraw_cash(const std::string  & ACCT_ID,
                                     const std::string  & AMOUNT);
+    EXPORT  std::string export_cash(const std::string  & SERVER_ID,
+                                    const std::string  & FROM_NYM_ID,
+                                    const std::string  & ASSET_TYPE_ID,
+                                    const std::string  & TO_NYM_ID,
+                                    const std::string  & STR_INDICES,
+                                          bool           bPasswordProtected,
+                                          std::string  & STR_RETAINED_COPY); // output
     EXPORT  std::string withdraw_voucher(const std::string  & SERVER_ID,
                                          const std::string  & NYM_ID,
                                          const std::string  & ACCT_ID,

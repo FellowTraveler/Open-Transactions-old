@@ -255,15 +255,13 @@ OTCachedKey * OTPurse::GetInternalMaster()  // stores the passphrase for the sym
 //
 bool OTPurse::GenerateInternalKey()
 {
-    const char * szFunc = "OTPurse::GenerateInternalKey";
-    // -------------------------------------------    
     if ( this->IsPasswordProtected()     ||
         (NULL != m_pSymmetricKey)        ||    //this->GetInternalKey())
         (NULL != m_pCachedKey)
        )
     {
         OTLog::vOutput(0, "%s: Failed: internal Key  or master key already exists. "
-                       "Or IsPasswordProtected was true.\n", szFunc);
+                       "Or IsPasswordProtected was true.\n", __FUNCTION__);
         return false;
     }
     // -------------------------------------------    
@@ -273,7 +271,7 @@ bool OTPurse::GenerateInternalKey()
                        "new symmetric key, internal to that purse. (For the purposes of "
                        "adding a passphrase to the purse, normally.) Otherwise I would have "
                        "to loop through all the tokens and re-assign ownership of each one. "
-                       "Instead, I'm just going to return false. That's easier.\n", szFunc);
+                       "Instead, I'm just going to return false. That's easier.\n", __FUNCTION__);
         return false;
     }
     // ------------------------------------------------------------------------
@@ -292,10 +290,11 @@ bool OTPurse::GenerateInternalKey()
     // thePassphrase and m_pCachedKey are BOTH output from the below function.
     //
     m_pCachedKey = OTCachedKey::CreateMasterPassword(thePassphrase, strDisplay.Get()); //int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT)
+    // ------------------------------------------------------------------------
     if ((NULL == m_pCachedKey) ||
         !m_pCachedKey->IsGenerated()) // This one is unnecessary because CreateMasterPassword already checks it. todo optimize.
     {
-        OTLog::vOutput(0, "%s: Failed: While calling OTCachedKey::CreateMasterPassword.\n", szFunc);
+        OTLog::vOutput(0, "%s: Failed: While calling OTCachedKey::CreateMasterPassword.\n", __FUNCTION__);
         return false;
     }
     // ------------------------------------------------------------------------
@@ -304,7 +303,7 @@ bool OTPurse::GenerateInternalKey()
     // ------------------------------------------------------------------
     if (!m_pSymmetricKey->IsGenerated())
     {
-        OTLog::vOutput(0, "%s: Failed: generating m_pSymmetricKey.\n", szFunc);
+        OTLog::vOutput(0, "%s: Failed: generating m_pSymmetricKey.\n", __FUNCTION__);
         delete m_pSymmetricKey; m_pSymmetricKey = NULL;
         delete m_pCachedKey;    m_pCachedKey    = NULL;
         return false;
@@ -313,13 +312,13 @@ bool OTPurse::GenerateInternalKey()
     m_UserID.Release();
     m_bIsNymIDIncluded = false;
     // ------------------------------------------------------------------------
-    OTLog::vOutput(1, "%s: Successfully created a purse's internal key.\n", szFunc);
+    OTLog::vOutput(1, "%s: Successfully created a purse's internal key.\n", __FUNCTION__);
     // -----------------
     m_bPasswordProtected = true;
     // -----------------
     OTCachedKey * pCachedMaster = OTPurse::GetInternalMaster();
     if (NULL == pCachedMaster)
-        OTLog::vError("%s: Failed trying to cache the master key for this purse.\n", szFunc);
+        OTLog::vError("%s: Failed trying to cache the master key for this purse.\n", __FUNCTION__);
     // -----------------
 	return true;
 }

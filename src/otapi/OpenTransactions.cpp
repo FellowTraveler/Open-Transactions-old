@@ -5734,6 +5734,7 @@ OTPurse * OT_API::CreatePurse_Passphrase(const OTIdentifier & SERVER_ID,
     else
         OTLog::Error("OT_API::CreatePurse_Passphrase: "
                      "pPurse->GenerateInternalKey() returned false. (Failure.)\n");
+	// -----------------------------------------------------------------
     delete pPurse; pPurse = NULL;
     return NULL;
 }

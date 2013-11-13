@@ -8965,9 +8965,10 @@ def main_deposit()
 
  */
 
-def details_import_cash(strInstrument)
+
+def details_import_purse(strInstrument, bHasPassword, strPurseOwner)
 {
-    if(!VerifyStringVal(strInstrument))
+    if (!VerifyStringVal(strInstrument))
     {
         return (-1)
     }
@@ -8981,10 +8982,37 @@ def details_import_cash(strInstrument)
     }
     // ---------------------------------------------
     var strAssetID  = OT_API_Instrmnt_GetAssetID (strInstrument)
-
+    
     if (!VerifyStringVal(strAssetID))
     {
         OT_API_Output(0, "\n\nFailure: Unable to determine asset type ID from purse.\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+    var bActuallyHasPassword  = OT_API_Purse_HasPassword(strServerID, strInstrument)
+    
+    if (bHasPassword != bActuallyHasPassword)
+    {
+        OT_API_Output(0, "The actual purse's opinion of whether or not it has a password, doesn't match the caller's opinion.\n")
+        return -1
+    }
+    // ---------------------------------------------
+    var bImported = OT_API_Wallet_ImportPurse(strServerID, strAssetID, strPurseOwner, strInstrument)
+    
+    if (bImported)
+    {
+        OT_API_Output(0, "\n\n Success importing purse!\nServer: "+strServerID+"\nAsset Type: "+strAssetID+"\nNym: "+strPurseOwner+"\n\n")
+        return 1
+    }
+    // ---------------------------------------------
+    return -1
+}
+
+
+def details_import_cash(strInstrument)
+{
+    if (!VerifyStringVal(strInstrument))
+    {
         return (-1)
     }
     // ---------------------------------------------
@@ -8995,7 +9023,15 @@ def details_import_cash(strInstrument)
         OT_API_Output(0, "\n\nFailure: Unable to determine instrument type. Expected (cash) PURSE.\n")
         return (-1)
     }
-    // ---------------------------------------------
+    // -----------------------
+    var strServerID = OT_API_Instrmnt_GetServerID(strInstrument)
+    
+    if (!VerifyStringVal(strServerID))
+    {
+        OT_API_Output(0, "\n\nFailure: Unable to determine server ID from purse.\n")
+        return (-1)
+    }
+    // -----------------------
     switch(strType)
     {
         case ("PURSE")
@@ -9037,19 +9073,20 @@ def details_import_cash(strInstrument)
     // is, IF it's on the purse. (But does NOT tell us WHETHER there is a
     // recipient. The above function is for that.)
     //
-    var strPurseOwner
+    var strPurseOwner = ""
     
     if (!bHasPassword)
     {
         strPurseOwner = OT_API_Instrmnt_GetRecipientUserID(strInstrument) // TRY and get the Nym ID (it may have been left blank.)
     }
     // ---------------------------------------------
-    
     // Whether the purse was password-protected (and thus had no Nym ID)
     // or whether it does have a Nym ID (but it wasn't listed on the purse)
     // Then either way, in those cases strPurseOwner will still be NULL.
+    //
     // (The third case is that the purse is Nym protected and the ID WAS available,
     // in which case we'll skip this block, since we already have it.)
+    //
     // But even in the case where there's no Nym at all (password protected)
     // we STILL need to pass a Signer Nym ID into OT_API_Wallet_ImportPurse.
     // So if it's still NULL here, then we use --mynym to make the call.
@@ -9057,8 +9094,10 @@ def details_import_cash(strInstrument)
     // we must assume the USER knows the appropriate NymID, even if it's not
     // listed on the purse itself. And in that case as well, the user can
     // simply specify the Nym using --mynym.
+    //
     // Bottom line: by this point, if it's still not set, then we just use
     // MyNym, and if THAT's not set, then we return failure.
+    //
     if (!VerifyStringVal(strPurseOwner))
     {
         OT_API_Output(0, "\n\n The NymID isn't evident from the purse itself... (listing it is optional.)\nThe purse may have no Nym at all--it may instead be password-protected.) Either way, a signer nym is still necessary, even for password-protected purses.\n\n Trying MyNym...\n")
@@ -9071,15 +9110,7 @@ def details_import_cash(strInstrument)
         strPurseOwner = MyNym
     }
     // ---------------------------------------------
-    var bImported = OT_API_Wallet_ImportPurse(strServerID, strAssetID, strPurseOwner, strInstrument)
-    
-    if (bImported)
-    {
-        OT_API_Output(0, "\n\n Success importing purse!\nServer: "+strServerID+"\nAsset Type: "+strAssetID+"\nNym: "+strPurseOwner+"\n\n")
-        return 1
-    }
-    // ---------------------------------------------
-    return -1
+    return details_import_purse(strInstrument, bHasPassword, strPurseOwner)
 }
 
 

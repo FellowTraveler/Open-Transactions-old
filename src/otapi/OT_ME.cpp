@@ -1451,6 +1451,41 @@ int32_t OT_ME::easy_withdraw_cash(const std::string  & ACCT_ID,
 }
 // -----------------------------------------------------------------------------------------------
 
+// EXPORT CASH (FROM PURSE)
+//
+string OT_ME::export_cash(const string  & SERVER_ID,
+                          const string  & FROM_NYM_ID,
+                          const string  & ASSET_TYPE_ID,
+                          const string  & TO_NYM_ID,
+                          const string  & STR_INDICES,
+                                bool      bPasswordProtected,
+                                string  & STR_RETAINED_COPY) // output
+{
+    const string str_var_name1("varRetained");
+    OTVariable varRetained(str_var_name1, STR_RETAINED_COPY);
+    this->AddVariable(str_var_name1, varRetained);
+    // -------------------------------------
+    OTString strRaw;
+    strRaw.Format("{ var strResult = "
+                  "details_export_cash(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %s, %s); }",
+                  SERVER_ID.c_str(), FROM_NYM_ID.c_str(), ASSET_TYPE_ID.c_str(), TO_NYM_ID.c_str(), STR_INDICES.c_str(),
+                  bPasswordProtected ? "true" : "false",
+                  str_var_name1.c_str()
+                  );
+    string str_Code = strRaw.Get();
+    // -------------------------------------
+    // Execute the script here.
+    //
+    const string str_result = ExecuteScript_ReturnString(str_Code, __FUNCTION__);
+    
+    if (!str_result.empty())
+        STR_RETAINED_COPY = varRetained.GetValueString();
+    
+    return str_result;
+}
+
+// -----------------------------------------------------------------------------------------------
+
 // WITHDRAW VOUCHER  -- TRANSACTION
 //
 string OT_ME::withdraw_voucher( const string  & SERVER_ID,
@@ -1466,7 +1501,8 @@ string OT_ME::withdraw_voucher( const string  & SERVER_ID,
     this->AddVariable(str_var_name1, varNote);
     // -------------------------------------
     OTString strRaw;
-    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.withdraw_voucher(\"%s\", \"%s\", \"%s\", \"%s\", %s, int64_t(%" PRId64")); }",
+    strRaw.Format("{ var madeEasy = OT_ME(); var strResult = "
+                  "madeEasy.withdraw_voucher(\"%s\", \"%s\", \"%s\", \"%s\", %s, int64_t(%" PRId64")); }",
                   SERVER_ID.c_str(), NYM_ID.c_str(), ACCT_ID.c_str(), RECIP_NYM_ID.c_str(), str_var_name1.c_str(), AMOUNT);
     string str_Code = strRaw.Get();
     // -------------------------------------
