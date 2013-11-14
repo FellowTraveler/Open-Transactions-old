@@ -8725,7 +8725,7 @@ def details_deposit_purse(strServerID, strMyAcct, strFromNymID, strInstrument, s
     }// if (bLoadedPurse)
     // ---------------------------------------------    
 
-    var nResult = depositCashPurse(strServerID, strAssetTypeID, strFromNymID, strTHE_Instrument, vecSelectedTokenIDs, strMyAcct)
+    var nResult = depositCashPurse(strServerID, strAssetTypeID, strFromNymID, strTHE_Instrument, vecSelectedTokenIDs, strMyAcct, bLoadedPurse)
 
     return nResult
     // --------------------------------------------------------------------

@@ -1408,7 +1408,7 @@ def exportCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  re
 // -----------------------------------------------------------------------------------------------
 
 
-def depositCashPurse(serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  accountID)
+def depositCashPurse(serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  accountID, bReimportIfFailure) // So we don't re-import a purse that wasn't internal to begin with.
 {                
     // Instantiate the "OT Made Easy" object.
     //
@@ -1460,7 +1460,7 @@ def depositCashPurse(serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  ac
     else // failure. (so we re-import the cash, so as not to lose it...)
     {
         // -------------------
-        if (!bPasswordProtected)
+        if (!bPasswordProtected && bReimportIfFailure)
         {
             var importStatus = OT_API_Wallet_ImportPurse(serverID, assetID, recipientNymID, newPurse)
             OT_API_Output(0, "Since failure in depositCashPurse, OT_API_Wallet_ImportPurse called. Status of import: " + importStatus.to_string() + "\n")
