@@ -298,11 +298,11 @@ EXPORT    long GetCurrencyAcctClosingNum() const;
 	// objects work by default.  But OTAgreement (payment plan) and OTTrade do it the old way: they just check to
 	// see if theNym has signed *this.
 	//
-	virtual bool VerifyNymAsAgent(const OTPseudonym & theNym, 
-										OTPseudonym & theSignerNym, 
-										mapOfNyms	* pmap_ALREADY_LOADED=NULL);
+	virtual bool VerifyNymAsAgent(OTPseudonym & theNym,
+                                  OTPseudonym & theSignerNym,
+                                  mapOfNyms	* pmap_ALREADY_LOADED=NULL);
 	
-	virtual bool VerifyNymAsAgentForAccount(OTPseudonym & theNym, const OTAccount & theAccount);
+	virtual bool VerifyNymAsAgentForAccount(OTPseudonym & theNym, OTAccount & theAccount);
 
 	//----------------------------------------------------------------------
 	

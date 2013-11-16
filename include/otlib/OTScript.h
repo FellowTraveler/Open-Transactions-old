@@ -134,6 +134,13 @@
 #ifndef __OT_SCRIPT_H__
 #define __OT_SCRIPT_H__
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
+
+
 #ifndef EXPORT
 #define EXPORT
 #endif
@@ -318,6 +325,9 @@ typedef std::auto_ptr<OTScriptChai>         OTScriptChai_AutoPtr;
 
 
 
+#if __clang__
+#pragma clang diagnostic pop
+#endif
 
 // ------------------------------------------------------------------
 

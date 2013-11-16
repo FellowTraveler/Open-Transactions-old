@@ -261,7 +261,7 @@ void OTTransaction::SetClosingNum(const long lClosingNum)
 //
 // This overrides from OTTransactionType::VerifyAccount()
 //
-bool OTTransaction::VerifyAccount(const OTPseudonym & theNym)
+bool OTTransaction::VerifyAccount(OTPseudonym & theNym)
 {
 	OTLedger * pParent = const_cast<OTLedger *>(m_pParent);
 	

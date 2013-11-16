@@ -2496,7 +2496,7 @@ bool OTCredential::SignNewMaster(OTPasswordData * pPWData/*=NULL*/)
 // ---------------------------------------------------------------------------------
 
 // Overriding from OTContract.
-void OTSubcredential::CalculateContractID(OTIdentifier & newID) const
+void OTSubcredential::CalculateContractID(OTIdentifier & newID)
 {
 	if (!newID.CalculateDigest(this->GetPubCredential()))
 		OTLog::vError("%s: Error calculating credential digest.\n", __FUNCTION__);

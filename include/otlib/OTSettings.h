@@ -140,6 +140,12 @@
 #ifndef __OTSETTINGS_H__
 #define __OTSETTINGS_H__
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
+
 #include <memory>
 
 #ifndef EXPORT
@@ -217,4 +223,10 @@ public:
     EXPORT bool SetOption_bool (const OTString & strSection, const OTString & strKey, bool & bVariableName);
 };
 
-#endif // __OTLOG_H__
+
+#if __clang__
+#pragma clang diagnostic pop
+#endif
+
+
+#endif // __OTSETTINGS_H__

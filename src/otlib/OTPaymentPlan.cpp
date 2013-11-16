@@ -444,9 +444,9 @@ bool OTPaymentPlan::SetInitialPayment(const long & lAmount, time_t tTimeUntilIni
 
 
 
-bool OTPaymentPlan::Compare(const OTAgreement & rhs) const
+bool OTPaymentPlan::CompareAgreement(const OTAgreement & rhs) const
 {
-    if (false == ot_super::Compare(rhs))
+    if (false == ot_super::CompareAgreement(rhs))
         return false;
     
     // Compare OTPaymentPlan specific info here.

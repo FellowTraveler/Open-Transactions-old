@@ -127,6 +127,12 @@
 #ifndef __OT_STORAGE_H__
 #define __OT_STORAGE_H__
 
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
+
 // we now include this file in swig
 // we need to tell swig what parts to skip over.
 
@@ -2325,6 +2331,11 @@ namespace OTDB
 
 
 #endif // NOT_SWIG
+
+
+#if __clang__
+#pragma clang diagnostic pop
+#endif
 
 #endif // __OT_STORAGE_H__
 

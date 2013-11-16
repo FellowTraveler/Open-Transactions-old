@@ -506,9 +506,9 @@ void OTAgreement::GetAllTransactionNumbers(OTNumList & numlistOutput) const
 // I still call here, inside this function. But that's a special case -- an override
 // from the OTScriptable / OTSmartContract version, which verifies parties and agents, etc.
 //
-bool OTAgreement::VerifyNymAsAgent(const OTPseudonym & theNym,
-										 OTPseudonym & theSignerNym, // Not needed in this override.
-										 mapOfNyms	 * pmap_ALREADY_LOADED/*=NULL*/)
+bool OTAgreement::VerifyNymAsAgent(OTPseudonym & theNym,
+                                   OTPseudonym & theSignerNym, // Not needed in this override.
+                                   mapOfNyms	 * pmap_ALREADY_LOADED/*=NULL*/)
 {
 	return this->VerifySignature(theNym);
 }
@@ -516,7 +516,7 @@ bool OTAgreement::VerifyNymAsAgent(const OTPseudonym & theNym,
 
 // This is an override. See note above.
 //
-bool OTAgreement::VerifyNymAsAgentForAccount(OTPseudonym & theNym, const OTAccount & theAccount)
+bool OTAgreement::VerifyNymAsAgentForAccount(OTPseudonym & theNym, OTAccount & theAccount)
 {
 	return theAccount.VerifyOwner(theNym);
 }
@@ -1072,7 +1072,7 @@ bool OTAgreement::CanRemoveItemFromCron(OTPseudonym & theNym)
 // ------------------------------------------------------------
 
 
-bool OTAgreement::Compare(const OTAgreement & rhs) const
+bool OTAgreement::CompareAgreement(const OTAgreement & rhs) const
 {
     // Compare OTAgreement specific info here.
     

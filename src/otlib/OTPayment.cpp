@@ -190,7 +190,7 @@ char const * const __TypeStrings[] =
 };
 
 //static
-const char * const OTPayment::_GetTypeString(paymentType theType) {
+const char * OTPayment::_GetTypeString(paymentType theType) {
 	int nType = static_cast<int> (theType);
 	return __TypeStrings[nType];
 }

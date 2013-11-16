@@ -1224,7 +1224,7 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 // This function also loads its own versions of certain nyms, when necessary, and cleans the pointers
 // when it's done.
 //
-bool OTScriptable::VerifyNymAsAgent(OTPseudonym & theNym,  
+bool OTScriptable::VerifyNymAsAgent(OTPseudonym & theNym,
 									OTPseudonym & theSignerNym, 
 									mapOfNyms	* pmap_ALREADY_LOADED/*=NULL*/)
 {

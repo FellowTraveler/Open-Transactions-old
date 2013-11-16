@@ -293,7 +293,7 @@ EXPORT    bool    Confirm(OTPseudonym & PAYER_NYM, OTPseudonym * pMERCHANT_NYM=N
     //
     virtual bool VerifyAgreement(OTPseudonym & RECIPIENT_NYM, OTPseudonym & SENDER_NYM)=0;
     
-    virtual bool Compare(const OTAgreement & rhs) const;
+    virtual bool CompareAgreement(const OTAgreement & rhs) const;
     
 	// --------------------------------------------------------------------------
 	
@@ -388,11 +388,11 @@ EXPORT  virtual void HarvestClosingNumbers(OTPseudonym & theNym);
 	// objects work by default.  But OTAgreement (payment plan) and OTTrade do it the old way: they just check to
 	// see if theNym has signed *this.
 	//
-	virtual bool VerifyNymAsAgent(const OTPseudonym & theNym, 
+	virtual bool VerifyNymAsAgent(OTPseudonym & theNym, 
 								  OTPseudonym & theSignerNym, 
 								  mapOfNyms	* pmap_ALREADY_LOADED=NULL);
 	
-	virtual bool VerifyNymAsAgentForAccount(OTPseudonym & theNym, const OTAccount & theAccount);
+	virtual bool VerifyNymAsAgentForAccount(OTPseudonym & theNym, OTAccount & theAccount);
 
     /*
      From OTContract, I have:

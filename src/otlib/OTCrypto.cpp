@@ -232,7 +232,7 @@ const int32_t * OTCryptoConfig::sp_nDigest1Size          = NULL;
 const int32_t * OTCryptoConfig::sp_nDigest2Size          = NULL;
 
 
-const bool OTCryptoConfig::GetSetAll()
+bool OTCryptoConfig::GetSetAll()
 {
     OTSettings config = OTSettings(OTPaths::GlobalConfigFile());
 

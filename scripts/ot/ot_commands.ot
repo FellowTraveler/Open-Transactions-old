@@ -3611,7 +3611,7 @@ def main_transfer()
         if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
 //      if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
         {
-            OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
+            OT_API_Output(0, "Enter the amount["+strDefaultAmount+"]: ")
             strAmount        = OT_CLI_ReadLine()
         }
         if (!VerifyStringVal(strNote))
@@ -4144,7 +4144,7 @@ def details_write_cheque(strCheque, bIsInvoice) // strCheque is output.
         //
         if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
         {
-            OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
+            OT_API_Output(0, "Enter the amount["+strDefaultAmount+"]: ")
             strAmount  = OT_CLI_ReadLine()
         }
         if (!VerifyStringVal(strMemo))
@@ -4452,7 +4452,7 @@ def main_sendcash()
         //
         if ((!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1)) && !VerifyStringVal(strIndices)) // If no indices are selected, then we NEED to know the amount...
         {
-            OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
+            OT_API_Output(0, "Enter the amount["+strDefaultAmount+"]: ")
             strAmount = OT_CLI_ReadLine()
         }
         // ----------------------------------------------
@@ -7099,7 +7099,7 @@ def main_withdraw_cash()
         //
         if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
         {
-            OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
+            OT_API_Output(0, "Enter the amount["+strDefaultAmount+"]: ")
             strAmount        = OT_CLI_ReadLine()
         }
         // ----------------------------------------------
@@ -7254,7 +7254,7 @@ def details_withdraw_voucher(strOutput)
     //
     if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
     {
-        OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
+        OT_API_Output(0, "Enter the amount["+strDefaultAmount+"]: ")
         strAmount        = OT_CLI_ReadLine()
     }
     if (!VerifyStringVal(strMemo))
@@ -8339,7 +8339,7 @@ def main_pay_dividend()
         //
         if (!VerifyStringVal(strAmount) || (OT_API_StringToAmount(strAssetTypeID, strAmount) < 1))
         {
-            OT_API_Output(0, "Enter the 'Payout Amount Per-Share' as integer["+strDefaultAmount+"]: ")
+            OT_API_Output(0, "Enter the 'Payout Amount Per-Share'["+strDefaultAmount+"]: ")
             strAmount        = OT_CLI_ReadLine()
         }
         if (!VerifyStringVal(strNote))

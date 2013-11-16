@@ -930,7 +930,7 @@ bool OTContract::VerifyContract()
 
 
 
-void OTContract::CalculateContractID(OTIdentifier & newID) const
+void OTContract::CalculateContractID(OTIdentifier & newID)
 {
 	// may be redundant...	
 	std::string str_Trim(m_strRawFile.Get());

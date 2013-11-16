@@ -160,6 +160,7 @@ private:
 
 	static OTSettings s_settings;
 
+	static OTString s_strAppBinaryFolder;
 	static OTString s_strAppDataFolder;
 	static OTString s_strGlobalConfigFile;
 	static OTString s_strPrefixFolder;
@@ -169,11 +170,14 @@ public:
 
 	EXPORT ~OTPaths();
 
+	EXPORT static const OTString & AppBinaryFolder();   // Adding this for Mac, since it's sandboxed. (Don't want to put scripts in data folder.)
+
+    EXPORT static void             SetAppBinaryFolder(OTString strLocation);
+
 	EXPORT static const OTString & AppDataFolder();		// eg. /home/user/.ot/ (auto).
 	EXPORT static const OTString & GlobalConfigFile();  // ie. AppDataFolder() + ot_config.cfg
 	EXPORT static const OTString & PrefixFolder();		// If not set, will run LoadSetPrefixFolder with default values.
 	EXPORT static const OTString & ScriptsFolder();		// If not set, will run LoadSetScriptsFolder with default values.
-
 
 	// The LoadSet Functions will update the static values.
 

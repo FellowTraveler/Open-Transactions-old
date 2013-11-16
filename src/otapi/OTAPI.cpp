@@ -11129,7 +11129,7 @@ std::string OTAPI_Wrap::LoadPurse(const std::string & SERVER_ID,
 
 	if (NULL == pPurse)
 	{
-		OTLog::vOutput(0, "OTAPI_Wrap::LoadPurse() received null when called OT_API::LoadPurse(). "
+		OTLog::vOutput(2, "OTAPI_Wrap::LoadPurse() received null when called OT_API::LoadPurse(). "
 			"Server: %s Asset Type: %s\n", SERVER_ID.c_str(), ASSET_TYPE_ID.c_str());
 	}
 	else // success

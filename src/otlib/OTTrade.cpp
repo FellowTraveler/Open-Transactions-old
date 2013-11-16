@@ -175,9 +175,9 @@ using namespace io;
 // I still call here, inside this function. But that's a special case -- an override
 // from the OTScriptable / OTSmartContract version, which verifies parties and agents, etc.
 //
-bool OTTrade::VerifyNymAsAgent(const	OTPseudonym & theNym,
-										OTPseudonym & theSignerNym, // Not needed in this version of the override.
-										mapOfNyms	* pmap_ALREADY_LOADED/*=NULL*/)
+bool OTTrade::VerifyNymAsAgent(OTPseudonym & theNym,
+                               OTPseudonym & theSignerNym, // Not needed in this version of the override.
+                               mapOfNyms	* pmap_ALREADY_LOADED/*=NULL*/)
 {
 	return this->VerifySignature(theNym);
 }
@@ -185,7 +185,7 @@ bool OTTrade::VerifyNymAsAgent(const	OTPseudonym & theNym,
 
 // This is an override. See note above.
 //
-bool OTTrade::VerifyNymAsAgentForAccount(OTPseudonym & theNym, const OTAccount & theAccount)
+bool OTTrade::VerifyNymAsAgentForAccount(OTPseudonym & theNym, OTAccount & theAccount)
 {
 	return theAccount.VerifyOwner(theNym);
 }

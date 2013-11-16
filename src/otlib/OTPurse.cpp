@@ -840,7 +840,7 @@ bool OTPurse::LoadPurse(const char * szServerID/*=NULL*/, const char * szUserID/
 	
 	if (false == OTDB::Exists(szFolder1name, szFolder2name, szFolder3name, szFilename))
 	{
-		OTLog::vError("OTPurse::LoadPurse: File does not exist: %s%s%s%s%s%s%s\n",
+		OTLog::vOutput(2, "OTPurse::LoadPurse: File does not exist: %s%s%s%s%s%s%s\n",
 					  szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), 
 					  szFolder3name, OTLog::PathSeparator(), szFilename);
 		return false;

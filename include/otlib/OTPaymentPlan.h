@@ -252,7 +252,7 @@ EXPORT	bool		SetPaymentPlan(const long & lPaymentAmount, time_t tTimeUntilPlanSt
     // the vital terms, values, clauses, etc are different between the two.
     //
     virtual bool VerifyAgreement(OTPseudonym & RECIPIENT_NYM, OTPseudonym & SENDER_NYM);
-    virtual bool Compare(const OTAgreement & rh) const;
+    virtual bool CompareAgreement(const OTAgreement & rh) const;
 
 	
 	// ********************* "INITIAL PAYMENT" public GET METHODS	*********************

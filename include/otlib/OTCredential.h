@@ -400,7 +400,7 @@ public:
     // (that is, the public info only, not the version containing the private keys.) So we override CalculateContractID
     // to account for that.
     //
-EXPORT virtual void CalculateContractID(OTIdentifier & newID) const;
+EXPORT virtual void CalculateContractID(OTIdentifier & newID);
     
     // We also inherit OTContract::VerifyContract() which tries to find the "contract" key. Of course, there is no
     // "contract" key in this case, so we should override it and provide our own version. What should it do? Well, it

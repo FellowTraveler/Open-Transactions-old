@@ -491,7 +491,7 @@ EXPORT  bool SignWithKey(const OTAsymmetricKey & theKey,
         // copies of the account file and wallet file are the only records of that account ID
         // which is a giant long number.
         virtual bool VerifyContractID();  
-EXPORT	virtual void CalculateContractID(OTIdentifier & newID) const;
+EXPORT	virtual void CalculateContractID(OTIdentifier & newID);
 	
         // So far not overridden anywhere (used to be OTTrade.)
 EXPORT	virtual bool VerifySignature(const OTPseudonym & theNym,

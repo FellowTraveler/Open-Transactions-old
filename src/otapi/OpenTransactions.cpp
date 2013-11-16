@@ -5640,7 +5640,7 @@ OTPurse * OT_API::LoadPurse(const OTIdentifier & SERVER_ID,
             OTLog::vOutput(0, "%s: Failed verifying purse.\n", __FUNCTION__);
     }
     else
-        OTLog::vOutput(0, "%s: Failed loading purse.\n", __FUNCTION__);
+        OTLog::vOutput(2, "%s: Failed loading purse.\n", __FUNCTION__);
 	// --------------------------------
 	delete pPurse; 
 	pPurse = NULL;

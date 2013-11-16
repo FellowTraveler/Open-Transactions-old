@@ -136,6 +136,10 @@
 #define CLIENT_PATH_DEFAULT	"client_data" //should get programmatically
 
 
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
+
 
 #define CA_FILE             "certs/special/ca.crt"
 #define KEY_FILE            "certs/special/client.pem"
@@ -650,9 +654,8 @@ void CollectDefaultedCLValues(AnyOption *opt,
 // *************************************   MAIN FUNCTION   *************************************
 
 
-
 int main(int argc, char* argv[])
-{    
+{
 	// --------------------------------------------
 	class __OTclient_RAII
 	{
@@ -685,6 +688,13 @@ int main(int argc, char* argv[])
 	OT_ASSERT_MSG(bConfigPathFound,"RegisterAPIWithScript: Must set Config Path first!\n");
 
 	OTLog::vOutput(1, "Using configuration path:  %s\n", strConfigPath.Get());
+    
+//    OTLog::vOutput(0, "Prefix Path:  %s\n", OTPaths::PrefixFolder().Get());
+//    OTLog::vOutput(0, "Scripts Path:  %s\n", OTPaths::ScriptsFolder().Get());
+//
+//    OTString out_strHomeFolder;
+//    OTPaths::GetHomeFromSystem(out_strHomeFolder);
+//    OTLog::vOutput(0, "Home from System:  %s\n", out_strHomeFolder.Get());
 	// -------------------------------------------------------------------
 
 	// COMMAND-LINE OPTIONS (and default values from files.)

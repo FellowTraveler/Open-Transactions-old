@@ -242,7 +242,7 @@ class OTPseudonym;
 class OTCryptoConfig
 {
 private:
-	static const bool GetSetAll();
+	static bool GetSetAll();
 
     static inline bool GetSetValue(OTSettings & config, const std::string strKeyName,
 		                                 const int32_t nDefaultValue, const int32_t *& out_nValue)

@@ -257,7 +257,7 @@ EXPORT	int  GetCountTransNumsNeededForAgent(const std::string str_agent_name);
 	// and in that case, that theNym is listed as an agent for that party.)
 	// Basically this means that the agreement's owner approves of theNym.
 	//
-	virtual bool VerifyNymAsAgent(OTPseudonym & theNym, 
+	virtual bool VerifyNymAsAgent(OTPseudonym & theNym,
 								  OTPseudonym & theSignerNym, 
 								  mapOfNyms	* pmap_ALREADY_LOADED=NULL);
 	
@@ -266,7 +266,7 @@ EXPORT	int  GetCountTransNumsNeededForAgent(const std::string str_agent_name);
 	// Verifies that theNym is actually an agent for theAccount, according to the PARTY.
 	// Also verifies that theNym is an agent for theAccount, according to the ACCOUNT.
 	//
-	virtual bool VerifyNymAsAgentForAccount(OTPseudonym & theNym, OTAccount & theAccount);	
+	virtual bool VerifyNymAsAgentForAccount(OTPseudonym & theNym, OTAccount & theAccount);
 	// -----------------------------------------------------------------
 	bool VerifyPartyAuthorization(OTParty			& theParty,		// The party that supposedly is authorized for this supposedly executed agreement.
                                   OTPseudonym		& theSignerNym,	// For verifying signature on the authorizing Nym, when loading it

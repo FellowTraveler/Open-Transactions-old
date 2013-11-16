@@ -221,6 +221,7 @@
 
 OTSettings OTPaths::s_settings = OTSettings(GlobalConfigFile());
 
+OTString OTPaths::s_strAppBinaryFolder("");
 OTString OTPaths::s_strAppDataFolder("");
 OTString OTPaths::s_strGlobalConfigFile("");
 OTString OTPaths::s_strPrefixFolder("");
@@ -228,6 +229,20 @@ OTString OTPaths::s_strScriptsFolder("");
 
 
 OTPaths::~OTPaths() { }
+
+// --------------------------------------------------------------------
+
+const OTString & OTPaths::AppBinaryFolder()
+{
+    return OTPaths::s_strAppBinaryFolder;
+}
+
+void OTPaths::SetAppBinaryFolder(OTString strLocation)
+{
+    OTPaths::s_strAppBinaryFolder = strLocation;
+}
+
+// --------------------------------------------------------------------
 
 const OTString & OTPaths::AppDataFolder()
 {
@@ -486,12 +501,17 @@ bool OTPaths::LoadSetScriptsFolder  // ie. PrefixFolder() + lib/opentxs/
     }
 
 
-    if(bConfigIsRelative)
+    if (bConfigIsRelative)
     {
         if(!FixPath(strConfigFolder,strConfigFolder,true)) { OT_FAIL; }
 
         OTString strScriptPath = "";
-        if(!AppendFolder(strScriptPath, PrefixFolder(), strConfigFolder)) { OT_FAIL; }
+        OTString strScriptPrefix(AppBinaryFolder().Exists() ? AppBinaryFolder() : PrefixFolder());
+        
+        if (!AppendFolder(strScriptPath, strScriptPrefix, strConfigFolder))
+        {
+            OT_FAIL;
+        }
 
         s_strScriptsFolder = strScriptPath; // set
     }
