@@ -1008,7 +1008,7 @@ void ot_openssl_thread_id(CRYPTO_THREADID * id)
     // for certain platforms. (OpenSSL provides functions for both.)
     //
     
-    unsigned long val = this_thread::get_raw_id();
+    unsigned long val = tthread::this_thread::get_raw_id();
 
 //    void CRYPTO_THREADID_set_numeric(CRYPTO_THREADID *id, unsigned long val);
 //    void CRYPTO_THREADID_set_pointer(CRYPTO_THREADID *id, void *ptr);

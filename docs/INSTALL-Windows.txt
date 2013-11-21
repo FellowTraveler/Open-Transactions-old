@@ -20,12 +20,7 @@ However you can only compile OT on Windows Vista (sp2) or later
 
 #########################################################################
 
-If you are only planing to run OT... You only need to install:
-
 If you are on x64 make sure you install both the x64 and x32 versions.
-
-Visual C++ Redistributable for Visual Studio 2012 Update 1
-http://www.microsoft.com/en-au/download/details.aspx?id=30679
 
 OpenSSL
 http://slproweb.com/products/Win32OpenSSL.html
@@ -34,21 +29,10 @@ http://slproweb.com/products/Win32OpenSSL.html
 
 If you are a developer and want to compile OT, you need the following:
 
-1. Microsoft Windows SDK for Windows 7 and .NET Framework 4
-http://www.microsoft.com/en-us/download/details.aspx?id=8279
+1. Microsoft Visual Studio Express 2013 for Windows Desktop
+http://www.visualstudio.com/en-us/downloads
 
-You only need to select the: "Windows Headers and Libraries"
-everthing else is unnessary.
-
-2. Microsoft Visual Studio Express 2012 for Windows Desktop
-http://www.microsoft.com/en-us/download/details.aspx?id=34673
-
-(select the wdexpress_full.exe file)
-
-3. Visual Studio 2012 Update 1
-http://www.microsoft.com/en-us/download/details.aspx?id=35774
-
-4. OpenSSL
+3. OpenSSL
 
 For OpenSSL make sure you install the Visual C++ 2008 Redistributables first.
 When installing OpenSSL, install to the default location, and select to install
@@ -57,9 +41,9 @@ the lib's to the system folders.
 http://slproweb.com/products/Win32OpenSSL.html
 
 Visual C++ 2008 Redistributables
-Win32 OpenSSL v1.0.1c
+Win32 OpenSSL v1.0.1e
 Visual C++ 2008 Redistributables (x64)
-Win64 OpenSSL v1.0.1c
+Win64 OpenSSL v1.0.1e
 
 
 5. Java SE Runtime Environment 7 (Win32 and x64) and Java SE Development Kit 7 (Win32 and x64)
@@ -81,52 +65,13 @@ https://github.com/FellowTraveler/Open-Transactions/tree/master/project/_3rdpart
 each of the following deps are uploaded to (maintained by da2ce7):
 
 
-Boost:
-
-SHA256(boost_1_53_0_vc110_xp.7z)= 048d36aacbefb41616b8b32856cd1da839cd06b3d2efb94bd07581095172744e
-
-https://mega.co.nz/#!ENonlZBb!FstucibTeAFPGAtniai341IUT-06OpgxSK73pJig2Ok
-
-
-Chaiscript:
-
-SHA256(ChaiScript_1858885_vc110_xp.7z)= f9caa1bb2df6e0bfa268554b22ea92fabbee1ec2bec309e5e1fb64d680558f27
-
-https://mega.co.nz/#!FJIGXQAb!anOSDgNbQg0cj8COX6zTlkWKjC0JNN9gO7iMD36qgUE
-
-
-Protobuf:
-
-SHA256(protobuf-2.5.0_vs110_xp.7z)= fe311bd093dac5fa7bd9f528eaa7b1917836382f18ed4c99b321941ccf5e51a5
-
-https://mega.co.nz/#!RcAEFS6Z!Ke4b1EoD3UUjVAONIeAb11_CgzNgVX4vfXETbSZOKyg
-
-
-To generate the protobuf files, you need https://code.google.com/p/protobuf/downloads/detail?name=protoc-2.5.0-win32.zip
-Extract into a folder called "protoc-2.5.0-win32" that is on the same level as the "Open-Transactions" folder.
-
-
-ZeroMQ:
-
-SHA256(zeromq2-x_59002b6_vc110_xp.7z)= aa482ec0f0505b634dff7d938b3b6f81539928eb6c3c8eb183ac01205a9eb40d
-
-https://mega.co.nz/#!4cIi2Jib!TRbEMma57qenaYnjGKwQFQDmBIcjF_tX1nEBNhxez2E
-
-
-
-Boost (Win32 and x64)
-
-extract to:
-C:\boost_1_53_0
-
-
 ## Dependant LIB's
 
-ChaiScript (Latest GIT Version)
+ChaiScript 5.1 (Latest GIT Version)
 
 Google Protocol Buffers
 
-ZeroMQ
+ZeroMQ 2x
 
 
 You need to merge all the the 'lib' and 'include' folders in each of the archives

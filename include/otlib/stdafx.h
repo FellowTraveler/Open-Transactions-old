@@ -23,6 +23,7 @@
 #include <stack>
 #include <deque>
 #include <vector>
+#include <locale>
 
 #ifdef _WIN32
 #include <memory>

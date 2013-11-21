@@ -152,13 +152,13 @@ short          BigInteger::toShort        () const { return convertToSignedPrimi
 BigInteger::CmpRes BigInteger::compareTo(const BigInteger &x) const {
 	// A greater sign implies a greater number
 	if (sign < x.sign)
-		return less;
+		return bigless;
 	else if (sign > x.sign)
-		return greater;
+		return biggreater;
 	else switch (sign) {
 		// If the signs are the same...
 	case zero:
-		return equal; // Two zeros are equal
+		return bigequal; // Two zeros are equal
 	case positive:
 		// Compare the magnitudes
 		return mag.compareTo(x.mag);
@@ -198,18 +198,18 @@ void BigInteger::add(const BigInteger &a, const BigInteger &b) {
 	} else {
 		// Otherwise, their magnitudes must be compared.
 		switch (a.mag.compareTo(b.mag)) {
-		case equal:
+		case bigequal:
 			// If their magnitudes are the same, copy zero.
 			mag = 0;
 			sign = zero;
 			break;
 			// Otherwise, take the sign of the greater, and subtract
 			// the lesser magnitude from the greater magnitude.
-		case greater:
+		case biggreater:
 			sign = a.sign;
 			mag.subtract(a.mag, b.mag);
 			break;
-		case less:
+		case bigless:
 			sign = b.sign;
 			mag.subtract(b.mag, a.mag);
 			break;
@@ -237,19 +237,19 @@ void BigInteger::subtract(const BigInteger &a, const BigInteger &b) {
 		// Otherwise, their magnitudes must be compared.
 		switch (a.mag.compareTo(b.mag)) {
 			// If their magnitudes are the same, copy zero.
-		case equal:
+		case bigequal:
 			mag = 0;
 			sign = zero;
 			break;
 			// If a's magnitude is greater, take a.sign and
 			// subtract a from b.
-		case greater:
+		case biggreater:
 			sign = a.sign;
 			mag.subtract(a.mag, b.mag);
 			break;
 			// If b's magnitude is greater, take the opposite
 			// of b.sign and subtract b from a.
-		case less:
+		case bigless:
 			sign = Sign(-b.sign);
 			mag.subtract(b.mag, a.mag);
 			break;
