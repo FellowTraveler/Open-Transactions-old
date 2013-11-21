@@ -2590,169 +2590,17 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         true
     }
     // -------------------------------
-    
-    // Someday
-    /*
-    public static WalletData getWalletData() {
-        
-        WalletData walletData = null;
-        Storable storable = null;
-        if (Exists("moneychanger", "gui_wallet.dat")) {
-            storable = QueryObject(StoredObjectType.STORED_OBJ_WALLET_DATA, "moneychanger", "gui_wallet.dat");
-            if (storable == null) {
-                return null;
-            }
-            walletData = WalletData.ot_dynamic_cast(storable);
-        } else {
-            storable = CreateObject(StoredObjectType.STORED_OBJ_WALLET_DATA);
-            if (storable == null) {
-                return null;
-            }
-            walletData = WalletData.ot_dynamic_cast(storable);
-        }
-        
-        return walletData;
-    }
-    
-    public static MarketList getMarketList(String serverID) {
-        
-        MarketList marketList = null;
-        Storable storable = null;
-        if (Exists("markets", serverID, "market_data.bin")) {
-            storable = QueryObject(StoredObjectType.STORED_OBJ_MARKET_LIST, "markets", serverID, "market_data.bin");
-            if (storable == null) {
-                return null;
-            }
-            marketList = MarketList.ot_dynamic_cast(storable);
-        } else {
-            storable = CreateObject(StoredObjectType.STORED_OBJ_MARKET_LIST);
-            if (storable == null) {
-                return null;
-            }
-            marketList = MarketList.ot_dynamic_cast(storable);
-        }
-        
-        return marketList;
-    }
-    
-    public static OfferListMarket getMarketOffer(String serverID, String marketID) {
-        
-        OfferListMarket offerListMarket = null;
-        Storable storable = null;
-        if (Exists("markets", serverID, "offers", marketID + ".bin")) {
-            storable = QueryObject(StoredObjectType.STORED_OBJ_OFFER_LIST_MARKET, "markets", serverID, "offers", marketID + ".bin");
-            if (storable == null) {
-                return null;
-            }
-            offerListMarket = OfferListMarket.ot_dynamic_cast(storable);
-        } else {
-            storable = CreateObject(StoredObjectType.STORED_OBJ_OFFER_LIST_MARKET);
-            if (storable == null) {
-                return null;
-            }
-            offerListMarket = OfferListMarket.ot_dynamic_cast(storable);
-        }
-        
-        return offerListMarket;
-    }
-    
-    public static TradeListNym getNYMTrades(String serverID, String nymID) {
-        
-        TradeListNym tradeListNym = null;
-        Storable storable = null;
-        if (Exists("nyms", "trades", serverID, nymID)) {
-            storable = QueryObject(StoredObjectType.STORED_OBJ_TRADE_LIST_NYM, "nyms", "trades", serverID, nymID);
-            if (storable == null) {
-                return null;
-            }
-            tradeListNym = TradeListNym.ot_dynamic_cast(storable);
-        } else {
-            storable = CreateObject(StoredObjectType.STORED_OBJ_TRADE_LIST_NYM);
-            if (storable == null) {
-                return null;
-            }
-            tradeListNym = TradeListNym.ot_dynamic_cast(storable);
-        }
-        
-        return tradeListNym;
-    }
-    
-    public static OfferListNym getNYMOffer(String serverID, String nymID) {
-        
-        OfferListNym offerListNym = null;
-        Storable storable = null;
-        if (Exists("nyms", serverID, "offers", nymID + ".bin")) {
-            storable = QueryObject(StoredObjectType.STORED_OBJ_OFFER_LIST_NYM, "nyms", serverID, "offers", nymID + ".bin");
-            if (storable == null) {
-                return null;
-            }
-            offerListNym = OfferListNym.ot_dynamic_cast(storable);
-        } else {
-            storable = CreateObject(StoredObjectType.STORED_OBJ_OFFER_LIST_NYM);
-            if (storable == null) {
-                return null;
-            }
-            offerListNym = OfferListNym.ot_dynamic_cast(storable);
-        }
-        
-        return offerListNym;
-    }
-    
-    public static TradeListMarket getMarketTradeList(String serverID, String marketID) {
-        
-        TradeListMarket tradeListMarket = null;
-        Storable storable = null;
-        if (Exists("markets", serverID, "recent", marketID + ".bin")) {
-            storable = QueryObject(StoredObjectType.STORED_OBJ_TRADE_LIST_MARKET, "markets", serverID, "recent", marketID + ".bin");
-            if (storable == null) {
-                return null;
-            }
-            tradeListMarket = TradeListMarket.ot_dynamic_cast(storable);
-        } else {
-            storable = CreateObject(StoredObjectType.STORED_OBJ_TRADE_LIST_MARKET);
-            if (storable == null) {
-                return null;
-            }
-            tradeListMarket = TradeListMarket.ot_dynamic_cast(storable);
-        }
-        
-        return tradeListMarket;
-    }
-                                                                          
-    public static AddressBook getAddressBook() {
-        
-        AddressBook addressBook = null;
-        Storable storable = null;
-        if (Exists("moneychanger", "gui_contacts.dat")) {
-            storable = QueryObject(StoredObjectType.STORED_OBJ_ADDRESS_BOOK, "moneychanger", "gui_contacts.dat");
-            if (storable == null) {
-                return null;
-            }
-            addressBook = AddressBook.ot_dynamic_cast(storable);
-        } else {
-            storable = CreateObject(StoredObjectType.STORED_OBJ_ADDRESS_BOOK);
-            if (storable == null) {
-                return null;
-            }
-            addressBook = AddressBook.ot_dynamic_cast(storable);
-        }
-        
-        return addressBook;
-    }
-    */
-        
-    
-    
-    
+
     def Utility::getIntermediaryFiles(serverID, nymID, accountID)
     {
         // Returning...
         this.getIntermediaryFiles(serverID, nymID, accountID, false) //bForceDownload=false
     }
 
-    def Utility::getIntermediaryFiles( serverID,  nymID,  accountID, bForceDownload) // boolean bForceDownload=false
+// DEPRECATED
+    def Utility::getIntermediaryFiles_old( serverID,  nymID,  accountID, bForceDownload) // boolean bForceDownload=false
     {
-        var strLocation = "Utility::getIntermediaryFiles"
+        var strLocation = "Utility::getIntermediaryFiles_old"
                                                                           
         if (!VerifyStringVal(serverID) || serverID.size() < 10) 
         {
@@ -2773,14 +2621,14 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         var bWasSentInbox   = OTBool(false)
         var bWasSentAccount = OTBool(false)
         // -----------------------------------------------------
-        var nGetInboxAcct = this.getInboxAccount(serverID, nymID, accountID, bWasSentInbox, bWasSentAccount, bForceDownload)
+        var nGetInboxAcct = this.getInboxAccount_old(serverID, nymID, accountID, bWasSentInbox, bWasSentAccount, bForceDownload)
         
         // if we received an error state, and the "getAccount" message wasn't even sent,
         // then no point doing a bunch of retries -- it failed.
         //
         if ( ((-1) == nGetInboxAcct) && !bWasSentAccount.getBooleanValue() )
         {
-            OT_API_Output(0, strLocation + ": this.getInboxAccount failed, without even sending getAccount. (Returning false.)\n")
+            OT_API_Output(0, strLocation + ": getInboxAccount_old failed, without even sending getAccount. (Returning false.)\n")
             return false
         }
         
@@ -2793,25 +2641,25 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         }
         else if (1 != nGetInboxAcct)
         {
-            OT_API_Output(0, strLocation + ": getInboxAccount failed. (Trying one more time...)\n")
+            OT_API_Output(0, strLocation + ": getInboxAccount_old failed. (Trying one more time...)\n")
             
             // --------------------------------------
             var nGetRequest = this.getRequestNumber(serverID, nymID); 
             
             if (1 != nGetRequest)
             {
-                OT_API_Output(0, strLocation + ": Failure: getInboxAccount failed, then I tried to resync with getRequestNumber and then that failed too. (I give up.)\n")
+                OT_API_Output(0, strLocation + ": Failure: getInboxAccount_old failed, then I tried to resync with getRequestNumber and then that failed too. (I give up.)\n")
                 return false               
             }            
             // --------------------------------------
-            var nSecondtry = this.getInboxAccount(serverID, nymID, accountID, bWasSentInbox, bWasSentAccount, bForceDownload);
+            var nSecondtry = this.getInboxAccount_old(serverID, nymID, accountID, bWasSentInbox, bWasSentAccount, bForceDownload);
             
             if (((-1) == nSecondtry) && !bWasSentAccount.getBooleanValue())
             {
                 // if we received an error state, and the "getAccount" message wasn't even sent,
                 // then no point doing a bunch of retries -- it failed.
                 //
-                OT_API_Output(0, strLocation + ": getInboxAccount failed a second time, without even sending getAccount. (Returning false.)\n")
+                OT_API_Output(0, strLocation + ": getInboxAccount_old failed a second time, without even sending getAccount. (Returning false.)\n")
                 return false
             }
             // If it wasn't sent, and 0 was returned, that means
@@ -2824,10 +2672,10 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
             
             else if (1 != nSecondtry) 
             {
-                OT_API_Output(0, strLocation + ": getInboxAccount re-try failed. (That's twice now--Returning false.) Value: " + nSecondtry.to_string() + "\n")
+                OT_API_Output(0, strLocation + ": getInboxAccount_old re-try failed. (That's twice now--Returning false.) Value: " + nSecondtry.to_string() + "\n")
                 return false
             }
-            OT_API_Output(0, strLocation + ": getInboxAccount second call succeeded. (Continuing...)\n")
+            OT_API_Output(0, strLocation + ": getInboxAccount_old second call succeeded. (Continuing...)\n")
         }
         // *****************************************************************************
         
@@ -2894,8 +2742,234 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         //
         true
     }
-    
-    
+
+
+// NOTE: This is a new version, that uses getInboxAccount new version, which
+// uses getAccountFiles instead of getAccount, getInbox, and getOutbox.
+    def Utility::getIntermediaryFiles( serverID,  nymID,  accountID, bForceDownload) // boolean bForceDownload=false
+    {
+        var strLocation = "Utility::getIntermediaryFiles"
+                                                                          
+        if (!VerifyStringVal(serverID) || serverID.size() < 10) 
+        {
+            OT_API_Output(0, strLocation + ": NULL or invalid serverID.\n")
+            return false
+        }
+        if (!VerifyStringVal(nymID) || nymID.size() < 10) 
+        {
+            OT_API_Output(0, strLocation + ": NULL or invalid nymID.\n")
+            return false
+        }
+        if (!VerifyStringVal(accountID) || accountID.size() < 10) 
+        {
+            OT_API_Output(0, strLocation + ": NULL or invalid accountID.\n")
+            return false
+        }
+        // -----------------------------------------------------
+        var bWasSentInbox   = OTBool(false)
+        var bWasSentAccount = OTBool(false)
+        // -----------------------------------------------------
+        // This is a new version of getInboxAccount that downloads ALL
+        // THREE files (account/inbox/outbox) in a single server message.
+        //
+        var nGetInboxAcct = this.getInboxAccount(serverID, nymID, accountID, bWasSentInbox, bWasSentAccount, bForceDownload)
+        
+        // if we received an error state, and the "getAccountFiles" message wasn't even sent,
+        // then no point doing a bunch of retries -- it failed.
+        //
+        if ( (-1) == nGetInboxAcct)
+        {
+            if ( !bWasSentAccount.getBooleanValue() )
+            {
+                OT_API_Output(0, strLocation + ": this.getInboxAccount failed, without even sending getAccountFiles. (Returning false.)\n")
+                return false
+            }
+        }
+        // -----------------------------------------------------
+
+        // If it wasn't sent, and 0 was returned, that means
+        // no error: we already have the latest inbox. (Nothing done.)
+        //
+        else if (!bWasSentInbox.getBooleanValue() && (0 == nGetInboxAcct))
+        {
+            // we don't return true here because getOutbox used to have to happen below.
+        }
+        else if (1 != nGetInboxAcct)
+        {
+            OT_API_Output(0, strLocation + ": getInboxAccount failed. (Trying one more time...)\n")
+            
+            // --------------------------------------
+            var nGetRequest = this.getRequestNumber(serverID, nymID); 
+            
+            if (1 != nGetRequest)
+            {
+                OT_API_Output(0, strLocation + ": Failure: getInboxAccount failed, then I tried to resync with getRequestNumber and then that failed too. (I give up.)\n")
+                return false               
+            }
+            else // TODO: REMOVE THIS BLOCK ONCE THE SERVERS ALL SUPPORT NEW "getAccountFiles" message.
+            {
+                // Maybe the server doesn't support the new getAccountFiles
+                // message yet -- so let's just call the old version of the function we're currently in.
+                
+                // TODO: LONGER TERM, remove this call to _old entirely.
+                // AND: remove this 'else' -- just let it fall through to the getRequest / retry.
+                //
+                // UNTIL WE REMOVE THIS, any sync issue with the request number will cause this
+                // function to download the account/inbox/outbox individually, due to this call
+                // here to the old version.
+                
+                return this.getIntermediaryFiles_old( serverID,  nymID,  accountID, bForceDownload)
+            }
+            // --------------------------------------
+            // We sync'd the request number, so now we try the function again...
+            //
+            var nSecondtry = this.getInboxAccount(serverID, nymID, accountID, bWasSentInbox, bWasSentAccount, bForceDownload);
+            
+            if (((-1) == nSecondtry) && !bWasSentAccount.getBooleanValue())
+            {
+                // if we received an error state, and the "getAccountFiles" message wasn't even sent,
+                // then no point doing a bunch of retries -- it failed.
+                //
+                OT_API_Output(0, strLocation + ": getInboxAccount failed a second time, without even sending getAccountFiles. (Returning false.)\n")
+                return false
+            }
+            // If it wasn't sent, and 0 was returned, that means
+            // no error: we already have the latest inbox. (Nothing done.)
+            //
+            if (!bWasSentInbox.getBooleanValue() && (0 == nSecondtry))                 
+            {
+                // we don't return true here because getOutbox used to have to happen below.
+            }
+            
+            else if (1 != nSecondtry) 
+            {
+                OT_API_Output(0, strLocation + ": getInboxAccount re-try failed. (That's twice now--Returning false.) Value: " + nSecondtry.to_string() + "\n")
+                return false
+            }
+            OT_API_Output(0, strLocation + ": getInboxAccount second call succeeded. (Continuing...)\n")
+        }
+        // *****************************************************************************
+        
+        // Returning...
+        //
+        true
+    }
+
+
+// NOTE: This is a new version that uses the new server message, getAccountFiles
+// (Which combines getAccount, getInbox, and getOutbox into a single message.)
+    def Utility::getInboxAccount(serverID, nymID, accountID, bWasSentInbox, bWasSentAccount, bForceDownload) //bForceDownload=false
+    {
+        var strLocation = "Utility::getInboxAccount"
+
+        bWasSentAccount.setBooleanValue(false)
+        bWasSentInbox.  setBooleanValue(false)
+
+        // ***************************************************
+        //
+        // (Success means both were downloaded, if necessary.)
+        //
+        // FIRST WE DO THE ACCOUNT...
+        //
+        // ***************************************************
+        // GET ACCOUNT
+        //
+        OT_API_FlushMessageBuffer()
+        
+        var nRequestNum = OT_API_getAccountFiles(serverID, nymID, accountID) // <===== ATTEMPT TO SEND MESSAGE
+        
+        if ((-2) == nRequestNum)
+        {
+            OT_API_Output(0, strLocation + ": ERROR, not supported. (-2 was returned.)\n")
+            return (-1) // -2 is also possible at some future date. (If the request number won't fit in an int, this is returned and then you can retrieve the actual number via a separate call.)
+        }
+        else if ((-1) == nRequestNum)
+        {
+            OT_API_Output(0, strLocation + ": Failed to send getAccountFiles message due to error.\n")
+            return (-1)
+        }
+        else if ( 0 == nRequestNum)
+        {
+            OT_API_Output(0, strLocation + ": Didn't send getAccountFiles message, but NO error occurred, either. (In this case, SHOULD NEVER HAPPEN. Treating as Error.)\n")
+            return (-1)
+        }
+        else if (nRequestNum < 0)
+        {
+            OT_API_Output(0, strLocation + ": Unexpected failure sending getAccountFiles. Request number: " + nRequestNum.to_string() + "\n")
+            return (-1)
+        }
+        
+        bWasSentAccount.setBooleanValue(true)
+        bWasSentInbox.  setBooleanValue(true)
+        
+        // ***************************************************
+        // -1 for error
+        //  0 for reply: failure
+        //  1 for reply: success
+        //
+        var nReturn = this.receiveReplySuccessLowLevel(serverID, nymID, nRequestNum, "getInboxAccount") // <============ RETURN VALUE
+        
+//      OT_API_Output(0, "IN getInboxAccount " + getLastReplyReceived())
+        
+        var bAccount = ifB((1 == nReturn), true, false)
+        
+        // BY this point, we definitely have the request number, which means the
+        // message was actually SENT. (At least.) This also means we can use nRequestNum
+        // later to query for a copy of that sent message.
+        // Let's go ahead, in this case, and remove that now:
+        //
+        // ----------------------------------------------
+//      var nRemovedSentMsg = OT_API_RemoveSentMessage(Integer.toString(nRequestNum), serverID, nymID);
+//
+//      // NOTE: The above call is unnecessary, since a successful process means
+//      // we already received the successful server reply, and OT's "ProcessServerReply"
+//      // already removed the sent message from the sent buffer (so no need to do that here.)
+//        
+//      if (nRemovedSentMsg < 1) // (not success.)
+//      {
+//          OT_API_Output(0, "getInboxAccount: ERROR: OT_API_RemoveSentMessage returned: " + nRemovedSentMsg);
+//      }
+        
+        if (nReturn < 0) // error
+        {
+            OT_API_Output(0, strLocation + ": Error in getAccountFiles: " + nReturn.to_string() + ".  (I give up.)\n")
+            return (-1)
+        }
+        // ***************************************************
+        
+        if (!bAccount)
+        {
+            OT_API_Output(0, strLocation + ": getAccountFiles failed, returning: " + nReturn.to_string() + "\n")
+        }
+        // --------------------------
+        else
+        {
+            // ---------------------------------
+            // DOWNLOAD THE BOX RECEIPTS.
+            //
+            var nBoxType = 1
+            if (!this.insureHaveAllBoxReceipts(serverID, nymID, accountID, nBoxType)) // <===== nBoxType = 1 aka INBOX
+            {
+                OT_API_Output(0, strLocation + ": getAccountFiles succeeded, but then insureHaveAllBoxReceipts failed on the inbox. (I give up.)\n")
+                return (-1)
+            }
+            // ---------------------------------
+            nBoxType = 2
+            if (!this.insureHaveAllBoxReceipts(serverID, nymID, accountID, nBoxType)) // <===== nBoxType = 2 aka OUTBOX
+            {
+                OT_API_Output(0, strLocation + ": getAccountFiles succeeded, but then insureHaveAllBoxReceipts failed on the outbox. (I give up.)\n")
+                return (-1)
+            }
+            // ---------------------------------
+        }
+        
+        // Returning...
+        //
+        return nReturn
+    }
+
+
+
     // Same as the above function, except you only have to pass the accountID.
     // (instead of 3 IDs...)
     //
@@ -2947,18 +3021,17 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     // versions in separate files. These are retrieved individually from the server after the inbox itself
     // is, and then each is verified against a hash kept inside its abbreviated version.)
     // DONE
-//  def Utility::getInboxAccount(String serverID, String nymID, String accountID, OTBool bWasSentInbox, OTBool bWasSentAccount)
     def Utility::getInboxAccount(       serverID,        nymID,        accountID,        bWasSentInbox,        bWasSentAccount)
     {
         // Returning...
         //
         this.getInboxAccount(serverID, nymID, accountID, bWasSentInbox, bWasSentAccount, false) // bForceDownload = false
     }
-    
-//  def Utility::getInboxAccount(String serverID, String nymID, String accountID, OTBool bWasSentInbox, OTBool bWasSentAccount, boolean bForceDownload) //bForceDownload=false
-    def Utility::getInboxAccount(       serverID,        nymID,        accountID,        bWasSentInbox,        bWasSentAccount,         bForceDownload) //bForceDownload=false
+
+// DEPRECATED
+    def Utility::getInboxAccount_old(       serverID,        nymID,        accountID,        bWasSentInbox,        bWasSentAccount,         bForceDownload) //bForceDownload=false
     {
-        var strLocation = "Utility::getInboxAccount"
+        var strLocation = "Utility::getInboxAccount_old"
 
         bWasSentAccount.setBooleanValue(false)
         bWasSentInbox.  setBooleanValue(false)
@@ -3069,7 +3142,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     //  1 reply received: success == true.  
     //  bWasSent gets set to TRUE once the message is confirmed as sent.
     //
-    //def Utility::getInboxLowLevel(String serverID, String nymID, String accountID, OTBool bWasSent)
+// DEPRECATED
     def Utility::getInboxLowLevel( serverID,  nymID,  accountID,  bWasSent)
     {
         // Returning...
@@ -3077,8 +3150,8 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         this.getInboxLowLevel(serverID, nymID, accountID, bWasSent, false) // bForce defaults to FALSE 
     }
 
-//    def Utility::getInboxLowLevel(String serverID, String nymID, String accountID, OTBool bWasSent, boolean bForce) // bForce defaults to FALSE 
-    def Utility::getInboxLowLevel( serverID,  nymID,  accountID,  bWasSent,  bForce) // bForce defaults to FALSE 
+// DEPRECATED
+    def Utility::getInboxLowLevel( serverID,  nymID,  accountID,  bWasSent,  bForce) // bForce defaults to FALSE
     {
         var strLocation = "Utility::getInboxLowLevel"
 
@@ -3201,7 +3274,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     //  1 reply received: success == true.  
     //  bWasSent gets set to TRUE once the message is confirmed as sent.
     //
-    //public static int getOutboxLowLevel(String serverID, String nymID, String accountID, OTBool bWasSent)
+// DEPRECATED
     def Utility::getOutboxLowLevel( serverID,  nymID,  accountID,  bWasSent)
     {
         // Returning..
@@ -3209,6 +3282,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         this.getOutboxLowLevel(serverID, nymID, accountID, bWasSent, false) // bForce defaults to FALSE 
     }
 
+// DEPRECATED
     //public static int getOutboxLowLevel(String serverID, String nymID, String accountID, OTBool bWasSent, boolean bForce) // bForce defaults to FALSE 
     def Utility::getOutboxLowLevel( serverID,  nymID,  accountID,  bWasSent,  bForce) // bForce defaults to FALSE 
     {        

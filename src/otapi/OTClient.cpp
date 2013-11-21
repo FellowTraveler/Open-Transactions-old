@@ -2992,7 +2992,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
     if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@checkUser"))
     {
         const OTString  strNymID2(theReply.m_strNymID2),
-            strPubkey(theReply.m_strNymPublicKey.Get()); // Old style (It's deprecated to pass a pubkey directly like this.)
+                        strPubkey(theReply.m_strNymPublicKey.Get()); // Old style (It's deprecated to pass a pubkey directly like this.)
 
         // First try to get Credentials, if there are any.
         //
@@ -3146,29 +3146,10 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
         // This block assumes that the above "@notarizeTransactions", being successful, probably changed
         // the account balance. A nice GUI would probably interpret the reply and edit the local files
         // to update them to match (since it was successful). In fact, the above call to ProcessIncomingTransactions
-        // does some of that sort of stuff already, at least for issued numbers on the nym. For now, I'm taking
-        // the easy way out:  I added a build option that just re-downloads those files (below) whenever they
-        // probably changed.  If the below getAccount is successful, that will similarly trigger getOutbox, which
-        // triggers getInbox, which triggers processInbox, which triggers getAccount, so technically it could go
-        // in a circle for a while :P  I'm firing off these messages like how a nice client GUI might do it.
-        // Basically just to make the test client easier to use, and possibly to make the API easier for developers
-        // as well (We'll see.)
+        // does some of that sort of stuff already, at least for issued numbers on the nym.
         //
-        // UPDATE: I don't do that shit anymore (the "firing off these messages like how a nice
-        // GUI would probably do it.") Too many potential network problems, which I only ran into when we started testing
-        // with a real server and users, including users with a bad network connection. The proper way to do it is,
-        // the GUI must call the messages as appropriate, and manage the timing, retries, message combinations, etc ITSELF.
-        // As this can get a little complicated (not really, see the use cases wiki page) the best solution was
-        // to write some even higher-level API calls in the Java, which greatly simplified the process of using any
-        // OT message, often down to a single function call. I will probably port those calls soon to the normal OT API
-        // so they are available within OT-scripts also.
-#if defined (TEST_CLIENT)
-        if (!IsRunningAsScript())
-        {
-            OTLog::vOutput(0, "%s%s%s", theReply.m_bSuccess ? "\n SUGGEST you next 'get' (account): " : "",
-                theReply.m_bSuccess ? theReply.m_strAcctID.Get() : "", theReply.m_bSuccess ? "\n\n" : "");
-        }
-#endif
+        // (For now we just re-download the files.)
+        
         return true;
     }
     else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@getTransactionNum"))
@@ -3196,15 +3177,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
             }
         }
         // -------------------------------
-#if defined (TEST_CLIENT)
-        if (!IsRunningAsScript())
-        {
-            if (theReply.m_bSuccess)
-                OTLog::vOutput(0, "\n\n SUGGEST you next 'y' (Download latest nymbox for: %s) \n"
-                "I also suggest you use the current command ('n') 5 or 10 times in a row before doing the y.\n\n",
-                theReply.m_strNymID.Get());
-        }
-#endif
         return true;
     }
 
@@ -3280,13 +3252,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
             theNymbox.SignContract(*pNym); // UPDATE: Releasing the signature again, since Receipts are now fully functional.
             theNymbox.SaveContract();		// Thus we can prove the Nymbox using the last signed transaction receipt. This means
             theNymbox.SaveNymbox();			// the receipt is our proof, and the nymbox becomes just an intermediary file that is
-            // downloaded occasionally (like checking for new email) but no trust is risked since the dl'd
-            // file is always verified against the receipt!
-
-#if defined (TEST_CLIENT)
-            if (!IsRunningAsScript())
-                OTLog::Output(0, theReply.m_bSuccess ? "\n SUGGEST you next do a 'py' command (processNymbox)\n\n" : "");
-#endif	
+                                            // downloaded occasionally (like checking for new email) but no trust is risked since
+                                            // the downloaded file is always verified against the receipt!
         }
         else 
         {
@@ -5018,38 +4985,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             OTDB::StorePlainString(strFinal.Get(),    OTFolders::Receipt().Get(), 
                                 strServerID.Get(), strReceiptFilename.Get());
                             // -------------------------------------------------
-                            // If this was a successful processInbox, then I go ahead and getAccount again, since it's probably changed.
-                            // Careful in case this might infinite loop  :P
-#if defined (TEST_CLIENT)
-                            if (!IsRunningAsScript() &&
-                                (OTItem::acknowledgement == pReplyItem->GetStatus()) &&
-                                (theReply.m_strCommand.Compare("@processInbox")))
-                            {
-                                OTAccount * pAccount = m_pWallet->GetAccount(ACCOUNT_ID);
-                                const OTString strAcctID(*pAccount);
-
-                                OTLog::vOutput(0, "\n SUGGEST you next do a 'get' command (getAccount: %s)\n\n",
-                                    strAcctID.Get());
-                                //                              OTLog::vOutput(0, "%s%s%s", theReply.m_bSuccess ? "\n SUGGEST you next 'get' (account): " : "",
-                                //                                          theReply.m_bSuccess ? theReply.m_strAcctID.Get() : "", theReply.m_bSuccess ? "\n\n" : "");
-                                //
-
-                                //                              OTMessage theMessage;
-                                //							
-                                //                              if ( (NULL != pAccount) && 
-                                //                                  ProcessUserCommand(OTClient::getAccount, theMessage, 
-                                //                                                     *pNym, 
-                                ////                                                   *(pAssetContract),
-                                //                                                     *(theConnection.GetServerContract()), 
-                                //                                                     pAccount)) 
-                                //                              {
-                                //                                  // Sign it and send it out.
-                                //                                  theConnection.ProcessMessageOut(theMessage);
-                                //                              }
-                                //                              else
-                                //                                  OTLog::Error("Error processing getAccount command in OTClient::ProcessServerReply\n");
-                            }
-#endif
                         }
                         else // This should never happen...
                         {
@@ -5084,28 +5019,252 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
         return true;
     }
 
+    else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@getAccountFiles")) // Replaces getAccount, getInbox, and getOutbox
+    {
+        OTLog::Output(0, "Received server response to getAccountFiles message.\n");
 
-    else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@getInbox"))
+        OTASCIIArmor & ascArmor  = theReply.m_ascPayload;  // containing account file + inbox and outbox.
+        const bool     bHasFiles = ascArmor.Exists();
+        // -------------------------------------------------
+        if (bHasFiles)
+        {
+            OTDB::Storable  * pStorable = OTDB::DecodeObject(OTDB::STORED_OBJ_STRING_MAP, ascArmor.Get());
+            OTCleanup<OTDB::Storable> theStorableAngel(pStorable); // It will definitely be cleaned up.
+            OTDB::StringMap * pMap = (NULL == pStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pStorable);
+            // -------------------------------------------------
+            if (NULL == pMap)
+                OTLog::vOutput(0, "%s: Failed decoding StringMap object in @getAccountFiles.\n", __FUNCTION__);
+            else
+            {
+                mapOfStrings & theMap = pMap->the_map;
+                // ----------------------------------------
+                OTString strAccount, strInbox, strOutbox;
+                // ----------------------------------------
+                mapOfStrings::iterator it_account = theMap.find("account");
+                mapOfStrings::iterator it_inbox   = theMap.find("inbox"  );
+                mapOfStrings::iterator it_outbox  = theMap.find("outbox" );
+                // ------------------------------------------------------------
+                if ((theMap.end() != it_account) && (it_account->second.size() > 0))
+                    strAccount = it_account->second.c_str();
+                // ------------------------------------------------------------
+                if ((theMap.end() != it_inbox) && (it_inbox->second.size() > 0))
+                    strInbox = it_inbox->second.c_str();
+                // ------------------------------------------------------------
+                if ((theMap.end() != it_outbox) && (it_outbox->second.size() > 0))
+                    strOutbox = it_outbox->second.c_str();
+                // ********************************************************************************************************
+                if (strAccount.Exists())
+                {
+                    // Load the account object from that string.
+                    OTAccount * pAccount = new OTAccount(USER_ID, ACCOUNT_ID, SERVER_ID);
+                    OTCleanup<OTAccount> theAngel(pAccount);
+                    
+                    if (pAccount && pAccount->LoadContractFromString(strAccount) && pAccount->VerifyAccount(*pServerNym))
+                    {
+                        OTLog::Output(2, "Saving updated account file to disk...\n");
+                        pAccount->ReleaseSignatures();	// So I don't get the annoying failure to verify message from the server's signature.
+                        // Will eventually end up keeping the signature, however, just for reasons of proof.
+                        // UPDATE (above) I now release signatures again since we have receipts functional. As long as receipt has server's signature, it can prove the others.
+                        pAccount->SignContract(*pNym);
+                        pAccount->SaveContract();
+                        pAccount->SaveAccount();
+                        
+                        // Next let's make sure the wallet's copy of this account is replaced with the new one...
+                        OTWallet * pWallet = theConnection.GetWallet();
+                        
+                        if (NULL != pWallet)
+                        {
+                            pWallet->AddAccount(*pAccount);
+                            pWallet->SaveWallet();
+                            // --------------------------------------------------
+                            theAngel.SetCleanupTargetPointer(NULL); // Success. The wallet "owns" it now, no need to clean it up.
+                        }
+                    }
+                }
+                // ********************************************************************************************************
+                
+                const OTString    strAcctID   (ACCOUNT_ID);
+                const std::string str_acct_id (strAcctID.Get());
+
+                
+                if (strInbox.Exists())
+                {
+                    const OTString strServerID(SERVER_ID);
+                    
+                    // Load the ledger object from strInbox
+                    OTLedger theInbox(USER_ID, ACCOUNT_ID, SERVER_ID);
+                    
+                    // I receive the inbox, verify the server's signature, then RE-SIGN IT WITH MY OWN
+                    // SIGNATURE, then SAVE it to local storage.  So any FUTURE checks of this inbox
+                    // would require MY signature, not the server's, to verify. But in this one spot,
+                    // just before saving, I need to verify the server's first.
+                    // UPDATE: Keeping the server's signature, and just adding my own.
+                    if (theInbox.LoadInboxFromString(strInbox) && theInbox.VerifySignature(*pServerNym)) // No VerifyAccount. Can't, because client hasn't had a chance yet to download the box receipts that go with this inbox -- and VerifyAccount() tries to load those, which would fail here...
+                    {
+                        // -----------------------------
+                        OTIdentifier THE_HASH;
+                        
+                        if (theReply.m_strInboxHash.Exists())
+                        {
+                            THE_HASH.SetString(theReply.m_strInboxHash);
+                            
+                            const bool bHash = pNym->SetInboxHash(str_acct_id, THE_HASH);
+                            
+                            if (!bHash)
+                                OTLog::vError("%s: Failed setting InboxHash on Nym for account: %s\n",
+                                              __FUNCTION__, str_acct_id.c_str());
+                            // ----------------------------------------------------
+                            else
+                            {
+                                OTPseudonym * pSignerNym = pNym;
+                                pNym->SaveSignedNymfile(*pSignerNym);
+                            }
+                        }
+                        // -------------------------------
+                        
+                        // If I have Transaction #35 signed out, and I use it to start a market offer (or any other cron item)
+                        // then it's always possible that a finalReceipt will pop into my Inbox while I'm asleep, closing
+                        // that transaction #. The server officially believes 35 is closed. Unfortunately, I still have it signed
+                        // out, on my side anyway, because I didn't know the finalReceipt came in.
+                        //
+                        // THEREFORE, WHEN A FINAL RECEIPT COMES IN, I NEED TO REMOVE ITS "in reference to" NUMBER FROM MY
+                        // ISSUED LIST. Here is clearly the best place for that:
+                        //
+                        FOR_EACH(mapOfTransactions, theInbox.GetTransactionMap())
+                        {
+                            OTTransaction * pTempTrans = (*it).second;
+                            OT_ASSERT(NULL != pTempTrans);
+                            
+                            // TODO security: Keep a client-side list of issued #s for finalReceipts. That way,
+                            // I'll be smart enough here not to actually remove just any number, unless it's actually
+                            // on my list of final receipts.  (The server does a similar thing already.)
+                            //
+                            if (OTTransaction::finalReceipt == pTempTrans->GetType())
+                            {
+                                OTLog::vOutput(2, "*** Removing opening issued number (%ld), since finalReceipt found when retrieving asset account inbox. ***\n",
+                                               pTempTrans->GetReferenceToNum());
+                                
+                                if (pNym->RemoveIssuedNum(*pNym, strServerID, pTempTrans->GetReferenceToNum(), true)) // bool bSave=true
+                                    OTLog::vOutput(1, "**** Due to finding a finalReceipt, REMOVING OPENING NUMBER FROM NYM:  %ld \n",
+                                                   pTempTrans->GetReferenceToNum());
+                                else
+                                    OTLog::vOutput(1, "**** Noticed a finalReceipt, but Opening Number %ld had ALREADY been removed from nym. \n",
+                                                   pTempTrans->GetReferenceToNum());
+                                
+//                              pNym->RemoveIssuedNum(*pNym, strServerID, pTempTrans->GetReferenceToNum(), true); // bSave = true;
+                                
+                            } // We also do this in AcceptEntireNymbox
+                        }
+                        
+                        // -----------------------------------------------
+                        // Now I'm keeping the server signature, and just adding my own. 
+                        theInbox.ReleaseSignatures(); // This is back. Why? Because we have receipts functional now.
+                        theInbox.SignContract(*pNym);
+                        theInbox.SaveContract();
+                        theInbox.SaveInbox();
+                    }
+                    else 
+                    {
+                        OTLog::vError("%s: Error loading (from string) or verifying inbox:\n\n%s\n",
+                                      __FUNCTION__, strInbox.Get());
+                    }
+                }
+                // ********************************************************************************************************
+                if (strOutbox.Exists())
+                {
+                    // Load the ledger object from strOutbox.
+                    OTLedger theOutbox(USER_ID, ACCOUNT_ID, SERVER_ID);
+
+                    // I receive the outbox, verify the server's signature, then RE-SIGN IT WITH MY OWN
+                    // SIGNATURE, then SAVE it to local storage.  So any FUTURE checks of this outbox
+                    // would require MY signature, not the server's, to verify. But in this one spot, 
+                    // just before saving, I need to verify the server's first.
+                    // UPDATE: keeping the server's signature, and just adding my own.
+                    if (theOutbox.LoadOutboxFromString(strOutbox) && theOutbox.VerifySignature(*pServerNym)) // No point calling VerifyAccount since the client hasn't even had a chance to download the box receipts yet...
+                    {
+                        // -----------------------------
+                        OTIdentifier THE_HASH;
+
+                        if (theReply.m_strOutboxHash.Exists())
+                        {
+                            THE_HASH.SetString(theReply.m_strOutboxHash);
+
+                            const bool bHash = pNym->SetOutboxHash(str_acct_id, THE_HASH);
+
+                            if (!bHash)
+                                OTLog::vError("%s: Failed setting OutboxHash on Nym for account: %s\n",
+                                              __FUNCTION__, str_acct_id.c_str());
+                            // ----------------------------------------------------
+                            else
+                            {
+                                OTPseudonym * pSignerNym = pNym;
+                                pNym->SaveSignedNymfile(*pSignerNym);
+                            }
+                        }
+                        // -------------------------------
+                        theOutbox.ReleaseSignatures();	// UPDATE: keeping the server's signature, and just adding my own.
+                        theOutbox.SignContract(*pNym);	// ANOTHER UPDATE: Removing signature again, since we have receipts functional now.
+                        theOutbox.SaveContract();
+                        theOutbox.SaveOutbox();
+                    }
+                    else 
+                    {
+                        OTLog::vError("%s: Error loading (from string) or verifying outbox:\n\n%s\n",
+                                      __FUNCTION__, strOutbox.Get());
+                    }
+                }
+                // ********************************************************************************************************
+            } // pMap loaded successfully.
+        } // Has the files.
+        // ---------------------------------------------------
+
+        return true;
+    }
+
+    else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@getAccount")) // Deprecated. (Replaced by getAccountFiles.)
+    {
+        // base64-Decode the server reply's payload into strAccount
+        OTString strAccount(theReply.m_ascPayload);
+        
+        // Load the account object from that string.
+        OTAccount * pAccount = new OTAccount(USER_ID, ACCOUNT_ID, SERVER_ID);
+        OTCleanup<OTAccount> theAngel(pAccount);
+        
+        if (pAccount && pAccount->LoadContractFromString(strAccount) && pAccount->VerifyAccount(*pServerNym))
+        {
+            OTLog::Output(2, "Saving updated account file to disk...\n");
+            pAccount->ReleaseSignatures();	// So I don't get the annoying failure to verify message from the server's signature.
+            // Will eventually end up keeping the signature, however, just for reasons of proof.
+            // UPDATE (above) I now release signatures again since we have receipts functional. As long as receipt has server's signature, it can prove the others.
+            pAccount->SignContract(*pNym);
+            pAccount->SaveContract();
+            pAccount->SaveAccount();
+            
+            // Next let's make sure the wallet's copy of this account is replaced with the new one...
+            OTWallet * pWallet = theConnection.GetWallet();
+            
+            if (NULL != pWallet)
+            {
+                pWallet->AddAccount(*pAccount);
+                pWallet->SaveWallet();
+                // --------------------------------------------------
+                theAngel.SetCleanupTargetPointer(NULL); // Success. The wallet "owns" it now, no need to clean it up.
+            }
+        }
+        return true;
+    }
+
+    else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@getInbox")) // Deprecated. (Replaced by getAccountFiles.)
     {
         const OTString strServerID(SERVER_ID);
-        OTString strReply(theReply);
 
-        OTLog::Output(0, "Received server response to Get Inbox message.\n");
-        //		OTLog::vOutput(0, "Received server response to Get Inbox message:\n%s\n", strReply.Get());
+        OTLog::Output(1, "Received server response to Get Inbox message.\n");
 
         // base64-Decode the server reply's payload into strInbox
         OTString strInbox(theReply.m_ascPayload);
 
-        //		OTLog::vError("INBOX CONTENTS:\n%s\n", strInbox.Get());
-
-        // Load the ledger object from that string.				
+        // Load the ledger object from that string.
         OTLedger theInbox(USER_ID, ACCOUNT_ID, SERVER_ID);	
-
-        //		OTString strTemp1(USER_ID);
-        //		OTString strTemp2(ACCOUNT_ID);
-        //		OTString strTemp3(SERVER_ID);
-        //		
-        //		OTLog::vError("@getInbox:  USER: %s  ACCT: %s  SERVER: %s \n", strTemp1.Get(), strTemp2.Get(), strTemp3.Get());
 
         // I receive the inbox, verify the server's signature, then RE-SIGN IT WITH MY OWN
         // SIGNATURE, then SAVE it to local storage.  So any FUTURE checks of this inbox
@@ -5177,76 +5336,25 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
             theInbox.SignContract(*pNym);
             theInbox.SaveContract();
             theInbox.SaveInbox();
-
-
-            // Obviously a real client will never do something as foolish as this below...
-            // (Accepting the entire inbox automatically--literally sending a signed message right
-            // back to the server accepting whatever was inside this ledger, without giving the user
-            // the opportunity to examine and reject those inbox items.)
-            // This could empty your account!  But of course for testing, I want to get the inbox
-            // and process it at the same time, since I already know what all the transactions are
-            // supposed to be.
-
-            // UPDATE: WHY is the below now entirely commented out? Because VerifyAccount() above is now commented out,
-            // since it tries to download the box receipts. (The client clearly hasn't had a chance yet to download those
-            // box receipts, since it's still processing the @getInbox message (where we are now.)  Therefore, the below
-            // VerifyBalanceReceipt is BOUND TO FAIL, and therefore there's no point calling it here. This was an early
-            // stage hack anyway -- a real client needs to call VerifyBalanceReceipt() ITSELF, and only AFTER it has 
-            // downloaded those box receipts.
-
-            //			if (OTTransaction::VerifyBalanceReceipt(*pServerNym, *pNym,
-            //													SERVER_ID,
-            //													ACCOUNT_ID))
-            //			{
-            //#if defined (TEST_CLIENT)
-            //			// New: In test client, get account results in get outbox, which results in get inbox.
-            //			// Normally getInbox then results in processInbox (involving a new balance agreement)
-            //			// therefore, we now VERIFY the newly-downloaded outbox, account, and inbox against
-            //			// the last signed receipt, before doing so!!  The Nym is verified too, but it should
-            //			// stay in sync, as should the outbox (?). The account and inbox, however, may change on
-            //			// the server side, and need to be re-downloaded to client side. When that happens,
-            //			// we end up RIGHT HERE, so this is the best place to verify the last signed receipt(s)
-            //			// against those new files to make sure they pass muster.
-            //			//
-            ////			if (!IsRunningAsScript())
-            ////				AcceptEntireInbox(theInbox, theConnection);
-            //#endif
-            //				OTLog::vOutput(0, "===> ** LAST SIGNED BALANCE RECEIPT *VERIFIED* against latest nym, account, outbox, and/or inbox!\n\n");
-            //			}
-            //			else 
-            //			{
-            //				OTLog::vOutput(0, "===> ** LAST SIGNED BALANCE RECEIPT *FAILED* against latest nym, account, outbox, and/or inbox.\n"
-            //							   "(IF THE ACCOUNT IS NEW, i.e. it's never transacted before, then there IS NOT YET ANY RECEIPT, so this error is normal.)\n");
-            //				
-            ////#if defined (TEST_CLIENT)
-            ////				if (!IsRunningAsScript())
-            ////					AcceptEntireInbox(theInbox, theConnection);
-            ////#endif	
-            //			}
-
-#if defined (TEST_CLIENT)
-            if (!IsRunningAsScript())
-                OTLog::Output(0, theReply.m_bSuccess ? "\n SUGGEST you next do a 'pi' command (processInbox)\n\n" : "");
-#endif				
         }
         else 
         {
-            OTLog::vError("Error loading or verifying inbox:\n\n%s\n", strInbox.Get());
+            OTLog::vError("Error loading (from string) or verifying inbox:\n\n%s\n", strInbox.Get());
         }
 
         return true;
     }
-    else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@getOutbox"))
+    else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@getOutbox")) // Deprecated. (Replaced by getAccountFiles.)
     {
-        OTString strReply(theReply);
 
-        OTLog::Output(0, "Received server response to Get Outbox message.\n");
-        //		OTLog::vOutput(0, "Received server response to Get Outbox message:\n%s\n", strReply.Get());
+        OTLog::Output(1, "Received server response to Get Outbox message.\n");
+//      OTString strReply(theReply);
+//		OTLog::vOutput(0, "Received server response to Get Outbox message:\n%s\n", strReply.Get());
 
         // base64-Decode the server reply's payload into strOutbox
         OTString strOutbox(theReply.m_ascPayload);
 
-        //		OTLog::vError("OUTBOX CONTENTS:\n%s\n", strOutbox.Get());
+//		OTLog::vError("OUTBOX CONTENTS:\n%s\n", strOutbox.Get());
 
         // Load the ledger object from that string.				
         OTLedger theOutbox(USER_ID, ACCOUNT_ID, SERVER_ID);	
@@ -5280,47 +5388,20 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                     pNym->SaveSignedNymfile(*pSignerNym);
                 }
             }
-            // -------------------------------            
-
+            // -------------------------------
             theOutbox.ReleaseSignatures();	// UPDATE: keeping the server's signature, and just adding my own.
             theOutbox.SignContract(*pNym);	// ANOTHER UPDATE: Removing signature again, since we have receipts functional now.
             theOutbox.SaveContract();
             theOutbox.SaveOutbox();
-
-#if defined (TEST_CLIENT)
-            if (!IsRunningAsScript())
-            {
-                OTAccount * pAccount = m_pWallet->GetAccount(ACCOUNT_ID);
-                const OTString strAcctID(*pAccount);
-
-                OTLog::vOutput(0, "\n SUGGEST you next do a 'i' command (getInbox: %s)\n\n",
-                    strAcctID.Get());
-
-                //				OTMessage theMessage;
-                //				
-                //				if ( (NULL != (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))) && 
-                //					ProcessUserCommand(OTClient::getInbox, theMessage, 
-                //									   *pNym, 
-                //	//								   *(pAssetContract),
-                //									   *(theConnection.GetServerContract()), 
-                //									   pAccount)) 
-                //				{
-                //					// Sign it and send it out.
-                //					theConnection.ProcessMessageOut(theMessage);
-                //				}
-                //				else
-                //					OTLog::Error("Error processing getInbox command in OTClient::ProcessServerReply\n");
-            }
-#endif
         }
         else 
         {
-            OTLog::vError("Error loading or verifying outbox:\n\n%s\n", strOutbox.Get());
+            OTLog::vError("Error loading (from string) or verifying outbox:\n\n%s\n", strOutbox.Get());
         }
-
 
         return true;
     }
+    
     else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@getContract"))
     {
         // base64-Decode the server reply's payload into strContract
@@ -5834,30 +5915,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                 m_pWallet->AddAccount(*pAccount);				
                 m_pWallet->SaveWallet(); 
 
-#if defined (TEST_CLIENT)
-                if (!IsRunningAsScript())
-                {
-                    const OTString strAcctID(*pAccount);
-
-                    OTLog::vOutput(0, "\n SUGGEST you next do an 'o' command (getOutbox: %s)\n\n",
-                        strAcctID.Get());					
-
-                    //					OTMessage theMessage;
-                    //					
-                    //					if (ProcessUserCommand(OTClient::getOutbox, theMessage, 
-                    //											*pNym, 
-                    ////											*(pAssetContract),
-                    //											*(theConnection.GetServerContract()), 
-                    //											pAccount)) 
-                    //					{
-                    //						// Sign it and send it out.
-                    //						theConnection.ProcessMessageOut(theMessage);
-                    //					}
-                    //					else
-                    //						OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @issueAssetType\n");
-                }
-#endif			
-
                 return true;
             }
             else 
@@ -5869,74 +5926,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
         }
     }
 
-    else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@getAccount"))
-    {
-        // base64-Decode the server reply's payload into strAccount
-        OTString strAccount(theReply.m_ascPayload);
-
-        //		OTLog::vError( "ACCOUNT CONTENTS:\n%s\n", strAccount.Get());
-
-        // Load the account object from that string.				
-        OTAccount * pAccount = new OTAccount(USER_ID, ACCOUNT_ID, SERVER_ID);
-
-        // TODO check the server signature on the account here. (Perhaps the message is good enough?
-        // After all, the message IS signed by the server and contains the Account.
-        if (pAccount && pAccount->LoadContractFromString(strAccount) && pAccount->VerifyAccount(*pServerNym))
-        {
-            OTLog::Output(2, "Saving updated account file to disk...\n");
-            pAccount->ReleaseSignatures();	// So I don't get the annoying failure to verify message from the server's signature.
-            // Will eventually end up keeping the signature, however, just for reasons of proof. 
-            // UPDATE (above) I now release signatures again since we have receipts functional. As long as receipt has server's signature, it can prove the others.
-            pAccount->SignContract(*pNym);
-            pAccount->SaveContract();
-            pAccount->SaveAccount();
-
-            // Next let's make sure the wallet's copy of this account is replaced with the new one...
-            OTWallet * pWallet = theConnection.GetWallet();
-
-            if (NULL != pWallet)
-            {
-                pWallet->AddAccount(*pAccount);
-                pWallet->SaveWallet();
-
-                // --------------------------------------------------
-
-#if defined (TEST_CLIENT)
-                if (!IsRunningAsScript())
-                {
-                    const OTString strAcctID(*pAccount);
-
-                    OTLog::vOutput(0, "\n SUGGEST you next do an 'o' command (getOutbox: %s)\n\n",
-                        strAcctID.Get());					
-
-                    //					OTMessage theMessage;
-                    //					
-                    //					if (ProcessUserCommand(OTClient::getOutbox, theMessage,
-                    //										   *pNym, 
-                    ////										*(pAssetContract),
-                    //										   *(theConnection.GetServerContract()), 
-                    //										   pAccount)) 
-                    //					{
-                    //						// Sign it and send it out.
-                    //						theConnection.ProcessMessageOut(theMessage);
-                    //					}
-                    //					else
-                    //						OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @getAccount\n");
-                }
-#endif			
-                // --------------------------------------------------
-
-                pAccount = NULL; // Success. The wallet "owns" it now, no need to clean it up.
-            }
-        }
-        // cleanup
-        if (pAccount)
-        {
-            delete pAccount;
-            pAccount = NULL;
-        }
-        return true;
-    }
     else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@createAccount"))
     {
         if (theReply.m_ascPayload.GetLength())
@@ -5972,29 +5961,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                 m_pWallet->AddAccount(*pAccount);
                 m_pWallet->SaveWallet();
 
-#if defined (TEST_CLIENT)
-                if (!IsRunningAsScript())
-                {
-                    const OTString strAcctID(*pAccount);
-
-                    OTLog::vOutput(0, "\n SUGGEST you next do an 'o' command (getOutbox: %s)\n\n",
-                        strAcctID.Get());					
-
-                    //					OTMessage theMessage;
-                    //					
-                    //					if (ProcessUserCommand(OTClient::getOutbox, theMessage, 
-                    //										   *pNym, 
-                    ////										*(pAssetContract),
-                    //										   *(theConnection.GetServerContract()), 
-                    //										   pAccount)) 
-                    //					{
-                    //						// Sign it and send it out.
-                    //						theConnection.ProcessMessageOut(theMessage);
-                    //					}
-                    //					else
-                    //						OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @createAccount\n");
-                }
-#endif			
                 return true;
             }
             else 
@@ -6103,8 +6069,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 
             // ------------------------------------------------------------------------
         }
-
         break;
+            
     case(OTClient::createUserAccount):
         {
             // -----------------------------

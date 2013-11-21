@@ -12404,8 +12404,8 @@ int32_t OTAPI_Wrap::sendUserInstrument(const std::string & SERVER_ID,
 int32_t OTAPI_Wrap::getRequest(const std::string & SERVER_ID,
                                const std::string & USER_ID)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_FAIL; }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_FAIL; }
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_FAIL; }
+	if (USER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"   ); OT_FAIL; }
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 
@@ -12426,9 +12426,9 @@ int32_t OTAPI_Wrap::issueAssetType(const std::string & SERVER_ID,
                                    const std::string & USER_ID,
                                    const std::string & THE_CONTRACT)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_FAIL; }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_FAIL; }
-	if (THE_CONTRACT.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT"		); OT_FAIL; }
+	if (SERVER_ID.empty())    { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"    ); OT_FAIL; }
+	if (USER_ID.empty())      { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"      ); OT_FAIL; }
+	if (THE_CONTRACT.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_CONTRACT" ); OT_FAIL; }
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 
@@ -12450,9 +12450,9 @@ int32_t OTAPI_Wrap::getContract(const std::string & SERVER_ID,
                                 const std::string & USER_ID,
                                 const std::string & ASSET_ID)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_FAIL; }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_FAIL; }
-	if (ASSET_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_FAIL; }
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_FAIL; }
+	if (USER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"   ); OT_FAIL; }
+	if (ASSET_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"  ); OT_FAIL; }
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAssetID(ASSET_ID);
 
@@ -12472,9 +12472,9 @@ int32_t OTAPI_Wrap::getMint(const std::string & SERVER_ID,
                             const std::string & USER_ID,
                             const std::string & ASSET_ID)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_FAIL; }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_FAIL; }
-	if (ASSET_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_FAIL; }
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_FAIL; }
+	if (USER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"   ); OT_FAIL; }
+	if (ASSET_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"  ); OT_FAIL; }
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAssetID(ASSET_ID);
 
@@ -12494,9 +12494,9 @@ int32_t OTAPI_Wrap::createAssetAccount(const std::string & SERVER_ID,
                                        const std::string & USER_ID,
                                        const std::string & ASSET_ID)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_FAIL; }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_FAIL; }
-	if (ASSET_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"			); OT_FAIL; }
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_FAIL; }
+	if (USER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"   ); OT_FAIL; }
+	if (ASSET_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ID"  ); OT_FAIL; }
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAssetID(ASSET_ID);
 
@@ -12514,17 +12514,42 @@ int32_t OTAPI_Wrap::createAssetAccount(const std::string & SERVER_ID,
 //  ...and in fact the requestNum IS the return value!
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
+// NOTE: Deprecated. Replaced by getAccountFiles
 int32_t OTAPI_Wrap::getAccount(const std::string & SERVER_ID,
                                const std::string & USER_ID,
                                const std::string & ACCT_ID)
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_FAIL; }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_FAIL; }
-	if (ACCT_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_ID"			); OT_FAIL; }
-
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_FAIL; }
+	if (USER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"   ); OT_FAIL; }
+	if (ACCT_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_ID"   ); OT_FAIL; }
+    
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCT_ID);
-
+    
 	return OTAPI_Wrap::OTAPI()->getAccount(theServerID, theUserID, theAcctID);
+}
+
+
+
+// Sends a message to the server to retrieve latest copy of an asset acct.
+// Returns int:
+// -1 means error; no message was sent.
+// -2 means the message was sent, but the request number must be passed as a string, so call OTAPI_Wrap::GetLargeRequestNum.
+//  0 means NO error, but also: no message was sent.
+// >0 means NO error, and the message was sent, and the request number fits into an integer...
+//  ...and in fact the requestNum IS the return value!
+//  ===> In 99% of cases, this LAST option is what actually happens!!
+//
+int32_t OTAPI_Wrap::getAccountFiles(const std::string & SERVER_ID,
+                                    const std::string & USER_ID,
+                                    const std::string & ACCT_ID)
+{
+	if (SERVER_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID" ); OT_FAIL; }
+	if (USER_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"   ); OT_FAIL; }
+	if (ACCT_ID.empty())   { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ACCT_ID"   ); OT_FAIL; }
+    
+	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCT_ID);
+    
+	return OTAPI_Wrap::OTAPI()->getAccountFiles(theServerID, theUserID, theAcctID);
 }
 
 
@@ -12542,8 +12567,8 @@ int32_t OTAPI_Wrap::getAccount(const std::string & SERVER_ID,
 std::string OTAPI_Wrap::GenerateBasketCreation(const std::string & USER_ID,
 										  const int64_t & MINIMUM_TRANSFER)
 {
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_FAIL; }
-	if (0 > MINIMUM_TRANSFER)	{ OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "MINIMUM_TRANSFER"	); OT_FAIL; }
+	if (USER_ID.empty())      { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "USER_ID"			); OT_FAIL; }
+	if (0 > MINIMUM_TRANSFER) { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "MINIMUM_TRANSFER"	); OT_FAIL; }
 
 	const OTIdentifier theUserID(USER_ID);
 
@@ -13766,7 +13791,7 @@ int32_t OTAPI_Wrap::queryAssetTypes(const std::string & SERVER_ID, const std::st
 //
 std::string OTAPI_Wrap::Message_GetPayload(const std::string & THE_MESSAGE)
 {
-	if (THE_MESSAGE.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_MESSAGE"		); OT_FAIL; }
+	if (THE_MESSAGE.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_MESSAGE"		); OT_FAIL; }
 
 	OTString	strMessage(THE_MESSAGE);
 	OTMessage	theMessage;
@@ -13794,7 +13819,7 @@ std::string OTAPI_Wrap::Message_GetPayload(const std::string & THE_MESSAGE)
 //
 std::string OTAPI_Wrap::Message_GetCommand(const std::string & THE_MESSAGE)
 {
-	if (THE_MESSAGE.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_MESSAGE"		); OT_FAIL; }
+	if (THE_MESSAGE.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_MESSAGE"		); OT_FAIL; }
 
 	OTString strMessage(THE_MESSAGE);
 
@@ -13806,8 +13831,6 @@ std::string OTAPI_Wrap::Message_GetCommand(const std::string & THE_MESSAGE)
 	OTString strOutput(theMessage.m_strCommand);
 
 	std::string pBuf = strOutput.Get(); 
-
-	
 
 	return pBuf;			
 }
@@ -13823,7 +13846,7 @@ std::string OTAPI_Wrap::Message_GetCommand(const std::string & THE_MESSAGE)
 //
 std::string OTAPI_Wrap::Message_GetLedger(const std::string & THE_MESSAGE)
 {
-	if (THE_MESSAGE.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_MESSAGE"		); OT_FAIL; }
+	if (THE_MESSAGE.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_MESSAGE"		); OT_FAIL; }
 
 	OTString strMessage(THE_MESSAGE);
 

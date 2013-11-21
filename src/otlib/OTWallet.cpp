@@ -1725,7 +1725,7 @@ bool OTWallet::LoadWallet(const char * szFilename/*=NULL*/)
                         }
                         else 
                         {
-                            OTLog::vError("%s: Error loading existing Asset Account.\n");
+                            OTLog::vError("%s: Error loading existing Asset Account.\n", __FUNCTION__);
                         }
                     }
                     else

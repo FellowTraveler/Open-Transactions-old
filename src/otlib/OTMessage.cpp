@@ -302,6 +302,8 @@ void OTMessage::SetAcknowledgments(OTPseudonym & theNym)
 // just prior to the signing of the message, in OTContract::SignContract.
 void OTMessage::UpdateContents()
 {
+    bool bFoundMessage = false;
+    
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
     
@@ -314,6 +316,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("getMarketList"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " nymID=\"%s\"\n"
@@ -332,6 +335,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@getMarketList"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -360,6 +364,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("getMarketOffers"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " nymID=\"%s\"\n"
@@ -381,6 +386,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@getMarketOffers"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -410,6 +416,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("getMarketRecentTrades"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " nymID=\"%s\"\n"
@@ -430,6 +437,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@getMarketRecentTrades"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -459,6 +467,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("getNym_MarketOffers"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " nymID=\"%s\"\n"
@@ -476,6 +485,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@getNym_MarketOffers"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -502,6 +512,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("checkServerID"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " nymID=\"%s\"\n"
@@ -523,6 +534,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@checkServerID"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -542,6 +554,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("createUserAccount"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " nymID=\"%s\"\n"
@@ -563,6 +576,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@createUserAccount"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -589,6 +603,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("deleteUserAccount"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " nymID=\"%s\"\n"
@@ -606,6 +621,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@deleteUserAccount"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -630,6 +646,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("checkUser"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " nymID=\"%s\"\n"
 								  " nymID2=\"%s\"\n"
@@ -653,6 +670,7 @@ void OTMessage::UpdateContents()
         // This means new-style credentials are being sent, not just the public key as before.
         const bool bCredentials = (m_ascPayload.Exists() && m_ascPayload2.Exists());
         
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -695,6 +713,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("usageCredits"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " nymID=\"%s\"\n"
 								  " nymID2=\"%s\"\n"
@@ -717,6 +736,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@usageCredits"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -747,6 +767,7 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("outmailMessage") ||
         m_strCommand.Compare("outpaymentsMessage"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " nymID=\"%s\"\n"
 								  " nymID2=\"%s\"\n"
@@ -771,6 +792,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("sendUserMessage"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " nymID=\"%s\"\n"
 								  " nymID2=\"%s\"\n"
@@ -794,6 +816,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@sendUserMessage"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -816,6 +839,7 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("sendUserInstrument") || // sendUserInstrument is sent from one user to the server, which then attaches that message as a payment, onto a transaction on the Nymbox of the recipient.
         m_strCommand.Compare("payDividend")) // payDividend is not a normal user message. Rather, the sender uses notarizeTransactions to do a payDividend transaction. On the server side, this creates a new message of type "payDividend" for each recipient, in order to attach a voucher to it (for each recipient) and then that (artificially created payDividend msg) is added to the Nymbox of each recipient.
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " nymID=\"%s\"\n"
 								  " nymID2=\"%s\"\n"
@@ -839,6 +863,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@sendUserInstrument"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -861,6 +886,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("getRequest"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
@@ -882,6 +908,7 @@ void OTMessage::UpdateContents()
 	// In all the other commands, it should be SENT to the server, not received from the server.
 	if (m_strCommand.Compare("@getRequest"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // command
 								  " success=\"%s\"\n" // m_bSuccess
 								  " nymID=\"%s\"\n"
@@ -907,6 +934,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("issueAssetType"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
@@ -930,6 +958,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@issueAssetType"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -961,6 +990,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("queryAssetTypes"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
@@ -983,6 +1013,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@queryAssetTypes"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1010,6 +1041,7 @@ void OTMessage::UpdateContents()
     
 	if (m_strCommand.Compare("issueBasket"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
@@ -1031,6 +1063,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@issueBasket"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1059,6 +1092,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("createAccount"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
@@ -1081,6 +1115,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@createAccount"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1110,6 +1145,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("getBoxReceipt"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
@@ -1133,6 +1169,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@getBoxReceipt"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1167,6 +1204,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("deleteAssetAccount"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
@@ -1188,6 +1226,7 @@ void OTMessage::UpdateContents()
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("@deleteAssetAccount"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1215,6 +1254,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTLedger object.
 	if (m_strCommand.Compare("notarizeTransactions"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " nymboxHash=\"%s\"\n"
@@ -1246,6 +1286,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTLedger object.
 	if (m_strCommand.Compare("@notarizeTransactions"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1278,6 +1319,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("getTransactionNum"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " nymboxHash=\"%s\"\n"
@@ -1300,6 +1342,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("@getTransactionNum"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1324,6 +1367,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("getNymbox"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
@@ -1344,6 +1388,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTLedger object.
 	if (m_strCommand.Compare("@getNymbox"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1378,6 +1423,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTLedger object.
 	if (m_strCommand.Compare("getInbox"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
@@ -1400,6 +1446,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTLedger object.
 	if (m_strCommand.Compare("@getInbox"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1435,6 +1482,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTLedger object.
 	if (m_strCommand.Compare("getOutbox"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
@@ -1458,6 +1506,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTLedger object.
 	if (m_strCommand.Compare("@getOutbox"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1493,6 +1542,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("getAccount"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
@@ -1516,6 +1566,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTAccount object.
 	if (m_strCommand.Compare("@getAccount"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1544,11 +1595,76 @@ void OTMessage::UpdateContents()
 	
     
 	
+	// ------------------------------------------------------------------------
+	
+	if (m_strCommand.Compare("getAccountFiles"))
+	{
+        bFoundMessage = true;
+		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " nymID=\"%s\"\n"
+								  " serverID=\"%s\"\n"
+								  " accountID=\"%s\"\n"
+								  " requestNum=\"%s\""
+								  " >\n\n",
+								  m_strCommand.Get(),
+								  m_strNymID.Get(),
+								  m_strServerID.Get(),
+								  m_strAcctID.Get(),
+								  m_strRequestNum.Get()
+								  );
+		
+		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
+	} // ------------------------------------------------------------------------
+	
+	
+    
+	// ------------------------------------------------------------------------
+	
+	// the Payload contains a STRING_MAP containing the OTAccount,
+    // plus the inbox and outbox for that acct..
+    //
+	if (m_strCommand.Compare("@getAccountFiles"))
+	{
+        bFoundMessage = true;
+		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
+								  " success=\"%s\"\n"
+                                  " inboxHash=\"%s\"\n"
+								  " outboxHash=\"%s\"\n"
+								  " nymID=\"%s\"\n"
+								  " serverID=\"%s\"\n"
+								  " accountID=\"%s\""
+								  " >\n\n",
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
+                                  m_strInboxHash.Get(),
+                                  m_strOutboxHash.Get(),
+								  m_strNymID.Get(),
+								  m_strServerID.Get(),
+								  m_strAcctID.Get()
+								  );
+		
+		if (!m_bSuccess && m_ascInReferenceTo.GetLength())
+			m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n", m_ascInReferenceTo.Get());
+		
+		// I would check if this was empty, but it should never be empty...
+		// Famous last words.
+        //
+		if (m_bSuccess && m_ascPayload.GetLength())
+			m_xmlUnsigned.Concatenate("<acctFiles>\n%s</acctFiles>\n\n", m_ascPayload.Get());
+		
+		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
+	} // ------------------------------------------------------------------------
+	
+    
+	
 	
 	// ------------------------------------------------------------------------
 	
 	if (m_strCommand.Compare("getContract"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
@@ -1571,6 +1687,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTAssetContract object.
 	if (m_strCommand.Compare("@getContract"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1603,6 +1720,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("getMint"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
@@ -1625,6 +1743,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTMint object.
 	if (m_strCommand.Compare("@getMint"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1658,6 +1777,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTLedger object.
 	if (m_strCommand.Compare("processInbox"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " nymboxHash=\"%s\"\n"
@@ -1687,6 +1807,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTLedger object.
 	if (m_strCommand.Compare("@processInbox"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1720,6 +1841,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTLedger object.
 	if (m_strCommand.Compare("processNymbox"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " nymboxHash=\"%s\"\n"
@@ -1747,6 +1869,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTLedger object.
 	if (m_strCommand.Compare("@processNymbox"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1776,6 +1899,7 @@ void OTMessage::UpdateContents()
 	
 	if (m_strCommand.Compare("triggerClause"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " nymboxHash=\"%s\"\n"
@@ -1807,6 +1931,7 @@ void OTMessage::UpdateContents()
 	// the Payload contains an ascii-armored OTMint object.
 	if (m_strCommand.Compare("@triggerClause"))
 	{
+        bFoundMessage = true;
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
@@ -1823,6 +1948,27 @@ void OTMessage::UpdateContents()
 		if (m_ascInReferenceTo.GetLength())
 			m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n", m_ascInReferenceTo.Get());
         
+		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
+	}
+	// ------------------------------------------------------------------------
+    
+	
+	if (!bFoundMessage)
+	{
+		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
+								  " success=\"false\"\n"
+								  " acctID=\"%s\"\n"
+								  " nymID=\"%s\"\n"
+								  " serverID=\"%s\""
+								  " ><!-- THIS IS AN INVALID MESSAGE -->\n\n",
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  m_strAcctID.Get(),
+								  m_strNymID.Get(),
+								  m_strServerID.Get()
+								  );
+		      
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	}
 	// ------------------------------------------------------------------------
@@ -3844,10 +3990,75 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	}
 	
 	// -------------------------------------------------------------------------------------------
+    
 	
+	else if (strNodeName.Compare("getAccountFiles"))
+	{
+		m_strCommand	= xml->getNodeName();  // Command
+		m_strNymID		= xml->getAttributeValue("nymID");
+		m_strServerID	= xml->getAttributeValue("serverID");
+		m_strAcctID		= xml->getAttributeValue("accountID");
+		m_strRequestNum = xml->getAttributeValue("requestNum");
+		
+		OTLog::vOutput(1, "\nCommand: %s\nNymID:    %s\nServerID: %s\nAccountID:    %s\nRequest #: %s\n",
+                       m_strCommand.Get(), m_strNymID.Get(), m_strServerID.Get(), m_strAcctID.Get(), m_strRequestNum.Get());
+		
+		nReturnVal = 1;
+	}
 	
 	// ------------------------------------------------------------------------
 	
+	else if (strNodeName.Compare("@getAccountFiles"))
+	{
+		strSuccess		= xml->getAttributeValue("success");
+		if (strSuccess.Compare("true"))
+			m_bSuccess = true;
+		else
+			m_bSuccess = false;
+		
+		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
+		m_strNymID		= xml->getAttributeValue("nymID");
+		m_strServerID	= xml->getAttributeValue("serverID");
+		m_strAcctID		= xml->getAttributeValue("accountID");
+        m_strInboxHash  = xml->getAttributeValue("inboxHash");
+		m_strOutboxHash = xml->getAttributeValue("outboxHash");
+
+		// -----------------------------------------------------
+		
+		const char * pElementExpected;
+		if (m_bSuccess)
+			pElementExpected = "acctFiles";
+		else
+			pElementExpected = "inReferenceTo";
+		
+		OTASCIIArmor 	ascTextExpected;
+		
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		{
+			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
+						  "Expected %s element with text field, for %s.\n",
+						  pElementExpected, m_strCommand.Get());
+			return (-1); // error condition
+		}
+		
+		if (m_bSuccess)
+			m_ascPayload = ascTextExpected;
+		else
+			m_ascInReferenceTo = ascTextExpected;
+		
+		// -----------------------------------------------------
+		
+		OTLog::vOutput(1, "\nCommand: %s   %s\nNymID:    %s\nAccountID:    %s\n"
+                       "ServerID: %s\n\n",
+                       m_strCommand.Get(), (m_bSuccess ? "SUCCESS" : "FAILED"),
+                       m_strNymID.Get(), m_strAcctID.Get(), m_strServerID.Get());
+		
+		nReturnVal = 1;
+	}
+	
+	// -------------------------------------------------------------------------------------------
+
 	else if (strNodeName.Compare("getContract"))
 	{
 		m_strCommand	= xml->getNodeName();  // Command

@@ -3081,8 +3081,11 @@ void OTServer::UserCmdCheckUser(OTPseudonym & theNym, OTMessage & MsgIn, OTMessa
             // It exists.
             //
             if (NULL == pMap)
-                OTLog::vError("%s: Error: failed trying to load or create a STORED_OBJ_STRING_MAP.\n",
+            {
+                OTLog::vError("%s: Error: failed trying to create a STORED_OBJ_STRING_MAP.\n",
                               __FUNCTION__);
+                msgOut.m_bSuccess = false;
+            }
             else
             {
                 // -----------------------------------------------
@@ -10240,6 +10243,7 @@ void OTServer::DropReplyNoticeToNymbox(const OTIdentifier & SERVER_ID,
 }
 
 
+// Deprecated (replaced by UserCmdGetAccountFiles)
 void OTServer::UserCmdGetAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
 {
 	// (1) set up member variables 
@@ -10259,7 +10263,7 @@ void OTServer::UserCmdGetAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTMess
 		msgOut.m_bSuccess = true;
 		// extract the account in ascii-armored form on the outgoing message
 		OTString strPayload(*pAccount); // first grab it in plaintext string form
-		msgOut.m_ascPayload.SetString(strPayload);  // now the outgoing message has the inbox ledger in its payload in base64 form.
+		msgOut.m_ascPayload.SetString(strPayload);  // now the outgoing message has the account in its payload in base64 form.
 	}
 	// Send the user's command back to him if failure.
 	else
@@ -10280,31 +10284,328 @@ void OTServer::UserCmdGetAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTMess
 }
 
 
+void OTServer::UserCmdGetAccountFiles(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
+{
+	// (1) set up member variables
+	msgOut.m_strCommand		= "@getAccountFiles";   // reply to getAccountFiles
+	msgOut.m_strNymID		= MsgIn.m_strNymID;     // UserID
+//	msgOut.m_strServerID	= m_strServerID;        // This is already set in ProcessUserCommand.
+	msgOut.m_strAcctID		= MsgIn.m_strAcctID;    // The Account ID in question
+	
+	const OTIdentifier USER_ID(MsgIn.m_strNymID), ACCOUNT_ID(MsgIn.m_strAcctID), SERVER_ID(MsgIn.m_strServerID);
+	
+    OTString    strAccount, strInbox, strOutbox, strInboxHash, strOutboxHash;
+    // ------------------------------------------
+	OTAccount * pAccount        = OTAccount::LoadExistingAccount(ACCOUNT_ID, SERVER_ID);
+	bool bSuccessLoadingAccount = ((pAccount != NULL) ? true:false );
+    bool bSuccessLoadingInbox   = false;
+    bool bSuccessLoadingOutbox  = false;
+    // ------------------------------------------
+    if (bSuccessLoadingAccount)
+        bSuccessLoadingAccount = (pAccount->GetUserID() == USER_ID);
+    // ------------------------------------------
+	// Yup the account exists. Yup it has the same user ID.
+	if (bSuccessLoadingAccount)
+	{
+		// extract the account in ascii-armored form on the outgoing message
+		pAccount->SaveContractRaw(strAccount); // first grab it in plaintext string form
+        
+        // ******************************************************************************
+        // Get the Inbox.
+        //
+        {
+            OTLedger theInbox(USER_ID, ACCOUNT_ID, SERVER_ID);
 
-/*		m_xmlUnsigned.Concatenate("<%s\n" // Command
-								  " requestNum=\"%s\"\n"
-								  " success=\"%s\"\n"
-								  " nymID=\"%s\"\n"
-								  " serverID=\"%s\""
-								  ">\n\n",
-								  m_strCommand.Get(),
-								  m_strRequestNum.Get(),
-								  (m_bSuccess ? "true" : "false"),
-								  m_strNymID.Get(),
-								  m_strServerID.Get()
-								  );
+            bSuccessLoadingInbox = theInbox.LoadInbox();
+            
+            if (!bSuccessLoadingInbox)
+                OTLog::vError("%s: Failed trying to load Inbox from storage.\n", __FUNCTION__);
+            else
+            {
+                // We do NOT call VerifyAccount in this function (because we don't need to) and thus we do NOT
+                // force the box receipts to be loaded here (which happens inside that call.) But we DO verify
+                // the IDs and the Signature, of course.
+                //
+                bSuccessLoadingInbox = (theInbox.VerifyContractID() && theInbox.VerifySignature(m_nymServer));
+                
+                // If we loaded old data in this file... (when whole receipts used to be stored in boxes.)
+                //
+                if (bSuccessLoadingInbox && theInbox.LoadedLegacyData())	// (which automatically saves the box receipt as the old data is loaded...)
+                {
+//                  bSuccessLoadingInbox = theInbox.VerifyAccount(m_nymServer);	// Then Verify, which forces a LoadBoxReceipts... (
+                    
+                    theInbox.ReleaseSignatures();				// UPDATE: We do NOT force the loading here, since they aren't needed.
+                    theInbox.SignContract(m_nymServer);		// Waste of resources. Instead, we recognize that it was old data, and so
+                    theInbox.SaveContract();					// we gracefully re-save in the new format, so it won't repeatedly be
+                    theInbox.SaveInbox();						// loaded over and over again in the large filesize.
+                }
+                
+                if (!bSuccessLoadingInbox)
+                    OTLog::vError("%s: Verification failed on Inbox after loading.\n", __FUNCTION__);
+            }
+            // ---------------------------------------------
+            if (bSuccessLoadingInbox)
+            {
+                theInbox.SaveContractRaw(strInbox);
+                
+                OTIdentifier theHash;
+                if (theInbox.CalculateInboxHash(theHash))
+                    theHash.GetString(strInboxHash);
+            }
+        }
+        // ******************************************************************************
+        // Now get the OUTBOX.
+        //
+        if (bSuccessLoadingInbox) // (Which we don't bother to do unless the inbox was already successful.)
+        {
+            OTLedger theOutbox(USER_ID, ACCOUNT_ID, SERVER_ID);
+            
+            bSuccessLoadingOutbox = theOutbox.LoadOutbox();
+
+            if (!bSuccessLoadingOutbox)
+                OTLog::vError("%s: Failed trying to load Outbox from storage.\n", __FUNCTION__);
+            else
+            {
+                // We do NOT call VerifyAccount in this function (because we don't need to) and thus we do NOT
+                // force the box receipts to be loaded here (which happens inside that call.) But we DO verify
+                // the IDs and the Signature, of course.
+                //
+                bSuccessLoadingOutbox = (theOutbox.VerifyContractID() && theOutbox.VerifySignature(m_nymServer));
+                
+                // If we loaded old data in this file... (when whole receipts used to be stored in boxes.)
+                //
+                if (bSuccessLoadingOutbox && theOutbox.LoadedLegacyData())	// (which automatically saves the box receipt as the old data is loaded...)
+                {
+//                  bSuccessLoadingOutbox = theOutbox.VerifyAccount(m_nymServer);	// Then Verify, which forces a LoadBoxReceipts... (
+                    
+                    theOutbox.ReleaseSignatures();				// UPDATE: We do NOT force the loading here, since they aren't needed.
+                    theOutbox.SignContract(m_nymServer);		// Waste of resources. Instead, we recognize that it was old data, and so
+                    theOutbox.SaveContract();					// we gracefully re-save in the new format, so it won't repeatedly be
+                    theOutbox.SaveOutbox();						// loaded over and over again in the large filesize.
+                }
+                
+                if (!bSuccessLoadingOutbox)
+                    OTLog::vError("%s: Verification Failed on Outbox after loading.\n", __FUNCTION__);
+            }
+            // -----------------------------------------------
+            if (bSuccessLoadingOutbox)
+            {
+                theOutbox.SaveContractRaw(strOutbox);
+
+                OTIdentifier theHash;
+                if (theOutbox.CalculateOutboxHash(theHash))
+                    theHash.GetString(strOutboxHash);
+            }
+        }
+	}
+    // ******************************************************************************
+    // TODO optimize: Really only !SuccessLoadingOutbox is needed here.
+    // If it is false, then the others are definitely false as well.
+    //
+    if (!bSuccessLoadingOutbox || !bSuccessLoadingInbox || !bSuccessLoadingAccount)
+    {
+        // FAILURE: (Send the user's command back to him.)
+        //
+		msgOut.m_bSuccess = false;
+		OTString tempInMessage(MsgIn); // Grab the incoming message in plaintext form
+		msgOut.m_ascInReferenceTo.SetString(tempInMessage); // Set it into the base64-encoded object on the outgoing message
+	}
+    // ------------------------------------------
+    else // SUCCESS.
+    {
+        // Create an OTDB::StringMap object.
+        // (To return the three files in.)
+        //
+        OTDB::Storable * pStorable = NULL;
+        OTCleanup<OTDB::Storable> theAngel;
+        OTDB::StringMap * pMap = NULL;
+        // --------------------------------------------------------------
+        pStorable = OTDB::CreateObject(OTDB::STORED_OBJ_STRING_MAP); // this asserts already, on failure.
+        theAngel.SetCleanupTargetPointer(pStorable); // It will definitely be cleaned up.
+        pMap = (NULL == pStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pStorable);
+        // --------------------------------------------------------------
+        // It exists.
+        //
+        if (NULL == pMap)
+            OTLog::vError("%s: Error: failed trying to create a STORED_OBJ_STRING_MAP.\n",
+                          __FUNCTION__);
+        else
+        {
+            // -----------------------------------------------
+            mapOfStrings & theMap = pMap->the_map;
+            // -----------------------------------------------
+            theMap.insert(std::pair<std::string, std::string>("account", strAccount.Get()));
+            theMap.insert(std::pair<std::string, std::string>("inbox",   strInbox  .Get()));
+            theMap.insert(std::pair<std::string, std::string>("outbox",  strOutbox .Get()));
+            // -----------------------------------------------
+            // Serialize the StringMap to a string...
+            //
+            std::string str_Encoded     = OTDB::EncodeObject(*pMap);
+            const bool bSuccessEncoding = (str_Encoded.size() > 0);
+            
+            if (!bSuccessEncoding)
+                OTLog::vError("%s: Error: failed trying to encode a STORED_OBJ_STRING_MAP.\n",
+                              __FUNCTION__);
+            else
+            {
+                msgOut.m_ascPayload.Set(str_Encoded.c_str()); // <============
+                msgOut.m_strInboxHash  = strInboxHash;
+                msgOut.m_strOutboxHash = strOutboxHash;
+                msgOut.m_bSuccess      = true;
+            }
+        }
+    }
+    // ------------------------------------------
+	// (2) Sign the Message
+	msgOut.SignContract((const OTPseudonym &)m_nymServer);
+	
+	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+	//
+	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
+	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
+	msgOut.SaveContract();
+}
+
+
+// Deprecated (replaced by UserCmdGetAccountFiles)
+void OTServer::UserCmdGetInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
+{
+	// (1) set up member variables 
+	msgOut.m_strCommand		= "@getInbox";          // reply to getInbox
+	msgOut.m_strNymID		= MsgIn.m_strNymID;     // UserID
+//	msgOut.m_strServerID	= m_strServerID;        // This is already set in ProcessUserCommand.
+	msgOut.m_strAcctID		= MsgIn.m_strAcctID;    // The Account ID in question
+	
+	const OTIdentifier USER_ID(MsgIn.m_strNymID), ACCOUNT_ID(MsgIn.m_strAcctID), SERVER_ID(MsgIn.m_strServerID);
+	
+	OTLedger theLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+	
+	msgOut.m_bSuccess = theLedger.LoadInbox();
+	
+	if (!msgOut.m_bSuccess)
+		OTLog::vError("%s: Failed trying to load Inbox from storage.\n", __FUNCTION__);
+	else
+	{
+		// We do NOT call VerifyAccount in this function (because we don't need to) and thus we do NOT
+		// force the box receipts to be loaded here (which happens inside that call.) But we DO verify
+		// the IDs and the Signature, of course.
+		//
+		msgOut.m_bSuccess = (theLedger.VerifyContractID() && theLedger.VerifySignature(m_nymServer));
 		
-		if (m_ascInReferenceTo.GetLength())
-			m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n", m_ascInReferenceTo.Get());
+		// If we loaded old data in this file... (when whole receipts were stored in boxes.)
+		//
+		if (msgOut.m_bSuccess && theLedger.LoadedLegacyData())	// (which automatically saves the box receipt as the old data is loaded...)
+		{
+//			msgOut.m_bSuccess = theLedger.VerifyAccount(m_nymServer);	// Then Verify, which forces a LoadBoxReceipts... (
+			
+			theLedger.ReleaseSignatures();				// UPDATE: We do NOT force the loading here, since they aren't needed.
+			theLedger.SignContract(m_nymServer);		// Waste of resources. Instead, we recognize that it was old data, and so
+			theLedger.SaveContract();					// we gracefully re-save in the new format, so it won't repeatedly be 
+			theLedger.SaveInbox();						// loaded over and over again in the large filesize.
+		}
 		
-		if (m_bSuccess && m_ascPayload.GetLength())
-			m_xmlUnsigned.Concatenate("<stringMap>\n%s</stringMap>\n\n", m_ascPayload.Get());
+		if (!msgOut.m_bSuccess)
+			OTLog::vError("%s: Verification failed on Inbox after loading.\n", __FUNCTION__);
+	}
+			
+	if (msgOut.m_bSuccess)
+	{ 		
+		// extract the ledger in ascii-armored form on the outgoing message
+		OTString strPayload(theLedger); // first grab it in plaintext string form
+		msgOut.m_ascPayload.SetString(strPayload);  // now the outgoing message has the inbox ledger in its payload in base64 form.
+        
+        OTIdentifier theHash;
+        if (theLedger.CalculateInboxHash(theHash))
+            theHash.GetString(msgOut.m_strInboxHash);
+	}
+	// Send the user's command back to him if failure.
+	else
+	{
+		OTString tempInMessage(MsgIn); // Grab the incoming message in plaintext form
+		msgOut.m_ascInReferenceTo.SetString(tempInMessage); // Set it into the base64-encoded object on the outgoing message
+	}
+	
+	// (2) Sign the Message 
+	msgOut.SignContract((const OTPseudonym &)m_nymServer); // todo const cast
+	
+	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+	//
+	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
+	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
+	msgOut.SaveContract();
+}
 
- 	void queryAssetTypes(OTIdentifier & SERVER_ID,
-						 OTIdentifier & USER_ID,
-						 OTASCIIArmor & ENCODED_MAP);
 
-*/
+// Deprecated (replaced by UserCmdGetAccountFiles)
+void OTServer::UserCmdGetOutbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
+{
+	// (1) set up member variables 
+	msgOut.m_strCommand		= "@getOutbox";         // reply to getOutbox
+	msgOut.m_strNymID		= MsgIn.m_strNymID;     // UserID
+//	msgOut.m_strServerID	= m_strServerID;        // This is already set in ProcessUserCommand.
+	msgOut.m_strAcctID		= MsgIn.m_strAcctID;    // The Account ID in question
+	
+	const OTIdentifier USER_ID(MsgIn.m_strNymID), ACCOUNT_ID(MsgIn.m_strAcctID), SERVER_ID(MsgIn.m_strServerID);
+	
+	OTLedger theLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+	
+	msgOut.m_bSuccess = theLedger.LoadOutbox();
+	
+	if (!msgOut.m_bSuccess)
+		OTLog::vError("%s: Failed trying to load Outbox from storage.\n", __FUNCTION__);
+	else
+	{
+		// We do NOT call VerifyAccount in this function (because we don't need to) and thus we do NOT
+		// force the box receipts to be loaded here (which happens inside that call.) But we DO verify
+		// the IDs and the Signature, of course.
+		//
+		msgOut.m_bSuccess = (theLedger.VerifyContractID() && theLedger.VerifySignature(m_nymServer));
+		
+		// If we loaded old data in this file... (when whole receipts were stored in boxes.)
+		//
+		if (msgOut.m_bSuccess && theLedger.LoadedLegacyData())	// (which automatically saves the box receipt as the old data is loaded...)
+		{
+//			msgOut.m_bSuccess = theLedger.VerifyAccount(m_nymServer);	// Then Verify, which forces a LoadBoxReceipts... (
+			
+			theLedger.ReleaseSignatures();				// UPDATE: We do NOT force the loading here, since they aren't needed.
+			theLedger.SignContract(m_nymServer);		// Waste of resources. Instead, we recognize that it was old data, and so
+			theLedger.SaveContract();					// we gracefully re-save in the new format, so it won't repeatedly be 
+			theLedger.SaveOutbox();						// loaded over and over again in the large filesize.
+		}
+		
+		if (!msgOut.m_bSuccess)
+			OTLog::vError("%s: Verification Failed on Outbox after loading.\n", __FUNCTION__);
+	}
+	
+	if (msgOut.m_bSuccess)
+	{ 		
+		// extract the ledger in ascii-armored form on the outgoing message
+		OTString strPayload(theLedger); // first grab it in plaintext string form
+		msgOut.m_ascPayload.SetString(strPayload);  // now the outgoing message has the outbox ledger in its payload in base64 form.
+        
+        OTIdentifier theHash;
+        if (theLedger.CalculateOutboxHash(theHash))
+            theHash.GetString(msgOut.m_strOutboxHash);
+	}
+	// Send the user's command back to him if failure.
+	else
+	{
+		OTString tempInMessage(MsgIn); // Grab the incoming message in plaintext form
+		msgOut.m_ascInReferenceTo.SetString(tempInMessage); // Set it into the base64-encoded object on the outgoing message
+	}
+	
+	// (2) Sign the Message 
+	msgOut.SignContract((const OTPseudonym &)m_nymServer);
+	
+	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+	//
+	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
+	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
+	msgOut.SaveContract();
+}
+
+
+
 void OTServer::UserCmdQueryAssetTypes(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
 {	
 	// (1) set up member variables 
@@ -11171,144 +11472,6 @@ void OTServer::UserCmdGetNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessa
 
 	// (2) Sign the Message 
 	msgOut.SignContract((const OTPseudonym &)m_nymServer); // todo const_cast
-	
-	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-	//
-	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
-	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
-	msgOut.SaveContract();
-}
-
-
-
-void OTServer::UserCmdGetInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
-{
-	// (1) set up member variables 
-	msgOut.m_strCommand		= "@getInbox";	// reply to getInbox
-	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
-	msgOut.m_strAcctID		= MsgIn.m_strAcctID;	// The Account ID in question
-	
-	const OTIdentifier USER_ID(MsgIn.m_strNymID), ACCOUNT_ID(MsgIn.m_strAcctID), SERVER_ID(MsgIn.m_strServerID);
-	
-	OTLedger theLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
-	
-	msgOut.m_bSuccess = theLedger.LoadInbox();
-	
-	if (!msgOut.m_bSuccess)
-		OTLog::Error("OTServer::UserCmdGetInbox: Failed trying to load Inbox from storage.\n");
-	else
-	{
-		// We do NOT call VerifyAccount in this function (because we don't need to) and thus we do NOT
-		// force the box receipts to be loaded here (which happens inside that call.) But we DO verify
-		// the IDs and the Signature, of course.
-		//
-		msgOut.m_bSuccess = (theLedger.VerifyContractID() && theLedger.VerifySignature(m_nymServer));
-		
-		// If we loaded old data in this file... (when whole receipts were stored in boxes.)
-		//
-		if (msgOut.m_bSuccess && theLedger.LoadedLegacyData())	// (which automatically saves the box receipt as the old data is loaded...)
-		{
-//			msgOut.m_bSuccess = theLedger.VerifyAccount(m_nymServer);	// Then Verify, which forces a LoadBoxReceipts... (
-			
-			theLedger.ReleaseSignatures();				// UPDATE: We do NOT force the loading here, since they aren't needed.
-			theLedger.SignContract(m_nymServer);		// Waste of resources. Instead, we recognize that it was old data, and so
-			theLedger.SaveContract();					// we gracefully re-save in the new format, so it won't repeatedly be 
-			theLedger.SaveInbox();						// loaded over and over again in the large filesize.
-		}
-		
-		if (!msgOut.m_bSuccess)
-			OTLog::Error("OTServer::UserCmdGetInbox: Verification failed on Inbox after loading.\n");
-	}
-			
-	if (true == msgOut.m_bSuccess)
-	{ 		
-		// extract the ledger in ascii-armored form on the outgoing message
-		OTString strPayload(theLedger); // first grab it in plaintext string form
-		msgOut.m_ascPayload.SetString(strPayload);  // now the outgoing message has the inbox ledger in its payload in base64 form.
-        
-        OTIdentifier theHash;
-        if (theLedger.CalculateInboxHash(theHash))
-            theHash.GetString(msgOut.m_strInboxHash);
-	}
-	// Send the user's command back to him if failure.
-	else
-	{
-		OTString tempInMessage(MsgIn); // Grab the incoming message in plaintext form
-		msgOut.m_ascInReferenceTo.SetString(tempInMessage); // Set it into the base64-encoded object on the outgoing message
-	}
-	
-	// (2) Sign the Message 
-	msgOut.SignContract((const OTPseudonym &)m_nymServer); // todo const cast
-	
-	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-	//
-	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
-	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
-	msgOut.SaveContract();
-}
-
-
-
-void OTServer::UserCmdGetOutbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
-{
-	// (1) set up member variables 
-	msgOut.m_strCommand		= "@getOutbox";	// reply to getOutbox
-	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
-	msgOut.m_strAcctID		= MsgIn.m_strAcctID;	// The Account ID in question
-	
-	const OTIdentifier USER_ID(MsgIn.m_strNymID), ACCOUNT_ID(MsgIn.m_strAcctID), SERVER_ID(MsgIn.m_strServerID);
-	
-	OTLedger theLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
-	
-	msgOut.m_bSuccess = theLedger.LoadOutbox();
-	
-	if (!msgOut.m_bSuccess)
-		OTLog::Error("OTServer::UserCmdGetOutbox: Failed trying to load Outbox from storage.\n");
-	else
-	{
-		// We do NOT call VerifyAccount in this function (because we don't need to) and thus we do NOT
-		// force the box receipts to be loaded here (which happens inside that call.) But we DO verify
-		// the IDs and the Signature, of course.
-		//
-		msgOut.m_bSuccess = (theLedger.VerifyContractID() && theLedger.VerifySignature(m_nymServer));
-		
-		// If we loaded old data in this file... (when whole receipts were stored in boxes.)
-		//
-		if (msgOut.m_bSuccess && theLedger.LoadedLegacyData())	// (which automatically saves the box receipt as the old data is loaded...)
-		{
-//			msgOut.m_bSuccess = theLedger.VerifyAccount(m_nymServer);	// Then Verify, which forces a LoadBoxReceipts... (
-			
-			theLedger.ReleaseSignatures();				// UPDATE: We do NOT force the loading here, since they aren't needed.
-			theLedger.SignContract(m_nymServer);		// Waste of resources. Instead, we recognize that it was old data, and so
-			theLedger.SaveContract();					// we gracefully re-save in the new format, so it won't repeatedly be 
-			theLedger.SaveOutbox();						// loaded over and over again in the large filesize.
-		}
-		
-		if (!msgOut.m_bSuccess)
-			OTLog::Error("OTServer::UserCmdGetOutbox: Verification Failed on Outbox after loading.\n");
-	}
-	
-	if (true == msgOut.m_bSuccess)
-	{ 		
-		// extract the ledger in ascii-armored form on the outgoing message
-		OTString strPayload(theLedger); // first grab it in plaintext string form
-		msgOut.m_ascPayload.SetString(strPayload);  // now the outgoing message has the outbox ledger in its payload in base64 form.
-        
-        OTIdentifier theHash;
-        if (theLedger.CalculateOutboxHash(theHash))
-            theHash.GetString(msgOut.m_strOutboxHash);
-	}
-	// Send the user's command back to him if failure.
-	else
-	{
-		OTString tempInMessage(MsgIn); // Grab the incoming message in plaintext form
-		msgOut.m_ascInReferenceTo.SetString(tempInMessage); // Set it into the base64-encoded object on the outgoing message
-	}
-	
-	// (2) Sign the Message 
-	msgOut.SignContract((const OTPseudonym &)m_nymServer);
 	
 	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
 	//
@@ -14639,6 +14802,32 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 		
 		return true;
 	}
+    else if (theMessage.m_strCommand.Compare("getAccount"))
+	{
+		OTLog::vOutput(0, "\n==> Received a getAccount message. Nym: %s ...\n", strMsgNymID.Get());
+		
+		// ------------------------------------------------------------
+		OT_ENFORCE_PERMISSION_MSG(__cmd_get_acct);
+		// ------------------------------------------------------------
+		
+		UserCmdGetAccount(*pNym, theMessage, msgOut);
+		
+		return true;
+	}
+    else if (theMessage.m_strCommand.Compare("getAccountFiles"))
+	{
+		OTLog::vOutput(0, "\n==> Received a getAccountFiles message. Nym: %s ...\n", strMsgNymID.Get());
+		
+		// ------------------------------------------------------------
+		OT_ENFORCE_PERMISSION_MSG(__cmd_get_inbox);
+		OT_ENFORCE_PERMISSION_MSG(__cmd_get_outbox);
+		OT_ENFORCE_PERMISSION_MSG(__cmd_get_acct);
+		// ------------------------------------------------------------
+		
+		UserCmdGetAccountFiles(*pNym, theMessage, msgOut);
+		
+		return true;
+	}
 	else if (theMessage.m_strCommand.Compare("processNymbox"))
 	{
 		OTLog::vOutput(0, "\n==> Received a processNymbox message. Nym: %s ...\n", strMsgNymID.Get());
@@ -14660,18 +14849,6 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 		// ------------------------------------------------------------
 		
 		UserCmdProcessInbox(*pNym, theMessage, msgOut);
-		
-		return true;
-	}
-	else if (theMessage.m_strCommand.Compare("getAccount"))
-	{
-		OTLog::vOutput(0, "\n==> Received a getAccount message. Nym: %s ...\n", strMsgNymID.Get());
-		
-		// ------------------------------------------------------------
-		OT_ENFORCE_PERMISSION_MSG(__cmd_get_acct);
-		// ------------------------------------------------------------
-		
-		UserCmdGetAccount(*pNym, theMessage, msgOut);
 		
 		return true;
 	}
@@ -14786,6 +14963,26 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 	else
 	{
 		OTLog::vError("Unknown command type in the XML, or missing payload, in ProcessMessage.\n");
+        // --------------------------------------------------------------------------------
+        
+        OTString strTemp;
+        strTemp.Format("@%s", theMessage.m_strCommand.Get()); // Todo security. Review this.
+        
+        msgOut.m_strCommand   = strTemp;
+        msgOut.m_strAcctID    = theMessage.m_strAcctID;
+        msgOut.m_strServerID  = theMessage.m_strServerID;
+        msgOut.m_strNymID     = theMessage.m_strNymID;
+        
+        msgOut.m_bSuccess = false;
+        
+        OTString strRef(theMessage);
+        
+        msgOut.m_ascInReferenceTo.SetString(strRef);
+
+        msgOut.SignContract(m_nymServer);
+        msgOut.SaveContract();
+        
+        // --------------------------------------------------------------------------------
 		return false;
 	}
 }

@@ -567,13 +567,14 @@ long OTAPI_Basic::AddAssetContract(const string & strContract)
 		);
 }
 
-long OTAPI_Basic::GetServerCount() { return OTAPI_Wrap::GetServerCount(); }
+long OTAPI_Basic::GetServerCount()    { return OTAPI_Wrap::GetServerCount(); }
 long OTAPI_Basic::GetAssetTypeCount() { return OTAPI_Wrap::GetAssetTypeCount(); }
-long OTAPI_Basic::GetAccountCount() { return OTAPI_Wrap::GetAccountCount(); }
-long OTAPI_Basic::GetNymCount() {
+long OTAPI_Basic::GetAccountCount()   { return OTAPI_Wrap::GetAccountCount(); }
+long OTAPI_Basic::GetNymCount()
+{
 	const long nNymCount = OTAPI_Wrap::GetNymCount();
 	return nNymCount;
-};
+}
 
 string OTAPI_Basic::GetServer_ID(const long & nIndex)
 {
@@ -2761,6 +2762,8 @@ long OTAPI_Basic::createAssetAccount(
 		);
 }
 
+
+// NOTE: Deprecated. Replaced by getAccountFiles
 long OTAPI_Basic::getAccount(
 	const string & SERVER_ID,
 	const string & USER_ID,
@@ -2773,6 +2776,20 @@ long OTAPI_Basic::getAccount(
 		ACCT_ID
 		);
 }
+
+long OTAPI_Basic::getAccountFiles(
+	const string & SERVER_ID,
+	const string & USER_ID,
+	const string & ACCT_ID
+	)
+{
+	return OTAPI_Wrap::getAccountFiles(
+		SERVER_ID,
+		USER_ID,
+		ACCT_ID
+		);
+}
+
 
 string OTAPI_Basic::GenerateBasketCreation(
 	const string & USER_ID,
@@ -2920,6 +2937,7 @@ long OTAPI_Basic::notarizeTransfer(
 		);
 }
 
+// NOTE: Deprecated. Replaced by getAccountFiles
 long OTAPI_Basic::getInbox(
 	const string & SERVER_ID,
 	const string & USER_ID,
@@ -2933,6 +2951,7 @@ long OTAPI_Basic::getInbox(
 		);
 }
 
+// NOTE: Deprecated. Replaced by getAccountFiles
 long OTAPI_Basic::getOutbox(
 	const string & SERVER_ID,
 	const string & USER_ID,

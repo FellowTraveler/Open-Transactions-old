@@ -15,11 +15,11 @@
 
 // Global
 #ifndef OT_VERSION
-#define OT_VERSION "0.89.r"
+#define OT_VERSION "0.90.a"
 #endif
 
 #ifndef OT_PRODUCTVERSION
-#define OT_PRODUCTVERSION 0,89,18,0
+#define OT_PRODUCTVERSION 0,90,1,0
 #endif
 
 #ifndef OT_API_NAME

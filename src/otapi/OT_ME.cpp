@@ -2679,7 +2679,8 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 		theScript.chai.add(fun(&OTAPI_Wrap::getContract), "OT_API_getContract");
 		theScript.chai.add(fun(&OTAPI_Wrap::getMint), "OT_API_getMint");
 		theScript.chai.add(fun(&OTAPI_Wrap::createAssetAccount), "OT_API_createAssetAccount");
-		theScript.chai.add(fun(&OTAPI_Wrap::getAccount), "OT_API_getAccount");
+		theScript.chai.add(fun(&OTAPI_Wrap::getAccount), "OT_API_getAccount"); // Deprecated
+		theScript.chai.add(fun(&OTAPI_Wrap::getAccountFiles), "OT_API_getAccountFiles"); // Replaces getAccount, getInbox, getOutbox.
 		theScript.chai.add(fun(&OTAPI_Wrap::GenerateBasketCreation), "OT_API_GenerateBasketCreation");
 
 		theScript.chai.add(fun(&OTAPI_Wrap::AddBasketCreationItem), "OT_API_AddBasketCreationItem");
@@ -2691,8 +2692,8 @@ bool OT_ME::Register_API_With_Script_Chai(OTScriptChai & theScript)
 		theScript.chai.add(fun(&OTAPI_Wrap::notarizeDeposit), "OT_API_notarizeDeposit");
 		theScript.chai.add(fun(&OTAPI_Wrap::notarizeTransfer), "OT_API_notarizeTransfer");
 
-		theScript.chai.add(fun(&OTAPI_Wrap::getInbox), "OT_API_getInbox");
-		theScript.chai.add(fun(&OTAPI_Wrap::getOutbox), "OT_API_getOutbox");
+		theScript.chai.add(fun(&OTAPI_Wrap::getInbox), "OT_API_getInbox"); // Deprecated
+		theScript.chai.add(fun(&OTAPI_Wrap::getOutbox), "OT_API_getOutbox"); // Deprecated
 		theScript.chai.add(fun(&OTAPI_Wrap::getNymbox), "OT_API_getNymbox");
 
 		theScript.chai.add(fun(&OTAPI_Wrap::Nymbox_GetReplyNotice), "OT_API_Nymbox_GetReplyNotice");

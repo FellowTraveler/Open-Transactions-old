@@ -2895,12 +2895,20 @@ public :
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	*/
+    
+    // NOTE: Deprecated. Replaced by getAccountFiles.
 	EXPORT static int32_t getAccount(
-		const std::string & SERVER_ID,
-		const std::string & USER_ID,
-		const std::string & ACCT_ID
-		);
-
+                                     const std::string & SERVER_ID,
+                                     const std::string & USER_ID,
+                                     const std::string & ACCT_ID
+                                     );
+    
+	EXPORT static int32_t getAccountFiles(
+                                     const std::string & SERVER_ID,
+                                     const std::string & USER_ID,
+                                     const std::string & ACCT_ID
+                                     );
+    
 
 	// --------------------------------------------------
 
@@ -3218,6 +3226,7 @@ public :
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
+    // NOTE: Deprecated. Replaced by getAccountFiles.
 	EXPORT static int32_t getInbox(
 		const std::string & SERVER_ID,
 		const std::string & USER_ID,
@@ -3232,6 +3241,7 @@ public :
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
+    // NOTE: Deprecated. Replaced by getAccountFiles.
 	EXPORT static int32_t getOutbox(
 		const std::string & SERVER_ID,
 		const std::string & USER_ID,

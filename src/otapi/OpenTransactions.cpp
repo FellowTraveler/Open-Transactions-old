@@ -12152,23 +12152,22 @@ int OT_API::getNymbox(OTIdentifier & SERVER_ID,
 }
 
 
-
+// NOTE: Deprecated. Replaced by getAccountFiles.
 int OT_API::getInbox(OTIdentifier & SERVER_ID,
-					  OTIdentifier & USER_ID,
-					  OTIdentifier & ACCT_ID)
+                     OTIdentifier & USER_ID,
+                     OTIdentifier & ACCT_ID)
 {
-	const char * szFuncName = "OT_API::getInbox";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
+	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, __FUNCTION__);
 	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
@@ -12207,23 +12206,22 @@ int OT_API::getInbox(OTIdentifier & SERVER_ID,
 
 
 
-
+// NOTE: Deprecated. Replaced by getAccountFiles.
 int OT_API::getOutbox(OTIdentifier & SERVER_ID,
 					  OTIdentifier & USER_ID,
 					  OTIdentifier & ACCT_ID)
 {
-	const char * szFuncName = "OT_API::getOutbox";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName);
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__);
 	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
+	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, __FUNCTION__);
 	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
@@ -12996,23 +12994,22 @@ int OT_API::getBoxReceipt(const OTIdentifier & SERVER_ID,
 
 
 
-
+// NOTE: Deprecated. Replaced by getAccountFiles.
 int OT_API::getAccount( OTIdentifier	& SERVER_ID,
 						OTIdentifier	& USER_ID,
 						OTIdentifier	& ACCT_ID)
 {
-	const char * szFuncName = "OT_API::getAccount";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, szFuncName); // This ASSERTs and logs already.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, __FUNCTION__); // This ASSERTs and logs already.
 	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
+	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, __FUNCTION__);
 	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
@@ -13044,6 +13041,59 @@ int OT_API::getAccount( OTIdentifier	& SERVER_ID,
 #if defined(OT_ZMQ_MODE)
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, this->m_pTransportCallback);
 #endif	
+	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
+}
+
+
+
+int OT_API::getAccountFiles(OTIdentifier    & SERVER_ID,
+                            OTIdentifier    & USER_ID,
+                            OTIdentifier    & ACCT_ID)
+{
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__); // This ASSERTs and logs already.
+	if (NULL == pNym) return (-1);
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, __FUNCTION__); // This ASSERTs and logs already.
+	if (NULL == pServer) return (-1);
+	// By this point, pServer is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, __FUNCTION__);
+	if (NULL == pAccount) return (-1);
+	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+	OTMessage theMessage;
+	long lRequestNumber = 0;
+	
+	OTString strServerID(SERVER_ID), strNymID(USER_ID), strAcctID(ACCT_ID);
+	
+	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
+	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
+	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
+	
+	// (1) set up member variables
+	theMessage.m_strCommand			= "getAccountFiles";
+	theMessage.m_strNymID			= strNymID;
+	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+    
+	theMessage.m_strAcctID			= strAcctID;
+	
+	// (2) Sign the Message
+	theMessage.SignContract(*pNym);
+	
+	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+	theMessage.SaveContract();
+	
+	// (Send it)
+#if defined(OT_ZMQ_MODE)
+	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, this->m_pTransportCallback);
+#endif
 	m_pClient->ProcessMessageOut(theMessage);
     
     return m_pClient->CalcReturnVal(lRequestNumber);

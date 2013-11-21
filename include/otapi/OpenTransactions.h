@@ -988,6 +988,10 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                            OTIdentifier & USER_ID,
                            OTIdentifier & ACCT_ID);
     
+	EXPORT	int getAccountFiles(OTIdentifier & SERVER_ID,
+                                OTIdentifier & USER_ID,
+                                OTIdentifier & ACCT_ID);
+    
 	// ----------------------------------------------------
     
 	EXPORT	OTBasket * GenerateBasketCreation(const OTIdentifier & USER_ID,
