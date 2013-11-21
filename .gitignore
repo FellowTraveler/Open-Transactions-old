@@ -4,6 +4,7 @@ build/*
 *.xcconfig
 *.xcclassmodel/*
 *.o
+*.o-*
 *.a
 *.dylib 
 *.pbxuser
@@ -17,6 +18,8 @@ build/*
 *.suo
 *.sdf
 *.opensdf
+xcuserdata/
+*.deps/
 
 *.jar
 
@@ -87,6 +90,7 @@ swig/otapi/OTAPI_wrap.h
 build-aux/csharpcomp.sh
 Makefile
 config.h
+ot_config.h
 config.log
 config.status
 libtool
@@ -110,3 +114,7 @@ src/otlib/.libs
 src/createmint
 src/ot
 src/otserver
+Bitcoin.cc
+Generics.cc
+Markets.cc
+Moneychanger.cc

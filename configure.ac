@@ -4,6 +4,7 @@ AC_PREREQ([2.61])
 AC_INIT([opentxs],m4_esyscmd(tr -d '\n' <VERSION),[Fellow-Traveler],[opentxs],[https://github.com/FellowTraveler/Open-Transactions])
 AC_CONFIG_SRCDIR([src/otd/main.cpp])
 AC_CONFIG_HEADERS([config.h])
+AX_PREFIX_CONFIG_H(include/otlib/ot_config.h)
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 
@@ -65,13 +66,13 @@ AC_COMPILE_IFELSE(
        not clang
 #endif
 ]])],
-[acv_mesa_CLANG=yes], [acv_mesa_CLANG=no])
+[acv_ot_clang=yes], [acv_ot_clang=no])
 
-AC_MSG_RESULT([$acv_mesa_CLANG])
+AC_MSG_RESULT([$acv_ot_clang])
 
 dnl If we're using GCC, make sure that it is at least version 4.2.0.  Older
 dnl versions are explictly not supported.
-if test "x$GCC" = xyes -a "x$acv_mesa_CLANG" = xno; then
+if test "x$GCC" = xyes -a "x$acv_ot_clang" = xno; then
     AC_MSG_CHECKING([whether gcc version is sufficient])
     major=0
     minor=0
@@ -109,19 +110,34 @@ AC_SUBST([PROTOC])
 ## OpenSSL
 # "--with-openssl=DIR" point to optional openssl package headers (for devs)
 
-PKG_CHECK_MODULES([OPENSSL],[openssl >= 1.0.0],
-	[AX_CHECK_OPENSSL],
-	[AC_MSG_RESULT([Warning: openssl version >= 1.0.0 not found!])]
-	)
+AX_CHECK_OPENSSL([acv_ot_openssl="yes"])
+
+if test "x$acv_ot_openssl" = xyes; then
+    AC_DEFINE([HAVE_OPENSSL], [1], [We have openSSL])
+else
+    AC_MSG_ERROR([ERROR: Cannot find openssl, please use --with-openssl=openssl_dir])
+fi
+
 
 ## BOOST ##
 
-AX_BOOST_BASE([1.25.0])
-AX_BOOST_THREAD
-AX_BOOST_DATE_TIME
-AX_BOOST_SYSTEM
+AC_ARG_ENABLE([boost],
+	AS_HELP_STRING([--enable-boost],[disable boost, default: yes]),
+	[case "${enableval}" in
+		yes) boost=true ;;
+		no)  boost=false ;;
+		*)   AC_MSG_ERROR([bad value ${enableval} for --disable-boost]) ;;
+        esac],[boost=true])
+AM_CONDITIONAL([WANT_BOOST], [test x"$boost" = x"true"])
 
-AC_SUBST([BOOST_LIB_INCLUDE],["$BOOST_LDFLAGS $BOOST_THREAD_LIB $BOOST_DATE_TIME_LIB $BOOST_SYSTEM_LIB"])
+if test "x$boost" = xtrue; then
+    AX_BOOST_BASE([1.25.0])
+    AX_BOOST_THREAD
+    AX_BOOST_DATE_TIME
+    AX_BOOST_SYSTEM
+    AC_SUBST([BOOST_LIB_INCLUDE],["$BOOST_LDFLAGS $BOOST_THREAD_LIB $BOOST_DATE_TIME_LIB $BOOST_SYSTEM_LIB"])
+    AC_DEFINE([HAVE_BOOST], [1], [We have boost])
+fi
 
 
 ## MsgPack ##
@@ -165,6 +181,12 @@ AS_IF(	[test "$with_transport" == zmq],
 		[AC_MSG_RESULT([Warning: libzmq version >= 2.1.4 not found!])]
 		)
 	])
+    
+if test "$with_transport" == zmq; then
+    AC_DEFINE([TRANSPORT_ZMQ], [1], [Using ZMQ Transport])
+else
+    AC_MSG_ERROR([ERROR: Only ZMQ Transport Supported!])
+fi
 
 ## Keyring Options ##
 
@@ -189,6 +211,7 @@ AS_IF(	[test "$with_keyring" == windows],
 	[
 	AC_SUBST(KRG_CFLAGS,[""])
 	AC_SUBST(KRG_LIBS,[""])
+    AC_DEFINE([KEYRING_WINDOWS], [1], [Using Windows Keyring])
 	])
 ##  WINDOWS build flags needed here #
 
@@ -196,17 +219,20 @@ AS_IF(	[test "$with_keyring" == mac],
 	[
 	AC_SUBST(KRG_CFLAGS,["-isysroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
 	AC_SUBST(KRG_LIBS,["-syslibroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
+    AC_DEFINE([KEYRING_MAC], [1], [Using Mac Keyring])
 	])
 
 AS_IF(	[test "$with_keyring" == gnome],
 	[
 	PKG_CHECK_MODULES([KRG],[glib-2.0 >= 2.28.6 gnome-keyring-1])
+    AC_DEFINE([KEYRING_GNOME], [1], [Using Gnome Keyring])
 	])
 
 AS_IF(	[test "$with_keyring" == kwallet],
 	[
 	AC_SUBST(KRG_CFLAGS,	["-I/usr/include/kde"])
 	AC_SUBST(KRG_LIBS,	["-L/usr/lib -lkwalletclient"])
+    AC_DEFINE([KEYRING_KWALLET], [1], [Using KWallet Keyring])
 	])
 
 
@@ -226,7 +252,11 @@ AC_ARG_ENABLE(
 		esac],
 	[sighandler=false])
 
-AM_CONDITIONAL(OT_SIGNAL_HANDLING, test x"$sighandler" = x"true")
+AM_CONDITIONAL(ENABLE_OT_SIGNAL_HANDLING, test x"$sighandler" = x"true")
+
+if test x"$sighandler" = x"true"; then
+    AC_DEFINE([OT_SIGNAL_HANDLING], [1], [Using OT Signal Handling])
+fi
 
 ## (Option) Warnings ##
 
@@ -242,7 +272,7 @@ AC_ARG_ENABLE(
 		esac],
 	[warnings=false])
 
-AM_CONDITIONAL(WARNINGS, test x"$warnings" = x"true")
+AM_CONDITIONAL(ENABLE_WARNINGS, test x"$warnings" = x"true")
 
 if (test "x$warnings" == x"true"); then
 
@@ -252,24 +282,63 @@ fi
 
 ## (Option) Build In Release Mode ##
 
-AC_ARG_ENABLE(
-	release,
-	AS_HELP_STRING(
-		[--enable-release],
-		[enable releasemode, default: no]),
+
+AC_ARG_ENABLE([debug],
+	AS_HELP_STRING([--enable-debug],[enable debug, default: no]),
+	[case "${enableval}" in
+		yes) debug=true ;;
+		no)  debug=false ;;
+		*)   AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+        esac],[debug=false])
+AM_CONDITIONAL([ENALBE_DEBUG], [test x$debug = xtrue])
+
+
+AC_ARG_ENABLE([release],
+	AS_HELP_STRING([--enable-release],[enable release, default: no]),
 	[case "${enableval}" in
 		yes) release=true ;;
 		no)  release=false ;;
 		*)   AC_MSG_ERROR([bad value ${enableval} for --enable-release]) ;;
-		esac],
-	[release=false])
+        esac],[release=false])
+AM_CONDITIONAL([ENABLE_RELEASE], [test x$release = xtrue])
 
-AM_CONDITIONAL(RELEASE, test x"$release" = x"true")
+if test "x$debug" = xtrue -a "x$release" = xtrue; then
+    AC_MSG_ERROR([must not have both release and debug set!])
+fi
+
+if (test "x$debug" == x"true"); then
+
+    if (test "x$acv_ot_clang" == "xyes"); then
+        AC_SUBST([DBG_CXXFLAGS],["-g3 -O0 -fPIC"])
+    else
+        AC_SUBST([DBG_CXXFLAGS],["-g3 -O0 -fPIC -fPIC -DPIC --param ssp-buffer-size=4"])
+    fi
+    AC_DEFINE([DEBUG], [1], [Building in Debug Mode])
+fi
 
 if (test "x$release" == x"true"); then
 
 	AC_SUBST([REL_CXXFLAGS],
 	["-Wall -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector"])
+    AC_DEFINE([RELEASE], [1], [Building in Release Mode])
+fi
+
+
+## (Option) Build In C++11 Mode ##
+
+AC_ARG_ENABLE([cxx11],
+	AS_HELP_STRING([--enable-cxx11],[enable cxx11, default: yes]),
+	[case "${enableval}" in
+		yes) cxx11=true ;;
+		no)  cxx11=false ;;
+		*)   AC_MSG_ERROR([bad value ${enableval} for --enable-cxx11]) ;;
+        esac],[cxx11=true])
+AM_CONDITIONAL([USE_CXX11], [test x$cxx11 = xtrue])
+
+if (test "x$cxx11" == "xtrue"); then
+
+	AC_SUBST([CXX11_FLAGS],["-std=c++11"])
+    AC_DEFINE([HAVE_CXX11], [1], [Building with C++11])
 fi
 
 ## (Option) Add SWIG JAVA ##
@@ -404,17 +473,15 @@ AM_CONDITIONAL([WANT_GO], [test "x$with_go" == "xyes"])
 
 #####   Output to AM   #####
 
-if (test "x$acv_mesa_CLANG" == "xyes"); then
-	AC_SUBST([AC_CXXFLAGS],["-g3 -O0 -fPIC $WARN_CXXFLAGS $REL_CXXFLAGS"])
-else
-	AC_SUBST([AC_CXXFLAGS],["-fPIC -DPIC --param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
-fi
+AC_SUBST([DEPS_FLAGS],["$PTHREAD_CFLAGS $PKGS_CFLAGS $ZMQ_CFLAGS $KRG_CFLAGS $OPENSSL_CFLAGS $OPENSSL_INCLUDES $BOOST_LIB_INCLUDE"])
 
-AC_SUBST(       [DEPS_CFLAGS],
-["$PKGS_CFLAGS $ZMQ_CFLAGS $KRG_CFLAGS $OPENSSL_CFLAGS $BOOST_CPPFLAGS $PTHREAD_CFLAGS"])
+AC_SUBST([AM_CFLAGS],["$DEPS_FLAGS"])
 
-AC_SUBST(       [DEPS_LIBS],
-["$PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS $OPENSSL_LDFLAGS $OPENSSL_LIBS -ldl $BOOST_LIB_INCLUDE $PTHREAD_LIBS"])
+AC_SUBST([AM_CXXFLAGS],["$DBG_CXXFLAGS $REL_CXXFLAGS $CXX11_FLAGS $WARN_CXXFLAGS $DEPS_FLAGS"])
+
+AC_SUBST([AM_CPPFLAGS],["$BOOST_CPPFLAGS"])
+
+AC_SUBST([AM_LDFLAGS],["$OPENSSL_LDFLAGS $PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS  $OPENSSL_LIBS -ldl $PTHREAD_LIBS"])
 
 AC_CONFIG_FILES([Makefile
 			src/otlib/otprotob/Makefile

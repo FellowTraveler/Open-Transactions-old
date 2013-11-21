@@ -2,15 +2,11 @@ noinst_LTLIBRARIES = libotext.la
 
 ## For now we build locally and statically link to this library as a convenience library
 
-AM_CFLAGS		=	$(AC_CXXFLAGS)
-AM_CPPFLAGS		= 	$(AC_CXXFLAGS)
-AM_CXXFLAGS		=	$(AC_CXXFLAGS)
-
 otext_headers_dir	=	$(top_srcdir)/include/otlib
 
 
 otext_sources     =		easyzlib.c			\
-				mkcert.c			\
+				mkcert.cpp			\
 				anyoption.cpp			\
 				tinythread.cpp			\
 				Timer.cpp
@@ -21,7 +17,7 @@ otext_headers		=	$(otext_headers_dir)/easyzlib.h	\
 				$(otext_headers_dir)/Timer.h
 
 libotext_la_SOURCES	=	$(otext_sources) $(otext_headers) $(simpleini_headers)
-libotext_la_CPPFLAGS	=	-I$(otext_headers_dir) $(DEPS_CFLAGS)
+libotext_la_CPPFLAGS	= $(AM_CPPFLAGS) -I$(otext_headers_dir)
 libotext_la_LDFLAGS	=	-static --no-undefined
 
 

@@ -3,6 +3,11 @@
 
 #pragma once
 
+#ifdef _MSC_VER
+//#include <ot_msvc.h>
+#else
+#include <ot_config.h>
+#endif
 
 #ifndef EXPORT
 #define EXPORT
@@ -25,13 +30,7 @@
 #include <vector>
 #include <locale>
 
-#ifdef _WIN32
 #include <memory>
-#elif __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
-#include <memory>
-#else
-#include <tr1/memory>
-#endif
 
 #ifdef _WIN32
 #ifndef NO_OT_PCH

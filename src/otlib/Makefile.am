@@ -7,16 +7,14 @@ opentxs_source_dir =		$(top_srcdir)/src
 
 ## COMMON FLAGS ###
 
-common_includes		=	-I$(opentxs_include_dir)		\
+common_includes		=	$(AM_CXXFLAGS)			\
+                -I$(opentxs_include_dir)		\
 				-I$(opentxs_include_dir)/otlib	\
 				-I$(opentxs_include_dir)/containers	\
-				$(DEPS_CFLAGS)			\
 				-DOT_PREFIX_PATH="\"${prefix}\""	\
 				-DOT_VERSION="\"${VERSION}\""
 
 
-AM_CPPFLAGS		= 	$(AC_CXXFLAGS)
-AM_CXXFLAGS		=	$(AC_CXXFLAGS)
 
 #### Lib OT build calls
 
@@ -30,8 +28,7 @@ libot_la_LIBADD	=	bigint/libbigint.la		\
 				irrxml/libirrxml.la		\
 				lucre/liblucre.la		\
 				otprotob/libotprotob.la		\
-				otext/libotext.la		\
-				$(DEPS_LIBS)
+				otext/libotext.la
 
 libot_la_DEPENDENCIES	=	bigint/libbigint.la		\
 				irrxml/libirrxml.la		\
@@ -62,7 +59,6 @@ endif
 
 ####################################################################
 
-otlib_sources_dir = 		$(opentxs_source_dir)/otlib
 
 otlib_sources     =		OTAccount.cpp			\
 				OTAgreement.cpp			\
@@ -128,7 +124,8 @@ otlib_headers		=	$(otlib_headers_dir)/constants.h		\
 				$(otlib_headers_dir)/Timer.h			\
 				$(otlib_headers_ext)
 
-otlib_headers_ext	=	$(otlib_headers_dir)/ExportWrapper.h		\
+otlib_headers_ext	=	$(otlib_headers_dir)/ot_config.h    \
+                $(otlib_headers_dir)/ExportWrapper.h		\
 				$(otlib_headers_dir)/stacktrace.h		\
 				$(otlib_headers_dir)/stdafx.h		\
 				$(otlib_headers_dir)/OTAccount.h		\

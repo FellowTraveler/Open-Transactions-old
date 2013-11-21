@@ -825,7 +825,7 @@ bool OT_API::InitOTApp()
 		//  option, and plus, the internals only execute once anyway. (It keeps count.)
 #endif
 
-		// ------------------------------------    
+		// ------------------------------------
 		OTCrypto::It()->Init(); // (OpenSSL gets initialized here.)
 		// ------------------------------------
 		// TODO in the case of Windows, figure err into this return val somehow.
