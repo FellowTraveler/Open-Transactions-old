@@ -84,6 +84,14 @@ public class AskData extends OfferDataMarket {
     return otapiJNI.AskData_minimum_increment_get(swigCPtr, this);
   }
 
+  public void setDate(String value) {
+    otapiJNI.AskData_date_set(swigCPtr, this, value);
+  }
+
+  public String getDate() {
+    return otapiJNI.AskData_date_get(swigCPtr, this);
+  }
+
   public static AskData ot_dynamic_cast(Storable pObject) {
     long cPtr = otapiJNI.AskData_ot_dynamic_cast(Storable.getCPtr(pObject), pObject);
     return (cPtr == 0) ? null : new AskData(cPtr, false);

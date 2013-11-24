@@ -653,12 +653,15 @@ bool OTAsymmetricKey_OpenSSL::LoadPrivateKeyFromCertString(const OTString & strC
 		
 		if (NULL == pkey) 
 		{ 
-			OTLog::vError("%s: (pImportPassword is %s, size: %d) Error reading private key from string:\n%s\n\n",
-						  __FUNCTION__, NULL == pImportPassword ? "NULL" : pImportPassword->getPassword(),
-                          NULL == pImportPassword ? 0 : pImportPassword->getPasswordSize(),
-                          strWithBookends.Get()
-                          );
-			return false; 
+			OTLog::vError("%s: (pImportPassword size: %d) Error reading private key from string.\n\n",
+						  __FUNCTION__,
+                          NULL == pImportPassword ? 0 : pImportPassword->getPasswordSize());
+//			OTLog::vError("%s: (pImportPassword is %s, size: %d) Error reading private key from string:\n%s\n\n",
+//						  __FUNCTION__, NULL == pImportPassword ? "NULL" : pImportPassword->getPassword(),
+//                          NULL == pImportPassword ? 0 : pImportPassword->getPasswordSize(),
+//                          strWithBookends.Get()
+//                          );
+			return false;
 		}
 		else 
 		{
@@ -1267,8 +1270,10 @@ bool OTAsymmetricKey_OpenSSL::ReEncryptPrivateKey(OTPassword & theExportPassword
                           __FUNCTION__, m_p_ascKey->Get());
     }
     else
-        OTLog::vError("%s: Failed reading private key from ASCII-armored data:\n\n%s\n\n",
-                      __FUNCTION__, m_p_ascKey->Get());
+        OTLog::vError("%s: Failed reading private key from ASCII-armored data.\n\n",
+                      __FUNCTION__);
+//      OTLog::vError("%s: Failed reading private key from ASCII-armored data:\n\n%s\n\n",
+//                    __FUNCTION__, m_p_ascKey->Get());
     // --------------------------------------
     return bReturnVal;
 }
@@ -1333,13 +1338,17 @@ EVP_PKEY * OTAsymmetricKey_OpenSSL::InstantiatePrivateKey(OTPasswordData * pPWDa
             //
 
             m_timer.start();  // Note: this isn't the ultimate timer solution. See notes in ReleaseKeyLowLevel.
-            OTLog::vOutput(4, "%s: Success reading private key from ASCII-armored data:\n\n%s\n\n",
-                           __FUNCTION__, m_p_ascKey->Get());
+            OTLog::vOutput(4, "%s: Success reading private key from ASCII-armored data.\n\n",
+                           __FUNCTION__);
+//          OTLog::vOutput(4, "%s: Success reading private key from ASCII-armored data:\n\n%s\n\n",
+//                         __FUNCTION__, m_p_ascKey->Get());
             return m_pKey;
         }
     }
-    OTLog::vError("%s: Failed reading private key from ASCII-armored data:\n\n%s\n\n",
-                  __FUNCTION__, m_p_ascKey->Get());
+    OTLog::vError("%s: Failed reading private key from ASCII-armored data.\n\n",
+                  __FUNCTION__);
+//  OTLog::vError("%s: Failed reading private key from ASCII-armored data:\n\n%s\n\n",
+//                __FUNCTION__, m_p_ascKey->Get());
     return NULL;
 }
                                             

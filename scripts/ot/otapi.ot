@@ -73,7 +73,8 @@
 	attr OTAPI_Func::strData
 	attr OTAPI_Func::strData2
 	attr OTAPI_Func::strData3
-	attr OTAPI_Func::strData4
+    attr OTAPI_Func::strData4
+    attr OTAPI_Func::strData5
 	attr OTAPI_Func::bBool
     attr OTAPI_Func::nData
     attr OTAPI_Func::lData
@@ -533,7 +534,9 @@
         this.strData2   = minIncrement;
         this.strData3   = quantity;
         this.strData4   = price;
-        
+
+        this.strData5   = ""; // Will be set after this function is called, since there were too many arguments.
+
         this.bBool      = bSelling;
         
         this.nTransNumsNeeded = 3; // An opening transaction number, plus another for each asset account, total of 3.
@@ -641,13 +644,13 @@
                 var lData3 = int64_t(this.strData3.to_int())
                 var lData4 = int64_t(this.strData4.to_int())
 
-                nRetVal = OT_API_issueMarketOffer(this.serverID, this.nymID, this.accountID, this.accountID2,
-                                                  lData1, lData2, lData3, lData4, this.bBool, this.tData);
+                nRetVal = OT_API_issueMarketOffer(this.accountID, this.accountID2,
+                                                  lData1, lData2, lData3, lData4, this.bBool, this.tData, this.strData5, this.lData);
                 break;
             }
             case (this.ADJUST_USAGE_CREDITS)
             {
-                var lAdjust = this.strData.to_int()
+                var lAdjust = this.strData.to_int();
                 
                 nRetVal = OT_API_usageCredits(this.serverID, this.nymID, this.nymID2, int64_t(lAdjust));
                 break;

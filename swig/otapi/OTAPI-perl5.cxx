@@ -19289,6 +19289,69 @@ XS(_wrap_OTAPI_Basic_getAccount) {
 }
 
 
+XS(_wrap_OTAPI_Basic_getAccountFiles) {
+  {
+    std::string *arg1 = 0 ;
+    std::string *arg2 = 0 ;
+    std::string *arg3 = 0 ;
+    int res1 = SWIG_OLDOBJ ;
+    int res2 = SWIG_OLDOBJ ;
+    int res3 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    long result;
+    dXSARGS;
+    
+    if ((items < 3) || (items > 3)) {
+      SWIG_croak("Usage: OTAPI_Basic_getAccountFiles(SERVER_ID,USER_ID,ACCT_ID);");
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res1 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), &ptr);
+      if (!SWIG_IsOK(res1)) {
+        SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      arg1 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res3 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(2), &ptr);
+      if (!SWIG_IsOK(res3)) {
+        SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "3"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "3"" of type '" "std::string const &""'"); 
+      }
+      arg3 = ptr;
+    }
+    result = (long)OTAPI_Basic::getAccountFiles((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+    ST(argvi) = SWIG_From_long  SWIG_PERL_CALL_ARGS_1(static_cast< long >(result)); argvi++ ;
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    if (SWIG_IsNewObj(res3)) delete arg3;
+    XSRETURN(argvi);
+  fail:
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    if (SWIG_IsNewObj(res3)) delete arg3;
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OTAPI_Basic_GenerateBasketCreation) {
   {
     std::string *arg1 = 0 ;
@@ -21082,9 +21145,9 @@ XS(_wrap_OTAPI_Basic_issueMarketOffer) {
     std::string *arg4 = 0 ;
     std::string *arg5 = 0 ;
     std::string *arg6 = 0 ;
-    std::string *arg7 = 0 ;
+    bool *arg7 = 0 ;
     std::string *arg8 = 0 ;
-    bool *arg9 = 0 ;
+    std::string *arg9 = 0 ;
     std::string *arg10 = 0 ;
     int res1 = SWIG_OLDOBJ ;
     int res2 = SWIG_OLDOBJ ;
@@ -21092,18 +21155,18 @@ XS(_wrap_OTAPI_Basic_issueMarketOffer) {
     int res4 = SWIG_OLDOBJ ;
     int res5 = SWIG_OLDOBJ ;
     int res6 = SWIG_OLDOBJ ;
-    int res7 = SWIG_OLDOBJ ;
+    bool temp7 ;
+    bool val7 ;
+    int ecode7 = 0 ;
     int res8 = SWIG_OLDOBJ ;
-    bool temp9 ;
-    bool val9 ;
-    int ecode9 = 0 ;
+    int res9 = SWIG_OLDOBJ ;
     int res10 = SWIG_OLDOBJ ;
     int argvi = 0;
     long result;
     dXSARGS;
     
     if ((items < 10) || (items > 10)) {
-      SWIG_croak("Usage: OTAPI_Basic_issueMarketOffer(SERVER_ID,USER_ID,ASSET_ACCT_ID,CURRENCY_ACCT_ID,MARKET_SCALE,MINIMUM_INCREMENT,TOTAL_ASSETS_ON_OFFER,PRICE_LIMIT,bBuyingOrSelling,LIFESPAN_IN_SECONDS);");
+      SWIG_croak("Usage: OTAPI_Basic_issueMarketOffer(ASSET_ACCT_ID,CURRENCY_ACCT_ID,MARKET_SCALE,MINIMUM_INCREMENT,TOTAL_ASSETS_ON_OFFER,PRICE_LIMIT,bBuyingOrSelling,LIFESPAN_IN_SECONDS,STOP_SIGN,ACTIVATION_PRICE);");
     }
     {
       std::string *ptr = (std::string *)0;
@@ -21171,17 +21234,12 @@ XS(_wrap_OTAPI_Basic_issueMarketOffer) {
       }
       arg6 = ptr;
     }
-    {
-      std::string *ptr = (std::string *)0;
-      res7 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(6), &ptr);
-      if (!SWIG_IsOK(res7)) {
-        SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "7"" of type '" "std::string const &""'"); 
-      }
-      if (!ptr) {
-        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "7"" of type '" "std::string const &""'"); 
-      }
-      arg7 = ptr;
-    }
+    ecode7 = SWIG_AsVal_bool SWIG_PERL_CALL_ARGS_2(ST(6), &val7);
+    if (!SWIG_IsOK(ecode7)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "7"" of type '" "bool""'");
+    } 
+    temp7 = static_cast< bool >(val7);
+    arg7 = &temp7;
     {
       std::string *ptr = (std::string *)0;
       res8 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(7), &ptr);
@@ -21193,12 +21251,17 @@ XS(_wrap_OTAPI_Basic_issueMarketOffer) {
       }
       arg8 = ptr;
     }
-    ecode9 = SWIG_AsVal_bool SWIG_PERL_CALL_ARGS_2(ST(8), &val9);
-    if (!SWIG_IsOK(ecode9)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "9"" of type '" "bool""'");
-    } 
-    temp9 = static_cast< bool >(val9);
-    arg9 = &temp9;
+    {
+      std::string *ptr = (std::string *)0;
+      res9 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(8), &ptr);
+      if (!SWIG_IsOK(res9)) {
+        SWIG_exception_fail(SWIG_ArgError(res9), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "9"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "9"" of type '" "std::string const &""'"); 
+      }
+      arg9 = ptr;
+    }
     {
       std::string *ptr = (std::string *)0;
       res10 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(9), &ptr);
@@ -21210,7 +21273,7 @@ XS(_wrap_OTAPI_Basic_issueMarketOffer) {
       }
       arg10 = ptr;
     }
-    result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
+    result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(bool const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10);
     ST(argvi) = SWIG_From_long  SWIG_PERL_CALL_ARGS_1(static_cast< long >(result)); argvi++ ;
     if (SWIG_IsNewObj(res1)) delete arg1;
     if (SWIG_IsNewObj(res2)) delete arg2;
@@ -21218,9 +21281,9 @@ XS(_wrap_OTAPI_Basic_issueMarketOffer) {
     if (SWIG_IsNewObj(res4)) delete arg4;
     if (SWIG_IsNewObj(res5)) delete arg5;
     if (SWIG_IsNewObj(res6)) delete arg6;
-    if (SWIG_IsNewObj(res7)) delete arg7;
-    if (SWIG_IsNewObj(res8)) delete arg8;
     
+    if (SWIG_IsNewObj(res8)) delete arg8;
+    if (SWIG_IsNewObj(res9)) delete arg9;
     if (SWIG_IsNewObj(res10)) delete arg10;
     XSRETURN(argvi);
   fail:
@@ -21230,9 +21293,9 @@ XS(_wrap_OTAPI_Basic_issueMarketOffer) {
     if (SWIG_IsNewObj(res4)) delete arg4;
     if (SWIG_IsNewObj(res5)) delete arg5;
     if (SWIG_IsNewObj(res6)) delete arg6;
-    if (SWIG_IsNewObj(res7)) delete arg7;
-    if (SWIG_IsNewObj(res8)) delete arg8;
     
+    if (SWIG_IsNewObj(res8)) delete arg8;
+    if (SWIG_IsNewObj(res9)) delete arg9;
     if (SWIG_IsNewObj(res10)) delete arg10;
     SWIG_croak_null();
   }
@@ -26066,9 +26129,9 @@ XS(_wrap_OTMadeEasy_create_market_offer) {
     std::string *arg5 = 0 ;
     std::string *arg6 = 0 ;
     std::string *arg7 = 0 ;
-    std::string *arg8 = 0 ;
+    bool arg8 ;
     std::string *arg9 = 0 ;
-    bool arg10 ;
+    std::string *arg10 = 0 ;
     std::string *arg11 = 0 ;
     void *argp1 = 0 ;
     int res1 = 0 ;
@@ -26078,17 +26141,17 @@ XS(_wrap_OTMadeEasy_create_market_offer) {
     int res5 = SWIG_OLDOBJ ;
     int res6 = SWIG_OLDOBJ ;
     int res7 = SWIG_OLDOBJ ;
-    int res8 = SWIG_OLDOBJ ;
+    bool val8 ;
+    int ecode8 = 0 ;
     int res9 = SWIG_OLDOBJ ;
-    bool val10 ;
-    int ecode10 = 0 ;
+    int res10 = SWIG_OLDOBJ ;
     int res11 = SWIG_OLDOBJ ;
     int argvi = 0;
     std::string result;
     dXSARGS;
     
     if ((items < 11) || (items > 11)) {
-      SWIG_croak("Usage: OTMadeEasy_create_market_offer(self,SERVER_ID,NYM_ID,ASSET_ACCT_ID,CURRENCY_ACCT_ID,scale,minIncrement,quantity,price,bSelling,LIFESPAN_IN_SECONDS);");
+      SWIG_croak("Usage: OTMadeEasy_create_market_offer(self,ASSET_ACCT_ID,CURRENCY_ACCT_ID,scale,minIncrement,quantity,price,bSelling,LIFESPAN_IN_SECONDS,STOP_SIGN,ACTIVATION_PRICE);");
     }
     res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
     if (!SWIG_IsOK(res1)) {
@@ -26161,17 +26224,11 @@ XS(_wrap_OTMadeEasy_create_market_offer) {
       }
       arg7 = ptr;
     }
-    {
-      std::string *ptr = (std::string *)0;
-      res8 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(7), &ptr);
-      if (!SWIG_IsOK(res8)) {
-        SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "OTMadeEasy_create_market_offer" "', argument " "8"" of type '" "std::string const &""'"); 
-      }
-      if (!ptr) {
-        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_create_market_offer" "', argument " "8"" of type '" "std::string const &""'"); 
-      }
-      arg8 = ptr;
-    }
+    ecode8 = SWIG_AsVal_bool SWIG_PERL_CALL_ARGS_2(ST(7), &val8);
+    if (!SWIG_IsOK(ecode8)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "OTMadeEasy_create_market_offer" "', argument " "8"" of type '" "bool""'");
+    } 
+    arg8 = static_cast< bool >(val8);
     {
       std::string *ptr = (std::string *)0;
       res9 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(8), &ptr);
@@ -26183,11 +26240,17 @@ XS(_wrap_OTMadeEasy_create_market_offer) {
       }
       arg9 = ptr;
     }
-    ecode10 = SWIG_AsVal_bool SWIG_PERL_CALL_ARGS_2(ST(9), &val10);
-    if (!SWIG_IsOK(ecode10)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode10), "in method '" "OTMadeEasy_create_market_offer" "', argument " "10"" of type '" "bool""'");
-    } 
-    arg10 = static_cast< bool >(val10);
+    {
+      std::string *ptr = (std::string *)0;
+      res10 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(9), &ptr);
+      if (!SWIG_IsOK(res10)) {
+        SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "OTMadeEasy_create_market_offer" "', argument " "10"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_create_market_offer" "', argument " "10"" of type '" "std::string const &""'"); 
+      }
+      arg10 = ptr;
+    }
     {
       std::string *ptr = (std::string *)0;
       res11 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(10), &ptr);
@@ -26199,7 +26262,7 @@ XS(_wrap_OTMadeEasy_create_market_offer) {
       }
       arg11 = ptr;
     }
-    result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
+    result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,arg8,(std::string const &)*arg9,(std::string const &)*arg10,(std::string const &)*arg11);
     ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
     
     if (SWIG_IsNewObj(res2)) delete arg2;
@@ -26208,9 +26271,9 @@ XS(_wrap_OTMadeEasy_create_market_offer) {
     if (SWIG_IsNewObj(res5)) delete arg5;
     if (SWIG_IsNewObj(res6)) delete arg6;
     if (SWIG_IsNewObj(res7)) delete arg7;
-    if (SWIG_IsNewObj(res8)) delete arg8;
-    if (SWIG_IsNewObj(res9)) delete arg9;
     
+    if (SWIG_IsNewObj(res9)) delete arg9;
+    if (SWIG_IsNewObj(res10)) delete arg10;
     if (SWIG_IsNewObj(res11)) delete arg11;
     XSRETURN(argvi);
   fail:
@@ -26221,9 +26284,9 @@ XS(_wrap_OTMadeEasy_create_market_offer) {
     if (SWIG_IsNewObj(res5)) delete arg5;
     if (SWIG_IsNewObj(res6)) delete arg6;
     if (SWIG_IsNewObj(res7)) delete arg7;
-    if (SWIG_IsNewObj(res8)) delete arg8;
-    if (SWIG_IsNewObj(res9)) delete arg9;
     
+    if (SWIG_IsNewObj(res9)) delete arg9;
+    if (SWIG_IsNewObj(res10)) delete arg10;
     if (SWIG_IsNewObj(res11)) delete arg11;
     SWIG_croak_null();
   }
@@ -37746,6 +37809,76 @@ XS(_wrap_MarketData_recent_lowest_ask_get) {
 }
 
 
+XS(_wrap_MarketData_last_sale_date_set) {
+  {
+    OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+    std::string *arg2 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: MarketData_last_sale_date_set(self,last_sale_date);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__MarketData, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MarketData_last_sale_date_set" "', argument " "1"" of type '" "OTDB::MarketData *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::MarketData * >(argp1);
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "MarketData_last_sale_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "MarketData_last_sale_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    if (arg1) (arg1)->last_sale_date = *arg2;
+    ST(argvi) = sv_newmortal();
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_MarketData_last_sale_date_get) {
+  {
+    OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    std::string *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: MarketData_last_sale_date_get(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__MarketData, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MarketData_last_sale_date_get" "', argument " "1"" of type '" "OTDB::MarketData *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::MarketData * >(argp1);
+    result = (std::string *) & ((arg1)->last_sale_date);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(*result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_MarketData_ot_dynamic_cast) {
   {
     OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -38351,6 +38484,76 @@ XS(_wrap_OfferDataMarket_minimum_increment_get) {
 }
 
 
+XS(_wrap_OfferDataMarket_date_set) {
+  {
+    OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+    std::string *arg2 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OfferDataMarket_date_set(self,date);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__OfferDataMarket, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataMarket_date_set" "', argument " "1"" of type '" "OTDB::OfferDataMarket *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::OfferDataMarket * >(argp1);
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OfferDataMarket_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OfferDataMarket_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    if (arg1) (arg1)->date = *arg2;
+    ST(argvi) = sv_newmortal();
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OfferDataMarket_date_get) {
+  {
+    OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    std::string *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OfferDataMarket_date_get(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__OfferDataMarket, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataMarket_date_get" "', argument " "1"" of type '" "OTDB::OfferDataMarket *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::OfferDataMarket * >(argp1);
+    result = (std::string *) & ((arg1)->date);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(*result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OfferDataMarket_ot_dynamic_cast) {
   {
     OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -38756,6 +38959,76 @@ XS(_wrap_BidData_minimum_increment_get) {
 }
 
 
+XS(_wrap_BidData_date_set) {
+  {
+    OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+    std::string *arg2 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: BidData_date_set(self,date);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__BidData, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BidData_date_set" "', argument " "1"" of type '" "OTDB::BidData *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::BidData * >(argp1);
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "BidData_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BidData_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    if (arg1) (arg1)->date = *arg2;
+    ST(argvi) = sv_newmortal();
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_BidData_date_get) {
+  {
+    OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    std::string *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: BidData_date_get(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__BidData, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BidData_date_get" "', argument " "1"" of type '" "OTDB::BidData *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::BidData * >(argp1);
+    result = (std::string *) & ((arg1)->date);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(*result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_BidData_ot_dynamic_cast) {
   {
     OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -39151,6 +39424,76 @@ XS(_wrap_AskData_minimum_increment_get) {
     }
     arg1 = reinterpret_cast< OTDB::AskData * >(argp1);
     result = (std::string *) & ((arg1)->minimum_increment);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(*result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_AskData_date_set) {
+  {
+    OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+    std::string *arg2 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: AskData_date_set(self,date);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__AskData, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AskData_date_set" "', argument " "1"" of type '" "OTDB::AskData *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::AskData * >(argp1);
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "AskData_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "AskData_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    if (arg1) (arg1)->date = *arg2;
+    ST(argvi) = sv_newmortal();
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_AskData_date_get) {
+  {
+    OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    std::string *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: AskData_date_get(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__AskData, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AskData_date_get" "', argument " "1"" of type '" "OTDB::AskData *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::AskData * >(argp1);
+    result = (std::string *) & ((arg1)->date);
     ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(*result)); argvi++ ;
     
     XSRETURN(argvi);
@@ -41351,6 +41694,76 @@ XS(_wrap_OfferDataNym_stop_price_get) {
 }
 
 
+XS(_wrap_OfferDataNym_date_set) {
+  {
+    OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+    std::string *arg2 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OfferDataNym_date_set(self,date);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__OfferDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataNym_date_set" "', argument " "1"" of type '" "OTDB::OfferDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::OfferDataNym * >(argp1);
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OfferDataNym_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OfferDataNym_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    if (arg1) (arg1)->date = *arg2;
+    ST(argvi) = sv_newmortal();
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OfferDataNym_date_get) {
+  {
+    OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    std::string *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OfferDataNym_date_get(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__OfferDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataNym_date_get" "', argument " "1"" of type '" "OTDB::OfferDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::OfferDataNym * >(argp1);
+    result = (std::string *) & ((arg1)->date);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(*result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OfferDataNym_ot_dynamic_cast) {
   {
     OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -42016,6 +42429,426 @@ XS(_wrap_TradeDataNym_amount_sold_get) {
     }
     arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
     result = (std::string *) & ((arg1)->amount_sold);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(*result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_TradeDataNym_updated_id_set) {
+  {
+    OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+    std::string *arg2 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: TradeDataNym_updated_id_set(self,updated_id);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_updated_id_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_updated_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_updated_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    if (arg1) (arg1)->updated_id = *arg2;
+    ST(argvi) = sv_newmortal();
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_TradeDataNym_updated_id_get) {
+  {
+    OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    std::string *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: TradeDataNym_updated_id_get(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_updated_id_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+    result = (std::string *) & ((arg1)->updated_id);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(*result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_TradeDataNym_offer_price_set) {
+  {
+    OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+    std::string *arg2 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: TradeDataNym_offer_price_set(self,offer_price);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_offer_price_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_offer_price_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_offer_price_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    if (arg1) (arg1)->offer_price = *arg2;
+    ST(argvi) = sv_newmortal();
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_TradeDataNym_offer_price_get) {
+  {
+    OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    std::string *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: TradeDataNym_offer_price_get(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_offer_price_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+    result = (std::string *) & ((arg1)->offer_price);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(*result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_TradeDataNym_finished_so_far_set) {
+  {
+    OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+    std::string *arg2 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: TradeDataNym_finished_so_far_set(self,finished_so_far);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_finished_so_far_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_finished_so_far_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_finished_so_far_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    if (arg1) (arg1)->finished_so_far = *arg2;
+    ST(argvi) = sv_newmortal();
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_TradeDataNym_finished_so_far_get) {
+  {
+    OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    std::string *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: TradeDataNym_finished_so_far_get(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_finished_so_far_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+    result = (std::string *) & ((arg1)->finished_so_far);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(*result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_TradeDataNym_asset_id_set) {
+  {
+    OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+    std::string *arg2 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: TradeDataNym_asset_id_set(self,asset_id);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_asset_id_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_asset_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_asset_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    if (arg1) (arg1)->asset_id = *arg2;
+    ST(argvi) = sv_newmortal();
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_TradeDataNym_asset_id_get) {
+  {
+    OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    std::string *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: TradeDataNym_asset_id_get(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_asset_id_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+    result = (std::string *) & ((arg1)->asset_id);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(*result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_TradeDataNym_currency_id_set) {
+  {
+    OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+    std::string *arg2 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: TradeDataNym_currency_id_set(self,currency_id);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_currency_id_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_currency_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_currency_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    if (arg1) (arg1)->currency_id = *arg2;
+    ST(argvi) = sv_newmortal();
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_TradeDataNym_currency_id_get) {
+  {
+    OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    std::string *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: TradeDataNym_currency_id_get(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_currency_id_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+    result = (std::string *) & ((arg1)->currency_id);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(*result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_TradeDataNym_currency_paid_set) {
+  {
+    OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+    std::string *arg2 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int res2 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: TradeDataNym_currency_paid_set(self,currency_paid);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_currency_paid_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+    {
+      std::string *ptr = (std::string *)0;
+      res2 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_currency_paid_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_currency_paid_set" "', argument " "2"" of type '" "std::string const &""'"); 
+      }
+      arg2 = ptr;
+    }
+    if (arg1) (arg1)->currency_paid = *arg2;
+    ST(argvi) = sv_newmortal();
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    XSRETURN(argvi);
+  fail:
+    
+    if (SWIG_IsNewObj(res2)) delete arg2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_TradeDataNym_currency_paid_get) {
+  {
+    OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    std::string *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: TradeDataNym_currency_paid_get(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_currency_paid_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+    result = (std::string *) & ((arg1)->currency_paid);
     ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(*result)); argvi++ ;
     
     XSRETURN(argvi);
@@ -48709,6 +49542,7 @@ static swig_command_info swig_commands[] = {
 {"otapic::OTAPI_Basic_getMint", _wrap_OTAPI_Basic_getMint},
 {"otapic::OTAPI_Basic_createAssetAccount", _wrap_OTAPI_Basic_createAssetAccount},
 {"otapic::OTAPI_Basic_getAccount", _wrap_OTAPI_Basic_getAccount},
+{"otapic::OTAPI_Basic_getAccountFiles", _wrap_OTAPI_Basic_getAccountFiles},
 {"otapic::OTAPI_Basic_GenerateBasketCreation", _wrap_OTAPI_Basic_GenerateBasketCreation},
 {"otapic::OTAPI_Basic_AddBasketCreationItem", _wrap_OTAPI_Basic_AddBasketCreationItem},
 {"otapic::OTAPI_Basic_issueBasket", _wrap_OTAPI_Basic_issueBasket},
@@ -48908,6 +49742,8 @@ static swig_command_info swig_commands[] = {
 {"otapic::MarketData_recent_highest_bid_get", _wrap_MarketData_recent_highest_bid_get},
 {"otapic::MarketData_recent_lowest_ask_set", _wrap_MarketData_recent_lowest_ask_set},
 {"otapic::MarketData_recent_lowest_ask_get", _wrap_MarketData_recent_lowest_ask_get},
+{"otapic::MarketData_last_sale_date_set", _wrap_MarketData_last_sale_date_set},
+{"otapic::MarketData_last_sale_date_get", _wrap_MarketData_last_sale_date_get},
 {"otapic::MarketData_ot_dynamic_cast", _wrap_MarketData_ot_dynamic_cast},
 {"otapic::delete_MarketList", _wrap_delete_MarketList},
 {"otapic::MarketList_GetMarketDataCount", _wrap_MarketList_GetMarketDataCount},
@@ -48926,6 +49762,8 @@ static swig_command_info swig_commands[] = {
 {"otapic::OfferDataMarket_available_assets_get", _wrap_OfferDataMarket_available_assets_get},
 {"otapic::OfferDataMarket_minimum_increment_set", _wrap_OfferDataMarket_minimum_increment_set},
 {"otapic::OfferDataMarket_minimum_increment_get", _wrap_OfferDataMarket_minimum_increment_get},
+{"otapic::OfferDataMarket_date_set", _wrap_OfferDataMarket_date_set},
+{"otapic::OfferDataMarket_date_get", _wrap_OfferDataMarket_date_get},
 {"otapic::OfferDataMarket_ot_dynamic_cast", _wrap_OfferDataMarket_ot_dynamic_cast},
 {"otapic::delete_BidData", _wrap_delete_BidData},
 {"otapic::BidData_gui_label_set", _wrap_BidData_gui_label_set},
@@ -48938,6 +49776,8 @@ static swig_command_info swig_commands[] = {
 {"otapic::BidData_available_assets_get", _wrap_BidData_available_assets_get},
 {"otapic::BidData_minimum_increment_set", _wrap_BidData_minimum_increment_set},
 {"otapic::BidData_minimum_increment_get", _wrap_BidData_minimum_increment_get},
+{"otapic::BidData_date_set", _wrap_BidData_date_set},
+{"otapic::BidData_date_get", _wrap_BidData_date_get},
 {"otapic::BidData_ot_dynamic_cast", _wrap_BidData_ot_dynamic_cast},
 {"otapic::delete_AskData", _wrap_delete_AskData},
 {"otapic::AskData_gui_label_set", _wrap_AskData_gui_label_set},
@@ -48950,6 +49790,8 @@ static swig_command_info swig_commands[] = {
 {"otapic::AskData_available_assets_get", _wrap_AskData_available_assets_get},
 {"otapic::AskData_minimum_increment_set", _wrap_AskData_minimum_increment_set},
 {"otapic::AskData_minimum_increment_get", _wrap_AskData_minimum_increment_get},
+{"otapic::AskData_date_set", _wrap_AskData_date_set},
+{"otapic::AskData_date_get", _wrap_AskData_date_get},
 {"otapic::AskData_ot_dynamic_cast", _wrap_AskData_ot_dynamic_cast},
 {"otapic::delete_OfferListMarket", _wrap_delete_OfferListMarket},
 {"otapic::OfferListMarket_GetBidDataCount", _wrap_OfferListMarket_GetBidDataCount},
@@ -49014,6 +49856,8 @@ static swig_command_info swig_commands[] = {
 {"otapic::OfferDataNym_stop_sign_get", _wrap_OfferDataNym_stop_sign_get},
 {"otapic::OfferDataNym_stop_price_set", _wrap_OfferDataNym_stop_price_set},
 {"otapic::OfferDataNym_stop_price_get", _wrap_OfferDataNym_stop_price_get},
+{"otapic::OfferDataNym_date_set", _wrap_OfferDataNym_date_set},
+{"otapic::OfferDataNym_date_get", _wrap_OfferDataNym_date_get},
 {"otapic::OfferDataNym_ot_dynamic_cast", _wrap_OfferDataNym_ot_dynamic_cast},
 {"otapic::delete_OfferListNym", _wrap_delete_OfferListNym},
 {"otapic::OfferListNym_GetOfferDataNymCount", _wrap_OfferListNym_GetOfferDataNymCount},
@@ -49034,6 +49878,18 @@ static swig_command_info swig_commands[] = {
 {"otapic::TradeDataNym_price_get", _wrap_TradeDataNym_price_get},
 {"otapic::TradeDataNym_amount_sold_set", _wrap_TradeDataNym_amount_sold_set},
 {"otapic::TradeDataNym_amount_sold_get", _wrap_TradeDataNym_amount_sold_get},
+{"otapic::TradeDataNym_updated_id_set", _wrap_TradeDataNym_updated_id_set},
+{"otapic::TradeDataNym_updated_id_get", _wrap_TradeDataNym_updated_id_get},
+{"otapic::TradeDataNym_offer_price_set", _wrap_TradeDataNym_offer_price_set},
+{"otapic::TradeDataNym_offer_price_get", _wrap_TradeDataNym_offer_price_get},
+{"otapic::TradeDataNym_finished_so_far_set", _wrap_TradeDataNym_finished_so_far_set},
+{"otapic::TradeDataNym_finished_so_far_get", _wrap_TradeDataNym_finished_so_far_get},
+{"otapic::TradeDataNym_asset_id_set", _wrap_TradeDataNym_asset_id_set},
+{"otapic::TradeDataNym_asset_id_get", _wrap_TradeDataNym_asset_id_get},
+{"otapic::TradeDataNym_currency_id_set", _wrap_TradeDataNym_currency_id_set},
+{"otapic::TradeDataNym_currency_id_get", _wrap_TradeDataNym_currency_id_get},
+{"otapic::TradeDataNym_currency_paid_set", _wrap_TradeDataNym_currency_paid_set},
+{"otapic::TradeDataNym_currency_paid_get", _wrap_TradeDataNym_currency_paid_get},
 {"otapic::TradeDataNym_ot_dynamic_cast", _wrap_TradeDataNym_ot_dynamic_cast},
 {"otapic::delete_TradeListNym", _wrap_delete_TradeListNym},
 {"otapic::TradeListNym_GetTradeDataNymCount", _wrap_TradeListNym_GetTradeDataNymCount},

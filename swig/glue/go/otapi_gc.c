@@ -5144,6 +5144,21 @@ void
 
 
 
+#pragma dynimport _wrap_OTAPI_Basic_getAccountFiles _wrap_OTAPI_Basic_getAccountFiles ""
+extern void (*_wrap_OTAPI_Basic_getAccountFiles)(void*);
+static void (*x_wrap_OTAPI_Basic_getAccountFiles)(void*) = _wrap_OTAPI_Basic_getAccountFiles;
+
+void
+·OTAPI_BasicGetAccountFiles(struct {
+  uint8 x[(2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + SWIG_PARM_SIZE];
+} p)
+
+{
+  runtime·cgocall(x_wrap_OTAPI_Basic_getAccountFiles, &p);
+}
+
+
+
 #pragma dynimport _wrap_OTAPI_Basic_GenerateBasketCreation _wrap_OTAPI_Basic_GenerateBasketCreation ""
 extern void (*_wrap_OTAPI_Basic_GenerateBasketCreation)(void*);
 static void (*x_wrap_OTAPI_Basic_GenerateBasketCreation)(void*) = _wrap_OTAPI_Basic_GenerateBasketCreation;
@@ -5510,7 +5525,7 @@ static void (*x_wrap_OTAPI_Basic_issueMarketOffer)(void*) = _wrap_OTAPI_Basic_is
 
 void
 ·OTAPI_BasicIssueMarketOffer(struct {
-  uint8 x[(2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE) + SWIG_PARM_SIZE];
+  uint8 x[(2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + SWIG_PARM_SIZE];
 } p)
 
 {
@@ -6545,7 +6560,7 @@ static void (*x_wrap_OTMadeEasy_create_market_offer)(void*) = _wrap_OTMadeEasy_c
 
 void
 ·_swig_wrap_OTMadeEasy_create_market_offer(struct {
-  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE)];
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE) + (2 * SWIG_PARM_SIZE)];
 } p)
 
 {
@@ -9449,6 +9464,36 @@ void
 
 
 
+#pragma dynimport _wrap_MarketData_last_sale_date_set _wrap_MarketData_last_sale_date_set ""
+extern void (*_wrap_MarketData_last_sale_date_set)(void*);
+static void (*x_wrap_MarketData_last_sale_date_set)(void*) = _wrap_MarketData_last_sale_date_set;
+
+void
+·_swig_wrap_MarketData_last_sale_date_set(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_MarketData_last_sale_date_set, &p);
+}
+
+
+
+#pragma dynimport _wrap_MarketData_last_sale_date_get _wrap_MarketData_last_sale_date_get ""
+extern void (*_wrap_MarketData_last_sale_date_get)(void*);
+static void (*x_wrap_MarketData_last_sale_date_get)(void*) = _wrap_MarketData_last_sale_date_get;
+
+void
+·_swig_wrap_MarketData_last_sale_date_get(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_MarketData_last_sale_date_get, &p);
+}
+
+
+
 #pragma dynimport _wrap_MarketData_ot_dynamic_cast _wrap_MarketData_ot_dynamic_cast ""
 extern void (*_wrap_MarketData_ot_dynamic_cast)(void*);
 static void (*x_wrap_MarketData_ot_dynamic_cast)(void*) = _wrap_MarketData_ot_dynamic_cast;
@@ -9749,6 +9794,36 @@ void
 
 
 
+#pragma dynimport _wrap_OfferDataMarket_date_set _wrap_OfferDataMarket_date_set ""
+extern void (*_wrap_OfferDataMarket_date_set)(void*);
+static void (*x_wrap_OfferDataMarket_date_set)(void*) = _wrap_OfferDataMarket_date_set;
+
+void
+·_swig_wrap_OfferDataMarket_date_set(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_OfferDataMarket_date_set, &p);
+}
+
+
+
+#pragma dynimport _wrap_OfferDataMarket_date_get _wrap_OfferDataMarket_date_get ""
+extern void (*_wrap_OfferDataMarket_date_get)(void*);
+static void (*x_wrap_OfferDataMarket_date_get)(void*) = _wrap_OfferDataMarket_date_get;
+
+void
+·_swig_wrap_OfferDataMarket_date_get(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_OfferDataMarket_date_get, &p);
+}
+
+
+
 #pragma dynimport _wrap_OfferDataMarket_ot_dynamic_cast _wrap_OfferDataMarket_ot_dynamic_cast ""
 extern void (*_wrap_OfferDataMarket_ot_dynamic_cast)(void*);
 static void (*x_wrap_OfferDataMarket_ot_dynamic_cast)(void*) = _wrap_OfferDataMarket_ot_dynamic_cast;
@@ -9944,6 +10019,36 @@ void
 
 
 
+#pragma dynimport _wrap_BidData_date_set _wrap_BidData_date_set ""
+extern void (*_wrap_BidData_date_set)(void*);
+static void (*x_wrap_BidData_date_set)(void*) = _wrap_BidData_date_set;
+
+void
+·_swig_wrap_BidData_date_set(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_BidData_date_set, &p);
+}
+
+
+
+#pragma dynimport _wrap_BidData_date_get _wrap_BidData_date_get ""
+extern void (*_wrap_BidData_date_get)(void*);
+static void (*x_wrap_BidData_date_get)(void*) = _wrap_BidData_date_get;
+
+void
+·_swig_wrap_BidData_date_get(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_BidData_date_get, &p);
+}
+
+
+
 #pragma dynimport _wrap_BidData_ot_dynamic_cast _wrap_BidData_ot_dynamic_cast ""
 extern void (*_wrap_BidData_ot_dynamic_cast)(void*);
 static void (*x_wrap_BidData_ot_dynamic_cast)(void*) = _wrap_BidData_ot_dynamic_cast;
@@ -10135,6 +10240,36 @@ void
 
 {
   runtime·cgocall(x_wrap_AskData_minimum_increment_get, &p);
+}
+
+
+
+#pragma dynimport _wrap_AskData_date_set _wrap_AskData_date_set ""
+extern void (*_wrap_AskData_date_set)(void*);
+static void (*x_wrap_AskData_date_set)(void*) = _wrap_AskData_date_set;
+
+void
+·_swig_wrap_AskData_date_set(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_AskData_date_set, &p);
+}
+
+
+
+#pragma dynimport _wrap_AskData_date_get _wrap_AskData_date_get ""
+extern void (*_wrap_AskData_date_get)(void*);
+static void (*x_wrap_AskData_date_get)(void*) = _wrap_AskData_date_get;
+
+void
+·_swig_wrap_AskData_date_get(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_AskData_date_get, &p);
 }
 
 
@@ -11159,6 +11294,36 @@ void
 
 
 
+#pragma dynimport _wrap_OfferDataNym_date_set _wrap_OfferDataNym_date_set ""
+extern void (*_wrap_OfferDataNym_date_set)(void*);
+static void (*x_wrap_OfferDataNym_date_set)(void*) = _wrap_OfferDataNym_date_set;
+
+void
+·_swig_wrap_OfferDataNym_date_set(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_OfferDataNym_date_set, &p);
+}
+
+
+
+#pragma dynimport _wrap_OfferDataNym_date_get _wrap_OfferDataNym_date_get ""
+extern void (*_wrap_OfferDataNym_date_get)(void*);
+static void (*x_wrap_OfferDataNym_date_get)(void*) = _wrap_OfferDataNym_date_get;
+
+void
+·_swig_wrap_OfferDataNym_date_get(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_OfferDataNym_date_get, &p);
+}
+
+
+
 #pragma dynimport _wrap_OfferDataNym_ot_dynamic_cast _wrap_OfferDataNym_ot_dynamic_cast ""
 extern void (*_wrap_OfferDataNym_ot_dynamic_cast)(void*);
 static void (*x_wrap_OfferDataNym_ot_dynamic_cast)(void*) = _wrap_OfferDataNym_ot_dynamic_cast;
@@ -11485,6 +11650,186 @@ void
 
 {
   runtime·cgocall(x_wrap_TradeDataNym_amount_sold_get, &p);
+}
+
+
+
+#pragma dynimport _wrap_TradeDataNym_updated_id_set _wrap_TradeDataNym_updated_id_set ""
+extern void (*_wrap_TradeDataNym_updated_id_set)(void*);
+static void (*x_wrap_TradeDataNym_updated_id_set)(void*) = _wrap_TradeDataNym_updated_id_set;
+
+void
+·_swig_wrap_TradeDataNym_updated_id_set(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_TradeDataNym_updated_id_set, &p);
+}
+
+
+
+#pragma dynimport _wrap_TradeDataNym_updated_id_get _wrap_TradeDataNym_updated_id_get ""
+extern void (*_wrap_TradeDataNym_updated_id_get)(void*);
+static void (*x_wrap_TradeDataNym_updated_id_get)(void*) = _wrap_TradeDataNym_updated_id_get;
+
+void
+·_swig_wrap_TradeDataNym_updated_id_get(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_TradeDataNym_updated_id_get, &p);
+}
+
+
+
+#pragma dynimport _wrap_TradeDataNym_offer_price_set _wrap_TradeDataNym_offer_price_set ""
+extern void (*_wrap_TradeDataNym_offer_price_set)(void*);
+static void (*x_wrap_TradeDataNym_offer_price_set)(void*) = _wrap_TradeDataNym_offer_price_set;
+
+void
+·_swig_wrap_TradeDataNym_offer_price_set(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_TradeDataNym_offer_price_set, &p);
+}
+
+
+
+#pragma dynimport _wrap_TradeDataNym_offer_price_get _wrap_TradeDataNym_offer_price_get ""
+extern void (*_wrap_TradeDataNym_offer_price_get)(void*);
+static void (*x_wrap_TradeDataNym_offer_price_get)(void*) = _wrap_TradeDataNym_offer_price_get;
+
+void
+·_swig_wrap_TradeDataNym_offer_price_get(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_TradeDataNym_offer_price_get, &p);
+}
+
+
+
+#pragma dynimport _wrap_TradeDataNym_finished_so_far_set _wrap_TradeDataNym_finished_so_far_set ""
+extern void (*_wrap_TradeDataNym_finished_so_far_set)(void*);
+static void (*x_wrap_TradeDataNym_finished_so_far_set)(void*) = _wrap_TradeDataNym_finished_so_far_set;
+
+void
+·_swig_wrap_TradeDataNym_finished_so_far_set(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_TradeDataNym_finished_so_far_set, &p);
+}
+
+
+
+#pragma dynimport _wrap_TradeDataNym_finished_so_far_get _wrap_TradeDataNym_finished_so_far_get ""
+extern void (*_wrap_TradeDataNym_finished_so_far_get)(void*);
+static void (*x_wrap_TradeDataNym_finished_so_far_get)(void*) = _wrap_TradeDataNym_finished_so_far_get;
+
+void
+·_swig_wrap_TradeDataNym_finished_so_far_get(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_TradeDataNym_finished_so_far_get, &p);
+}
+
+
+
+#pragma dynimport _wrap_TradeDataNym_asset_id_set _wrap_TradeDataNym_asset_id_set ""
+extern void (*_wrap_TradeDataNym_asset_id_set)(void*);
+static void (*x_wrap_TradeDataNym_asset_id_set)(void*) = _wrap_TradeDataNym_asset_id_set;
+
+void
+·_swig_wrap_TradeDataNym_asset_id_set(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_TradeDataNym_asset_id_set, &p);
+}
+
+
+
+#pragma dynimport _wrap_TradeDataNym_asset_id_get _wrap_TradeDataNym_asset_id_get ""
+extern void (*_wrap_TradeDataNym_asset_id_get)(void*);
+static void (*x_wrap_TradeDataNym_asset_id_get)(void*) = _wrap_TradeDataNym_asset_id_get;
+
+void
+·_swig_wrap_TradeDataNym_asset_id_get(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_TradeDataNym_asset_id_get, &p);
+}
+
+
+
+#pragma dynimport _wrap_TradeDataNym_currency_id_set _wrap_TradeDataNym_currency_id_set ""
+extern void (*_wrap_TradeDataNym_currency_id_set)(void*);
+static void (*x_wrap_TradeDataNym_currency_id_set)(void*) = _wrap_TradeDataNym_currency_id_set;
+
+void
+·_swig_wrap_TradeDataNym_currency_id_set(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_TradeDataNym_currency_id_set, &p);
+}
+
+
+
+#pragma dynimport _wrap_TradeDataNym_currency_id_get _wrap_TradeDataNym_currency_id_get ""
+extern void (*_wrap_TradeDataNym_currency_id_get)(void*);
+static void (*x_wrap_TradeDataNym_currency_id_get)(void*) = _wrap_TradeDataNym_currency_id_get;
+
+void
+·_swig_wrap_TradeDataNym_currency_id_get(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_TradeDataNym_currency_id_get, &p);
+}
+
+
+
+#pragma dynimport _wrap_TradeDataNym_currency_paid_set _wrap_TradeDataNym_currency_paid_set ""
+extern void (*_wrap_TradeDataNym_currency_paid_set)(void*);
+static void (*x_wrap_TradeDataNym_currency_paid_set)(void*) = _wrap_TradeDataNym_currency_paid_set;
+
+void
+·_swig_wrap_TradeDataNym_currency_paid_set(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_TradeDataNym_currency_paid_set, &p);
+}
+
+
+
+#pragma dynimport _wrap_TradeDataNym_currency_paid_get _wrap_TradeDataNym_currency_paid_get ""
+extern void (*_wrap_TradeDataNym_currency_paid_get)(void*);
+static void (*x_wrap_TradeDataNym_currency_paid_get)(void*) = _wrap_TradeDataNym_currency_paid_get;
+
+void
+·_swig_wrap_TradeDataNym_currency_paid_get(struct {
+  uint8 x[SWIG_PARM_SIZE + SWIG_PARM_SIZE + (2 * SWIG_PARM_SIZE)];
+} p)
+
+{
+  runtime·cgocall(x_wrap_TradeDataNym_currency_paid_get, &p);
 }
 
 

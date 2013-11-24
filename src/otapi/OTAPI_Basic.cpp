@@ -3162,8 +3162,6 @@ long OTAPI_Basic::depositPaymentPlan(
 }
 
 long OTAPI_Basic::issueMarketOffer(
-	const string & SERVER_ID,
-	const string & USER_ID,
 	const string & ASSET_ACCT_ID,
 	const string & CURRENCY_ACCT_ID,
 	const string & MARKET_SCALE,
@@ -3171,13 +3169,13 @@ long OTAPI_Basic::issueMarketOffer(
 	const string & TOTAL_ASSETS_ON_OFFER,
 	const string & PRICE_LIMIT,
 	const bool   & bBuyingOrSelling,
-    const string & LIFESPAN_IN_SECONDS
+    const string & LIFESPAN_IN_SECONDS,
+    const string & STOP_SIGN,
+    const string & ACTIVATION_PRICE
 	)
 {
 
 	return OTAPI_Wrap::issueMarketOffer(
-		SERVER_ID,
-		USER_ID,
 		ASSET_ACCT_ID,
 		CURRENCY_ACCT_ID,
 		OTAPI_Wrap::StringToLong(MARKET_SCALE),
@@ -3185,7 +3183,9 @@ long OTAPI_Basic::issueMarketOffer(
 		OTAPI_Wrap::StringToLong(TOTAL_ASSETS_ON_OFFER),
 		OTAPI_Wrap::StringToLong(PRICE_LIMIT),
 		bBuyingOrSelling,
-        OTAPI_Wrap::StringToLong(LIFESPAN_IN_SECONDS)
+        OTAPI_Wrap::StringToLong(LIFESPAN_IN_SECONDS),
+        STOP_SIGN,
+        OTAPI_Wrap::StringToLong(ACTIVATION_PRICE)
 		);
 }
 

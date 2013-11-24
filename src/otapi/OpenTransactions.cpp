@@ -5627,7 +5627,7 @@ OTPurse * OT_API::LoadPurse(const OTIdentifier & SERVER_ID,
 	// -----------------------------------------------------------------
 	OTPurse * pPurse = new OTPurse(SERVER_ID, ASSET_ID, USER_ID);
 	OT_ASSERT_MSG(NULL != pPurse, "Error allocating memory in the OT API."); // responsible to delete or return pPurse below this point.
-	
+    
 	if (pPurse->LoadPurse(strServerID.Get(), strUserID.Get(), strAssetTypeID.Get()))
     {
         if (pPurse->VerifySignature(*pNym)       &&
@@ -11452,8 +11452,11 @@ int OT_API::issueMarketOffer( const OTIdentifier	& SERVER_ID,
 							  const long			& TOTAL_ASSETS_ON_OFFER, // Total assets available for sale or purchase. Will be multiplied by minimum increment.
 							  const long			& PRICE_LIMIT,    // Per Minimum Increment...
 							  const bool			  bBuyingOrSelling, //  BUYING == false, SELLING == true.
-                             // -------------------------------------------
-                              const time_t            tLifespanInSeconds/*=86400*/) // 86400 == 1 day.
+                              // -------------------------------------------
+                              const time_t            tLifespanInSeconds/*=86400*/, // 86400 == 1 day.
+                              // -------------------------------------------
+                              const char              STOP_SIGN/*=0*/,               // For stop orders, set to '<' or '>'
+                              const long              ACTIVATION_PRICE/*=0*/)        // For stop orders, this is threshhold price.
 {
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, false, __FUNCTION__); // This ASSERTs and logs already.
@@ -11522,13 +11525,23 @@ int OT_API::issueMarketOffer( const OTIdentifier	& SERVER_ID,
         // ------------------------------------
 		long	lTotalAssetsOnOffer = 1,
 				lMinimumIncrement   = 1, 
-				lPriceLimit         = 1,  // your price limit, per scale of assets.
-				lMarketScale        = 1;
+				lPriceLimit         = 0,  // your price limit, per scale of assets.
+				lMarketScale        = 1,
+                lActivationPrice    = 0;
 		// -------------------------------------------------------------------
 		if (TOTAL_ASSETS_ON_OFFER > 0) lTotalAssetsOnOffer = TOTAL_ASSETS_ON_OFFER; // otherwise, defaults to 1.
 		if (MARKET_SCALE          > 0) lMarketScale        = MARKET_SCALE;          // otherwise, defaults to 1.
 		if (MINIMUM_INCREMENT     > 0) lMinimumIncrement   = MINIMUM_INCREMENT;     // otherwise, defaults to 1.
-		if (PRICE_LIMIT           > 0) lPriceLimit         = PRICE_LIMIT;           // otherwise, defaults to 1.
+		if (PRICE_LIMIT           > 0) lPriceLimit         = PRICE_LIMIT;           // otherwise, defaults to 0. (0 Being a market order.)
+        // ------------------------------------
+        char cStopSign        = 0;
+        
+        if ((ACTIVATION_PRICE > 0) &&
+            ('<' == STOP_SIGN) || ('>' == STOP_SIGN))
+        {
+            cStopSign        = STOP_SIGN;
+            lActivationPrice = ACTIVATION_PRICE;
+        }
 		// -------------------------------------------------------------------
 		lMinimumIncrement   *= lMarketScale;       // minimum increment is PER SCALE.
 //		lTotalAssetsOnOffer *= lMinimumIncrement;  // This was a bug. (Left as a warning.)
@@ -11561,7 +11574,7 @@ int OT_API::issueMarketOffer( const OTIdentifier	& SERVER_ID,
 				bCreateOffer = theOffer.SaveContract();
 				if (bCreateOffer)
 				{
-					bIssueTrade = theTrade.IssueTrade(theOffer); // <==== ISSUE TRADE <=====					
+					bIssueTrade = theTrade.IssueTrade(theOffer, cStopSign, lActivationPrice); // <==== ISSUE TRADE <=====
                     // ******************************************************************************
                     // This is new: the closing transaction number is now used for CLOSING recurring
                     // cron items, like market offers and payment plans. It's also useful for baskets.

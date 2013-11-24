@@ -1000,11 +1000,11 @@ public:
 	// ---------------------
 	EXPORT  bool AddVariable(OTVariable& theVariable);
 	EXPORT	bool AddVariable(const std::string str_Name, const std::string str_Value,	
-		const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
+                             const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
 	EXPORT	bool AddVariable(const std::string str_Name, const int nValue,
-		const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
+                             const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
 	EXPORT	bool AddVariable(const std::string str_Name, const bool bValue,				
-		const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
+                             const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
 	// ---------------------
 	EXPORT  bool AddClause(OTClause& theClause);
 	EXPORT	bool AddClause(const char * szName, const char * szCode);

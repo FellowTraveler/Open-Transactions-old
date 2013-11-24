@@ -1,5 +1,5 @@
 
-/************************************************************************************
+/************************************************************
  *    
  *  OTToken.cpp
  *  
@@ -760,7 +760,8 @@ void OTToken::UpdateContents()
 			break;
 	}
 
-	long lFrom = static_cast<long> (m_VALID_FROM), lTo = static_cast<long> (m_VALID_TO);
+	int64_t lFrom = static_cast<int64_t> (m_VALID_FROM),
+            lTo   = static_cast<int64_t> (m_VALID_TO);
 
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
@@ -771,8 +772,8 @@ void OTToken::UpdateContents()
 							  " assetTypeID=\"%s\"\n"
 							  " serverID=\"%s\"\n"
 							  " series=\"%d\"\n"
-							  " validFrom=\"%ld\"\n"
-							  " validTo=\"%ld\""							  
+							  " validFrom=\"%" PRId64"\"\n"
+							  " validTo=\"%" PRId64"\""
 							  " >\n\n", 
 							  m_strVersion.Get(), strState.Get(), GetDenomination(), 
 							  ASSET_TYPE_ID.Get(), 
@@ -860,8 +861,15 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 		strState		= xml->getAttributeValue("state");
 
 		m_nSeries		= atoi(xml->getAttributeValue("series"));
-		m_VALID_FROM	= atol(xml->getAttributeValue("validFrom"));
-		m_VALID_TO		= atol(xml->getAttributeValue("validTo"));
+        
+        const OTString str_from = xml->getAttributeValue("validFrom");
+        const OTString str_to   = xml->getAttributeValue("validTo");
+        
+        int64_t tFrom = str_from.ToLong();
+        int64_t tTo   = str_to.ToLong();
+        
+		m_VALID_FROM	= static_cast<time_t>(tFrom);
+		m_VALID_TO		= static_cast<time_t>(tTo);
 		
 		SetDenomination(atol(xml->getAttributeValue("denomination")));
 
@@ -1005,16 +1013,13 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 
 bool OTToken::GetPrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex)
 {
-
 	// out of bounds. For a count 10 element array, index 10 is out of bounds.
 	// thus if attempted index is equal or larger to the count, out of bounds.
 	if (nTokenIndex >= m_nTokenCount)
 	{
 		return false;
 	}
-//	OTLog::vError("DEBUG OTToken::GetPrototoken. nTokenIndex is %d. m_nTokenCount is %d\n------------------------\n",
-//			nTokenIndex, m_nTokenCount);
-		
+    // --------------------------------------
 	FOR_EACH(mapOfPrototokens, m_mapPublic)
 	{
 		OTASCIIArmor * pPrototoken = (*it).second;
@@ -1022,13 +1027,10 @@ bool OTToken::GetPrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex)
 		
 		const bool bSuccess = (nTokenIndex == (*it).first);
 		
-//		OTLog::vError("DEBUG OTToken::GetPrototoken ABOUT TO ENTER, index: %d\n", nTokenIndex);
-		
 		if (bSuccess)
 		{
 			ascPrototoken.Set(*pPrototoken);
-//			OTLog::vError("DEBUG OTToken::GetPrototoken INNER SANCTUM\n PROTOKEN:"
-//						"\n-----------%s-----------\n", ascPrototoken.Get());
+
 			return true;
 		}
 	}

@@ -180,6 +180,14 @@ public class OfferDataNym extends Displayable {
     return otapiJNI.OfferDataNym_stop_price_get(swigCPtr, this);
   }
 
+  public void setDate(String value) {
+    otapiJNI.OfferDataNym_date_set(swigCPtr, this, value);
+  }
+
+  public String getDate() {
+    return otapiJNI.OfferDataNym_date_get(swigCPtr, this);
+  }
+
   public static OfferDataNym ot_dynamic_cast(Storable pObject) {
     long cPtr = otapiJNI.OfferDataNym_ot_dynamic_cast(Storable.getCPtr(pObject), pObject);
     return (cPtr == 0) ? null : new OfferDataNym(cPtr, false);

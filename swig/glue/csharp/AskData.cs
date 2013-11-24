@@ -100,6 +100,18 @@ public class AskData : OfferDataMarket {
     } 
   }
 
+  public string date {
+    set {
+      otapiPINVOKE.AskData_date_set(swigCPtr, value);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    } 
+    get {
+      string ret = otapiPINVOKE.AskData_date_get(swigCPtr);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+      return ret;
+    } 
+  }
+
   public new static AskData ot_dynamic_cast(Storable pObject) {
     IntPtr cPtr = otapiPINVOKE.AskData_ot_dynamic_cast(Storable.getCPtr(pObject));
     AskData ret = (cPtr == IntPtr.Zero) ? null : new AskData(cPtr, false);

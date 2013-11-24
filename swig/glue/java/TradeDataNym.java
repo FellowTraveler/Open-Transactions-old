@@ -92,6 +92,54 @@ public class TradeDataNym extends Displayable {
     return otapiJNI.TradeDataNym_amount_sold_get(swigCPtr, this);
   }
 
+  public void setUpdated_id(String value) {
+    otapiJNI.TradeDataNym_updated_id_set(swigCPtr, this, value);
+  }
+
+  public String getUpdated_id() {
+    return otapiJNI.TradeDataNym_updated_id_get(swigCPtr, this);
+  }
+
+  public void setOffer_price(String value) {
+    otapiJNI.TradeDataNym_offer_price_set(swigCPtr, this, value);
+  }
+
+  public String getOffer_price() {
+    return otapiJNI.TradeDataNym_offer_price_get(swigCPtr, this);
+  }
+
+  public void setFinished_so_far(String value) {
+    otapiJNI.TradeDataNym_finished_so_far_set(swigCPtr, this, value);
+  }
+
+  public String getFinished_so_far() {
+    return otapiJNI.TradeDataNym_finished_so_far_get(swigCPtr, this);
+  }
+
+  public void setAsset_id(String value) {
+    otapiJNI.TradeDataNym_asset_id_set(swigCPtr, this, value);
+  }
+
+  public String getAsset_id() {
+    return otapiJNI.TradeDataNym_asset_id_get(swigCPtr, this);
+  }
+
+  public void setCurrency_id(String value) {
+    otapiJNI.TradeDataNym_currency_id_set(swigCPtr, this, value);
+  }
+
+  public String getCurrency_id() {
+    return otapiJNI.TradeDataNym_currency_id_get(swigCPtr, this);
+  }
+
+  public void setCurrency_paid(String value) {
+    otapiJNI.TradeDataNym_currency_paid_set(swigCPtr, this, value);
+  }
+
+  public String getCurrency_paid() {
+    return otapiJNI.TradeDataNym_currency_paid_get(swigCPtr, this);
+  }
+
   public static TradeDataNym ot_dynamic_cast(Storable pObject) {
     long cPtr = otapiJNI.TradeDataNym_ot_dynamic_cast(Storable.getCPtr(pObject), pObject);
     return (cPtr == 0) ? null : new TradeDataNym(cPtr, false);

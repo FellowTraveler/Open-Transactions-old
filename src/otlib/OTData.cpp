@@ -144,6 +144,7 @@
 
 #include "OTASCIIArmor.h"
 #include "OTData.h"
+#include "OTString.h"
 #include "OTPassword.h"
 
 #include "OTLog.h"

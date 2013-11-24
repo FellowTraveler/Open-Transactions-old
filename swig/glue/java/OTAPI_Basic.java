@@ -1131,6 +1131,10 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_getAccount(SERVER_ID, USER_ID, ACCT_ID);
   }
 
+  public static int getAccountFiles(String SERVER_ID, String USER_ID, String ACCT_ID) {
+    return otapiJNI.OTAPI_Basic_getAccountFiles(SERVER_ID, USER_ID, ACCT_ID);
+  }
+
   public static String GenerateBasketCreation(String USER_ID, String MINIMUM_TRANSFER) {
     return otapiJNI.OTAPI_Basic_GenerateBasketCreation(USER_ID, MINIMUM_TRANSFER);
   }
@@ -1227,8 +1231,8 @@ public class OTAPI_Basic {
     return otapiJNI.OTAPI_Basic_depositPaymentPlan(SERVER_ID, USER_ID, THE_PAYMENT_PLAN);
   }
 
-  public static int issueMarketOffer(String SERVER_ID, String USER_ID, String ASSET_ACCT_ID, String CURRENCY_ACCT_ID, String MARKET_SCALE, String MINIMUM_INCREMENT, String TOTAL_ASSETS_ON_OFFER, String PRICE_LIMIT, boolean bBuyingOrSelling, String LIFESPAN_IN_SECONDS) {
-    return otapiJNI.OTAPI_Basic_issueMarketOffer(SERVER_ID, USER_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, MARKET_SCALE, MINIMUM_INCREMENT, TOTAL_ASSETS_ON_OFFER, PRICE_LIMIT, bBuyingOrSelling, LIFESPAN_IN_SECONDS);
+  public static int issueMarketOffer(String ASSET_ACCT_ID, String CURRENCY_ACCT_ID, String MARKET_SCALE, String MINIMUM_INCREMENT, String TOTAL_ASSETS_ON_OFFER, String PRICE_LIMIT, boolean bBuyingOrSelling, String LIFESPAN_IN_SECONDS, String STOP_SIGN, String ACTIVATION_PRICE) {
+    return otapiJNI.OTAPI_Basic_issueMarketOffer(ASSET_ACCT_ID, CURRENCY_ACCT_ID, MARKET_SCALE, MINIMUM_INCREMENT, TOTAL_ASSETS_ON_OFFER, PRICE_LIMIT, bBuyingOrSelling, LIFESPAN_IN_SECONDS, STOP_SIGN, ACTIVATION_PRICE);
   }
 
   public static int getMarketList(String SERVER_ID, String USER_ID) {

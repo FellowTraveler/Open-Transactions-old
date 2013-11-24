@@ -4550,7 +4550,11 @@ def main_sendcheque()
         if (1 != nReturnVal)
         {
             OT_API_Output(0, "sendcheque: Failed.\n")
-            OT_API_Msg_HarvestTransactionNumbers(strResponse, strSenderNymID, false, false, false, false, false)
+            
+            if (VerifyStringVal(strResponse))
+            {
+                OT_API_Msg_HarvestTransactionNumbers(strResponse, strSenderNymID, false, false, false, false, false)
+            }
         }
         else
         {
@@ -4806,7 +4810,7 @@ def details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bSell
     //
     // Send the "create offer" transaction.
     //
-    var strResponse	= madeEasy.create_market_offer(strMyServerID, strMyNymID, MyAcct, HisAcct, strScale, strMinIncrement, strQuantity, strPrice, bSelling, strLifespan) // lifespan of "0" results in "86400" == 1 day
+    var strResponse	= madeEasy.create_market_offer(MyAcct, HisAcct, strScale, strMinIncrement, strQuantity, strPrice, bSelling, strLifespan, "", "0") // lifespan of "0" results in "86400" == 1 day. Last two params are stop sign and stop price.
     var strAttempt  = "create_market_offer"
     // ----------------------------------------------
     // NOTICE: No need here to deal with retries, timeouts, request number,
@@ -4828,7 +4832,7 @@ def details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bSell
 def main_create_offer()
 {
     var strUsage = concat("\n\n USAGE: newoffer --myacct <YOUR_ASSET_ACCT> --hisacct <YOUR_CURRENCY_ACCT>\n\n",
-                          " Optional: --args \"type <bid|ask> scale 1 quantity 100 price 101\"\n Optional: --args \"lifespan 86400\"   (in seconds: 86400 is 1 day--the default.)\n\n")
+                          " Optional: --args \"type <bid|ask> scale 1 quantity 100 price 101\"\n Optional: --args \"lifespan 86400\"   (in seconds: 86400 is 1 day--the default.)\n\nWARNING: a price of 0 is a market order, which means 'purchase/sell at ANY price'\n\n")
     
     OT_API_Output(0, strUsage)
     // ------------------------------------        
@@ -4838,7 +4842,7 @@ def main_create_offer()
         var strScale               = "0" // must be 1, 10, 100, etc
         var strMinIncrement        = "0" // must be 1, 2, 3, etc
         var strQuantity            = "0" // must be >= 1
-        var strPrice               = "0" // must be >= 1
+        var strPrice               = "0" // must be >= 0
         var strType                = ""  // must be bid or ask
         var strLifespan            = "0"
         // ------------------------------------        
@@ -4904,7 +4908,7 @@ def main_create_offer()
             OT_API_Output(0, "Enter the quantity being purchased/sold["+strDefaultQuantity+"]: ")
             strQuantity		= OT_CLI_ReadLine()
         }
-        if (!VerifyStringVal(strPrice) || (strPrice.to_int() < 1))
+        if (!VerifyStringVal(strPrice) || (strPrice.to_int() < 0))
         {
             OT_API_Output(0, "Enter the price per scale["+strDefaultPrice+"]: ")
             strPrice		= OT_CLI_ReadLine()
@@ -8377,7 +8381,6 @@ def main_show_purse()
     if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyPurse"))
     {	
         // ------------------------------------
-        
         var strPurse = OT_API_LoadPurse(Server, MyPurse, MyNym) // returns NULL, or a purse.
 
         if (!VerifyStringVal(strPurse))

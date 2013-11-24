@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTMint.cpp
  *  
@@ -773,10 +773,12 @@ void OTMint::UpdateContents()
 {
     OT_ASSERT(NULL != m_pKeyPublic);
     
-	OTString	SERVER_ID(m_ServerID), SERVER_NYM_ID(m_ServerNymID), 
-				ASSET_ID(m_AssetID), CASH_ACCOUNT_ID(m_CashAccountID);
+	OTString SERVER_ID(m_ServerID), SERVER_NYM_ID(m_ServerNymID),
+             ASSET_ID(m_AssetID),   CASH_ACCOUNT_ID(m_CashAccountID);
 	
-	long lFrom = static_cast<long> (m_VALID_FROM), lTo = static_cast<long> (m_VALID_TO), lExpiration = static_cast<long> (m_EXPIRATION);
+	int64_t lFrom       = static_cast<int64_t> (m_VALID_FROM),
+            lTo         = static_cast<int64_t> (m_VALID_TO),
+            lExpiration = static_cast<int64_t> (m_EXPIRATION);
 	
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
@@ -789,9 +791,9 @@ void OTMint::UpdateContents()
 							  " assetTypeID=\"%s\"\n"
 							  " cashAcctID=\"%s\"\n"
 							  " series=\"%d\"\n"
-							  " expiration=\"%ld\"\n"
-							  " validFrom=\"%ld\"\n"
-							  " validTo=\"%ld\""
+							  " expiration=\"%" PRId64"\"\n"
+							  " validFrom=\"%" PRId64"\"\n"
+							  " validTo=\"%" PRId64"\""
 							  " >\n\n", 
 							  m_strVersion.Get(), 
 							  SERVER_ID.Get(), 
@@ -869,8 +871,12 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		m_nSeries		= atoi(xml->getAttributeValue("series"));
 		m_EXPIRATION	= atol(xml->getAttributeValue("expiration"));
-		m_VALID_FROM	= atol(xml->getAttributeValue("validFrom"));
-		m_VALID_TO		= atol(xml->getAttributeValue("validTo"));
+        
+        const OTString str_valid_from = xml->getAttributeValue("validFrom");
+        const OTString str_valid_to   = xml->getAttributeValue("validTo");
+        
+		m_VALID_FROM = static_cast<time_t>(str_valid_from.ToLong());
+		m_VALID_TO   = static_cast<time_t>(str_valid_to.ToLong());
 		
 		m_ServerID.SetString(strServerID);
 		m_ServerNymID.SetString(strServerNymID);
@@ -887,13 +893,15 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 		if (strCashAcctID.Exists())
 			m_pReserveAcct = OTAccount::LoadExistingAccount(m_CashAccountID, m_ServerID);
 
-		long nValidFrom = static_cast<long> (m_VALID_FROM), nValidTo = static_cast<long> (m_VALID_TO), nExpiration = static_cast<long> (m_EXPIRATION);
+		int64_t nValidFrom  = static_cast<int64_t> (m_VALID_FROM),
+                nValidTo    = static_cast<int64_t> (m_VALID_TO),
+                nExpiration = static_cast<int64_t> (m_EXPIRATION);
 		
 		OTLog::vOutput(1,  
 				//	"\n===> Loading XML for mint into memory structures..."
 				"\n\nMint version: %s\n Server ID: %s\n Asset Type ID: %s\n Cash Acct ID: %s\n"
 				"%s loading Cash Account into memory for pointer: OTMint::m_pReserveAcct\n"
-				" Series: %d\n Expiration: %ld\n Valid From: %ld\n Valid To: %ld\n", 
+				" Series: %d\n Expiration: %" PRId64"\n Valid From: %" PRId64"\n Valid To: %" PRId64"\n",
 				m_strVersion.Get(), strServerID.Get(), strAssetID.Get(), strCashAcctID.Get(),
 				(m_pReserveAcct != NULL) ? "SUCCESS" : "FAILURE",
 				m_nSeries, nExpiration, nValidFrom, nValidTo);

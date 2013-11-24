@@ -139,7 +139,59 @@
 #endif
 #include <ExportWrapper.h>
 
-// ------------------------------
+// ------------------------------------
+// Windows (ugh)
+extern "C"
+{
+#ifdef _WIN32
+#include <stdint.h>
+#else
+#include <inttypes.h>
+#endif
+}
+
+// ------------------------------------
+
+// All of the below PRI values are defined in inttypes.h
+// Therefore if it's NOT defined, then we must probably be
+// on Windows, since Windows doesn't have inttypes.h yet,
+// only stdint.h
+
+#if !defined( PRId8 )
+#define PRId8 "d"
+#endif
+// ------------------------------------
+
+#if !defined( PRId16 )
+#define PRId16 "d"
+#endif
+// ------------------------------------
+
+#if !defined( PRId32 )
+#if defined( WINAPI )
+#define PRId32 "I32d"
+
+#else
+#define PRId32 "d"
+
+#endif
+#endif
+// ------------------------------------
+
+#if !defined( PRId64 )
+#if defined( WINAPI )
+#define PRId64 "I64d"
+
+#elif __WORDSIZE == 64
+#define PRId64 "ld"
+
+#else
+#define PRId64 "lld"
+
+#endif
+#endif
+
+// ------------------------------------
 
 #include <cstdio>
 #include <cstdarg>
@@ -151,10 +203,10 @@
 
 #include <algorithm>
 
-extern "C" 
-{
-#include <stdint.h>
-}
+//extern "C" 
+//{
+//#include <stdint.h>
+//}
 
 #include <iostream>
 #include <sstream>
@@ -401,6 +453,13 @@ EXPORT    static bool safe_strcpy(char * dest,
     // ----------------------------------------------
     static size_t safe_strlen(const char * s, size_t max);
 	// ----------------------------
+    
+EXPORT  static int64_t StringToLong(const std::string & strNumber);
+	
+EXPORT  int64_t ToLong() const;
+
+    // ----------------------------
+
 EXPORT	bool At    (uint32_t lIndex, char &c) const;
     // ----------------------------------------------
 EXPORT	bool Exists() const;

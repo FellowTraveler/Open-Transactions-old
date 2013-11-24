@@ -3518,20 +3518,18 @@ public :
 	// ...and in fact the requestNum IS the return value!
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	*/
-	EXPORT static int32_t issueMarketOffer(
-		const std::string & SERVER_ID,
-		const std::string & USER_ID,
-		// -------------------------------------------
-		const std::string & ASSET_ACCT_ID,      // Perhaps this is the wheat market.
-		const std::string & CURRENCY_ACCT_ID,   // Perhaps I'm buying the wheat with rubles.
-		// -------------------------------------------
-		const int64_t & MARKET_SCALE,           // Defaults to minimum of 1. Market granularity.
-		const int64_t & MINIMUM_INCREMENT,      // This will be multiplied by the Scale. Min 1.
-		const int64_t & TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
-		const int64_t & PRICE_LIMIT,            // Per Minimum Increment...
-		const bool    & bBuyingOrSelling,       // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
-        const time_t  & LIFESPAN_IN_SECONDS     // Pass 0 for the default behavior: 86400 seconds aka 1 day.
-		);
+	EXPORT static int32_t issueMarketOffer(const std::string & ASSET_ACCT_ID,     // Perhaps this is the wheat market.
+                                           const std::string & CURRENCY_ACCT_ID,  // Perhaps I'm buying the wheat with rubles.
+                                           // -------------------------------------------
+                                           const int64_t     & MARKET_SCALE,        // Defaults to minimum of 1. Market granularity.
+                                           const int64_t     & MINIMUM_INCREMENT,   // This will be multiplied by the Scale. Min 1.
+                                           const int64_t     & TOTAL_ASSETS_ON_OFFER,   // Total assets available for sale or purchase. Will be multiplied by minimum increment.
+                                           const int64_t     & PRICE_LIMIT,			// Per Minimum Increment...
+                                           const bool        & bBuyingOrSelling,    // SELLING == true, BUYING == false.
+                                           const time_t      & LIFESPAN_IN_SECONDS, // Pass 0 for the default behavior: 86400 seconds aka 1 day.
+                                           // -------------------------------------------
+                                           const std::string & STOP_SIGN,         // Must be "" (for market/limit orders) or "<" or ">"  (for stop orders.)
+                                           const int64_t     & ACTIVATION_PRICE); // Must be provided if STOP_SIGN is also set. Determines the price threshold for stop orders.
 
 
 	// --------------------------------------------------

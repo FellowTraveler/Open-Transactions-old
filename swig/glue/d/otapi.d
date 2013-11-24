@@ -2119,6 +2119,12 @@ class OTAPI_Basic {
     return ret;
   }
 
+  public static tango.stdc.config.c_long getAccountFiles(char[] SERVER_ID, char[] USER_ID, char[] ACCT_ID) {
+    auto ret = otapi_im.OTAPI_Basic_getAccountFiles((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public static char[] GenerateBasketCreation(char[] USER_ID, char[] MINIMUM_TRANSFER) {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTAPI_Basic_GenerateBasketCreation((USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (MINIMUM_TRANSFER ? tango.stdc.stringz.toStringz(MINIMUM_TRANSFER) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
@@ -2263,8 +2269,8 @@ class OTAPI_Basic {
     return ret;
   }
 
-  public static tango.stdc.config.c_long issueMarketOffer(char[] SERVER_ID, char[] USER_ID, char[] ASSET_ACCT_ID, char[] CURRENCY_ACCT_ID, char[] MARKET_SCALE, char[] MINIMUM_INCREMENT, char[] TOTAL_ASSETS_ON_OFFER, char[] PRICE_LIMIT, bool bBuyingOrSelling, char[] LIFESPAN_IN_SECONDS) {
-    auto ret = otapi_im.OTAPI_Basic_issueMarketOffer((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ASSET_ACCT_ID ? tango.stdc.stringz.toStringz(ASSET_ACCT_ID) : null), (CURRENCY_ACCT_ID ? tango.stdc.stringz.toStringz(CURRENCY_ACCT_ID) : null), (MARKET_SCALE ? tango.stdc.stringz.toStringz(MARKET_SCALE) : null), (MINIMUM_INCREMENT ? tango.stdc.stringz.toStringz(MINIMUM_INCREMENT) : null), (TOTAL_ASSETS_ON_OFFER ? tango.stdc.stringz.toStringz(TOTAL_ASSETS_ON_OFFER) : null), (PRICE_LIMIT ? tango.stdc.stringz.toStringz(PRICE_LIMIT) : null), bBuyingOrSelling, (LIFESPAN_IN_SECONDS ? tango.stdc.stringz.toStringz(LIFESPAN_IN_SECONDS) : null));
+  public static tango.stdc.config.c_long issueMarketOffer(char[] ASSET_ACCT_ID, char[] CURRENCY_ACCT_ID, char[] MARKET_SCALE, char[] MINIMUM_INCREMENT, char[] TOTAL_ASSETS_ON_OFFER, char[] PRICE_LIMIT, bool bBuyingOrSelling, char[] LIFESPAN_IN_SECONDS, char[] STOP_SIGN, char[] ACTIVATION_PRICE) {
+    auto ret = otapi_im.OTAPI_Basic_issueMarketOffer((ASSET_ACCT_ID ? tango.stdc.stringz.toStringz(ASSET_ACCT_ID) : null), (CURRENCY_ACCT_ID ? tango.stdc.stringz.toStringz(CURRENCY_ACCT_ID) : null), (MARKET_SCALE ? tango.stdc.stringz.toStringz(MARKET_SCALE) : null), (MINIMUM_INCREMENT ? tango.stdc.stringz.toStringz(MINIMUM_INCREMENT) : null), (TOTAL_ASSETS_ON_OFFER ? tango.stdc.stringz.toStringz(TOTAL_ASSETS_ON_OFFER) : null), (PRICE_LIMIT ? tango.stdc.stringz.toStringz(PRICE_LIMIT) : null), bBuyingOrSelling, (LIFESPAN_IN_SECONDS ? tango.stdc.stringz.toStringz(LIFESPAN_IN_SECONDS) : null), (STOP_SIGN ? tango.stdc.stringz.toStringz(STOP_SIGN) : null), (ACTIVATION_PRICE ? tango.stdc.stringz.toStringz(ACTIVATION_PRICE) : null));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
@@ -2696,8 +2702,8 @@ class OTMadeEasy {
     return ret;
   }
 
-  public char[] create_market_offer(char[] SERVER_ID, char[] NYM_ID, char[] ASSET_ACCT_ID, char[] CURRENCY_ACCT_ID, char[] scale, char[] minIncrement, char[] quantity, char[] price, bool bSelling, char[] LIFESPAN_IN_SECONDS) {
-    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_create_market_offer(cast(void*)swigCPtr, (SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (ASSET_ACCT_ID ? tango.stdc.stringz.toStringz(ASSET_ACCT_ID) : null), (CURRENCY_ACCT_ID ? tango.stdc.stringz.toStringz(CURRENCY_ACCT_ID) : null), (scale ? tango.stdc.stringz.toStringz(scale) : null), (minIncrement ? tango.stdc.stringz.toStringz(minIncrement) : null), (quantity ? tango.stdc.stringz.toStringz(quantity) : null), (price ? tango.stdc.stringz.toStringz(price) : null), bSelling, (LIFESPAN_IN_SECONDS ? tango.stdc.stringz.toStringz(LIFESPAN_IN_SECONDS) : null)));
+  public char[] create_market_offer(char[] ASSET_ACCT_ID, char[] CURRENCY_ACCT_ID, char[] scale, char[] minIncrement, char[] quantity, char[] price, bool bSelling, char[] LIFESPAN_IN_SECONDS, char[] STOP_SIGN, char[] ACTIVATION_PRICE) {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTMadeEasy_create_market_offer(cast(void*)swigCPtr, (ASSET_ACCT_ID ? tango.stdc.stringz.toStringz(ASSET_ACCT_ID) : null), (CURRENCY_ACCT_ID ? tango.stdc.stringz.toStringz(CURRENCY_ACCT_ID) : null), (scale ? tango.stdc.stringz.toStringz(scale) : null), (minIncrement ? tango.stdc.stringz.toStringz(minIncrement) : null), (quantity ? tango.stdc.stringz.toStringz(quantity) : null), (price ? tango.stdc.stringz.toStringz(price) : null), bSelling, (LIFESPAN_IN_SECONDS ? tango.stdc.stringz.toStringz(LIFESPAN_IN_SECONDS) : null), (STOP_SIGN ? tango.stdc.stringz.toStringz(STOP_SIGN) : null), (ACTIVATION_PRICE ? tango.stdc.stringz.toStringz(ACTIVATION_PRICE) : null)));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
@@ -3862,6 +3868,17 @@ class MarketData : Displayable {
     return ret;
   }
 
+  public void last_sale_date(char[] value) {
+    otapi_im.MarketData_last_sale_date_set(cast(void*)swigCPtr, (value ? tango.stdc.stringz.toStringz(value) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  }
+
+  public char[] last_sale_date() {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.MarketData_last_sale_date_get(cast(void*)swigCPtr));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public static MarketData ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.MarketData_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     MarketData ret = (cPtr is null) ? null : new MarketData(cPtr, false);
@@ -4015,6 +4032,17 @@ class OfferDataMarket : Displayable {
     return ret;
   }
 
+  public void date(char[] value) {
+    otapi_im.OfferDataMarket_date_set(cast(void*)swigCPtr, (value ? tango.stdc.stringz.toStringz(value) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  }
+
+  public char[] date() {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OfferDataMarket_date_get(cast(void*)swigCPtr));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public static OfferDataMarket ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.OfferDataMarket_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     OfferDataMarket ret = (cPtr is null) ? null : new OfferDataMarket(cPtr, false);
@@ -4108,6 +4136,17 @@ class BidData : OfferDataMarket {
     return ret;
   }
 
+  public void date(char[] value) {
+    otapi_im.BidData_date_set(cast(void*)swigCPtr, (value ? tango.stdc.stringz.toStringz(value) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  }
+
+  public char[] date() {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.BidData_date_get(cast(void*)swigCPtr));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public static BidData ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.BidData_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     BidData ret = (cPtr is null) ? null : new BidData(cPtr, false);
@@ -4197,6 +4236,17 @@ class AskData : OfferDataMarket {
 
   public char[] minimum_increment() {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.AskData_minimum_increment_get(cast(void*)swigCPtr));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public void date(char[] value) {
+    otapi_im.AskData_date_set(cast(void*)swigCPtr, (value ? tango.stdc.stringz.toStringz(value) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  }
+
+  public char[] date() {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.AskData_date_get(cast(void*)swigCPtr));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }
@@ -4659,6 +4709,17 @@ class OfferDataNym : Displayable {
     return ret;
   }
 
+  public void date(char[] value) {
+    otapi_im.OfferDataNym_date_set(cast(void*)swigCPtr, (value ? tango.stdc.stringz.toStringz(value) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  }
+
+  public char[] date() {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OfferDataNym_date_get(cast(void*)swigCPtr));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
   public static OfferDataNym ot_dynamic_cast(Storable pObject) {
     void* cPtr = otapi_im.OfferDataNym_ot_dynamic_cast(Storable.swigGetCPtr(pObject));
     OfferDataNym ret = (cPtr is null) ? null : new OfferDataNym(cPtr, false);
@@ -4819,6 +4880,72 @@ class TradeDataNym : Displayable {
 
   public char[] amount_sold() {
     char[] ret = tango.stdc.stringz.fromStringz(otapi_im.TradeDataNym_amount_sold_get(cast(void*)swigCPtr));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public void updated_id(char[] value) {
+    otapi_im.TradeDataNym_updated_id_set(cast(void*)swigCPtr, (value ? tango.stdc.stringz.toStringz(value) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  }
+
+  public char[] updated_id() {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.TradeDataNym_updated_id_get(cast(void*)swigCPtr));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public void offer_price(char[] value) {
+    otapi_im.TradeDataNym_offer_price_set(cast(void*)swigCPtr, (value ? tango.stdc.stringz.toStringz(value) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  }
+
+  public char[] offer_price() {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.TradeDataNym_offer_price_get(cast(void*)swigCPtr));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public void finished_so_far(char[] value) {
+    otapi_im.TradeDataNym_finished_so_far_set(cast(void*)swigCPtr, (value ? tango.stdc.stringz.toStringz(value) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  }
+
+  public char[] finished_so_far() {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.TradeDataNym_finished_so_far_get(cast(void*)swigCPtr));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public void asset_id(char[] value) {
+    otapi_im.TradeDataNym_asset_id_set(cast(void*)swigCPtr, (value ? tango.stdc.stringz.toStringz(value) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  }
+
+  public char[] asset_id() {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.TradeDataNym_asset_id_get(cast(void*)swigCPtr));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public void currency_id(char[] value) {
+    otapi_im.TradeDataNym_currency_id_set(cast(void*)swigCPtr, (value ? tango.stdc.stringz.toStringz(value) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  }
+
+  public char[] currency_id() {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.TradeDataNym_currency_id_get(cast(void*)swigCPtr));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+    return ret;
+  }
+
+  public void currency_paid(char[] value) {
+    otapi_im.TradeDataNym_currency_paid_set(cast(void*)swigCPtr, (value ? tango.stdc.stringz.toStringz(value) : null));
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
+  }
+
+  public char[] currency_paid() {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.TradeDataNym_currency_paid_get(cast(void*)swigCPtr));
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
     return ret;
   }

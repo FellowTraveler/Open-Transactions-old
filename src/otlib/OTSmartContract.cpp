@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTSmartContract.h
  *  
@@ -925,15 +925,16 @@ void OTSmartContract::SetRemainingTimer(const std::string str_seconds_from_now) 
 {
 	if (str_seconds_from_now.size() <= 0) // string length...
 	{
-		OTLog::Output(0, "OTSmartContract::SetRemainingTimer: blank input (str_seconds_from_now).\n");
+		OTLog::vOutput(0, "OTSmartContract::%s: blank input (str_seconds_from_now).\n",
+                       __FUNCTION__);
 	}
 	else 
 	{
-		const time_t tCurrent	= GetCurrentTime();
-		const time_t tPlus		= atoi(str_seconds_from_now.c_str()); // todo verify size of time_t vs int....
+		const int64_t tCurrent	= static_cast<int64_t>(GetCurrentTime());
+		const int64_t tPlus		= OTString::StringToLong(str_seconds_from_now);
 		
 		if (tPlus > 0)
-			SetNextProcessDate(tCurrent + tPlus);
+			SetNextProcessDate(static_cast<time_t>(tCurrent) + static_cast<time_t>(tPlus));
 		else
 			SetNextProcessDate(0); // This way, you can deactivate the timer, by setting the next process date to 0.
 	}
@@ -949,8 +950,8 @@ std::string	OTSmartContract::GetRemainingTimer() const // returns seconds left o
 	
 	if (tNextDate > 0)
 	{
-		const time_t tSecondsLeft = tNextDate - tCurrent;
-		strReturnVal.Format("%d", tSecondsLeft);
+		const int64_t tSecondsLeft = static_cast<int64_t>(tNextDate - tCurrent);
+		strReturnVal.Format("%" PRId64"", tSecondsLeft);
 	}
 	
 	return strReturnVal.Get();
@@ -4826,7 +4827,8 @@ bool OTSmartContract::ConfirmParty(OTParty & theParty)
 	// before EACH signature. That way, we have the date of signing for EVERY signer.
 	// (The final date will be set upon activation.)
 	//
-	const time_t CURRENT_TIME = time(NULL), OLD_TIME = GetCreationDate();
+	const time_t CURRENT_TIME = time(NULL),
+                 OLD_TIME     = GetCreationDate();
 	
 	// Set the Creation Date.
 	SetCreationDate(CURRENT_TIME);
@@ -5065,10 +5067,16 @@ void OTSmartContract::UpdateContents()
 					ACTIVATOR_ACCT_ID	(GetSenderAcctID());
 
     OT_ASSERT(NULL != m_pCancelerNymID);
-
+	// -------------------------------------------------------------
     OTString strCanceler;
+    
     if (m_bCanceled)
         m_pCancelerNymID->GetString(strCanceler);
+    
+    int64_t tCreation    = static_cast<int64_t>(m_bCalculatingID ? 0 : GetCreationDate   ());
+    int64_t tValidFrom   = static_cast<int64_t>(m_bCalculatingID ? 0 : GetValidFrom      ());
+    int64_t tValidTo     = static_cast<int64_t>(m_bCalculatingID ? 0 : GetValidTo        ());
+    int64_t tNextProcess = static_cast<int64_t>(m_bCalculatingID ? 0 : GetNextProcessDate());
     
     // OTSmartContract
 	m_xmlUnsigned.Concatenate("<smartContract\n version=\"%s\"\n"
@@ -5082,10 +5090,10 @@ void OTSmartContract::UpdateContents()
                               " canceled=\"%s\"\n"
 							  " cancelerUserID=\"%s\"\n"
 							  " transactionNum=\"%ld\"\n"
-							  " creationDate=\"%d\"\n"
-							  " validFrom=\"%d\"\n"
-							  " validTo=\"%d\"\n"
-							  " nextProcessDate=\"%d\""							  
+							  " creationDate=\"%" PRId64"\"\n"
+							  " validFrom=\"%" PRId64"\"\n"
+							  " validTo=\"%" PRId64"\"\n"
+							  " nextProcessDate=\"%" PRId64"\""
 							  " >\n\n", 
 							  m_strVersion.Get(),
 							  m_bCalculatingID ? "" : SERVER_ID.Get(),
@@ -5098,10 +5106,10 @@ void OTSmartContract::UpdateContents()
                               m_bCanceled ? "true" : "false",
                               m_bCanceled ? strCanceler.Get() : "",
 							  m_bCalculatingID ? 0 : m_lTransactionNum,
-							  m_bCalculatingID ? 0 : GetCreationDate(), 
-							  m_bCalculatingID ? 0 : GetValidFrom(), 
-							  m_bCalculatingID ? 0 : GetValidTo(), 
-							  m_bCalculatingID ? 0 : GetNextProcessDate() );	    
+							  tCreation,
+							  tValidFrom,
+							  tValidTo,
+							  tNextProcess );
 	// -------------------------------------------------------------
 	// OTCronItem
 	if (!m_bCalculatingID)
@@ -5118,8 +5126,9 @@ void OTSmartContract::UpdateContents()
 			// I preserved the loop anyway. Call me crazy. But I'm still displaying an error if there's 
 			// more than one.
 			if (i > 0)
-				OTLog::Error("OTSmartContract::UpdateContents: ERROR: There's only ever "
-							 "supposed to be a single closing number here (for smart contracts.)\n");
+				OTLog::vError("OTSmartContract::%s: ERROR: There's only ever "
+							 "supposed to be a single closing number here (for smart contracts.)\n",
+                              __FUNCTION__);
 		}
 	}
 	// -------------------------------------------------------------
@@ -5574,40 +5583,42 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
             m_bCanceled = false;
             m_pCancelerNymID->Release();
         }
-        // ----------------------
+        // ----------------------------------------------------------------------------
+		const OTString strTransNum = xml->getAttributeValue("transactionNum");
 
-		const OTString strTransNum			= xml->getAttributeValue("transactionNum");
-		const OTString strCreationDate		= xml->getAttributeValue("creationDate");
-		const OTString strValidFrom			= xml->getAttributeValue("validFrom");
-		const OTString strValidTo			= xml->getAttributeValue("validTo");
-		const OTString strNextProcessDate	= xml->getAttributeValue("nextProcessDate");
-		
-		SetTransactionNum(	strTransNum.Exists()        ? atol(strTransNum.Get())        : 0 );		
-		// ------------
-		SetCreationDate(	strCreationDate.Exists()    ? atoi(strCreationDate.Get())    : 0 );	// todo verify that atoi is appropriate here for time_t.
-		SetValidFrom(		strValidFrom.Exists()       ? atoi(strValidFrom.Get())       : 0 );		
-		SetValidTo(			strValidTo.Exists()         ? atoi(strValidTo.Get())         : 0 );		
-		// ---------------------
-		SetNextProcessDate(	strNextProcessDate.Exists() ? atoi(strNextProcessDate.Get()) : 0 );		
-		// ---------------------
+		SetTransactionNum( strTransNum.Exists() ? atol(strTransNum.Get()) : 0 );
+        // ----------------------------------------------------------------------------
+        const OTString str_valid_from   = xml->getAttributeValue("validFrom");
+        const OTString str_valid_to     = xml->getAttributeValue("validTo");
+        const OTString str_creation     = xml->getAttributeValue("creationDate");
+        const OTString str_next_process = xml->getAttributeValue("nextProcessDate");
+        // ----------------------------------------------------------------------------
+        int64_t tValidFrom   = str_valid_from.ToLong();
+        int64_t tValidTo     = str_valid_to.ToLong();
+        int64_t tCreation    = str_creation.ToLong();
+        int64_t tNextProcess = str_next_process.ToLong();
+        // ----------------------------------------------------------------------------
+		SetValidFrom      (static_cast<time_t>(tValidFrom));
+		SetValidTo        (static_cast<time_t>(tValidTo));
+		SetCreationDate   (static_cast<time_t>(tCreation));
+		SetNextProcessDate(static_cast<time_t>(tNextProcess));
+        // ----------------------------------------------------------------------------
         // These are stored for RECEIPTS, so if there is an inbox receipt with an amount,
 		// we will know who was sending and receiving.  If sender or receiver is blank, that
 		// means the source/destination was a STASH instead of an account. FYI.
 		//
-		m_strLastSenderUser		= xml->getAttributeValue("lastSenderUserID");	// This is the last User ID of a party who SENT money.
-		m_strLastSenderAcct		= xml->getAttributeValue("lastSenderAcctID");	// This is the last Acct ID of a party who SENT money.
-		m_strLastRecipientUser	= xml->getAttributeValue("lastRecipientUserID");	// This is the last User ID of a party who RECEIVED money.
-		m_strLastRecipientAcct	= xml->getAttributeValue("lastRecipientAcctID");	// This is the last Acct ID of a party who RECEIVED money.
-		
-		// ---------------------
-        
+		m_strLastSenderUser		= xml->getAttributeValue("lastSenderUserID");	 // Last User ID of a party who SENT money.
+		m_strLastSenderAcct		= xml->getAttributeValue("lastSenderAcctID");	 // Last Acct ID of a party who SENT money.
+		m_strLastRecipientUser	= xml->getAttributeValue("lastRecipientUserID"); // Last User ID of a party who RECEIVED money.
+		m_strLastRecipientAcct	= xml->getAttributeValue("lastRecipientAcctID"); // Last Acct ID of a party who RECEIVED money.
+        // ----------------------------------------------------------------------------
 		OTLog::vOutput(1, "\n\n Smartcontract. Transaction Number: %ld\n", m_lTransactionNum);
 		
 		OTLog::vOutput(2,
-					   " Creation Date: %d   Valid From: %d\n Valid To: %d\n"
+					   " Creation Date: %" PRId64"   Valid From: %" PRId64"\n Valid To: %" PRId64"\n"
 					   " ServerID: %s\n"
 					   " activatorUserID: %s\n ", 
-					   GetCreationDate(), GetValidFrom(), GetValidTo(),
+					   tCreation, tValidFrom, tValidTo,
 					   strServerID.Get(),
 					   strActivatorUserID.Get());
 		

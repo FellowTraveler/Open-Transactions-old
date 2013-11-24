@@ -14483,6 +14483,49 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_getAccountFiles) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  std::string temp1 ;
+  std::string temp2 ;
+  std::string temp3 ;
+  zval **args[3];
+  long result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  convert_to_string_ex(args[0]);
+  temp1.assign(Z_STRVAL_PP(args[0]), Z_STRLEN_PP(args[0]));
+  arg1 = &temp1;
+  
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  
+  convert_to_string_ex(args[2]);
+  temp3.assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  arg3 = &temp3;
+  
+  result = (long)OTAPI_Basic::getAccountFiles((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_GenerateBasketCreation) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -15678,9 +15721,9 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_issueMarketOffer) {
   std::string *arg4 = 0 ;
   std::string *arg5 = 0 ;
   std::string *arg6 = 0 ;
-  std::string *arg7 = 0 ;
+  bool *arg7 = 0 ;
   std::string *arg8 = 0 ;
-  bool *arg9 = 0 ;
+  std::string *arg9 = 0 ;
   std::string *arg10 = 0 ;
   std::string temp1 ;
   std::string temp2 ;
@@ -15688,9 +15731,9 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_issueMarketOffer) {
   std::string temp4 ;
   std::string temp5 ;
   std::string temp6 ;
-  std::string temp7 ;
+  bool temp7 ;
   std::string temp8 ;
-  bool temp9 ;
+  std::string temp9 ;
   std::string temp10 ;
   zval **args[10];
   long result;
@@ -15731,8 +15774,10 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_issueMarketOffer) {
   arg6 = &temp6;
   
   
-  convert_to_string_ex(args[6]);
-  temp7.assign(Z_STRVAL_PP(args[6]), Z_STRLEN_PP(args[6]));
+  /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,2,CONVERT_BOOL_IN@*/
+  convert_to_boolean_ex(args[6]);
+  temp7 = (bool) Z_LVAL_PP(args[6]);
+  /*@SWIG@*/;
   arg7 = &temp7;
   
   
@@ -15741,10 +15786,8 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_issueMarketOffer) {
   arg8 = &temp8;
   
   
-  /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,2,CONVERT_BOOL_IN@*/
-  convert_to_boolean_ex(args[8]);
-  temp9 = (bool) Z_LVAL_PP(args[8]);
-  /*@SWIG@*/;
+  convert_to_string_ex(args[8]);
+  temp9.assign(Z_STRVAL_PP(args[8]), Z_STRLEN_PP(args[8]));
   arg9 = &temp9;
   
   
@@ -15752,7 +15795,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTAPI_Basic_issueMarketOffer) {
   temp10.assign(Z_STRVAL_PP(args[9]), Z_STRLEN_PP(args[9]));
   arg10 = &temp10;
   
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(bool const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10);
   {
     ZVAL_LONG(return_value,result);
   }
@@ -19039,9 +19082,9 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_market_offer) {
   std::string *arg5 = 0 ;
   std::string *arg6 = 0 ;
   std::string *arg7 = 0 ;
-  std::string *arg8 = 0 ;
+  bool arg8 ;
   std::string *arg9 = 0 ;
-  bool arg10 ;
+  std::string *arg10 = 0 ;
   std::string *arg11 = 0 ;
   std::string temp2 ;
   std::string temp3 ;
@@ -19049,8 +19092,8 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_market_offer) {
   std::string temp5 ;
   std::string temp6 ;
   std::string temp7 ;
-  std::string temp8 ;
   std::string temp9 ;
+  std::string temp10 ;
   std::string temp11 ;
   zval **args[11];
   std::string result;
@@ -19097,9 +19140,10 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_market_offer) {
   arg7 = &temp7;
   
   
-  convert_to_string_ex(args[7]);
-  temp8.assign(Z_STRVAL_PP(args[7]), Z_STRLEN_PP(args[7]));
-  arg8 = &temp8;
+  /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,2,CONVERT_BOOL_IN@*/
+  convert_to_boolean_ex(args[7]);
+  arg8 = (bool) Z_LVAL_PP(args[7]);
+  /*@SWIG@*/;
   
   
   convert_to_string_ex(args[8]);
@@ -19107,17 +19151,16 @@ ZEND_NAMED_FUNCTION(_wrap_OTMadeEasy_create_market_offer) {
   arg9 = &temp9;
   
   
-  /*@SWIG:/usr/local/Cellar/swig/2.0.9/share/swig/2.0.9/php/utils.i,2,CONVERT_BOOL_IN@*/
-  convert_to_boolean_ex(args[9]);
-  arg10 = (bool) Z_LVAL_PP(args[9]);
-  /*@SWIG@*/;
+  convert_to_string_ex(args[9]);
+  temp10.assign(Z_STRVAL_PP(args[9]), Z_STRLEN_PP(args[9]));
+  arg10 = &temp10;
   
   
   convert_to_string_ex(args[10]);
   temp11.assign(Z_STRVAL_PP(args[10]), Z_STRLEN_PP(args[10]));
   arg11 = &temp11;
   
-  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
+  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,arg8,(std::string const &)*arg9,(std::string const &)*arg10,(std::string const &)*arg11);
   
   ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
   
@@ -26525,6 +26568,63 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_MarketData_last_sale_date_set) {
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__MarketData, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of MarketData_last_sale_date_set. Expected SWIGTYPE_p_OTDB__MarketData");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  if (arg1) (arg1)->last_sale_date = *arg2;
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_MarketData_last_sale_date_get) {
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  zval **args[1];
+  std::string *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__MarketData, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of MarketData_last_sale_date_get. Expected SWIGTYPE_p_OTDB__MarketData");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (std::string *) & ((arg1)->last_sale_date);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>(result->data()), result->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_MarketData_ot_dynamic_cast) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   zval **args[1];
@@ -27022,6 +27122,63 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OfferDataMarket_date_set) {
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__OfferDataMarket, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OfferDataMarket_date_set. Expected SWIGTYPE_p_OTDB__OfferDataMarket");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  if (arg1) (arg1)->date = *arg2;
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OfferDataMarket_date_get) {
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  zval **args[1];
+  std::string *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__OfferDataMarket, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OfferDataMarket_date_get. Expected SWIGTYPE_p_OTDB__OfferDataMarket");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (std::string *) & ((arg1)->date);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>(result->data()), result->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OfferDataMarket_ot_dynamic_cast) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   zval **args[1];
@@ -27351,6 +27508,63 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_BidData_date_set) {
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__BidData, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of BidData_date_set. Expected SWIGTYPE_p_OTDB__BidData");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  if (arg1) (arg1)->date = *arg2;
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_BidData_date_get) {
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  zval **args[1];
+  std::string *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__BidData, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of BidData_date_get. Expected SWIGTYPE_p_OTDB__BidData");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (std::string *) & ((arg1)->date);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>(result->data()), result->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_BidData_ot_dynamic_cast) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   zval **args[1];
@@ -27671,6 +27885,63 @@ ZEND_NAMED_FUNCTION(_wrap_AskData_minimum_increment_get) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   result = (std::string *) & ((arg1)->minimum_increment);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>(result->data()), result->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_AskData_date_set) {
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__AskData, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of AskData_date_set. Expected SWIGTYPE_p_OTDB__AskData");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  if (arg1) (arg1)->date = *arg2;
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_AskData_date_get) {
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  zval **args[1];
+  std::string *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__AskData, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of AskData_date_get. Expected SWIGTYPE_p_OTDB__AskData");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (std::string *) & ((arg1)->date);
   
   ZVAL_STRINGL(return_value, const_cast<char*>(result->data()), result->size(), 1);
   
@@ -29481,6 +29752,63 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OfferDataNym_date_set) {
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__OfferDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OfferDataNym_date_set. Expected SWIGTYPE_p_OTDB__OfferDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  if (arg1) (arg1)->date = *arg2;
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OfferDataNym_date_get) {
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  zval **args[1];
+  std::string *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__OfferDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OfferDataNym_date_get. Expected SWIGTYPE_p_OTDB__OfferDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (std::string *) & ((arg1)->date);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>(result->data()), result->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OfferDataNym_ot_dynamic_cast) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   zval **args[1];
@@ -30026,6 +30354,348 @@ ZEND_NAMED_FUNCTION(_wrap_TradeDataNym_amount_sold_get) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   result = (std::string *) & ((arg1)->amount_sold);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>(result->data()), result->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_TradeDataNym_updated_id_set) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__TradeDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of TradeDataNym_updated_id_set. Expected SWIGTYPE_p_OTDB__TradeDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  if (arg1) (arg1)->updated_id = *arg2;
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_TradeDataNym_updated_id_get) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  zval **args[1];
+  std::string *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__TradeDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of TradeDataNym_updated_id_get. Expected SWIGTYPE_p_OTDB__TradeDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (std::string *) & ((arg1)->updated_id);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>(result->data()), result->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_TradeDataNym_offer_price_set) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__TradeDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of TradeDataNym_offer_price_set. Expected SWIGTYPE_p_OTDB__TradeDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  if (arg1) (arg1)->offer_price = *arg2;
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_TradeDataNym_offer_price_get) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  zval **args[1];
+  std::string *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__TradeDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of TradeDataNym_offer_price_get. Expected SWIGTYPE_p_OTDB__TradeDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (std::string *) & ((arg1)->offer_price);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>(result->data()), result->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_TradeDataNym_finished_so_far_set) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__TradeDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of TradeDataNym_finished_so_far_set. Expected SWIGTYPE_p_OTDB__TradeDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  if (arg1) (arg1)->finished_so_far = *arg2;
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_TradeDataNym_finished_so_far_get) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  zval **args[1];
+  std::string *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__TradeDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of TradeDataNym_finished_so_far_get. Expected SWIGTYPE_p_OTDB__TradeDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (std::string *) & ((arg1)->finished_so_far);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>(result->data()), result->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_TradeDataNym_asset_id_set) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__TradeDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of TradeDataNym_asset_id_set. Expected SWIGTYPE_p_OTDB__TradeDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  if (arg1) (arg1)->asset_id = *arg2;
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_TradeDataNym_asset_id_get) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  zval **args[1];
+  std::string *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__TradeDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of TradeDataNym_asset_id_get. Expected SWIGTYPE_p_OTDB__TradeDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (std::string *) & ((arg1)->asset_id);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>(result->data()), result->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_TradeDataNym_currency_id_set) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__TradeDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of TradeDataNym_currency_id_set. Expected SWIGTYPE_p_OTDB__TradeDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  if (arg1) (arg1)->currency_id = *arg2;
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_TradeDataNym_currency_id_get) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  zval **args[1];
+  std::string *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__TradeDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of TradeDataNym_currency_id_get. Expected SWIGTYPE_p_OTDB__TradeDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (std::string *) & ((arg1)->currency_id);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>(result->data()), result->size(), 1);
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_TradeDataNym_currency_paid_set) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  std::string temp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__TradeDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of TradeDataNym_currency_paid_set. Expected SWIGTYPE_p_OTDB__TradeDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  convert_to_string_ex(args[1]);
+  temp2.assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  arg2 = &temp2;
+  
+  if (arg1) (arg1)->currency_paid = *arg2;
+  
+  
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_TradeDataNym_currency_paid_get) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  zval **args[1];
+  std::string *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__TradeDataNym, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of TradeDataNym_currency_paid_get. Expected SWIGTYPE_p_OTDB__TradeDataNym");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (std::string *) & ((arg1)->currency_paid);
   
   ZVAL_STRINGL(return_value, const_cast<char*>(result->data()), result->size(), 1);
   
@@ -35436,6 +36106,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otapi_basic_getmint,_wrap_OTAPI_Basic_getMint,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_createassetaccount,_wrap_OTAPI_Basic_createAssetAccount,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_getaccount,_wrap_OTAPI_Basic_getAccount,NULL)
+ SWIG_ZEND_NAMED_FE(otapi_basic_getaccountfiles,_wrap_OTAPI_Basic_getAccountFiles,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_generatebasketcreation,_wrap_OTAPI_Basic_GenerateBasketCreation,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_addbasketcreationitem,_wrap_OTAPI_Basic_AddBasketCreationItem,NULL)
  SWIG_ZEND_NAMED_FE(otapi_basic_issuebasket,_wrap_OTAPI_Basic_issueBasket,NULL)
@@ -35627,6 +36298,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(marketdata_recent_highest_bid_get,_wrap_MarketData_recent_highest_bid_get,NULL)
  SWIG_ZEND_NAMED_FE(marketdata_recent_lowest_ask_set,_wrap_MarketData_recent_lowest_ask_set,NULL)
  SWIG_ZEND_NAMED_FE(marketdata_recent_lowest_ask_get,_wrap_MarketData_recent_lowest_ask_get,NULL)
+ SWIG_ZEND_NAMED_FE(marketdata_last_sale_date_set,_wrap_MarketData_last_sale_date_set,NULL)
+ SWIG_ZEND_NAMED_FE(marketdata_last_sale_date_get,_wrap_MarketData_last_sale_date_get,NULL)
  SWIG_ZEND_NAMED_FE(marketdata_ot_dynamic_cast,_wrap_MarketData_ot_dynamic_cast,NULL)
  SWIG_ZEND_NAMED_FE(marketlist_getmarketdatacount,_wrap_MarketList_GetMarketDataCount,NULL)
  SWIG_ZEND_NAMED_FE(marketlist_getmarketdata,_wrap_MarketList_GetMarketData,NULL)
@@ -35643,6 +36316,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(offerdatamarket_available_assets_get,_wrap_OfferDataMarket_available_assets_get,NULL)
  SWIG_ZEND_NAMED_FE(offerdatamarket_minimum_increment_set,_wrap_OfferDataMarket_minimum_increment_set,NULL)
  SWIG_ZEND_NAMED_FE(offerdatamarket_minimum_increment_get,_wrap_OfferDataMarket_minimum_increment_get,NULL)
+ SWIG_ZEND_NAMED_FE(offerdatamarket_date_set,_wrap_OfferDataMarket_date_set,NULL)
+ SWIG_ZEND_NAMED_FE(offerdatamarket_date_get,_wrap_OfferDataMarket_date_get,NULL)
  SWIG_ZEND_NAMED_FE(offerdatamarket_ot_dynamic_cast,_wrap_OfferDataMarket_ot_dynamic_cast,NULL)
  SWIG_ZEND_NAMED_FE(biddata_gui_label_set,_wrap_BidData_gui_label_set,NULL)
  SWIG_ZEND_NAMED_FE(biddata_gui_label_get,_wrap_BidData_gui_label_get,NULL)
@@ -35654,6 +36329,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(biddata_available_assets_get,_wrap_BidData_available_assets_get,NULL)
  SWIG_ZEND_NAMED_FE(biddata_minimum_increment_set,_wrap_BidData_minimum_increment_set,NULL)
  SWIG_ZEND_NAMED_FE(biddata_minimum_increment_get,_wrap_BidData_minimum_increment_get,NULL)
+ SWIG_ZEND_NAMED_FE(biddata_date_set,_wrap_BidData_date_set,NULL)
+ SWIG_ZEND_NAMED_FE(biddata_date_get,_wrap_BidData_date_get,NULL)
  SWIG_ZEND_NAMED_FE(biddata_ot_dynamic_cast,_wrap_BidData_ot_dynamic_cast,NULL)
  SWIG_ZEND_NAMED_FE(askdata_gui_label_set,_wrap_AskData_gui_label_set,NULL)
  SWIG_ZEND_NAMED_FE(askdata_gui_label_get,_wrap_AskData_gui_label_get,NULL)
@@ -35665,6 +36342,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(askdata_available_assets_get,_wrap_AskData_available_assets_get,NULL)
  SWIG_ZEND_NAMED_FE(askdata_minimum_increment_set,_wrap_AskData_minimum_increment_set,NULL)
  SWIG_ZEND_NAMED_FE(askdata_minimum_increment_get,_wrap_AskData_minimum_increment_get,NULL)
+ SWIG_ZEND_NAMED_FE(askdata_date_set,_wrap_AskData_date_set,NULL)
+ SWIG_ZEND_NAMED_FE(askdata_date_get,_wrap_AskData_date_get,NULL)
  SWIG_ZEND_NAMED_FE(askdata_ot_dynamic_cast,_wrap_AskData_ot_dynamic_cast,NULL)
  SWIG_ZEND_NAMED_FE(offerlistmarket_getbiddatacount,_wrap_OfferListMarket_GetBidDataCount,NULL)
  SWIG_ZEND_NAMED_FE(offerlistmarket_getbiddata,_wrap_OfferListMarket_GetBidData,NULL)
@@ -35725,6 +36404,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(offerdatanym_stop_sign_get,_wrap_OfferDataNym_stop_sign_get,NULL)
  SWIG_ZEND_NAMED_FE(offerdatanym_stop_price_set,_wrap_OfferDataNym_stop_price_set,NULL)
  SWIG_ZEND_NAMED_FE(offerdatanym_stop_price_get,_wrap_OfferDataNym_stop_price_get,NULL)
+ SWIG_ZEND_NAMED_FE(offerdatanym_date_set,_wrap_OfferDataNym_date_set,NULL)
+ SWIG_ZEND_NAMED_FE(offerdatanym_date_get,_wrap_OfferDataNym_date_get,NULL)
  SWIG_ZEND_NAMED_FE(offerdatanym_ot_dynamic_cast,_wrap_OfferDataNym_ot_dynamic_cast,NULL)
  SWIG_ZEND_NAMED_FE(offerlistnym_getofferdatanymcount,_wrap_OfferListNym_GetOfferDataNymCount,NULL)
  SWIG_ZEND_NAMED_FE(offerlistnym_getofferdatanym,_wrap_OfferListNym_GetOfferDataNym,NULL)
@@ -35743,6 +36424,18 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(tradedatanym_price_get,_wrap_TradeDataNym_price_get,NULL)
  SWIG_ZEND_NAMED_FE(tradedatanym_amount_sold_set,_wrap_TradeDataNym_amount_sold_set,NULL)
  SWIG_ZEND_NAMED_FE(tradedatanym_amount_sold_get,_wrap_TradeDataNym_amount_sold_get,NULL)
+ SWIG_ZEND_NAMED_FE(tradedatanym_updated_id_set,_wrap_TradeDataNym_updated_id_set,NULL)
+ SWIG_ZEND_NAMED_FE(tradedatanym_updated_id_get,_wrap_TradeDataNym_updated_id_get,NULL)
+ SWIG_ZEND_NAMED_FE(tradedatanym_offer_price_set,_wrap_TradeDataNym_offer_price_set,NULL)
+ SWIG_ZEND_NAMED_FE(tradedatanym_offer_price_get,_wrap_TradeDataNym_offer_price_get,NULL)
+ SWIG_ZEND_NAMED_FE(tradedatanym_finished_so_far_set,_wrap_TradeDataNym_finished_so_far_set,NULL)
+ SWIG_ZEND_NAMED_FE(tradedatanym_finished_so_far_get,_wrap_TradeDataNym_finished_so_far_get,NULL)
+ SWIG_ZEND_NAMED_FE(tradedatanym_asset_id_set,_wrap_TradeDataNym_asset_id_set,NULL)
+ SWIG_ZEND_NAMED_FE(tradedatanym_asset_id_get,_wrap_TradeDataNym_asset_id_get,NULL)
+ SWIG_ZEND_NAMED_FE(tradedatanym_currency_id_set,_wrap_TradeDataNym_currency_id_set,NULL)
+ SWIG_ZEND_NAMED_FE(tradedatanym_currency_id_get,_wrap_TradeDataNym_currency_id_get,NULL)
+ SWIG_ZEND_NAMED_FE(tradedatanym_currency_paid_set,_wrap_TradeDataNym_currency_paid_set,NULL)
+ SWIG_ZEND_NAMED_FE(tradedatanym_currency_paid_get,_wrap_TradeDataNym_currency_paid_get,NULL)
  SWIG_ZEND_NAMED_FE(tradedatanym_ot_dynamic_cast,_wrap_TradeDataNym_ot_dynamic_cast,NULL)
  SWIG_ZEND_NAMED_FE(tradelistnym_gettradedatanymcount,_wrap_TradeListNym_GetTradeDataNymCount,NULL)
  SWIG_ZEND_NAMED_FE(tradelistnym_gettradedatanym,_wrap_TradeListNym_GetTradeDataNym,NULL)

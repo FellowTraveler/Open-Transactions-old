@@ -768,6 +768,8 @@ class OTAPI_Basic(_object):
     if _newclass:createAssetAccount = staticmethod(_otapi.OTAPI_Basic_createAssetAccount)
     __swig_getmethods__["getAccount"] = lambda x: _otapi.OTAPI_Basic_getAccount
     if _newclass:getAccount = staticmethod(_otapi.OTAPI_Basic_getAccount)
+    __swig_getmethods__["getAccountFiles"] = lambda x: _otapi.OTAPI_Basic_getAccountFiles
+    if _newclass:getAccountFiles = staticmethod(_otapi.OTAPI_Basic_getAccountFiles)
     __swig_getmethods__["GenerateBasketCreation"] = lambda x: _otapi.OTAPI_Basic_GenerateBasketCreation
     if _newclass:GenerateBasketCreation = staticmethod(_otapi.OTAPI_Basic_GenerateBasketCreation)
     __swig_getmethods__["AddBasketCreationItem"] = lambda x: _otapi.OTAPI_Basic_AddBasketCreationItem
@@ -1969,6 +1971,10 @@ def OTAPI_Basic_getAccount(*args):
   return _otapi.OTAPI_Basic_getAccount(*args)
 OTAPI_Basic_getAccount = _otapi.OTAPI_Basic_getAccount
 
+def OTAPI_Basic_getAccountFiles(*args):
+  return _otapi.OTAPI_Basic_getAccountFiles(*args)
+OTAPI_Basic_getAccountFiles = _otapi.OTAPI_Basic_getAccountFiles
+
 def OTAPI_Basic_GenerateBasketCreation(*args):
   return _otapi.OTAPI_Basic_GenerateBasketCreation(*args)
 OTAPI_Basic_GenerateBasketCreation = _otapi.OTAPI_Basic_GenerateBasketCreation
@@ -2555,6 +2561,9 @@ class MarketData(Displayable):
     __swig_setmethods__["recent_lowest_ask"] = _otapi.MarketData_recent_lowest_ask_set
     __swig_getmethods__["recent_lowest_ask"] = _otapi.MarketData_recent_lowest_ask_get
     if _newclass:recent_lowest_ask = _swig_property(_otapi.MarketData_recent_lowest_ask_get, _otapi.MarketData_recent_lowest_ask_set)
+    __swig_setmethods__["last_sale_date"] = _otapi.MarketData_last_sale_date_set
+    __swig_getmethods__["last_sale_date"] = _otapi.MarketData_last_sale_date_get
+    if _newclass:last_sale_date = _swig_property(_otapi.MarketData_last_sale_date_get, _otapi.MarketData_last_sale_date_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.MarketData_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.MarketData_ot_dynamic_cast)
 MarketData_swigregister = _otapi.MarketData_swigregister
@@ -2614,6 +2623,9 @@ class OfferDataMarket(Displayable):
     __swig_setmethods__["minimum_increment"] = _otapi.OfferDataMarket_minimum_increment_set
     __swig_getmethods__["minimum_increment"] = _otapi.OfferDataMarket_minimum_increment_get
     if _newclass:minimum_increment = _swig_property(_otapi.OfferDataMarket_minimum_increment_get, _otapi.OfferDataMarket_minimum_increment_set)
+    __swig_setmethods__["date"] = _otapi.OfferDataMarket_date_set
+    __swig_getmethods__["date"] = _otapi.OfferDataMarket_date_get
+    if _newclass:date = _swig_property(_otapi.OfferDataMarket_date_get, _otapi.OfferDataMarket_date_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.OfferDataMarket_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.OfferDataMarket_ot_dynamic_cast)
 OfferDataMarket_swigregister = _otapi.OfferDataMarket_swigregister
@@ -2649,6 +2661,9 @@ class BidData(OfferDataMarket):
     __swig_setmethods__["minimum_increment"] = _otapi.BidData_minimum_increment_set
     __swig_getmethods__["minimum_increment"] = _otapi.BidData_minimum_increment_get
     if _newclass:minimum_increment = _swig_property(_otapi.BidData_minimum_increment_get, _otapi.BidData_minimum_increment_set)
+    __swig_setmethods__["date"] = _otapi.BidData_date_set
+    __swig_getmethods__["date"] = _otapi.BidData_date_get
+    if _newclass:date = _swig_property(_otapi.BidData_date_get, _otapi.BidData_date_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.BidData_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.BidData_ot_dynamic_cast)
 BidData_swigregister = _otapi.BidData_swigregister
@@ -2684,6 +2699,9 @@ class AskData(OfferDataMarket):
     __swig_setmethods__["minimum_increment"] = _otapi.AskData_minimum_increment_set
     __swig_getmethods__["minimum_increment"] = _otapi.AskData_minimum_increment_get
     if _newclass:minimum_increment = _swig_property(_otapi.AskData_minimum_increment_get, _otapi.AskData_minimum_increment_set)
+    __swig_setmethods__["date"] = _otapi.AskData_date_set
+    __swig_getmethods__["date"] = _otapi.AskData_date_get
+    if _newclass:date = _swig_property(_otapi.AskData_date_get, _otapi.AskData_date_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.AskData_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.AskData_ot_dynamic_cast)
 AskData_swigregister = _otapi.AskData_swigregister
@@ -2842,6 +2860,9 @@ class OfferDataNym(Displayable):
     __swig_setmethods__["stop_price"] = _otapi.OfferDataNym_stop_price_set
     __swig_getmethods__["stop_price"] = _otapi.OfferDataNym_stop_price_get
     if _newclass:stop_price = _swig_property(_otapi.OfferDataNym_stop_price_get, _otapi.OfferDataNym_stop_price_set)
+    __swig_setmethods__["date"] = _otapi.OfferDataNym_date_set
+    __swig_getmethods__["date"] = _otapi.OfferDataNym_date_get
+    if _newclass:date = _swig_property(_otapi.OfferDataNym_date_get, _otapi.OfferDataNym_date_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.OfferDataNym_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.OfferDataNym_ot_dynamic_cast)
 OfferDataNym_swigregister = _otapi.OfferDataNym_swigregister
@@ -2904,6 +2925,24 @@ class TradeDataNym(Displayable):
     __swig_setmethods__["amount_sold"] = _otapi.TradeDataNym_amount_sold_set
     __swig_getmethods__["amount_sold"] = _otapi.TradeDataNym_amount_sold_get
     if _newclass:amount_sold = _swig_property(_otapi.TradeDataNym_amount_sold_get, _otapi.TradeDataNym_amount_sold_set)
+    __swig_setmethods__["updated_id"] = _otapi.TradeDataNym_updated_id_set
+    __swig_getmethods__["updated_id"] = _otapi.TradeDataNym_updated_id_get
+    if _newclass:updated_id = _swig_property(_otapi.TradeDataNym_updated_id_get, _otapi.TradeDataNym_updated_id_set)
+    __swig_setmethods__["offer_price"] = _otapi.TradeDataNym_offer_price_set
+    __swig_getmethods__["offer_price"] = _otapi.TradeDataNym_offer_price_get
+    if _newclass:offer_price = _swig_property(_otapi.TradeDataNym_offer_price_get, _otapi.TradeDataNym_offer_price_set)
+    __swig_setmethods__["finished_so_far"] = _otapi.TradeDataNym_finished_so_far_set
+    __swig_getmethods__["finished_so_far"] = _otapi.TradeDataNym_finished_so_far_get
+    if _newclass:finished_so_far = _swig_property(_otapi.TradeDataNym_finished_so_far_get, _otapi.TradeDataNym_finished_so_far_set)
+    __swig_setmethods__["asset_id"] = _otapi.TradeDataNym_asset_id_set
+    __swig_getmethods__["asset_id"] = _otapi.TradeDataNym_asset_id_get
+    if _newclass:asset_id = _swig_property(_otapi.TradeDataNym_asset_id_get, _otapi.TradeDataNym_asset_id_set)
+    __swig_setmethods__["currency_id"] = _otapi.TradeDataNym_currency_id_set
+    __swig_getmethods__["currency_id"] = _otapi.TradeDataNym_currency_id_get
+    if _newclass:currency_id = _swig_property(_otapi.TradeDataNym_currency_id_get, _otapi.TradeDataNym_currency_id_set)
+    __swig_setmethods__["currency_paid"] = _otapi.TradeDataNym_currency_paid_set
+    __swig_getmethods__["currency_paid"] = _otapi.TradeDataNym_currency_paid_get
+    if _newclass:currency_paid = _swig_property(_otapi.TradeDataNym_currency_paid_get, _otapi.TradeDataNym_currency_paid_set)
     __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.TradeDataNym_ot_dynamic_cast
     if _newclass:ot_dynamic_cast = staticmethod(_otapi.TradeDataNym_ot_dynamic_cast)
 TradeDataNym_swigregister = _otapi.TradeDataNym_swigregister

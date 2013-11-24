@@ -9834,6 +9834,40 @@ _wrap_OTAPI_Basic_getAccount(void *swig_v)
 
 
 void
+_wrap_OTAPI_Basic_getAccountFiles(void *swig_v)
+{
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  long result;
+  
+  struct swigargs {
+    _gostring_ arg1;
+    _gostring_ arg2;
+    _gostring_ arg3;
+    long : 0;
+    int result;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  
+  std::string arg1_str(swig_a->arg1.p, swig_a->arg1.n);
+  arg1 = &arg1_str;
+  
+  
+  std::string arg2_str(swig_a->arg2.p, swig_a->arg2.n);
+  arg2 = &arg2_str;
+  
+  
+  std::string arg3_str(swig_a->arg3.p, swig_a->arg3.n);
+  arg3 = &arg3_str;
+  
+  
+  result = (long)OTAPI_Basic::getAccountFiles((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  swig_a->result = result; 
+}
+
+
+void
 _wrap_OTAPI_Basic_GenerateBasketCreation(void *swig_v)
 {
   std::string *arg1 = 0 ;
@@ -10760,9 +10794,9 @@ _wrap_OTAPI_Basic_issueMarketOffer(void *swig_v)
   std::string *arg4 = 0 ;
   std::string *arg5 = 0 ;
   std::string *arg6 = 0 ;
-  std::string *arg7 = 0 ;
+  bool *arg7 = 0 ;
   std::string *arg8 = 0 ;
-  bool *arg9 = 0 ;
+  std::string *arg9 = 0 ;
   std::string *arg10 = 0 ;
   long result;
   
@@ -10773,9 +10807,9 @@ _wrap_OTAPI_Basic_issueMarketOffer(void *swig_v)
     _gostring_ arg4;
     _gostring_ arg5;
     _gostring_ arg6;
-    _gostring_ arg7;
+    bool arg7;
     _gostring_ arg8;
-    bool arg9;
+    _gostring_ arg9;
     _gostring_ arg10;
     long : 0;
     int result;
@@ -10805,21 +10839,21 @@ _wrap_OTAPI_Basic_issueMarketOffer(void *swig_v)
   std::string arg6_str(swig_a->arg6.p, swig_a->arg6.n);
   arg6 = &arg6_str;
   
-  
-  std::string arg7_str(swig_a->arg7.p, swig_a->arg7.n);
-  arg7 = &arg7_str;
-  
+  arg7 = (bool *)&swig_a->arg7; 
   
   std::string arg8_str(swig_a->arg8.p, swig_a->arg8.n);
   arg8 = &arg8_str;
   
-  arg9 = (bool *)&swig_a->arg9; 
+  
+  std::string arg9_str(swig_a->arg9.p, swig_a->arg9.n);
+  arg9 = &arg9_str;
+  
   
   std::string arg10_str(swig_a->arg10.p, swig_a->arg10.n);
   arg10 = &arg10_str;
   
   
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(bool const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10);
   swig_a->result = result; 
 }
 
@@ -13161,9 +13195,9 @@ _wrap_OTMadeEasy_create_market_offer(void *swig_v)
   std::string *arg5 = 0 ;
   std::string *arg6 = 0 ;
   std::string *arg7 = 0 ;
-  std::string *arg8 = 0 ;
+  bool arg8 ;
   std::string *arg9 = 0 ;
-  bool arg10 ;
+  std::string *arg10 = 0 ;
   std::string *arg11 = 0 ;
   std::string result;
   
@@ -13175,9 +13209,9 @@ _wrap_OTMadeEasy_create_market_offer(void *swig_v)
     _gostring_ arg5;
     _gostring_ arg6;
     _gostring_ arg7;
-    _gostring_ arg8;
+    bool arg8;
     _gostring_ arg9;
-    bool arg10;
+    _gostring_ arg10;
     _gostring_ arg11;
     long : 0;
     _gostring_ result;
@@ -13208,21 +13242,21 @@ _wrap_OTMadeEasy_create_market_offer(void *swig_v)
   std::string arg7_str(swig_a->arg7.p, swig_a->arg7.n);
   arg7 = &arg7_str;
   
-  
-  std::string arg8_str(swig_a->arg8.p, swig_a->arg8.n);
-  arg8 = &arg8_str;
-  
+  arg8 = (bool)swig_a->arg8; 
   
   std::string arg9_str(swig_a->arg9.p, swig_a->arg9.n);
   arg9 = &arg9_str;
   
-  arg10 = (bool)swig_a->arg10; 
+  
+  std::string arg10_str(swig_a->arg10.p, swig_a->arg10.n);
+  arg10 = &arg10_str;
+  
   
   std::string arg11_str(swig_a->arg11.p, swig_a->arg11.n);
   arg11 = &arg11_str;
   
   
-  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
+  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,arg8,(std::string const &)*arg9,(std::string const &)*arg10,(std::string const &)*arg11);
   swig_a->result = _swig_makegostring((&result)->data(), (&result)->length()); 
 }
 
@@ -17949,6 +17983,47 @@ _wrap_MarketData_recent_lowest_ask_get(void *swig_v)
 
 
 void
+_wrap_MarketData_last_sale_date_set(void *swig_v)
+{
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  struct swigargs {
+    OTDB::MarketData *arg1;
+    _gostring_ arg2;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::MarketData **)&swig_a->arg1; 
+  
+  std::string arg2_str(swig_a->arg2.p, swig_a->arg2.n);
+  arg2 = &arg2_str;
+  
+  
+  if (arg1) (arg1)->last_sale_date = *arg2;
+  
+}
+
+
+void
+_wrap_MarketData_last_sale_date_get(void *swig_v)
+{
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  std::string *result = 0 ;
+  
+  struct swigargs {
+    OTDB::MarketData *arg1;
+    long : 0;
+    _gostring_ result;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::MarketData **)&swig_a->arg1; 
+  
+  result = (std::string *) & ((arg1)->last_sale_date);
+  swig_a->result = _swig_makegostring((*result).data(), (*result).length()); 
+}
+
+
+void
 _wrap_MarketData_ot_dynamic_cast(void *swig_v)
 {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -18353,6 +18428,47 @@ _wrap_OfferDataMarket_minimum_increment_get(void *swig_v)
 
 
 void
+_wrap_OfferDataMarket_date_set(void *swig_v)
+{
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  struct swigargs {
+    OTDB::OfferDataMarket *arg1;
+    _gostring_ arg2;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::OfferDataMarket **)&swig_a->arg1; 
+  
+  std::string arg2_str(swig_a->arg2.p, swig_a->arg2.n);
+  arg2 = &arg2_str;
+  
+  
+  if (arg1) (arg1)->date = *arg2;
+  
+}
+
+
+void
+_wrap_OfferDataMarket_date_get(void *swig_v)
+{
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  std::string *result = 0 ;
+  
+  struct swigargs {
+    OTDB::OfferDataMarket *arg1;
+    long : 0;
+    _gostring_ result;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::OfferDataMarket **)&swig_a->arg1; 
+  
+  result = (std::string *) & ((arg1)->date);
+  swig_a->result = _swig_makegostring((*result).data(), (*result).length()); 
+}
+
+
+void
 _wrap_OfferDataMarket_ot_dynamic_cast(void *swig_v)
 {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -18615,6 +18731,47 @@ _wrap_BidData_minimum_increment_get(void *swig_v)
 
 
 void
+_wrap_BidData_date_set(void *swig_v)
+{
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  struct swigargs {
+    OTDB::BidData *arg1;
+    _gostring_ arg2;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::BidData **)&swig_a->arg1; 
+  
+  std::string arg2_str(swig_a->arg2.p, swig_a->arg2.n);
+  arg2 = &arg2_str;
+  
+  
+  if (arg1) (arg1)->date = *arg2;
+  
+}
+
+
+void
+_wrap_BidData_date_get(void *swig_v)
+{
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  std::string *result = 0 ;
+  
+  struct swigargs {
+    OTDB::BidData *arg1;
+    long : 0;
+    _gostring_ result;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::BidData **)&swig_a->arg1; 
+  
+  result = (std::string *) & ((arg1)->date);
+  swig_a->result = _swig_makegostring((*result).data(), (*result).length()); 
+}
+
+
+void
 _wrap_BidData_ot_dynamic_cast(void *swig_v)
 {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -18872,6 +19029,47 @@ _wrap_AskData_minimum_increment_get(void *swig_v)
   arg1 = *(OTDB::AskData **)&swig_a->arg1; 
   
   result = (std::string *) & ((arg1)->minimum_increment);
+  swig_a->result = _swig_makegostring((*result).data(), (*result).length()); 
+}
+
+
+void
+_wrap_AskData_date_set(void *swig_v)
+{
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  struct swigargs {
+    OTDB::AskData *arg1;
+    _gostring_ arg2;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::AskData **)&swig_a->arg1; 
+  
+  std::string arg2_str(swig_a->arg2.p, swig_a->arg2.n);
+  arg2 = &arg2_str;
+  
+  
+  if (arg1) (arg1)->date = *arg2;
+  
+}
+
+
+void
+_wrap_AskData_date_get(void *swig_v)
+{
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  std::string *result = 0 ;
+  
+  struct swigargs {
+    OTDB::AskData *arg1;
+    long : 0;
+    _gostring_ result;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::AskData **)&swig_a->arg1; 
+  
+  result = (std::string *) & ((arg1)->date);
   swig_a->result = _swig_makegostring((*result).data(), (*result).length()); 
 }
 
@@ -20259,6 +20457,47 @@ _wrap_OfferDataNym_stop_price_get(void *swig_v)
 
 
 void
+_wrap_OfferDataNym_date_set(void *swig_v)
+{
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  struct swigargs {
+    OTDB::OfferDataNym *arg1;
+    _gostring_ arg2;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::OfferDataNym **)&swig_a->arg1; 
+  
+  std::string arg2_str(swig_a->arg2.p, swig_a->arg2.n);
+  arg2 = &arg2_str;
+  
+  
+  if (arg1) (arg1)->date = *arg2;
+  
+}
+
+
+void
+_wrap_OfferDataNym_date_get(void *swig_v)
+{
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  struct swigargs {
+    OTDB::OfferDataNym *arg1;
+    long : 0;
+    _gostring_ result;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::OfferDataNym **)&swig_a->arg1; 
+  
+  result = (std::string *) & ((arg1)->date);
+  swig_a->result = _swig_makegostring((*result).data(), (*result).length()); 
+}
+
+
+void
 _wrap_OfferDataNym_ot_dynamic_cast(void *swig_v)
 {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -20699,6 +20938,252 @@ _wrap_TradeDataNym_amount_sold_get(void *swig_v)
   arg1 = *(OTDB::TradeDataNym **)&swig_a->arg1; 
   
   result = (std::string *) & ((arg1)->amount_sold);
+  swig_a->result = _swig_makegostring((*result).data(), (*result).length()); 
+}
+
+
+void
+_wrap_TradeDataNym_updated_id_set(void *swig_v)
+{
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  struct swigargs {
+    OTDB::TradeDataNym *arg1;
+    _gostring_ arg2;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::TradeDataNym **)&swig_a->arg1; 
+  
+  std::string arg2_str(swig_a->arg2.p, swig_a->arg2.n);
+  arg2 = &arg2_str;
+  
+  
+  if (arg1) (arg1)->updated_id = *arg2;
+  
+}
+
+
+void
+_wrap_TradeDataNym_updated_id_get(void *swig_v)
+{
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  struct swigargs {
+    OTDB::TradeDataNym *arg1;
+    long : 0;
+    _gostring_ result;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::TradeDataNym **)&swig_a->arg1; 
+  
+  result = (std::string *) & ((arg1)->updated_id);
+  swig_a->result = _swig_makegostring((*result).data(), (*result).length()); 
+}
+
+
+void
+_wrap_TradeDataNym_offer_price_set(void *swig_v)
+{
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  struct swigargs {
+    OTDB::TradeDataNym *arg1;
+    _gostring_ arg2;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::TradeDataNym **)&swig_a->arg1; 
+  
+  std::string arg2_str(swig_a->arg2.p, swig_a->arg2.n);
+  arg2 = &arg2_str;
+  
+  
+  if (arg1) (arg1)->offer_price = *arg2;
+  
+}
+
+
+void
+_wrap_TradeDataNym_offer_price_get(void *swig_v)
+{
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  struct swigargs {
+    OTDB::TradeDataNym *arg1;
+    long : 0;
+    _gostring_ result;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::TradeDataNym **)&swig_a->arg1; 
+  
+  result = (std::string *) & ((arg1)->offer_price);
+  swig_a->result = _swig_makegostring((*result).data(), (*result).length()); 
+}
+
+
+void
+_wrap_TradeDataNym_finished_so_far_set(void *swig_v)
+{
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  struct swigargs {
+    OTDB::TradeDataNym *arg1;
+    _gostring_ arg2;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::TradeDataNym **)&swig_a->arg1; 
+  
+  std::string arg2_str(swig_a->arg2.p, swig_a->arg2.n);
+  arg2 = &arg2_str;
+  
+  
+  if (arg1) (arg1)->finished_so_far = *arg2;
+  
+}
+
+
+void
+_wrap_TradeDataNym_finished_so_far_get(void *swig_v)
+{
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  struct swigargs {
+    OTDB::TradeDataNym *arg1;
+    long : 0;
+    _gostring_ result;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::TradeDataNym **)&swig_a->arg1; 
+  
+  result = (std::string *) & ((arg1)->finished_so_far);
+  swig_a->result = _swig_makegostring((*result).data(), (*result).length()); 
+}
+
+
+void
+_wrap_TradeDataNym_asset_id_set(void *swig_v)
+{
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  struct swigargs {
+    OTDB::TradeDataNym *arg1;
+    _gostring_ arg2;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::TradeDataNym **)&swig_a->arg1; 
+  
+  std::string arg2_str(swig_a->arg2.p, swig_a->arg2.n);
+  arg2 = &arg2_str;
+  
+  
+  if (arg1) (arg1)->asset_id = *arg2;
+  
+}
+
+
+void
+_wrap_TradeDataNym_asset_id_get(void *swig_v)
+{
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  struct swigargs {
+    OTDB::TradeDataNym *arg1;
+    long : 0;
+    _gostring_ result;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::TradeDataNym **)&swig_a->arg1; 
+  
+  result = (std::string *) & ((arg1)->asset_id);
+  swig_a->result = _swig_makegostring((*result).data(), (*result).length()); 
+}
+
+
+void
+_wrap_TradeDataNym_currency_id_set(void *swig_v)
+{
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  struct swigargs {
+    OTDB::TradeDataNym *arg1;
+    _gostring_ arg2;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::TradeDataNym **)&swig_a->arg1; 
+  
+  std::string arg2_str(swig_a->arg2.p, swig_a->arg2.n);
+  arg2 = &arg2_str;
+  
+  
+  if (arg1) (arg1)->currency_id = *arg2;
+  
+}
+
+
+void
+_wrap_TradeDataNym_currency_id_get(void *swig_v)
+{
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  struct swigargs {
+    OTDB::TradeDataNym *arg1;
+    long : 0;
+    _gostring_ result;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::TradeDataNym **)&swig_a->arg1; 
+  
+  result = (std::string *) & ((arg1)->currency_id);
+  swig_a->result = _swig_makegostring((*result).data(), (*result).length()); 
+}
+
+
+void
+_wrap_TradeDataNym_currency_paid_set(void *swig_v)
+{
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  struct swigargs {
+    OTDB::TradeDataNym *arg1;
+    _gostring_ arg2;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::TradeDataNym **)&swig_a->arg1; 
+  
+  std::string arg2_str(swig_a->arg2.p, swig_a->arg2.n);
+  arg2 = &arg2_str;
+  
+  
+  if (arg1) (arg1)->currency_paid = *arg2;
+  
+}
+
+
+void
+_wrap_TradeDataNym_currency_paid_get(void *swig_v)
+{
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  struct swigargs {
+    OTDB::TradeDataNym *arg1;
+    long : 0;
+    _gostring_ result;
+  } *swig_a = (struct swigargs *) swig_v;
+  
+  arg1 = *(OTDB::TradeDataNym **)&swig_a->arg1; 
+  
+  result = (std::string *) & ((arg1)->currency_paid);
   swig_a->result = _swig_makegostring((*result).data(), (*result).length()); 
 }
 

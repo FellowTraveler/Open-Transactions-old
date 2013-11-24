@@ -7526,7 +7526,7 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theDeposito
                                 // signed by the server--and changes over time as cron processes. (The original receipt
                                 // can always be loaded when necessary.)
                                 //
-                                if (!bCancelling && m_Cron.AddCronItem(*pPlan, &theNym, true)) // bSaveReceipt=true
+                                if (!bCancelling && m_Cron.AddCronItem(*pPlan, &theNym, true, time(NULL))) // bSaveReceipt=true
                                 {
                                     //todo need to be able to "roll back" if anything inside this block fails.
                                     
@@ -7594,7 +7594,7 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theDeposito
                                                        __FUNCTION__, pPlan->GetOpeningNum());
                                     }
                                     // --------------------------------------
-                                } // if (m_Cron.AddCronItem(*pPlan, &theNym, true)) // bSaveReceipt=true
+                                } // if (m_Cron.AddCronItem(*pPlan, &theNym, true, time(NULL))) // bSaveReceipt=true
                                 else
                                 {
                                     if (bCancelling)
@@ -8106,7 +8106,7 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theActiva
                     }
                     // -----------------------------------------------------
                     // Add it to Cron...
-                    else if (m_Cron.AddCronItem(*pContract, &theNym, true)) // bSaveReceipt=true
+                    else if (m_Cron.AddCronItem(*pContract, &theNym, true, time(NULL))) // bSaveReceipt=true
                     {
                         // We add the smart contract to the server's Cron object, which does regular processing.
                         // That object will take care of processing the smart contract according to its terms.
@@ -8263,7 +8263,7 @@ void OTServer::NotarizeCancelCronItem(OTPseudonym & theNym, OTAccount & theAsset
 			} 
 			else // LET'S SEE IF WE CAN REMOVE IT THEN...
 			{   
-                OTCronItem * pCronItem = m_Cron.GetCronItem(lReferenceToNum);
+                OTCronItem * pCronItem = m_Cron.GetItemByValidOpeningNum(lReferenceToNum);
                 
                 // Check for the closing number here (that happens in OTCronItem, since it's polymorphic.)
                 
@@ -9520,7 +9520,7 @@ void OTServer::NotarizeMarketOffer(OTPseudonym & theNym, OTAccount & theAssetAcc
 				// signed by the server--and changes over time as cron processes. (The original receipt
 				// can always be loaded when necessary.)
                 //
-				if (m_Cron.AddCronItem(*pTrade, &theNym, true)) // bSaveReceipt=true
+				if (m_Cron.AddCronItem(*pTrade, &theNym, true, time(NULL))) // bSaveReceipt=true
 				{
                     //todo need to be able to "roll back" if anything inside this block fails.
 					
@@ -10773,7 +10773,7 @@ void OTServer::UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTM
     {
         OTSmartContract * pSmartContract = NULL;
         // ---------------------------------------------
-        OTCronItem * pCronItem = m_Cron.GetCronItem(MsgIn.m_lTransactionNum);
+        OTCronItem * pCronItem = m_Cron.GetItemByValidOpeningNum(MsgIn.m_lTransactionNum);
 
         if (NULL == pCronItem)
         {
@@ -14735,7 +14735,8 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 	}
 	else if (theMessage.m_strCommand.Compare("notarizeTransactions"))
 	{
-		OTLog::vOutput(0, "\n==> Received a notarizeTransactions message. Nym: %s ...\n", strMsgNymID.Get());
+		OTLog::vOutput(0, "\n==> Received a notarizeTransactions message.  Acct: %s Nym: %s  ...\n",
+                       theMessage.m_strAcctID.Get(), strMsgNymID.Get());
 		
 		// ------------------------------------------------------------
 		OT_ENFORCE_PERMISSION_MSG(__cmd_notarize_transaction);
@@ -14780,7 +14781,8 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 	}
 	else if (theMessage.m_strCommand.Compare("getInbox"))
 	{
-		OTLog::vOutput(0, "\n==> Received a getInbox message. Nym: %s ...\n", strMsgNymID.Get());
+		OTLog::vOutput(0, "\n==> Received a getInbox message.  Acct: %s Nym: %s  ...\n",
+                       theMessage.m_strAcctID.Get(), strMsgNymID.Get());
 		
 		// ------------------------------------------------------------
 		OT_ENFORCE_PERMISSION_MSG(__cmd_get_inbox);
@@ -14792,7 +14794,8 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 	}
 	else if (theMessage.m_strCommand.Compare("getOutbox"))
 	{
-		OTLog::vOutput(0, "\n==> Received a getOutbox message. Nym: %s ...\n", strMsgNymID.Get());
+		OTLog::vOutput(0, "\n==> Received a getOutbox message.  Acct: %s Nym: %s  ...\n",
+                       theMessage.m_strAcctID.Get(), strMsgNymID.Get());
 		
 		// ------------------------------------------------------------
 		OT_ENFORCE_PERMISSION_MSG(__cmd_get_outbox);
@@ -14804,7 +14807,8 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 	}
     else if (theMessage.m_strCommand.Compare("getAccount"))
 	{
-		OTLog::vOutput(0, "\n==> Received a getAccount message. Nym: %s ...\n", strMsgNymID.Get());
+		OTLog::vOutput(0, "\n==> Received a getAccount message.  Acct: %s Nym: %s  ...\n",
+                       theMessage.m_strAcctID.Get(), strMsgNymID.Get());
 		
 		// ------------------------------------------------------------
 		OT_ENFORCE_PERMISSION_MSG(__cmd_get_acct);
@@ -14816,7 +14820,8 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 	}
     else if (theMessage.m_strCommand.Compare("getAccountFiles"))
 	{
-		OTLog::vOutput(0, "\n==> Received a getAccountFiles message. Nym: %s ...\n", strMsgNymID.Get());
+		OTLog::vOutput(0, "\n==> Received a getAccountFiles message.  Acct: %s Nym: %s  ...\n",
+                       theMessage.m_strAcctID.Get(), strMsgNymID.Get());
 		
 		// ------------------------------------------------------------
 		OT_ENFORCE_PERMISSION_MSG(__cmd_get_inbox);
@@ -14842,7 +14847,8 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage,
 	}
 	else if (theMessage.m_strCommand.Compare("processInbox"))
 	{
-		OTLog::vOutput(0, "\n==> Received a processInbox message. Nym: %s ...\n", strMsgNymID.Get());
+		OTLog::vOutput(0, "\n==> Received a processInbox message. Acct: %s Nym: %s  ...\n",
+                       theMessage.m_strAcctID.Get(), strMsgNymID.Get());
 		
 		// ------------------------------------------------------------
 		OT_ENFORCE_PERMISSION_MSG(__cmd_process_inbox);

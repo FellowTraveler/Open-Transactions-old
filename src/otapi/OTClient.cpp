@@ -1063,9 +1063,10 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
                 // Only my ORIGINAL request to enter the payment plan can be removed, and that only happens when the
                 // finalReceipt is issued, not when a single receipt is removed. Therefore, I can only accept the
                 // receipt from my inbox, but this moment here doesn't free up any of my issued transaction numbers.
-                //              if (pNym->VerifyIssuedNum(strServerID, pTransaction->GetTransactionNum()))
-                //                  theIssuedNym.AddIssuedNum(strServerID, pTransaction->GetTransactionNum());
-                //              else {error}
+                //
+//              if (pNym->VerifyIssuedNum(strServerID, pTransaction->GetTransactionNum()))
+//                  theIssuedNym.AddIssuedNum(strServerID, pTransaction->GetTransactionNum());
+//              else {error}
 
                 // I don't attach the original payment plan or trade here, 
                 // because I already reference it by transaction num of the receipt,
@@ -1401,7 +1402,7 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
     if (pAcceptTransaction->GetItemCount())
     {
         OTMessage theMessage;
-        //		OTAssetContract * pAssetContract	= theConnection.GetWallet()->GetAssetContract(pAccount->GetAssetTypeID());
+//		OTAssetContract * pAssetContract	= theConnection.GetWallet()->GetAssetContract(pAccount->GetAssetTypeID());
 
         if (pAccount && (ProcessUserCommand(OTClient::processInbox, theMessage, 
             *pNym, 
@@ -1983,14 +1984,14 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                                         if (bExists1 && bSuccessLoading1)
                                             bSuccessLoading1  = (thePmntInbox.VerifyContractID() &&
                                             thePmntInbox.VerifySignature(*pNym));
-                                        //                                      bSuccessLoading1	  = (thePmntInbox.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
+//                                      bSuccessLoading1	  = (thePmntInbox.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
                                         else if (!bExists1)
                                             bSuccessLoading1  = thePmntInbox.GenerateLedger(USER_ID, SERVER_ID, OTLedger::paymentInbox, true); // bGenerateFile=true
                                         // -----------------------------------------------------
                                         if (bExists2 && bSuccessLoading2)
                                             bSuccessLoading2  = (theRecordBox.VerifyContractID() &&
                                             theRecordBox.VerifySignature(*pNym));
-                                        //                                      bSuccessLoading2      = (theRecordBox.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
+//                                      bSuccessLoading2      = (theRecordBox.VerifyAccount(*pNym)); // (No need to load all the Box Receipts using VerifyAccount)
                                         else if (!bExists2)
                                             bSuccessLoading2  = theRecordBox.GenerateLedger(USER_ID, SERVER_ID, OTLedger::recordBox, true); // bGenerateFile=true
                                         // -----------------------------------------------------
@@ -2636,7 +2637,7 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
         // somewhere on the computer. That's cash! Gotta keep it safe.
         //
         else if ((OTItem::atWithdrawal		== pItem->GetType()) &&
-            (OTItem::acknowledgement	== pItem->GetStatus()))
+                 (OTItem::acknowledgement	== pItem->GetStatus()))
         { 
             OTString	strPurse;
             pItem->GetAttachment(strPurse);
@@ -2809,8 +2810,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
     }
     // ------------------------------------
     OTMessage * pSentMsg = this->GetMessageOutbuffer().GetSentMessage(atol(theReply.m_strRequestNum.Get()),
-        strServerID,
-        strNymID); // doesn't delete.
+                                                                      strServerID,
+                                                                      strNymID); // doesn't delete.
     // ------------------------------------
     // We couldn't find it in the "sent message" outbuffer (todo: persist this buffer on the Nym.)
     // That means we must have missed the original server reply, even though it DID happen. Then we
@@ -3515,8 +3516,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
             if (theReply.m_strCommand.Compare("@processNymbox"))
                 ACCOUNT_ID = USER_ID; // For Nymbox, UserID *is* AcctID.
 
-            OTLedger	theLedger     (USER_ID, ACCOUNT_ID, SERVER_ID),
-                theReplyLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+            OTLedger    theLedger     (USER_ID, ACCOUNT_ID, SERVER_ID),
+                        theReplyLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
 
             theOriginalMessage.m_ascPayload.GetString(strLedger);
             theReply.m_ascPayload.GetString(strReplyLedger);
@@ -3945,6 +3946,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                         // If it's a CRON receipt, find out if it's from a MARKET TRADE, and if so,
                                         // add it to my local list of Market Trades, for the GUI to use on the market panel.
                                         //
+                                        // Todo security: add the actual sale price to boths receipts, along with both amounts,
+                                        // in order to verify the amount moved is in keeping with the terms of the original offer.
+                                        //
                                         OTItem * pServerItem = pServerTransaction->GetItem(OTItem::marketReceipt); // paymentPlan and smartContract are also POSSIBLE here.
 
                                         if (NULL != pServerItem)
@@ -3971,16 +3975,43 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                 std::stringstream ss;
                                                 ss << theTrade.GetTransactionNum();
                                                 pData->transaction_id = ss.str(); ss.str(""); */
-
-                                                pData->transaction_id = to_string<long>(theTrade.GetTransactionNum());
+                                                // --------------------------------------------------
+                                                pData->transaction_id  = to_string<long>(theTrade.GetTransactionNum());     // TransID for original offer. (Offer may trade many times.)
+                                                pData->updated_id      = to_string<long>(pServerItem->GetTransactionNum()); // TransID for BOTH receipts for current trade. (Asset/Currency.)
                                                 pData->completed_count = to_string<int>(theTrade.GetCompletedCount());
-
-                                                const long & lPriceLimit	= theOffer.GetPriceLimit();
-                                                const long & lFinishedSoFar	= theOffer.GetFinishedSoFar();
-
-                                                pData->price		= to_string<long>(lPriceLimit);		// This isn't what it actually sold for -- it just shows the price limit on this offer. (I don't have better data, yet.)
-                                                pData->amount_sold	= to_string<long>(lFinishedSoFar);	// This isn't the amount sold on this trade -- instead it shows the total amount finished for the overall offer.
-
+                                                // --------------------------------------------------
+                                                OTAccount * pAccount = OTAccount::LoadExistingAccount(ACCOUNT_ID, SERVER_ID);
+                                                OTCleanup<OTAccount> theAngel(pAccount);
+                                                
+                                                bool bIsAsset    = (theTrade.GetAssetID()    == pAccount->GetAssetTypeID());
+                                                bool bIsCurrency = (theTrade.GetCurrencyID() == pAccount->GetAssetTypeID());
+                                                
+                                                if (bIsAsset)
+                                                {
+//                                                  pServerItem->GetAmount() contains:  (lAmountSold); // asset
+                                                    
+                                                    const OTString strAssetID(theTrade.GetAssetID());
+                                                    long lAssetsThisTrade = pServerItem->GetAmount();
+                                                    pData->asset_id       = strAssetID.Get();
+                                                    pData->amount_sold    = to_string<long>(lAssetsThisTrade); // The amount of ASSETS moved, this trade.
+                                                }
+                                                else if (bIsCurrency)
+                                                {
+//                                                  pServerItem->GetAmount() contains:  (lTotalPaidOut); // currency
+                                                    
+                                                    const OTString strCurrencyID(theTrade.GetCurrencyID());
+                                                    long lCurrencyThisTrade = pServerItem->GetAmount();
+                                                    pData->currency_id      = strCurrencyID.Get();
+                                                    pData->currency_paid    = to_string<long>(lCurrencyThisTrade);
+                                                }
+                                                // --------------------------------------------------
+                                                // The original offer price. (Might be 0, if it's a market order.)
+                                                //
+                                                const long & lPriceLimit = theOffer.GetPriceLimit();
+                                                pData->offer_price = to_string<long>(lPriceLimit);
+                                                // --------------------------------------------------
+                                                const long & lFinishedSoFar = theOffer.GetFinishedSoFar();
+                                                pData->finished_so_far = to_string<long>(lFinishedSoFar);
                                                 // --------------------------------------------------
                                                 // save to local storage...
                                                 //
@@ -4003,20 +4034,85 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                     pList = dynamic_cast<OTDB::TradeListNym*>
                                                         (OTDB::CreateObject(OTDB::STORED_OBJ_TRADE_LIST_NYM));
                                                 }
-
+                                                // -----------------------------------------------------
                                                 OT_ASSERT(NULL != pList);
-
                                                 OTCleanup<OTDB::TradeListNym> theListAngel(*pList);
-
-                                                if ((false == pList->AddTradeDataNym(*pData)) ||
-                                                    (false == OTDB::StoreObject(*pList,
+                                                // -----------------------------------------------------
+                                                // Loop through and see if we can find one that's ALREADY there.
+                                                // We can match the asset receipt and currency receipt.
+                                                // This way we insure there is only one in the end, which combines info from both.
+                                                // This also enables us to calculate the sale price!
+                                                //
+                                                bool bWeFoundIt = false;
+                                                
+                                                size_t nTradeDataNymCount = pList->GetTradeDataNymCount();
+                                                
+                                                for (size_t nym_count = 0; nym_count < nTradeDataNymCount; ++nym_count)
+                                                {
+                                                    OTDB::TradeDataNym * pTradeData = pList->GetTradeDataNym(nym_count);
+                                                    
+                                                    if (NULL == pTradeData) // Should never happen.
+                                                        continue;
+                                                    // -----------------------------------------------------------------------
+                                                    if (0 == pTradeData->updated_id.compare(pData->updated_id)) // Found it!
+                                                    {
+                                                        // It's a repeat of the same one. (Discard.)
+                                                        if ((!pTradeData->asset_id   .empty() && !pData->asset_id   .empty()) ||
+                                                            (!pTradeData->currency_id.empty() && !pData->currency_id.empty()))
+                                                            break;
+                                                        // --------------------------------------------------
+                                                        // Okay looks like one is the asset receipt, and the other is the currency receipt.
+                                                        // Therefore let's combine them into pTradeData!
+                                                        //
+                                                        if (pTradeData->asset_id.empty())
+                                                        {
+                                                            pTradeData->asset_id    = pData->asset_id;
+                                                            pTradeData->amount_sold = pData->amount_sold;
+                                                        }
+                                                        else if (pTradeData->currency_id.empty())
+                                                        {
+                                                            pTradeData->currency_id   = pData->currency_id;
+                                                            pTradeData->currency_paid = pData->currency_paid;
+                                                        }
+                                                        // --------------------------------------------------
+                                                        if (!pTradeData->amount_sold.empty() && !pTradeData->currency_paid.empty())
+                                                        {
+                                                            const int64_t lAmountSold   = OTString::StringToLong(pTradeData->amount_sold);
+                                                            const int64_t lCurrencyPaid = OTString::StringToLong(pTradeData->currency_paid);
+                                                            
+                                                            if (lAmountSold != 0) // just in case (divide by 0.)
+                                                            {
+                                                                const int64_t lSalePrice = (lCurrencyPaid / lAmountSold);
+                                                                
+                                                                OTString strSalePrice;
+                                                                strSalePrice.Format("%" PRId64"", lSalePrice);
+                                                                
+                                                                pTradeData->price = strSalePrice.Get();
+                                                            }
+                                                        }
+                                                        // ------------------------
+                                                        
+                                                        bWeFoundIt = true;
+                                                        
+                                                        break;
+                                                        
+                                                    } // if we found it.
+                                                } // for
+                                                // -----------------------------------------------------
+                                                if (!bWeFoundIt) // We didn't find it. So let's add it.
+                                                {
+                                                    pList->AddTradeDataNym(*pData);
+                                                }
+                                                // -----------------------------------------------------
+                                                if (false == OTDB::StoreObject(*pList,
                                                     OTFolders::Nym().Get(),
                                                     "trades", // todo stop hardcoding.
                                                     strServerID.Get(), 
-                                                    strUserID.Get())))
-                                                    OTLog::vError("OTClient::ProcessServerReply: Failed adding trade data for nym, "
-                                                    "or storing list of trades.\n Server ID: %s \n Nym ID: %s \n",
-                                                    strServerID.Get(), strUserID.Get());
+                                                    strUserID.Get()))
+                                                    // ----------------
+                                                    OTLog::vError("OTClient::%s: Failed storing list of trades for Nym. Server ID: %s Nym ID: %s \n",
+                                                                  __FUNCTION__, strServerID.Get(), strUserID.Get());
+                                                // -----------------------------------------------------
                                             }
                                         }
                                         //else

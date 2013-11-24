@@ -610,14 +610,16 @@ bool OTKeypair::SetPrivateKey(const OTString & strKey, bool bEscaped/*=false*/)
 			// The ascii-armor loading code removes them and handles the escapes also.
 //			return m_pkeyPrivate->LoadPrivateKeyFromPGPKey(theArmor);
             //
-			OTLog::vOutput(0, "OTKeypair::SetPrivateKey 1: Failure: PGP private keys are NOT YET SUPPORTED:\n\n%s\n\n",
-                           strKey.Get());
+			OTLog::vOutput(0, "OTKeypair::SetPrivateKey 1: Failure: PGP private keys are NOT YET SUPPORTED.\n\n");
+//			OTLog::vOutput(0, "OTKeypair::SetPrivateKey 1: Failure: PGP private keys are NOT YET SUPPORTED:\n\n%s\n\n",
+//                           strKey.Get());
 			return false;
 		}
 		else 
         {
-			OTLog::vOutput(0, "OTKeypair::SetPrivateKey 2: Failure: PGP private keys are NOT YET SUPPORTED:\n\n%s\n\n",
-                           strKey.Get());
+			OTLog::vOutput(0, "OTKeypair::SetPrivateKey 2: Failure: PGP private keys are NOT YET SUPPORTED.\n\n");
+//			OTLog::vOutput(0, "OTKeypair::SetPrivateKey 2: Failure: PGP private keys are NOT YET SUPPORTED:\n\n%s\n\n",
+//                           strKey.Get());
 			return false;
 		}
 	}
@@ -2176,8 +2178,10 @@ bool OTKeyCredential::SetPrivateContents(const mapOfStrings & mapPrivate,
         
         if (false == m_AuthentKey.LoadPrivateKeyFromCertString(strPrivate, false /*bEscaped true by default*/,  &strReason, pImportPassword))
         {
-            OTLog::vError("%s line %d: Failure: Unable to set private authentication key based on string:\n%s\n",
-                          __FILE__, __LINE__, strPrivate.Get());
+            OTLog::vError("%s line %d: Failure: Unable to set private authentication key based on string.\n",
+                          __FILE__, __LINE__);
+//          OTLog::vError("%s line %d: Failure: Unable to set private authentication key based on string:\n%s\n",
+//                        __FILE__, __LINE__, strPrivate.Get());
             return false;
         }
         else // Success loading the private key. Let's grab the public key here.
@@ -2187,8 +2191,10 @@ bool OTKeyCredential::SetPrivateContents(const mapOfStrings & mapPrivate,
             if ((false == m_AuthentKey.LoadPublicKeyFromCertString(strPrivate, false /* bEscaped true by default */, &strReason, pImportPassword)) ||
                 (false == m_AuthentKey.GetPublicKey(strPublic, false /* bEscaped true by default */)))
             {
-                OTLog::vError("%s line %d: Failure: Unable to set public authentication key based on private string:\n%s\n",
-                              __FILE__, __LINE__, strPrivate.Get());
+                OTLog::vError("%s line %d: Failure: Unable to set public authentication key based on private string.\n",
+                              __FILE__, __LINE__);
+//              OTLog::vError("%s line %d: Failure: Unable to set public authentication key based on private string:\n%s\n",
+//                            __FILE__, __LINE__, strPrivate.Get());
                 return false;
             }
             mapPublic.insert(std::pair<std::string, std::string>("A", strPublic.Get()));
@@ -2199,8 +2205,10 @@ bool OTKeyCredential::SetPrivateContents(const mapOfStrings & mapPrivate,
         
         if (false == m_EncryptKey.LoadPrivateKeyFromCertString(strPrivate, false /*bEscaped true by default*/,  &strReason, pImportPassword))
         {
-            OTLog::vError("%s line %d: Failure: Unable to set private encryption key based on string:\n%s\n",
-                          __FILE__, __LINE__, strPrivate.Get());
+            OTLog::vError("%s line %d: Failure: Unable to set private encryption key based on string.\n",
+                          __FILE__, __LINE__);
+//          OTLog::vError("%s line %d: Failure: Unable to set private encryption key based on string:\n%s\n",
+//                        __FILE__, __LINE__, strPrivate.Get());
             return false;
         }
         else // Success loading the private key. Let's grab the public key here.
@@ -2210,8 +2218,10 @@ bool OTKeyCredential::SetPrivateContents(const mapOfStrings & mapPrivate,
             if ((false == m_EncryptKey.LoadPublicKeyFromCertString(strPrivate, false /* bEscaped true by default */, &strReason, pImportPassword)) ||
                 (false == m_EncryptKey.GetPublicKey(strPublic, false /* bEscaped true by default */)))
             {
-                OTLog::vError("%s line %d: Failure: Unable to set public encryption key based on private string:\n%s\n",
-                              __FILE__, __LINE__, strPrivate.Get());
+                OTLog::vError("%s line %d: Failure: Unable to set public encryption key based on private string.\n",
+                              __FILE__, __LINE__);
+//              OTLog::vError("%s line %d: Failure: Unable to set public encryption key based on private string:\n%s\n",
+//                            __FILE__, __LINE__, strPrivate.Get());
                 return false;
             }
             mapPublic.insert(std::pair<std::string, std::string>("E", strPublic.Get()));
@@ -2222,8 +2232,10 @@ bool OTKeyCredential::SetPrivateContents(const mapOfStrings & mapPrivate,
         
         if (false == m_SigningKey.LoadPrivateKeyFromCertString(strPrivate, false /*bEscaped true by default*/,  &strReason, pImportPassword))
         {
-            OTLog::vError("%s line %d: Failure: Unable to set private signing key based on string:\n%s\n",
-                          __FILE__, __LINE__, strPrivate.Get());
+            OTLog::vError("%s line %d: Failure: Unable to set private signing key based on string.\n",
+                          __FILE__, __LINE__);
+//          OTLog::vError("%s line %d: Failure: Unable to set private signing key based on string:\n%s\n",
+//                        __FILE__, __LINE__, strPrivate.Get());
             return false;
         }
         else // Success loading the private key. Let's grab the public key here.
@@ -2233,8 +2245,10 @@ bool OTKeyCredential::SetPrivateContents(const mapOfStrings & mapPrivate,
             if ((false == m_SigningKey.LoadPublicKeyFromCertString(strPrivate, false /* bEscaped true by default */, &strReason, pImportPassword)) ||
                 (false == m_SigningKey.GetPublicKey(strPublic, false /* bEscaped true by default */)))
             {
-                OTLog::vError("%s line %d: Failure: Unable to set public signing key based on private string:\n%s\n",
-                              __FILE__, __LINE__, strPrivate.Get());
+                OTLog::vError("%s line %d: Failure: Unable to set public signing key based on private string.\n",
+                              __FILE__, __LINE__);
+//              OTLog::vError("%s line %d: Failure: Unable to set public signing key based on private string:\n%s\n",
+//                            __FILE__, __LINE__, strPrivate.Get());
                 return false;
             }
             mapPublic.insert(std::pair<std::string, std::string>("S", strPublic.Get()));

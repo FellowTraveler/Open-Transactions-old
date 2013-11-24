@@ -937,7 +937,7 @@ public: \
 			scale("0"), total_assets("0"), number_bids("0"), last_sale_price("0"),
 			current_bid("0"), current_ask("0"), 
 			volume_trades("0"), volume_assets("0"), volume_currency("0"),
-			recent_highest_bid("0"), recent_lowest_ask("0")
+			recent_highest_bid("0"), recent_lowest_ask("0"), last_sale_date("0")
 		{ m_Type = "MarketData"; }
 
 	public:
@@ -971,6 +971,8 @@ public: \
 		std::string recent_highest_bid; // in a 24hour period, the highest bid to hit the market.
 		std::string recent_lowest_ask;	// in a 24hour period, the lowest ask to hit the market.
 
+        std::string last_sale_date;     // (NEW FIELD) The date on which the most recent trade occurred on this market.
+
 		DEFINE_OT_DYNAMIC_CAST(MarketData)
 	};
 
@@ -999,7 +1001,7 @@ public: \
 		// Therefore, I don't allow you to access the constructor except through factory.
 	protected:
 		OfferDataMarket() : Displayable(), 
-			transaction_id("0"), price_per_scale("1"), available_assets("0"), minimum_increment("1")
+			transaction_id("0"), price_per_scale("1"), available_assets("0"), minimum_increment("1"), date("0")
 		{ m_Type = "OfferDataMarket"; }
 
 	public:
@@ -1019,8 +1021,10 @@ public: \
 		// (This effectively becomes a "FILL OR KILL" order if set to the same value as total_assets. Also, MUST be 1
 		// or greater. CANNOT be zero. Enforce this at class level. You cannot sell something in minimum increments of 0.)
 
-		std::string minimum_increment;  	
-
+		std::string minimum_increment;
+        
+		std::string date;  // (NEW FIELD) The date this offer was added to the market.
+        
 		DEFINE_OT_DYNAMIC_CAST(OfferDataMarket)
 	};
 
@@ -1042,7 +1046,8 @@ public: \
 		using OfferDataMarket::transaction_id;
 		using OfferDataMarket::price_per_scale;
 		using OfferDataMarket::available_assets;
-		using OfferDataMarket::minimum_increment;  	
+		using OfferDataMarket::minimum_increment;
+		using OfferDataMarket::date;
 
 		DEFINE_OT_DYNAMIC_CAST(BidData)
 	};
@@ -1065,7 +1070,8 @@ public: \
 		using OfferDataMarket::transaction_id;
 		using OfferDataMarket::price_per_scale;
 		using OfferDataMarket::available_assets;
-		using OfferDataMarket::minimum_increment;  	
+		using OfferDataMarket::minimum_increment;
+		using OfferDataMarket::date;
 
 		DEFINE_OT_DYNAMIC_CAST(AskData)
 	};
@@ -1140,7 +1146,7 @@ public: \
 			selling(false), scale("1"), price_per_scale("1"),
 			transaction_id("0"), 
 			total_assets("1"), finished_so_far("0"), 
-			minimum_increment("1"), stop_price("0")
+			minimum_increment("1"), stop_price("0"), date("0")
 		{ m_Type = "OfferDataNym"; }
 
 	public:
@@ -1178,6 +1184,8 @@ public: \
 		std::string stop_sign;  // If this is a stop order, this will contain '<' or '>'.
 		std::string stop_price;	// The price at which the stop order activates (less than X or greater than X, based on sign.)
 
+        std::string date;       // (NEW FIELD) The date on which this offer was added to the market.
+        
 		DEFINE_OT_DYNAMIC_CAST(OfferDataNym)
 	};
 
@@ -1208,7 +1216,8 @@ public: \
 		TradeDataNym() : Displayable(), 
 			transaction_id("0"),
 			completed_count("0"), date("0"), 
-			price("0"), amount_sold("0")
+			price("0"), amount_sold("0"), updated_id("0"), offer_price("0"),
+            finished_so_far("0"), currency_paid("0")
 		{ m_Type = "TradeDataNym"; }
 
 	public:
@@ -1216,12 +1225,18 @@ public: \
 
 		using Displayable::gui_label;  // The label that appears in the GUI
 
-		std::string transaction_id;	// (transaction number for this trade.)
+		std::string transaction_id;	// (transaction number for original offer.)
 
 		std::string completed_count;	// (How many trades have processed for the associated offer? We keep count for each trade.)
 		std::string date;				// (The date of this trade's execution)
 		std::string price;				// (The price this trade executed at.)
-		std::string amount_sold;		// (Amount of asset sold for that price.)	
+		std::string amount_sold;		// (Amount of asset sold for that price.)
+		std::string updated_id;         // NEW FIELD (Transaction ID for trade receipt.)
+		std::string offer_price;        // NEW FIELD (price limit on the original offer.)
+		std::string finished_so_far;    // NEW FIELD (total amount sold across all trades.)
+        std::string asset_id;           // NEW FIELD asset ID for trade
+        std::string currency_id;        // NEW FIELD currency ID for trade
+        std::string currency_paid;      // NEW FIELD currency paid for trade
 
 		DEFINE_OT_DYNAMIC_CAST(TradeDataNym)
 	};
@@ -2025,7 +2040,7 @@ namespace OTDB
 		scale, total_assets, number_bids, number_asks, 
 		last_sale_price, current_bid, current_ask, 
 		volume_trades, volume_assets, volume_currency, 
-		recent_highest_bid, recent_lowest_ask);
+		recent_highest_bid, recent_lowest_ask, last_sale_date);
 	OT_MSGPACK_END;
 	// -------------------------------------------------------
 	OT_MSGPACK_BEGIN(MarketListMsgpack, MarketList, STORED_OBJ_MARKET_LIST)
@@ -2038,12 +2053,12 @@ namespace OTDB
 
 	OT_MSGPACK_BEGIN(BidDataMsgpack, BidData, STORED_OBJ_BID_DATA)
 		OT_USING_ISTORABLE_HOOKS;
-	MSGPACK_DEFINE(gui_label, transaction_id, price_per_scale, available_assets, minimum_increment);
+	MSGPACK_DEFINE(gui_label, transaction_id, price_per_scale, available_assets, minimum_increment, date);
 	OT_MSGPACK_END;
 	// -------------------------------------------------------
 	OT_MSGPACK_BEGIN(AskDataMsgpack, AskData, STORED_OBJ_ASK_DATA)
 		OT_USING_ISTORABLE_HOOKS;
-	MSGPACK_DEFINE(gui_label, transaction_id, price_per_scale, available_assets, minimum_increment);
+	MSGPACK_DEFINE(gui_label, transaction_id, price_per_scale, available_assets, minimum_increment, date);
 	OT_MSGPACK_END;
 	// -------------------------------------------------------
 
@@ -2076,7 +2091,7 @@ namespace OTDB
 		currency_type_id, currency_acct_id, 
 		selling, scale, price_per_scale, transaction_id, 
 		total_assets, finished_so_far, minimum_increment, 
-		stop_sign, stop_price);
+		stop_sign, stop_price, date);
 	OT_MSGPACK_END;
 	// -------------------------------------------------------
 	OT_MSGPACK_BEGIN(OfferListNymMsgpack, OfferListNym, STORED_OBJ_OFFER_LIST_NYM)
@@ -2090,7 +2105,8 @@ namespace OTDB
 	OT_MSGPACK_BEGIN(TradeDataNymMsgpack, TradeDataNym, STORED_OBJ_TRADE_DATA_NYM)
 		OT_USING_ISTORABLE_HOOKS;
 	MSGPACK_DEFINE(gui_label, transaction_id, completed_count, date, 
-		price, amount_sold);
+		price, amount_sold, updated_id, offer_price, finished_so_far,
+        asset_id, currency_id, currency_paid);
 	OT_MSGPACK_END;
 	// -------------------------------------------------------
 	OT_MSGPACK_BEGIN(TradeListNymMsgpack, TradeListNym, STORED_OBJ_TRADE_LIST_NYM)

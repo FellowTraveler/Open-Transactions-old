@@ -272,8 +272,8 @@ public class OTMadeEasy : IDisposable {
     return ret;
   }
 
-  public string create_market_offer(string SERVER_ID, string NYM_ID, string ASSET_ACCT_ID, string CURRENCY_ACCT_ID, string scale, string minIncrement, string quantity, string price, bool bSelling, string LIFESPAN_IN_SECONDS) {
-    string ret = otapiPINVOKE.OTMadeEasy_create_market_offer(swigCPtr, SERVER_ID, NYM_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling, LIFESPAN_IN_SECONDS);
+  public string create_market_offer(string ASSET_ACCT_ID, string CURRENCY_ACCT_ID, string scale, string minIncrement, string quantity, string price, bool bSelling, string LIFESPAN_IN_SECONDS, string STOP_SIGN, string ACTIVATION_PRICE) {
+    string ret = otapiPINVOKE.OTMadeEasy_create_market_offer(swigCPtr, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling, LIFESPAN_IN_SECONDS, STOP_SIGN, ACTIVATION_PRICE);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

@@ -140,13 +140,20 @@
 #endif
 #include <ExportWrapper.h>
 
-extern "C" {
-#include <stdint.h>	
+// ------------------------------------
+// Windows (ugh)
+extern "C"
+{
+#ifdef _WIN32
+#include <stdint.h>
+#else
+#include <inttypes.h>
+#endif
 }
+// ------------------------------------
 
 
 class OTASCIIArmor;
-
 
 
 class OTData
@@ -164,7 +171,7 @@ private:
 protected:
 	// --------------------------------------------
 	inline void Initialize() { m_pData = NULL; m_lSize = 0; m_lPosition = 0; }
-	// --------------------------------------------
+
 public:
 	// --------------------------------------------
 	EXPORT	OTData();
@@ -195,9 +202,9 @@ public:
 	// --------------------------------------------
 	EXPORT	void Concatenate(const void * pAppendData, uint32_t lAppendSize);
 	// --------------------------------------------
-	EXPORT    bool Randomize(uint32_t lNewSize);
+	EXPORT  bool Randomize(uint32_t lNewSize);
 	// --------------------------------------------
-	EXPORT    void zeroMemory();
+	EXPORT  void zeroMemory();
 	// --------------------------------------------
 	EXPORT	uint32_t OTfread(uint8_t * buf, uint32_t buflen);
 

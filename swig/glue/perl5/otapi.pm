@@ -515,6 +515,7 @@ sub DESTROY {
 *getMint = *otapic::OTAPI_Basic_getMint;
 *createAssetAccount = *otapic::OTAPI_Basic_createAssetAccount;
 *getAccount = *otapic::OTAPI_Basic_getAccount;
+*getAccountFiles = *otapic::OTAPI_Basic_getAccountFiles;
 *GenerateBasketCreation = *otapic::OTAPI_Basic_GenerateBasketCreation;
 *AddBasketCreationItem = *otapic::OTAPI_Basic_AddBasketCreationItem;
 *issueBasket = *otapic::OTAPI_Basic_issueBasket;
@@ -944,6 +945,8 @@ sub DESTROY {
 *swig_recent_highest_bid_set = *otapic::MarketData_recent_highest_bid_set;
 *swig_recent_lowest_ask_get = *otapic::MarketData_recent_lowest_ask_get;
 *swig_recent_lowest_ask_set = *otapic::MarketData_recent_lowest_ask_set;
+*swig_last_sale_date_get = *otapic::MarketData_last_sale_date_get;
+*swig_last_sale_date_set = *otapic::MarketData_last_sale_date_set;
 *ot_dynamic_cast = *otapic::MarketData_ot_dynamic_cast;
 sub DISOWN {
     my $self = shift;
@@ -1022,6 +1025,8 @@ sub DESTROY {
 *swig_available_assets_set = *otapic::OfferDataMarket_available_assets_set;
 *swig_minimum_increment_get = *otapic::OfferDataMarket_minimum_increment_get;
 *swig_minimum_increment_set = *otapic::OfferDataMarket_minimum_increment_set;
+*swig_date_get = *otapic::OfferDataMarket_date_get;
+*swig_date_set = *otapic::OfferDataMarket_date_set;
 *ot_dynamic_cast = *otapic::OfferDataMarket_ot_dynamic_cast;
 sub DISOWN {
     my $self = shift;
@@ -1064,6 +1069,8 @@ sub DESTROY {
 *swig_available_assets_set = *otapic::BidData_available_assets_set;
 *swig_minimum_increment_get = *otapic::BidData_minimum_increment_get;
 *swig_minimum_increment_set = *otapic::BidData_minimum_increment_set;
+*swig_date_get = *otapic::BidData_date_get;
+*swig_date_set = *otapic::BidData_date_set;
 *ot_dynamic_cast = *otapic::BidData_ot_dynamic_cast;
 sub DISOWN {
     my $self = shift;
@@ -1106,6 +1113,8 @@ sub DESTROY {
 *swig_available_assets_set = *otapic::AskData_available_assets_set;
 *swig_minimum_increment_get = *otapic::AskData_minimum_increment_get;
 *swig_minimum_increment_set = *otapic::AskData_minimum_increment_set;
+*swig_date_get = *otapic::AskData_date_get;
+*swig_date_set = *otapic::AskData_date_set;
 *ot_dynamic_cast = *otapic::AskData_ot_dynamic_cast;
 sub DISOWN {
     my $self = shift;
@@ -1290,6 +1299,8 @@ sub DESTROY {
 *swig_stop_sign_set = *otapic::OfferDataNym_stop_sign_set;
 *swig_stop_price_get = *otapic::OfferDataNym_stop_price_get;
 *swig_stop_price_set = *otapic::OfferDataNym_stop_price_set;
+*swig_date_get = *otapic::OfferDataNym_date_get;
+*swig_date_set = *otapic::OfferDataNym_date_set;
 *ot_dynamic_cast = *otapic::OfferDataNym_ot_dynamic_cast;
 sub DISOWN {
     my $self = shift;
@@ -1370,6 +1381,18 @@ sub DESTROY {
 *swig_price_set = *otapic::TradeDataNym_price_set;
 *swig_amount_sold_get = *otapic::TradeDataNym_amount_sold_get;
 *swig_amount_sold_set = *otapic::TradeDataNym_amount_sold_set;
+*swig_updated_id_get = *otapic::TradeDataNym_updated_id_get;
+*swig_updated_id_set = *otapic::TradeDataNym_updated_id_set;
+*swig_offer_price_get = *otapic::TradeDataNym_offer_price_get;
+*swig_offer_price_set = *otapic::TradeDataNym_offer_price_set;
+*swig_finished_so_far_get = *otapic::TradeDataNym_finished_so_far_get;
+*swig_finished_so_far_set = *otapic::TradeDataNym_finished_so_far_set;
+*swig_asset_id_get = *otapic::TradeDataNym_asset_id_get;
+*swig_asset_id_set = *otapic::TradeDataNym_asset_id_set;
+*swig_currency_id_get = *otapic::TradeDataNym_currency_id_get;
+*swig_currency_id_set = *otapic::TradeDataNym_currency_id_set;
+*swig_currency_paid_get = *otapic::TradeDataNym_currency_paid_get;
+*swig_currency_paid_set = *otapic::TradeDataNym_currency_paid_set;
 *ot_dynamic_cast = *otapic::TradeDataNym_ot_dynamic_cast;
 sub DISOWN {
     my $self = shift;

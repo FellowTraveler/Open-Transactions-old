@@ -1,4 +1,4 @@
-/***************************************************************
+/************************************************************
  *    
  *  OTCron.cpp
  *  
@@ -363,8 +363,10 @@ bool OTCron::GetMarketList (OTASCIIArmor & ascOutput, int & nMarketCount)
 		const long &	lLastSalePrice			= pMarket->GetLastSalePrice();
 		const long &	lTotalAvailableAssets	= pMarket->GetTotalAvailableAssets();
 		
-		pMarketData->total_assets		= to_string<long>(lTotalAvailableAssets);
-		pMarketData->last_sale_price	= to_string<long>(lLastSalePrice);
+		pMarketData->total_assets       = to_string<long>(lTotalAvailableAssets);
+		pMarketData->last_sale_price    = to_string<long>(lLastSalePrice);
+        
+		pMarketData->last_sale_date     = pMarket->GetLastSaleDate();
 
 		// ---------------------------------------------
 		
@@ -528,9 +530,7 @@ int OTCron::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	}
 	else if (!strcmp("transactionNum", xml->getNodeName()))
 	{
-		long lTransactionNum = 0;
-		
-		lTransactionNum	= atol(xml->getAttributeValue("value"));
+		const long lTransactionNum = atol(xml->getAttributeValue("value"));
 		
 		OTLog::vOutput(1, "Transaction Number %ld available for Cron.\n",
 					   lTransactionNum);
@@ -541,7 +541,11 @@ int OTCron::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	}	
 	
 	else if (!strcmp("cronItem", xml->getNodeName())) 
-	{		
+	{
+        const OTString    str_date_added = xml->getAttributeValue("dateAdded");
+        const int64_t     lDateAdded     = (!str_date_added.Exists() ? 0 : str_date_added.ToLong());
+        const time_t      tDateAdded     = static_cast<time_t>(lDateAdded);
+        // ------------------------------------
 		OTString strData;
 		
 		if (!OTContract::LoadEncodedTextField(xml, strData) || !strData.Exists())
@@ -572,10 +576,13 @@ int OTCron::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				return (-1);
 			}
 			// -------------------------------------------				
-			else if (AddCronItem(*pItem, NULL, false))	// bSaveReceipt=false. The receipt is only saved once: When item FIRST added to cron.
-			{	// But here, the item was ALREADY in cron, and is merely being loaded from disk. Thus,
-				// it would be wrong to try to create the "original record" as if it were brand new
-				// and still had the user's signature on it. (Once added to Cron, the signatures are 
+			else if (AddCronItem(*pItem,
+                                 NULL,
+                                 false, // bSaveReceipt=false. The receipt is only saved once: When item FIRST added to cron...
+                                 tDateAdded))
+			{	// ...But here, the item was ALREADY in cron, and is merely being loaded from disk.
+				// Thus, it would be wrong to try to create the "original record" as if it were brand
+				// new and still had the user's signature on it. (Once added to Cron, the signatures are
 				// released and the SERVER signs it from there. That's why the user's version is saved
 				// as a receipt in the first place -- so we have a record of the user's authorization.)
 				OTLog::Output(2, "Successfully loaded cron item and added to list.\n");
@@ -636,11 +643,9 @@ void OTCron::UpdateContents()
 {
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
-	
-	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");		
-	
 	// -------------------------------------------------------------
-	
+	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");		
+	// -------------------------------------------------------------
 	const OTString	SERVER_ID(m_SERVER_ID);
 	
 	m_xmlUnsigned.Concatenate("<cron\n version=\"%s\"\n"
@@ -648,9 +653,7 @@ void OTCron::UpdateContents()
 							  " >\n\n", 
 							  m_strVersion.Get(),
 							  SERVER_ID.Get());	
-		
 	// -------------------------------------------------------------
-	
 	// Save the Market entries (the markets themselves are saved in a markets folder.)
 	FOR_EACH(mapOfMarkets, m_mapMarkets)
 	{
@@ -667,32 +670,31 @@ void OTCron::UpdateContents()
 								  " assetID=\"%s\"\n"
 								  " currencyID=\"%s\"\n"
 								  " marketScale=\"%ld\""
-								  " >\n\n", 
+								  " />\n\n",
 								  str_MARKET_ID.Get(),
 								  str_ASSET_ID.Get(),
 								  str_CURRENCY_ID.Get(),
 								  pMarket->GetScale());	
 	}		
-	
 	// -------------------------------------------------------------
-	
-	
 	// Save the Cron Items
-	FOR_EACH(mapOfCronItems, m_mapCronItems)
+	FOR_EACH(multimapOfCronItems, m_multimapCronItems)
 	{
 		OTCronItem * pItem = (*it).second;
 		OT_ASSERT(NULL != pItem);
-		
+		// -------------------------------------
+        time_t  tDateAdded = (*it).first;
+        int64_t lDateAdded = static_cast<int64_t>(tDateAdded);
+		// -------------------------------------
 		OTString strItem(*pItem);		// Extract the cron item contract into string form.
 		OTASCIIArmor ascItem(strItem);	// Base64-encode that for storage.
-		
-		m_xmlUnsigned.Concatenate("<cronItem>\n%s</cronItem>\n\n", ascItem.Get());
-	}		
-	
+		// -------------------------------------
+		m_xmlUnsigned.Concatenate("<cronItem dateAdded=\"%" PRId64"\" >\n%s</cronItem>\n\n",
+                                  lDateAdded, ascItem.Get());
+	}
 	// -------------------------------------------------------------
-	
 	// Save the transaction numbers.
-	
+    //
 	long lTransactionNumber = 0;
 	
 	FOR_EACH(listOfLongNumbers, m_listTransactionNumbers)
@@ -702,10 +704,8 @@ void OTCron::UpdateContents()
 		m_xmlUnsigned.Concatenate("<transactionNum value=\"%ld\" />\n\n", 
 						   lTransactionNumber);
 	} // for
-
 	// -------------------------------------------------------------
-
-	m_xmlUnsigned.Concatenate("</cron>\n");							
+	m_xmlUnsigned.Concatenate("</cron>\n");
 }
 
 
@@ -715,6 +715,7 @@ void OTCron::UpdateContents()
 // Make sure to call this regularly so the CronItems get a chance to process and expire.
 void OTCron::ProcessCronItems()
 {
+	// ----------------------------------------------------------
 	if (!m_bIsActivated)
 	{
 		OTLog::Error("OTCron::ProcessCronItems: Not activated yet. (Skipping.)\n");
@@ -728,7 +729,7 @@ void OTCron::ProcessCronItems()
 	static	double	cron_tick1		= tCron.getElapsedTimeInMilliSec();	// This initially occurs the first time function is called.
 			double	cron_tick2		= tCron.getElapsedTimeInMilliSec();	// This occurs EVERY time this function is called.
 	const	long	cron_elapsed	= static_cast<long>(cron_tick2 - cron_tick1);	// This calculates every time this function is called.
-	
+    // ----------------------------------------------------------
 	// If it's been at least ten seconds...
 	//
 	if (cron_elapsed > lMsBetweenCronBeats)
@@ -746,34 +747,39 @@ void OTCron::ProcessCronItems()
 					  OTCron::GetCronRefillAmount(), OTCron::GetCronRefillAmount() - GetTransactionCount());
 		return;
 	}
-	
+    // ----------------------------------------------------------
 	bool bNeedToSave = false;
 	
 	// loop through the cron items and tell each one to ProcessCron().
 	// If the item returns true, that means leave it on the list. Otherwise,
 	// if it returns false, that means "it's done: remove it."
 
-	for (mapOfCronItems::iterator it = m_mapCronItems.begin(); 
-		 it != m_mapCronItems.end();
+	for (multimapOfCronItems::iterator          // Iterating through the multimap means we process the cronitems
+            it  = m_multimapCronItems.begin();  // in the same order that they were originally added to Cron.
+		    it != m_multimapCronItems.end();    // (This is necessary for market orders to process properly.)
 		 /* NOTICE THIS THIRD SPOT IS EMPTY*/
 		)
-//	FOR_EACH(mapOfCronItems, m_mapCronItems)
+//	FOR_EACH(multimapOfCronItems, m_multimapCronItems)
 	{
 		const int nTwentyPercent2 = OTCron::GetCronRefillAmount() / 5;
+        // ----------------------------------------------------------
 		if (GetTransactionCount() <= nTwentyPercent2)
 		{
-			OTLog::vError("WARNING: Cron has fewer than 20 percent of its normal transaction number count available since the previous cron item alone! \n"
-						  "That is, %d are currently available, with a max of %d, meaning %d were used in the current round alone!!! \n"
-						  "SKIPPING THE REMAINDER OF THE CRON ITEMS THAT WERE SCHEDULED FOR THIS ROUND!!!\n\n", GetTransactionCount(), 
+			OTLog::vError("WARNING: Cron has fewer than 20 percent of its normal transaction "
+                          "number count available since the previous cron item alone! \n"
+						  "That is, %d are currently available, with a max of %d, meaning %d "
+                          "were used in the current round alone!!! \n"
+						  "SKIPPING THE REMAINDER OF THE CRON ITEMS THAT WERE SCHEDULED FOR THIS ROUND!!!\n\n",
+                          GetTransactionCount(),
 						  OTCron::GetCronRefillAmount(), OTCron::GetCronRefillAmount() - GetTransactionCount());
 			break;
 		}
-		
+        // ----------------------------------------------------------
 		OTCronItem * pItem = (*it).second;
 		OT_ASSERT(NULL != pItem);
 		
         bool bProcessCron   = false;
-        
+        // ----------------------------------------------------------
 		//  We already verify and sign the cron item when FIRST ADDING it to Cron.
 		//  We also verify the signature on the cron item whenever loading it up
 		//  from storage.
@@ -783,8 +789,8 @@ void OTCron::ProcessCronItems()
 //      bool bVerifySig = pItem->VerifySignature(*m_pServerNym);
 //      if (bVerifySig)
         {
-			OTLog::vOutput(2, "OTCron::ProcessCronItems: Processing item number: %ld \n",
-                           pItem->GetTransactionNum());
+			OTLog::vOutput(2, "OTCron::%s: Processing item number: %ld \n",
+                           __FUNCTION__, pItem->GetTransactionNum());
 			
             bProcessCron = pItem->ProcessCron();
             
@@ -796,21 +802,29 @@ void OTCron::ProcessCronItems()
         }
 //      else
 //          OTLog::Error("OTCron::ProcessCronItems: Signature failed to verify on cron item!\n");
-            
         // -----------------------------------------------------
 		// Remove it from the list.
         //
 		if (false == bProcessCron)
 		{
-            OTLog::vOutput(0, "OTCron::ProcessCronItems: Removing expired cron item: %ld\n",
-                           pItem->GetTransactionNum());
-			
-			mapOfCronItems::iterator it_delete = it;
+            OTLog::vOutput(0, "OTCron::%s: Removing cron item: %ld\n",
+                           __FUNCTION__, pItem->GetTransactionNum());
+            // -------------------------------
+            // Remove from MultiMap
+            //
+			multimapOfCronItems::iterator it_delete = it;
 			++it;
-			m_mapCronItems.erase(it_delete);
+			m_multimapCronItems.erase(it_delete);
+            // -------------------------------
+            // Remove from Map
+            //
+            mapOfCronItems::iterator it_map = this->FindItemOnMap(pItem->GetTransactionNum());
+            OT_ASSERT(m_mapCronItems.end() != it_map); // If it's on the multimap, then it should also ALWAYS be on the map.
+            m_mapCronItems.erase(it_map);
+            // -------------------------------
 			delete pItem;
 			pItem = NULL;
-			
+            // -------------------------------
 			bNeedToSave = true; // We'll save to file at the bottom if anything was removed.
 		} 
 		else	// the special i++ and ++i arrangement here allows me to erase an item
@@ -818,7 +832,7 @@ void OTCron::ProcessCronItems()
 			++it;
 		}
 	} // for
-	
+    // ----------------------------------------------------------
 	// Items were removed from Cron -- Save to storage!
 	if (bNeedToSave)
 		SaveCron();
@@ -830,21 +844,26 @@ void OTCron::ProcessCronItems()
 // OTCron IS responsible for cleaning up theItem, and takes ownership.
 // So make SURE it is allocated on the HEAP before you pass it in here, and
 // also make sure to delete it again if this call fails!
-bool OTCron::AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator/*=NULL*/, bool bSaveReceipt/*=true*/)
-{	
+bool OTCron::AddCronItem(OTCronItem  & theItem,
+                         OTPseudonym * pActivator,
+                         bool          bSaveReceipt,
+                         time_t        tDateAdded)
+{
 	OT_ASSERT(NULL != GetServerNym());
 	
 	// See if there's something else already there with the same transaction number.
-	mapOfCronItems::iterator ii = m_mapCronItems.find(theItem.GetTransactionNum());
+	OTCronItem * pCronItem = this->GetItemByOfficialNum(theItem.GetTransactionNum());
 	
 	// If it's not already on the list, then add it...
-	if ( ii == m_mapCronItems.end() )
+	if ( NULL == pCronItem )
 	{
 		// If I've been instructed to save the receipt, and theItem did NOT successfully save the receipt,
 		// then return false.
+        //
 		// This will happen if filesystem problems, but it will also happen if the cron item WAS ALREADY THERE.
 		// I don't want to save over it. If I'm trying to save over one that is already there, then THAT is the
 		// real problem.
+        //
 		if (bSaveReceipt && 
             // ---------------------------
             (!theItem.SignContract(*GetServerNym()) ||  // Notice the server adds its signature before saving the cron receipt to local storage. This way, the server can verify its own signature later, as evidence the file hasn't been tampered with. (BOTH signatures are there now--user's and server's.)
@@ -856,7 +875,15 @@ bool OTCron::AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator/*=NULL*/
 			return false;
 		}
 		// --------------------------------------------------------
-		m_mapCronItems[theItem.GetTransactionNum()] = &theItem;
+        // Insert to the MAP (by Transaction Number)
+        //
+        m_mapCronItems.insert( std::pair<long, OTCronItem *>(theItem.GetTransactionNum(), &theItem) );
+        // --------------------------------------------------------
+        // Insert to the MULTIMAP (by Date)
+        //
+        m_multimapCronItems.insert (m_multimapCronItems.upper_bound(tDateAdded),
+                                    std::pair<time_t, OTCronItem *>(tDateAdded, &theItem) );
+		// --------------------------------------------------------
 		theItem.SetCronPointer(*this); // This way every CronItem has a pointer to momma.
 		// --------------------------------------------------------
 		bool bSuccess = true;
@@ -884,7 +911,7 @@ bool OTCron::AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator/*=NULL*/
 			bSuccess = SaveCron();
 			
 			if (bSuccess)
-				OTLog::vOutput(0, "%s: New Cronitem has been added to Cron: %ld\n",
+				OTLog::vOutput(0, "%s: New CronItem has been added to Cron: %ld\n",
 							  __FUNCTION__, theItem.GetTransactionNum());
 			else 				
 				OTLog::vError("%s: Error saving while adding new CronItem to Cron: %ld\n",
@@ -903,66 +930,163 @@ bool OTCron::AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator/*=NULL*/
 	return false;
 }
 
-
+// ---------------------------------------------------------------------
 
 
 bool OTCron::RemoveCronItem(long lTransactionNum, OTPseudonym & theRemover) // if returns false, item wasn't found.
 {
-	// See if there's something there with that transaction number.
-	mapOfCronItems::iterator ii = m_mapCronItems.find(lTransactionNum);
-	
+	// See if there's a cron item with that transaction number.
+	mapOfCronItems::iterator it_map = this->FindItemOnMap(lTransactionNum);
+	// ---------------------------------------------------------------------
 	// If it's not already on the list, then there's nothing to remove.
-	if ( ii == m_mapCronItems.end() )
+	if ( m_mapCronItems.end() == it_map )
 	{
-		OTLog::vError("Attempt to remove non-existent CronItem from OTCron. Transaction #: %ld\n",
-					  lTransactionNum);
-		return false;
+		OTLog::vError("%s: Attempt to remove non-existent CronItem from OTCron. Transaction #: %ld\n",
+					  __FUNCTION__, lTransactionNum);
 	}
+    // ---------------------------------------------------------------------
 	// Otherwise, if it WAS already there, remove it properly.
 	else 
 	{
-		OTCronItem * pItem = (*ii).second;
-		
-		OT_ASSERT(NULL != pItem);
-		
+		OTCronItem * pItem = (*it_map).second;
+//      OT_ASSERT(NULL != pItem); // Already done in FindItemOnMap.
         // ---------------------------------------
-        
+        // We have to remove it from the multimap as well.
+        multimapOfCronItems::iterator it_multimap = this->FindItemOnMultimap(lTransactionNum);
+        OT_ASSERT(m_multimapCronItems.end() != it_multimap); // If found on map, MUST be on multimap also.
+        // ---------------------------------------
         pItem->HookRemovalFromCron(&theRemover); // We give the hook a chance to do its thing.
-        
         // ---------------------------------------
-        
-		m_mapCronItems.erase(ii);
+		m_mapCronItems     .erase(it_map);      // Remove from MAP.
+        m_multimapCronItems.erase(it_multimap); // Remove from MULTIMAP.
+        // ---------------------------------------
 		delete pItem;
-		
-		// An item has been removed from Cron. SAVE.		
-		return SaveCron();		
+        // ---------------------------------------
+		// An item has been removed from Cron. SAVE.
+		return SaveCron();
 	}
+    // ---------------------------------------
+    return false;
 }
 
 
+// ---------------------------------------------------------------------
 
-// Look up a transaction by transaction number and see if it is in the ledger.
+
+// Look up a transaction by transaction number and see if it is in the map.
+// If it is, return an iterator to it, otherwise return m_mapCronItems.end()
+//
+// Note: only the "official" transaction number will work here.
+// If the cron item contains multiple opening numbers, the only one
+// that will work in this function is the "official" one, the one that
+// belongs to the Nym who actually activated this Cron Item.
+//
+mapOfCronItems::iterator OTCron::FindItemOnMap(long lTransactionNum)
+{
+	// See if there's something there with lTransactionNum
+    // as its "official" number.
+    //
+	mapOfCronItems::iterator itt = m_mapCronItems.find(lTransactionNum);
+    
+	if ( itt != m_mapCronItems.end() ) // Found it!
+	{
+		OTCronItem * pItem = (*itt).second;
+		OT_ASSERT((NULL != pItem));
+		OT_ASSERT(pItem->GetTransactionNum() == lTransactionNum);
+		
+		return itt;
+	}
+	
+	return itt;
+}
+
+
+// Look up a transaction by transaction number and see if it is in the multimap.
+// If it is, return an iterator to it, otherwise return m_multimapCronItems.end()
+//
+// Note: only the "official" transaction number will work here.
+// If the cron item contains multiple opening numbers, the only one
+// that will work in this function is the "official" one, the one that
+// belongs to the Nym who actually activated this Cron Item.
+//
+multimapOfCronItems::iterator OTCron::FindItemOnMultimap(long lTransactionNum)
+{
+    multimapOfCronItems::iterator itt = m_multimapCronItems.begin();
+    
+    while (m_multimapCronItems.end() != itt)
+    {
+        OTCronItem * pItem = (*itt).second;
+        OT_ASSERT((NULL != pItem));
+        // --------------------------------
+        if (pItem->GetTransactionNum() == lTransactionNum)
+            break;
+        // --------------------------------
+        ++itt;
+    }
+    
+    return itt;
+}
+
+
+// Look up a transaction by transaction number and see if it is in the map.
 // If it is, return a pointer to it, otherwise return NULL.
-OTCronItem * OTCron::GetCronItem(long lTransactionNum)
+//
+// Note: only the "official" transaction number will work here.
+// If the cron item contains multiple opening numbers, the only one
+// that will work in this function is the "official" one, the one that
+// belongs to the Nym who actually activated this Cron Item.
+//
+OTCronItem * OTCron::GetItemByOfficialNum(long lTransactionNum)
+{
+	// See if there's something there with lTransactionNum
+    // as its "official" number.
+    //
+	mapOfCronItems::iterator itt = m_mapCronItems.find(lTransactionNum);
+    
+	if ( itt != m_mapCronItems.end() ) // Found it!
+	{
+		OTCronItem * pItem = (*itt).second;
+		OT_ASSERT((NULL != pItem));
+		OT_ASSERT(pItem->GetTransactionNum() == lTransactionNum);
+		
+		return pItem;
+	}
+	
+	return NULL;
+}
+
+
+// Look up a transaction by opening number and see if it is in the map.
+// If it is, return a pointer to it, otherwise return NULL.
+//
+// Note: The "official" transaction number for a cron item belongs
+// to to the Nym who activated it. But there are several "valid"
+// opening numbers, each belonging to a different Nym who signed the
+// Cron Item.
+//
+// This function searches based on any valid opening number, not necessarily
+// by the one "official" number.
+//
+OTCronItem * OTCron::GetItemByValidOpeningNum(long lOpeningNum)
 {
 	// See if there's something there with that transaction number.
-	mapOfCronItems::iterator itt = m_mapCronItems.find(lTransactionNum);
+	mapOfCronItems::iterator itt = m_mapCronItems.find(lOpeningNum);
 
 	if ( itt == m_mapCronItems.end() )
 	{
+        // We didn't find it as the "official" number, so let's loop
+        // through the cron items one-by-one and see if it's a valid
+        // opening number. (We searched for the "official" number first,
+        // since it will often be the right one, and avoids doing this
+        // longer search. Basically for optimization purposes.)
+        //
 		FOR_EACH(mapOfCronItems, m_mapCronItems)
 		{
 			OTCronItem * pItem = (*it).second;
 			OT_ASSERT((NULL != pItem));
 			// ------------------------
-			
-			if (pItem->IsValidOpeningNumber(lTransactionNum))
-//			if (pItem->GetTransactionNum() == lTransactionNum)
+			if (pItem->IsValidOpeningNumber(lOpeningNum)) // Todo optimization. Probably can remove this check.
 				return pItem;
-//			else 
-//				OTLog::vError("Expected CronItem with transaction number %ld based on number %ld, but "
-//							  "found %ld inside. Bad data?\n", lTransactionNum, pItem->GetTransactionNum(), 
-//							  lTransactionNum);		
 		}
 	}
 	// Found it!
@@ -970,7 +1094,7 @@ OTCronItem * OTCron::GetCronItem(long lTransactionNum)
 	{
 		OTCronItem * pItem = (*itt).second;
 		OT_ASSERT((NULL != pItem));
-		OT_ASSERT(pItem->IsValidOpeningNumber(lTransactionNum));
+		OT_ASSERT(pItem->IsValidOpeningNumber(lOpeningNum)); // Todo optimization. Probably can remove this check.
 		
 		return pItem;
 	}
@@ -1203,15 +1327,25 @@ void OTCron::Release()
 void OTCron::Release_Cron()
 {
 	// If there were any dynamically allocated objects, clean them up here.
+	// --------------------------------------------
+	while (!m_multimapCronItems.empty())
+	{
+		multimapOfCronItems::iterator ii = m_multimapCronItems.begin();
+		m_multimapCronItems.erase(ii);
+        
+        // We don't delete the pItem in here, since these are the
+        // same pItems being deleted in the next block.
+	}
+    // --------------------------------------------
 	while (!m_mapCronItems.empty())
-	{		
+	{
 		OTCronItem * pItem = m_mapCronItems.begin()->second;
 		mapOfCronItems::iterator ii = m_mapCronItems.begin();
 		m_mapCronItems.erase(ii);
 		delete pItem;
 		pItem = NULL;
 	}
-	
+	// --------------------------------------------
 	while (!m_mapMarkets.empty())
 	{
 		OTMarket * pMarket = m_mapMarkets.begin()->second;

@@ -1734,23 +1734,23 @@ void OTLog::SetupSignalHandler()
 	{
 		++nCount;
 		// --------------------------------------
-		OT_HANDLE_SIGNAL(SIGINT)  // Ctrl-C. (So we can shutdown gracefully, I suppose, on Ctrl-C.)
-			OT_HANDLE_SIGNAL(SIGSEGV) // Segmentation fault.
-			//      OT_HANDLE_SIGNAL(SIGABRT) // Abort.
-			OT_HANDLE_SIGNAL(SIGBUS)  // Bus error
-			//  OT_HANDLE_SIGNAL(SIGHUP)  // I believe this is for sending a "restart" signal to your process, that sort of thing.
-			OT_HANDLE_SIGNAL(SIGTERM) // Used by kill pid (NOT kill -9 pid). Used for "killing softly."
-			OT_HANDLE_SIGNAL(SIGILL)  // Illegal instruction.
-			OT_HANDLE_SIGNAL(SIGTTIN) // SIGTTIN may be sent to a background process that attempts to read from its controlling terminal.
-			OT_HANDLE_SIGNAL(SIGTTOU) // SIGTTOU may be sent to a background process that attempts to write to its controlling terminal.
-			//  OT_HANDLE_SIGNAL(SIGPIPE) // Unix supports the principle of piping. When a pipe is broken, the process writing to it is sent the SIGPIPE.
-			//  OT_HANDLE_SIGNAL(SIGKILL) // kill -9. "The receiving process cannot perform any clean-up upon receiving this signal."
-			OT_HANDLE_SIGNAL(SIGFPE)  // Floating point exception.
-			OT_HANDLE_SIGNAL(SIGXFSZ) // SIGXFSZ is the signal sent to a process when it grows a file larger than the maximum allowed size.
-			//  OT_HANDLE_SIGNAL(SIGQUIT) // SIGQUIT is the signal sent to a process by its controlling terminal when the user requests that the process perform a core dump.
-			OT_HANDLE_SIGNAL(SIGSYS)  // sent when a process supplies an incorrect argument to a system call.
-			//  OT_HANDLE_SIGNAL(SIGTRAP) // used by debuggers
-			// --------------------------------------
+        OT_HANDLE_SIGNAL(SIGINT)  // Ctrl-C. (So we can shutdown gracefully, I suppose, on Ctrl-C.)
+        OT_HANDLE_SIGNAL(SIGSEGV) // Segmentation fault.
+//      OT_HANDLE_SIGNAL(SIGABRT) // Abort.
+        OT_HANDLE_SIGNAL(SIGBUS)  // Bus error
+//      OT_HANDLE_SIGNAL(SIGHUP)  // I believe this is for sending a "restart" signal to your process, that sort of thing.
+        OT_HANDLE_SIGNAL(SIGTERM) // Used by kill pid (NOT kill -9 pid). Used for "killing softly."
+        OT_HANDLE_SIGNAL(SIGILL)  // Illegal instruction.
+        OT_HANDLE_SIGNAL(SIGTTIN) // SIGTTIN may be sent to a background process that attempts to read from its controlling terminal.
+        OT_HANDLE_SIGNAL(SIGTTOU) // SIGTTOU may be sent to a background process that attempts to write to its controlling terminal.
+//      OT_HANDLE_SIGNAL(SIGPIPE) // Unix supports the principle of piping. When a pipe is broken, the process writing to it is sent the SIGPIPE.
+//      OT_HANDLE_SIGNAL(SIGKILL) // kill -9. "The receiving process cannot perform any clean-up upon receiving this signal."
+        OT_HANDLE_SIGNAL(SIGFPE)  // Floating point exception.
+        OT_HANDLE_SIGNAL(SIGXFSZ) // SIGXFSZ is the signal sent to a process when it grows a file larger than the maximum allowed size.
+//      OT_HANDLE_SIGNAL(SIGQUIT) // SIGQUIT is the signal sent to a process by its controlling terminal when the user requests that the process perform a core dump.
+        OT_HANDLE_SIGNAL(SIGSYS)  // sent when a process supplies an incorrect argument to a system call.
+//      OT_HANDLE_SIGNAL(SIGTRAP) // used by debuggers
+        // --------------------------------------
 	}
 }
 

@@ -184,21 +184,21 @@ private:  // Private prevents erroneous use by other classes.
     typedef OTCronItem ot_super;
     
 private:
-	OTIdentifier	m_CURRENCY_TYPE_ID;	// GOLD (Asset) is trading for DOLLARS (Currency).
-	OTIdentifier	m_CURRENCY_ACCT_ID;	// My Dollar account, used for paying for my Gold (say) trades.
+    OTIdentifier    m_CURRENCY_TYPE_ID;     // GOLD (Asset) is trading for DOLLARS (Currency).
+    OTIdentifier    m_CURRENCY_ACCT_ID;     // My Dollar account, used for paying for my Gold (say) trades.
 	
-	OTOffer		* m_pOffer;				// The pointer to the Offer (NOT responsible for cleaning this up!!!
-                            // The offer is owned by the market and I only keep a pointer here for convenience.
+    OTOffer		*   m_pOffer;               // The pointer to the Offer (NOT responsible for cleaning this up!!!
+                                            // The offer is owned by the market and I only keep a pointer here for convenience.
 
-	bool		m_bHasTradeActivated;	// Has the offer yet been first added to a market?
+    bool            m_bHasTradeActivated;	// Has the offer yet been first added to a market?
 	
-	long		m_lStopPrice;			// The price limit that activates the STOP order.
-	char		m_cStopSign;			// Value is 0, or '<', or '>'.
-	bool		m_bHasStopActivated;	// If the Stop Order has already activated, I need to know that.
+    long            m_lStopPrice;			// The price limit that activates the STOP order.
+    char            m_cStopSign;			// Value is 0, or '<', or '>'.
+    bool            m_bHasStopActivated;	// If the Stop Order has already activated, I need to know that.
 	
-	int			m_nTradesAlreadyDone;	// How many trades have already processed through this order? We keep track.
+    int             m_nTradesAlreadyDone;	// How many trades have already processed through this order? We keep track.
 
-	OTString	m_strOffer;				// The market offer associated with this trade.
+    OTString        m_strOffer;				// The market offer associated with this trade.
 	
 protected:
     virtual void onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTransactionNumber,
@@ -207,9 +207,8 @@ protected:
     virtual void onRemovalFromCron();
 
 public:
-EXPORT	bool	VerifyOffer(OTOffer & theOffer);
-	
-EXPORT	bool	IssueTrade(OTOffer & theOffer, char cStopSign=0, long lStopPrice=0);
+EXPORT	bool  VerifyOffer(OTOffer & theOffer);
+EXPORT	bool  IssueTrade(OTOffer & theOffer, char cStopSign=0, long lStopPrice=0);
 	
 	// The Trade always stores the original, signed version of its Offer.
 	// This method allows you to grab a copy of it.
@@ -225,23 +224,16 @@ EXPORT	bool	IssueTrade(OTOffer & theOffer, char cStopSign=0, long lStopPrice=0);
 	
 	// optionally returns the offer's market ID and a pointer to the market.
 	OTOffer	* GetOffer(OTIdentifier * pOFFER_MARKET_ID=NULL, OTMarket ** ppMarket=NULL); 
-	
 	// --------------------------------------------------------------------------
-
 	inline const OTIdentifier & GetCurrencyID() const { return m_CURRENCY_TYPE_ID; }
 	inline void SetCurrencyID(const OTIdentifier & CURRENCY_ID) { m_CURRENCY_TYPE_ID = CURRENCY_ID; }	
 	
 	inline const OTIdentifier & GetCurrencyAcctID() const { return m_CURRENCY_ACCT_ID; }
 	inline void SetCurrencyAcctID(const OTIdentifier & CURRENCY_ACCT_ID) { m_CURRENCY_ACCT_ID = CURRENCY_ACCT_ID; }	
-	
 	// --------------------------------------------------------------------------
-	
-	inline void IncrementTradesAlreadyDone() { m_nTradesAlreadyDone++; } 
-	
-	inline int GetCompletedCount() { return m_nTradesAlreadyDone; }
-	
+	inline void IncrementTradesAlreadyDone() { m_nTradesAlreadyDone++;      }
+	inline int  GetCompletedCount()          { return m_nTradesAlreadyDone; }
 	// --------------------------------------------------------------------------
-
 EXPORT    long GetAssetAcctClosingNum() const;
 EXPORT    long GetCurrencyAcctClosingNum() const;
 
@@ -256,9 +248,7 @@ EXPORT    long GetCurrencyAcctClosingNum() const;
 	// Return False if expired or otherwise should be removed.
 	virtual bool ProcessCron(); // OTCron calls this regularly, which is my chance to expire, etc.
 	virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
-
 	// --------------------------------------------------------------------------
-
 	// From OTTrackable (parent class of OTCronItem, parent class of this)
 	/*
 	 inline long GetTransactionNum() const { return m_lTransactionNum; }
@@ -269,9 +259,7 @@ EXPORT    long GetCurrencyAcctClosingNum() const;
 	 inline void	SetSenderAcctID(const OTIdentifier & ACCT_ID)	{ m_SENDER_ACCT_ID = ACCT_ID; }
 	 inline void	SetSenderUserID(const OTIdentifier & USER_ID)	{ m_SENDER_USER_ID = USER_ID; }
 	 */
-	
 	// --------------------------------------------------------------------------
-
 	// From OTInstrument (parent class of OTTrackable, parent class of OTCronItem, parent class of this)
 	/*
 	 OTInstrument(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : OTContract()
@@ -290,9 +278,7 @@ EXPORT    long GetCurrencyAcctClosingNum() const;
 	 
 	 bool VerifyCurrentDate(); // Verify the current date against the VALID FROM / TO dates.
 	 */
-	
 	//----------------------------------------------------------------------
-
 	// From OTScriptable, we override this function. OTScriptable now does fancy stuff like checking to see
 	// if the Nym is an agent working on behalf of a party to the contract. That's how all OTScriptable-derived
 	// objects work by default.  But OTAgreement (payment plan) and OTTrade do it the old way: they just check to
@@ -303,34 +289,28 @@ EXPORT    long GetCurrencyAcctClosingNum() const;
                                   mapOfNyms	* pmap_ALREADY_LOADED=NULL);
 	
 	virtual bool VerifyNymAsAgentForAccount(OTPseudonym & theNym, OTAccount & theAccount);
-
 	//----------------------------------------------------------------------
-	
-EXPORT	OTTrade();
-	OTTrade(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
-EXPORT	OTTrade(const OTIdentifier & SERVER_ID, 
-			const OTIdentifier & ASSET_ID, const OTIdentifier & ASSET_ACCT_ID, 
-			const OTIdentifier & USER_ID, 
-			const OTIdentifier & CURRENCY_ID, const OTIdentifier & CURRENCY_ACCT_ID);
+EXPORT  OTTrade();
+        OTTrade(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+EXPORT  OTTrade(const OTIdentifier & SERVER_ID,
+                const OTIdentifier & ASSET_ID, const OTIdentifier & ASSET_ACCT_ID,
+                const OTIdentifier & USER_ID,
+                const OTIdentifier & CURRENCY_ID, const OTIdentifier & CURRENCY_ACCT_ID);
 EXPORT	virtual ~OTTrade();
 
 	void InitTrade();
 	
 	void Release_Trade();
 	virtual void Release();
-	
 	// ------------------------------------------------------
 	virtual long GetClosingNumber(const OTIdentifier	& theAcctID) const;
 	// ------------------------------------------------------
-	
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	
 	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 
 	
 	virtual bool SaveContractWallet(std::ofstream & ofs);
-	
-	
 };
 
 

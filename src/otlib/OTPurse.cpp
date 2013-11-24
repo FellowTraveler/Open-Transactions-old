@@ -146,6 +146,7 @@ using namespace io;
 
 #include "OTStorage.h"
 
+#include "OTData.h"
 #include "OTToken.h"
 #include "OTPurse.h"
 #include "OTPseudonym.h"
@@ -933,7 +934,6 @@ bool OTPurse::SavePurse(const char * szServerID/*=NULL*/, const char * szUserID/
 		return false;
 	}
 	// --------------------------------------------------------------------
-	
 	return true;
 }
 
@@ -942,8 +942,8 @@ void OTPurse::UpdateContents() // Before transmission or serialization, this is 
 {
 	const OTString SERVER_ID(m_ServerID), USER_ID(m_UserID), ASSET_TYPE_ID(m_AssetID);
 	// ------------------------------------
-    long lValidFrom = static_cast<long>(m_tLatestValidFrom);
-    long lValidTo   = static_cast<long>(m_tEarliestValidTo);
+    int64_t lValidFrom = static_cast<int64_t>(m_tLatestValidFrom);
+    int64_t lValidTo   = static_cast<int64_t>(m_tEarliestValidTo);
 	// ------------------------------------
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
@@ -951,8 +951,8 @@ void OTPurse::UpdateContents() // Before transmission or serialization, this is 
 	m_xmlUnsigned.Concatenate("<purse version=\"%s\"\n"
 							  " totalValue=\"%ld\"\n" // Total value of all the tokens within.
                               // --------------
-							  " validFrom=\"%ld\"\n" // Latest "valid from" date of all tokens contained.
-							  " validTo=\"%ld\"\n"   // Earliest "valid to" date of all tokens contained.
+							  " validFrom=\"%" PRId64"\"\n" // Latest "valid from" date of all tokens contained.
+							  " validTo=\"%" PRId64"\"\n"   // Earliest "valid to" date of all tokens contained.
                               // --------------
 							  " isPasswordProtected=\"%s\"\n"
 							  " isNymIDIncluded=\"%s\"\n"
@@ -1051,34 +1051,33 @@ int OTPurse::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		m_strVersion = xml->getAttributeValue("version");
         // ---------------------------------
 		const OTString strTotalValue = xml->getAttributeValue("totalValue");
+        
 		if (strTotalValue.Exists() && (atol(strTotalValue.Get()) > 0))
 			m_lTotalValue = atol(strTotalValue.Get());
         else
             m_lTotalValue = 0;
         // ---------------------------------
-        const OTString strValidFrom = xml->getAttributeValue("validFrom");
-        const OTString strValidTo   = xml->getAttributeValue("validTo");
+        const OTString str_valid_from = xml->getAttributeValue("validFrom");
+        const OTString str_valid_to   = xml->getAttributeValue("validTo");
         
-        if (strValidFrom.Exists())
+        if (str_valid_from.Exists())
         {
-            m_tLatestValidFrom = static_cast<time_t>(atol(strValidFrom.Get()));
+            int64_t lValidFrom = str_valid_from.ToLong();
+
+            m_tLatestValidFrom = static_cast<time_t>(lValidFrom);
         }
-        if (strValidTo.Exists())
+        if (str_valid_to.Exists())
         {
-            m_tEarliestValidTo = static_cast<time_t>(atol(strValidTo.Get()));
+            int64_t lValidTo = str_valid_to.ToLong();
+
+            m_tEarliestValidTo = static_cast<time_t>(lValidTo);
         }
         // ---------------------------------
         const OTString strPasswdProtected  = xml->getAttributeValue("isPasswordProtected");
-        if (strPasswdProtected.Compare("true"))
-            m_bPasswordProtected = true;
-        else
-            m_bPasswordProtected = false;
+        m_bPasswordProtected = strPasswdProtected.Compare("true");
         // ---------------------------------
         const OTString strNymIDIncluded = xml->getAttributeValue("isNymIDIncluded");
-        if (strNymIDIncluded.Compare("true"))
-            m_bIsNymIDIncluded = true;
-        else
-            m_bIsNymIDIncluded = false;
+        m_bIsNymIDIncluded = strNymIDIncluded.Compare("true");
         // ---------------------------------
         // TODO security: Might want to verify the server ID here, if it's already set.
         // Just to make sure it's the one we were expecting.

@@ -144,59 +144,6 @@ This could be wrapped by OTAPI_Basic, just as OTAPI was.
 #include <ExportWrapper.h>
 #endif
 
-// ------------------------------------
-// Windows (ugh)
-extern "C"
-{
-#ifdef _WIN32
-#include <stdint.h>
-#else
-#include <inttypes.h>    
-#endif
-}
-
-// ------------------------------------
-
-// All of the below PRI values are defined in inttypes.h
-// Therefore if it's NOT defined, then we must probably be
-// on Windows, since Windows doesn't have inttypes.h yet,
-// only stdint.h
-
-#if !defined( PRId8 )
-#define PRId8 "d"
-#endif
-// ------------------------------------
-
-#if !defined( PRId16 )
-#define PRId16 "d"
-#endif
-// ------------------------------------
-
-#if !defined( PRId32 )
-#if defined( WINAPI )
-#define PRId32 "I32d"
-
-#else
-#define PRId32 "d"
-
-#endif
-#endif
-// ------------------------------------
-
-#if !defined( PRId64 )
-#if defined( WINAPI )
-#define PRId64 "I64d"
-
-#elif __WORDSIZE == 64
-#define PRId64 "ld"
-
-#else
-#define PRId64 "lld"
-
-#endif
-#endif
-
-// ------------------------------------
 
 #include <string>
 
@@ -204,6 +151,7 @@ extern "C"
 
 #include <OTStorage.h>
 
+#include <OTData.h>
 #include <OTString.h>
 #include <OTBylaw.h>
 #include <OTScript.h>
@@ -1281,23 +1229,25 @@ string OT_ME::query_asset_types( const string  & SERVER_ID,
 // -----------------------------------------------------------------------------------------------
 // CREATE MARKET OFFER  -- TRANSACTION
 
-string OT_ME::create_market_offer( const string  & SERVER_ID,
-                                   const string  & NYM_ID,
-                                   const string  & ASSET_ACCT_ID,
-                                   const string  & CURRENCY_ACCT_ID,
-                                   const int64_t   scale,
-                                   const int64_t   minIncrement,
-                                   const int64_t   quantity,
-                                   const int64_t   price,
-                                   const bool      bSelling,
-                                   const int64_t   lLifespanInSeconds)
+string OT_ME::create_market_offer(const std::string  &  ASSET_ACCT_ID,
+                                  const std::string  &  CURRENCY_ACCT_ID,
+                                  const int64_t         scale,
+                                  const int64_t         minIncrement,
+                                  const int64_t         quantity,
+                                  const int64_t         price,
+                                  const bool            bSelling,
+                                  const int64_t         lLifespanInSeconds,  // 0 does default of 86400 == 1 day.
+                                  const std::string     STOP_SIGN,           // If a stop order, must be "<" or ">"
+                                  const int64_t         ACTIVATION_PRICE)    // If a stop order, must be non-zero.
 {
     OTString strRaw;
     strRaw.Format("{ var madeEasy = OT_ME(); var strResult = madeEasy.create_market_offer"
-                  "(\"%s\", \"%s\", \"%s\", \"%s\","
-                  " \"%" PRId64"\", \"%" PRId64"\", \"%" PRId64"\", \"%" PRId64"\", %s, \"%" PRId64"\"); }",
-                  SERVER_ID.c_str(), NYM_ID.c_str(), ASSET_ACCT_ID.c_str(), CURRENCY_ACCT_ID.c_str(),
-                  scale, minIncrement, quantity, price, bSelling ? "true" : "false", lLifespanInSeconds);
+                  "(\"%s\", \"%s\","
+                  " \"%" PRId64"\", \"%" PRId64"\", \"%" PRId64"\", \"%" PRId64"\", %s, \"%" PRId64"\", \"%s\", \"%" PRId64"\"); }",
+                  ASSET_ACCT_ID.c_str(), CURRENCY_ACCT_ID.c_str(),
+                  scale, minIncrement, quantity, price, bSelling ? "true" : "false", lLifespanInSeconds,
+                  STOP_SIGN.c_str(), ACTIVATION_PRICE
+                  );
     string str_Code = strRaw.Get();
     // -------------------------------------
     // Execute the script here.
@@ -2319,6 +2269,7 @@ bool OT_ME::Register_OTDB_With_Script_Chai(OTScriptChai & theScript)
 		theScript.chai.add(fun(&OTDB::MarketData::number_bids),       "number_bids");
 		theScript.chai.add(fun(&OTDB::MarketData::number_asks),       "number_asks");
 		theScript.chai.add(fun(&OTDB::MarketData::last_sale_price),   "last_sale_price");
+		theScript.chai.add(fun(&OTDB::MarketData::last_sale_date),    "last_sale_date");
 		theScript.chai.add(fun(&OTDB::MarketData::current_bid),       "current_bid");
 		theScript.chai.add(fun(&OTDB::MarketData::current_ask),       "current_ask");
 
@@ -2329,6 +2280,7 @@ bool OT_ME::Register_OTDB_With_Script_Chai(OTScriptChai & theScript)
 		theScript.chai.add(fun(&OTDB::OfferDataMarket::price_per_scale),   "price_per_scale");
 		theScript.chai.add(fun(&OTDB::OfferDataMarket::available_assets),  "available_assets");
 		theScript.chai.add(fun(&OTDB::OfferDataMarket::minimum_increment), "minimum_increment");
+		theScript.chai.add(fun(&OTDB::OfferDataMarket::date),              "date");
 
 //      theScript.chai.add(fun(&OTDB::BidData::gui_label),         "gui_label");
 //      theScript.chai.add(fun(&OTDB::BidData::transaction_id),    "transaction_id");
@@ -2370,15 +2322,22 @@ bool OT_ME::Register_OTDB_With_Script_Chai(OTScriptChai & theScript)
 		theScript.chai.add(fun(&OTDB::OfferDataNym::minimum_increment),  "minimum_increment");
 		theScript.chai.add(fun(&OTDB::OfferDataNym::stop_sign),      "stop_sign");
 		theScript.chai.add(fun(&OTDB::OfferDataNym::stop_price),     "stop_price");
+		theScript.chai.add(fun(&OTDB::OfferDataNym::date),           "date");
 
 		OT_CHAI_CONTAINER(OfferListNym, OfferDataNym);
 		// ----------------------------------------------------------------------
-//      theScript.chai.add(fun(&OTDB::TradeDataNym::gui_label),      "gui_label");
-		theScript.chai.add(fun(&OTDB::TradeDataNym::transaction_id), "transaction_id");
-		theScript.chai.add(fun(&OTDB::TradeDataNym::completed_count),"completed_count");
-		theScript.chai.add(fun(&OTDB::TradeDataNym::date),           "date");
-		theScript.chai.add(fun(&OTDB::TradeDataNym::price),          "price");
-		theScript.chai.add(fun(&OTDB::TradeDataNym::amount_sold),    "amount_sold");
+//      theScript.chai.add(fun(&OTDB::TradeDataNym::gui_label),       "gui_label");
+		theScript.chai.add(fun(&OTDB::TradeDataNym::transaction_id),  "transaction_id");
+		theScript.chai.add(fun(&OTDB::TradeDataNym::completed_count), "completed_count");
+		theScript.chai.add(fun(&OTDB::TradeDataNym::date),            "date");
+		theScript.chai.add(fun(&OTDB::TradeDataNym::price),           "price");
+		theScript.chai.add(fun(&OTDB::TradeDataNym::amount_sold),     "amount_sold");
+		theScript.chai.add(fun(&OTDB::TradeDataNym::updated_id),      "updated_id");
+		theScript.chai.add(fun(&OTDB::TradeDataNym::offer_price),     "offer_price");
+		theScript.chai.add(fun(&OTDB::TradeDataNym::finished_so_far), "finished_so_far");
+		theScript.chai.add(fun(&OTDB::TradeDataNym::asset_id),        "asset_id");
+		theScript.chai.add(fun(&OTDB::TradeDataNym::currency_id),     "currency_id");
+		theScript.chai.add(fun(&OTDB::TradeDataNym::currency_paid),   "currency_paid");
 
 		OT_CHAI_CONTAINER(TradeListNym, TradeDataNym);
 		// ----------------------------------------------------------------------

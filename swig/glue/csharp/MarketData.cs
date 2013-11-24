@@ -244,6 +244,18 @@ public class MarketData : Displayable {
     } 
   }
 
+  public string last_sale_date {
+    set {
+      otapiPINVOKE.MarketData_last_sale_date_set(swigCPtr, value);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    } 
+    get {
+      string ret = otapiPINVOKE.MarketData_last_sale_date_get(swigCPtr);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+      return ret;
+    } 
+  }
+
   public new static MarketData ot_dynamic_cast(Storable pObject) {
     IntPtr cPtr = otapiPINVOKE.MarketData_ot_dynamic_cast(Storable.getCPtr(pObject));
     MarketData ret = (cPtr == IntPtr.Zero) ? null : new MarketData(cPtr, false);

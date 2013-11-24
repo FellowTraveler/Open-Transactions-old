@@ -8470,6 +8470,37 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_getAccount(char * jarg1, char * j
 }
 
 
+SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_getAccountFiles(char * jarg1, char * jarg2, char * jarg3) {
+  long jresult ;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  long result;
+  
+  if (!jarg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  result = (long)OTAPI_Basic::getAccountFiles((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OTAPI_Basic_GenerateBasketCreation(char * jarg1, char * jarg2) {
   char * jresult ;
   std::string *arg1 = 0 ;
@@ -9335,7 +9366,7 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_depositPaymentPlan(char * jarg1, 
 }
 
 
-SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_issueMarketOffer(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7, char * jarg8, unsigned int jarg9, char * jarg10) {
+SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_issueMarketOffer(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, unsigned int jarg7, char * jarg8, char * jarg9, char * jarg10) {
   long jresult ;
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -9343,11 +9374,11 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_issueMarketOffer(char * jarg1, ch
   std::string *arg4 = 0 ;
   std::string *arg5 = 0 ;
   std::string *arg6 = 0 ;
-  std::string *arg7 = 0 ;
+  bool *arg7 = 0 ;
   std::string *arg8 = 0 ;
-  bool *arg9 = 0 ;
+  std::string *arg9 = 0 ;
   std::string *arg10 = 0 ;
-  bool temp9 ;
+  bool temp7 ;
   long result;
   
   if (!jarg1) {
@@ -9386,27 +9417,27 @@ SWIGEXPORT long SWIGSTDCALL CSharp_OTAPI_Basic_issueMarketOffer(char * jarg1, ch
   }
   std::string arg6_str(jarg6);
   arg6 = &arg6_str; 
-  if (!jarg7) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
-    return 0;
-  }
-  std::string arg7_str(jarg7);
-  arg7 = &arg7_str; 
+  temp7 = jarg7 ? true : false; 
+  arg7 = &temp7; 
   if (!jarg8) {
     SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
     return 0;
   }
   std::string arg8_str(jarg8);
   arg8 = &arg8_str; 
-  temp9 = jarg9 ? true : false; 
-  arg9 = &temp9; 
+  if (!jarg9) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg9_str(jarg9);
+  arg9 = &arg9_str; 
   if (!jarg10) {
     SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
     return 0;
   }
   std::string arg10_str(jarg10);
   arg10 = &arg10_str; 
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(bool const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10);
   jresult = result; 
   return jresult;
 }
@@ -11463,7 +11494,7 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_query_asset_types(void * jarg1, 
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_create_market_offer(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7, char * jarg8, char * jarg9, unsigned int jarg10, char * jarg11) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_create_market_offer(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7, unsigned int jarg8, char * jarg9, char * jarg10, char * jarg11) {
   char * jresult ;
   OTMadeEasy *arg1 = (OTMadeEasy *) 0 ;
   std::string *arg2 = 0 ;
@@ -11472,9 +11503,9 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_create_market_offer(void * jarg1
   std::string *arg5 = 0 ;
   std::string *arg6 = 0 ;
   std::string *arg7 = 0 ;
-  std::string *arg8 = 0 ;
+  bool arg8 ;
   std::string *arg9 = 0 ;
-  bool arg10 ;
+  std::string *arg10 = 0 ;
   std::string *arg11 = 0 ;
   std::string result;
   
@@ -11515,26 +11546,26 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTMadeEasy_create_market_offer(void * jarg1
   }
   std::string arg7_str(jarg7);
   arg7 = &arg7_str; 
-  if (!jarg8) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
-    return 0;
-  }
-  std::string arg8_str(jarg8);
-  arg8 = &arg8_str; 
+  arg8 = jarg8 ? true : false; 
   if (!jarg9) {
     SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
     return 0;
   }
   std::string arg9_str(jarg9);
   arg9 = &arg9_str; 
-  arg10 = jarg10 ? true : false; 
+  if (!jarg10) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg10_str(jarg10);
+  arg10 = &arg10_str; 
   if (!jarg11) {
     SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
     return 0;
   }
   std::string arg11_str(jarg11);
   arg11 = &arg11_str; 
-  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
+  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,arg8,(std::string const &)*arg9,(std::string const &)*arg10,(std::string const &)*arg11);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }
@@ -15235,6 +15266,33 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_MarketData_recent_lowest_ask_get(void * jar
 }
 
 
+SWIGEXPORT void SWIGSTDCALL CSharp_MarketData_last_sale_date_set(void * jarg1, char * jarg2) {
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (OTDB::MarketData *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (arg1) (arg1)->last_sale_date = *arg2;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_MarketData_last_sale_date_get(void * jarg1) {
+  char * jresult ;
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  std::string *result = 0 ;
+  
+  arg1 = (OTDB::MarketData *)jarg1; 
+  result = (std::string *) & ((arg1)->last_sale_date);
+  jresult = SWIG_csharp_string_callback(result->c_str()); 
+  return jresult;
+}
+
+
 SWIGEXPORT void * SWIGSTDCALL CSharp_MarketData_ot_dynamic_cast(void * jarg1) {
   void * jresult ;
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -15468,6 +15526,33 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OfferDataMarket_minimum_increment_get(void 
 }
 
 
+SWIGEXPORT void SWIGSTDCALL CSharp_OfferDataMarket_date_set(void * jarg1, char * jarg2) {
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (OTDB::OfferDataMarket *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (arg1) (arg1)->date = *arg2;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OfferDataMarket_date_get(void * jarg1) {
+  char * jresult ;
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  std::string *result = 0 ;
+  
+  arg1 = (OTDB::OfferDataMarket *)jarg1; 
+  result = (std::string *) & ((arg1)->date);
+  jresult = SWIG_csharp_string_callback(result->c_str()); 
+  return jresult;
+}
+
+
 SWIGEXPORT void * SWIGSTDCALL CSharp_OfferDataMarket_ot_dynamic_cast(void * jarg1) {
   void * jresult ;
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -15623,6 +15708,33 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_BidData_minimum_increment_get(void * jarg1)
 }
 
 
+SWIGEXPORT void SWIGSTDCALL CSharp_BidData_date_set(void * jarg1, char * jarg2) {
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (OTDB::BidData *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (arg1) (arg1)->date = *arg2;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_BidData_date_get(void * jarg1) {
+  char * jresult ;
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  std::string *result = 0 ;
+  
+  arg1 = (OTDB::BidData *)jarg1; 
+  result = (std::string *) & ((arg1)->date);
+  jresult = SWIG_csharp_string_callback(result->c_str()); 
+  return jresult;
+}
+
+
 SWIGEXPORT void * SWIGSTDCALL CSharp_BidData_ot_dynamic_cast(void * jarg1) {
   void * jresult ;
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -15773,6 +15885,33 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_AskData_minimum_increment_get(void * jarg1)
   
   arg1 = (OTDB::AskData *)jarg1; 
   result = (std::string *) & ((arg1)->minimum_increment);
+  jresult = SWIG_csharp_string_callback(result->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_AskData_date_set(void * jarg1, char * jarg2) {
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (OTDB::AskData *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (arg1) (arg1)->date = *arg2;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_AskData_date_get(void * jarg1) {
+  char * jresult ;
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  std::string *result = 0 ;
+  
+  arg1 = (OTDB::AskData *)jarg1; 
+  result = (std::string *) & ((arg1)->date);
   jresult = SWIG_csharp_string_callback(result->c_str()); 
   return jresult;
 }
@@ -16621,6 +16760,33 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OfferDataNym_stop_price_get(void * jarg1) {
 }
 
 
+SWIGEXPORT void SWIGSTDCALL CSharp_OfferDataNym_date_set(void * jarg1, char * jarg2) {
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (OTDB::OfferDataNym *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (arg1) (arg1)->date = *arg2;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OfferDataNym_date_get(void * jarg1) {
+  char * jresult ;
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  arg1 = (OTDB::OfferDataNym *)jarg1; 
+  result = (std::string *) & ((arg1)->date);
+  jresult = SWIG_csharp_string_callback(result->c_str()); 
+  return jresult;
+}
+
+
 SWIGEXPORT void * SWIGSTDCALL CSharp_OfferDataNym_ot_dynamic_cast(void * jarg1) {
   void * jresult ;
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -16876,6 +17042,168 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_TradeDataNym_amount_sold_get(void * jarg1) 
   
   arg1 = (OTDB::TradeDataNym *)jarg1; 
   result = (std::string *) & ((arg1)->amount_sold);
+  jresult = SWIG_csharp_string_callback(result->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_TradeDataNym_updated_id_set(void * jarg1, char * jarg2) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (OTDB::TradeDataNym *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (arg1) (arg1)->updated_id = *arg2;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_TradeDataNym_updated_id_get(void * jarg1) {
+  char * jresult ;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  arg1 = (OTDB::TradeDataNym *)jarg1; 
+  result = (std::string *) & ((arg1)->updated_id);
+  jresult = SWIG_csharp_string_callback(result->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_TradeDataNym_offer_price_set(void * jarg1, char * jarg2) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (OTDB::TradeDataNym *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (arg1) (arg1)->offer_price = *arg2;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_TradeDataNym_offer_price_get(void * jarg1) {
+  char * jresult ;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  arg1 = (OTDB::TradeDataNym *)jarg1; 
+  result = (std::string *) & ((arg1)->offer_price);
+  jresult = SWIG_csharp_string_callback(result->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_TradeDataNym_finished_so_far_set(void * jarg1, char * jarg2) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (OTDB::TradeDataNym *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (arg1) (arg1)->finished_so_far = *arg2;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_TradeDataNym_finished_so_far_get(void * jarg1) {
+  char * jresult ;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  arg1 = (OTDB::TradeDataNym *)jarg1; 
+  result = (std::string *) & ((arg1)->finished_so_far);
+  jresult = SWIG_csharp_string_callback(result->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_TradeDataNym_asset_id_set(void * jarg1, char * jarg2) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (OTDB::TradeDataNym *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (arg1) (arg1)->asset_id = *arg2;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_TradeDataNym_asset_id_get(void * jarg1) {
+  char * jresult ;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  arg1 = (OTDB::TradeDataNym *)jarg1; 
+  result = (std::string *) & ((arg1)->asset_id);
+  jresult = SWIG_csharp_string_callback(result->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_TradeDataNym_currency_id_set(void * jarg1, char * jarg2) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (OTDB::TradeDataNym *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (arg1) (arg1)->currency_id = *arg2;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_TradeDataNym_currency_id_get(void * jarg1) {
+  char * jresult ;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  arg1 = (OTDB::TradeDataNym *)jarg1; 
+  result = (std::string *) & ((arg1)->currency_id);
+  jresult = SWIG_csharp_string_callback(result->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_TradeDataNym_currency_paid_set(void * jarg1, char * jarg2) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = (OTDB::TradeDataNym *)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return ;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (arg1) (arg1)->currency_paid = *arg2;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_TradeDataNym_currency_paid_get(void * jarg1) {
+  char * jresult ;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *result = 0 ;
+  
+  arg1 = (OTDB::TradeDataNym *)jarg1; 
+  result = (std::string *) & ((arg1)->currency_paid);
   jresult = SWIG_csharp_string_callback(result->c_str()); 
   return jresult;
 }

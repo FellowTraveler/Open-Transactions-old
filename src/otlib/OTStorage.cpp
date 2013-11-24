@@ -2105,8 +2105,9 @@ namespace OTDB
 		__pb_obj.set_total_assets(total_assets); 
 		__pb_obj.set_number_bids(number_bids); 
 		__pb_obj.set_number_asks(number_asks); 
-		__pb_obj.set_last_sale_price(last_sale_price); 
-		__pb_obj.set_current_bid(current_bid); 
+		__pb_obj.set_last_sale_price(last_sale_price);
+		__pb_obj.set_last_sale_date(last_sale_date);
+		__pb_obj.set_current_bid(current_bid);
 		__pb_obj.set_current_ask(current_ask); 
 		__pb_obj.set_volume_trades(volume_trades); 
 		__pb_obj.set_volume_assets(volume_assets); 
@@ -2127,8 +2128,9 @@ namespace OTDB
 		total_assets = __pb_obj.total_assets();		
 		number_bids = __pb_obj.number_bids();		
 		number_asks = __pb_obj.number_asks();		
-		last_sale_price = __pb_obj.last_sale_price();		
-		current_bid = __pb_obj.current_bid();		
+		last_sale_price = __pb_obj.last_sale_price();
+		last_sale_date = __pb_obj.last_sale_date();
+		current_bid = __pb_obj.current_bid();
 		current_ask = __pb_obj.current_ask();		
 		volume_trades = __pb_obj.volume_trades();		
 		volume_assets = __pb_obj.volume_assets();		
@@ -2159,7 +2161,8 @@ namespace OTDB
 		__pb_obj.set_transaction_id(transaction_id); 
 		__pb_obj.set_price_per_scale(price_per_scale); 
 		__pb_obj.set_available_assets(available_assets); 
-		__pb_obj.set_minimum_increment(minimum_increment); 
+		__pb_obj.set_minimum_increment(minimum_increment);
+		__pb_obj.set_date(date);
 	}
 	
 	template<> 
@@ -2169,8 +2172,9 @@ namespace OTDB
 		transaction_id = __pb_obj.transaction_id();
 		price_per_scale = __pb_obj.price_per_scale();
 		available_assets = __pb_obj.available_assets();
-		minimum_increment = __pb_obj.minimum_increment();		
-	}	
+		minimum_increment = __pb_obj.minimum_increment();
+		date = __pb_obj.date();
+	}
 	// ---------------------------------------------
 	
 	
@@ -2181,7 +2185,8 @@ namespace OTDB
 		__pb_obj.set_transaction_id(transaction_id); 
 		__pb_obj.set_price_per_scale(price_per_scale); 
 		__pb_obj.set_available_assets(available_assets); 
-		__pb_obj.set_minimum_increment(minimum_increment); 
+		__pb_obj.set_minimum_increment(minimum_increment);
+		__pb_obj.set_date(date);
 	}
 	
 	template<> 
@@ -2191,8 +2196,9 @@ namespace OTDB
 		transaction_id = __pb_obj.transaction_id();
 		price_per_scale = __pb_obj.price_per_scale();
 		available_assets = __pb_obj.available_assets();
-		minimum_increment = __pb_obj.minimum_increment();		
-	}	
+		minimum_increment = __pb_obj.minimum_increment();
+		date = __pb_obj.date();
+	}
 	// ---------------------------------------------
 	
 	template<> 
@@ -2265,7 +2271,8 @@ namespace OTDB
 		__pb_obj.set_finished_so_far(finished_so_far);
 		__pb_obj.set_minimum_increment(minimum_increment);
 		__pb_obj.set_stop_sign(stop_sign); 
-		__pb_obj.set_stop_price(stop_price); 
+		__pb_obj.set_stop_price(stop_price);
+		__pb_obj.set_date(date);
 	}
 	
 	template<> 
@@ -2288,6 +2295,7 @@ namespace OTDB
 		minimum_increment = __pb_obj.minimum_increment();		
 		stop_sign = __pb_obj.stop_sign();		
 		stop_price = __pb_obj.stop_price();
+		date = __pb_obj.date();
 	}
 	// ---------------------------------------------
 	
@@ -2313,7 +2321,13 @@ namespace OTDB
 		__pb_obj.set_completed_count(completed_count); 
 		__pb_obj.set_date(date); 
 		__pb_obj.set_price(price); 
-		__pb_obj.set_amount_sold(amount_sold); 
+		__pb_obj.set_amount_sold(amount_sold);
+		__pb_obj.set_updated_id(updated_id);
+		__pb_obj.set_offer_price(offer_price);
+		__pb_obj.set_finished_so_far(finished_so_far);
+		__pb_obj.set_asset_id(asset_id);
+		__pb_obj.set_currency_id(currency_id);
+		__pb_obj.set_currency_paid(currency_paid);
 	}
 	
 	template<> 
@@ -2325,6 +2339,12 @@ namespace OTDB
 		date = __pb_obj.date();
 		price = __pb_obj.price();		
 		amount_sold = __pb_obj.amount_sold();
+		updated_id = __pb_obj.updated_id();
+		offer_price = __pb_obj.offer_price();
+		finished_so_far = __pb_obj.finished_so_far();
+		asset_id = __pb_obj.asset_id();
+		currency_id = __pb_obj.currency_id();
+		currency_paid = __pb_obj.currency_paid();
 	}
 	// ---------------------------------------------
 	

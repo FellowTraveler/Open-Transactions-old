@@ -100,6 +100,18 @@ public class OfferDataMarket : Displayable {
     } 
   }
 
+  public string date {
+    set {
+      otapiPINVOKE.OfferDataMarket_date_set(swigCPtr, value);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    } 
+    get {
+      string ret = otapiPINVOKE.OfferDataMarket_date_get(swigCPtr);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+      return ret;
+    } 
+  }
+
   public new static OfferDataMarket ot_dynamic_cast(Storable pObject) {
     IntPtr cPtr = otapiPINVOKE.OfferDataMarket_ot_dynamic_cast(Storable.getCPtr(pObject));
     OfferDataMarket ret = (cPtr == IntPtr.Zero) ? null : new OfferDataMarket(cPtr, false);

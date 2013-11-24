@@ -75,6 +75,14 @@ public class OfferDataMarket extends Displayable {
     return otapiJNI.OfferDataMarket_minimum_increment_get(swigCPtr, this);
   }
 
+  public void setDate(String value) {
+    otapiJNI.OfferDataMarket_date_set(swigCPtr, this, value);
+  }
+
+  public String getDate() {
+    return otapiJNI.OfferDataMarket_date_get(swigCPtr, this);
+  }
+
   public static OfferDataMarket ot_dynamic_cast(Storable pObject) {
     long cPtr = otapiJNI.OfferDataMarket_ot_dynamic_cast(Storable.getCPtr(pObject), pObject);
     return (cPtr == 0) ? null : new OfferDataMarket(cPtr, false);

@@ -19941,6 +19941,67 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OTAPI_Basic_getAccountFiles(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  long result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:OTAPI_Basic_getAccountFiles",&obj0,&obj1,&obj2)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  result = (long)OTAPI_Basic::getAccountFiles((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  resultobj = SWIG_From_long(static_cast< long >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OTAPI_Basic_GenerateBasketCreation(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
@@ -21697,9 +21758,9 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_issueMarketOffer(PyObject *SWIGUNUSEDPARM
   std::string *arg4 = 0 ;
   std::string *arg5 = 0 ;
   std::string *arg6 = 0 ;
-  std::string *arg7 = 0 ;
+  bool *arg7 = 0 ;
   std::string *arg8 = 0 ;
-  bool *arg9 = 0 ;
+  std::string *arg9 = 0 ;
   std::string *arg10 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   int res2 = SWIG_OLDOBJ ;
@@ -21707,11 +21768,11 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_issueMarketOffer(PyObject *SWIGUNUSEDPARM
   int res4 = SWIG_OLDOBJ ;
   int res5 = SWIG_OLDOBJ ;
   int res6 = SWIG_OLDOBJ ;
-  int res7 = SWIG_OLDOBJ ;
+  bool temp7 ;
+  bool val7 ;
+  int ecode7 = 0 ;
   int res8 = SWIG_OLDOBJ ;
-  bool temp9 ;
-  bool val9 ;
-  int ecode9 = 0 ;
+  int res9 = SWIG_OLDOBJ ;
   int res10 = SWIG_OLDOBJ ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -21792,17 +21853,12 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_issueMarketOffer(PyObject *SWIGUNUSEDPARM
     }
     arg6 = ptr;
   }
-  {
-    std::string *ptr = (std::string *)0;
-    res7 = SWIG_AsPtr_std_string(obj6, &ptr);
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "7"" of type '" "std::string const &""'"); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "7"" of type '" "std::string const &""'"); 
-    }
-    arg7 = ptr;
-  }
+  ecode7 = SWIG_AsVal_bool(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "7"" of type '" "bool""'");
+  } 
+  temp7 = static_cast< bool >(val7);
+  arg7 = &temp7;
   {
     std::string *ptr = (std::string *)0;
     res8 = SWIG_AsPtr_std_string(obj7, &ptr);
@@ -21814,12 +21870,17 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_issueMarketOffer(PyObject *SWIGUNUSEDPARM
     }
     arg8 = ptr;
   }
-  ecode9 = SWIG_AsVal_bool(obj8, &val9);
-  if (!SWIG_IsOK(ecode9)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "9"" of type '" "bool""'");
-  } 
-  temp9 = static_cast< bool >(val9);
-  arg9 = &temp9;
+  {
+    std::string *ptr = (std::string *)0;
+    res9 = SWIG_AsPtr_std_string(obj8, &ptr);
+    if (!SWIG_IsOK(res9)) {
+      SWIG_exception_fail(SWIG_ArgError(res9), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "9"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "9"" of type '" "std::string const &""'"); 
+    }
+    arg9 = ptr;
+  }
   {
     std::string *ptr = (std::string *)0;
     res10 = SWIG_AsPtr_std_string(obj9, &ptr);
@@ -21831,7 +21892,7 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_issueMarketOffer(PyObject *SWIGUNUSEDPARM
     }
     arg10 = ptr;
   }
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(bool const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10);
   resultobj = SWIG_From_long(static_cast< long >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -21839,8 +21900,8 @@ SWIGINTERN PyObject *_wrap_OTAPI_Basic_issueMarketOffer(PyObject *SWIGUNUSEDPARM
   if (SWIG_IsNewObj(res4)) delete arg4;
   if (SWIG_IsNewObj(res5)) delete arg5;
   if (SWIG_IsNewObj(res6)) delete arg6;
-  if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res9)) delete arg9;
   if (SWIG_IsNewObj(res10)) delete arg10;
   return resultobj;
 fail:
@@ -21850,8 +21911,8 @@ fail:
   if (SWIG_IsNewObj(res4)) delete arg4;
   if (SWIG_IsNewObj(res5)) delete arg5;
   if (SWIG_IsNewObj(res6)) delete arg6;
-  if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res9)) delete arg9;
   if (SWIG_IsNewObj(res10)) delete arg10;
   return NULL;
 }
@@ -26338,9 +26399,9 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_create_market_offer(PyObject *SWIGUNUSEDPA
   std::string *arg5 = 0 ;
   std::string *arg6 = 0 ;
   std::string *arg7 = 0 ;
-  std::string *arg8 = 0 ;
+  bool arg8 ;
   std::string *arg9 = 0 ;
-  bool arg10 ;
+  std::string *arg10 = 0 ;
   std::string *arg11 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -26350,10 +26411,10 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_create_market_offer(PyObject *SWIGUNUSEDPA
   int res5 = SWIG_OLDOBJ ;
   int res6 = SWIG_OLDOBJ ;
   int res7 = SWIG_OLDOBJ ;
-  int res8 = SWIG_OLDOBJ ;
+  bool val8 ;
+  int ecode8 = 0 ;
   int res9 = SWIG_OLDOBJ ;
-  bool val10 ;
-  int ecode10 = 0 ;
+  int res10 = SWIG_OLDOBJ ;
   int res11 = SWIG_OLDOBJ ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
@@ -26440,17 +26501,11 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_create_market_offer(PyObject *SWIGUNUSEDPA
     }
     arg7 = ptr;
   }
-  {
-    std::string *ptr = (std::string *)0;
-    res8 = SWIG_AsPtr_std_string(obj7, &ptr);
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "OTMadeEasy_create_market_offer" "', argument " "8"" of type '" "std::string const &""'"); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_create_market_offer" "', argument " "8"" of type '" "std::string const &""'"); 
-    }
-    arg8 = ptr;
-  }
+  ecode8 = SWIG_AsVal_bool(obj7, &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "OTMadeEasy_create_market_offer" "', argument " "8"" of type '" "bool""'");
+  } 
+  arg8 = static_cast< bool >(val8);
   {
     std::string *ptr = (std::string *)0;
     res9 = SWIG_AsPtr_std_string(obj8, &ptr);
@@ -26462,11 +26517,17 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_create_market_offer(PyObject *SWIGUNUSEDPA
     }
     arg9 = ptr;
   }
-  ecode10 = SWIG_AsVal_bool(obj9, &val10);
-  if (!SWIG_IsOK(ecode10)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode10), "in method '" "OTMadeEasy_create_market_offer" "', argument " "10"" of type '" "bool""'");
-  } 
-  arg10 = static_cast< bool >(val10);
+  {
+    std::string *ptr = (std::string *)0;
+    res10 = SWIG_AsPtr_std_string(obj9, &ptr);
+    if (!SWIG_IsOK(res10)) {
+      SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "OTMadeEasy_create_market_offer" "', argument " "10"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_create_market_offer" "', argument " "10"" of type '" "std::string const &""'"); 
+    }
+    arg10 = ptr;
+  }
   {
     std::string *ptr = (std::string *)0;
     res11 = SWIG_AsPtr_std_string(obj10, &ptr);
@@ -26478,7 +26539,7 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_create_market_offer(PyObject *SWIGUNUSEDPA
     }
     arg11 = ptr;
   }
-  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
+  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,arg8,(std::string const &)*arg9,(std::string const &)*arg10,(std::string const &)*arg11);
   resultobj = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -26486,8 +26547,8 @@ SWIGINTERN PyObject *_wrap_OTMadeEasy_create_market_offer(PyObject *SWIGUNUSEDPA
   if (SWIG_IsNewObj(res5)) delete arg5;
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
-  if (SWIG_IsNewObj(res8)) delete arg8;
   if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res10)) delete arg10;
   if (SWIG_IsNewObj(res11)) delete arg11;
   return resultobj;
 fail:
@@ -26497,8 +26558,8 @@ fail:
   if (SWIG_IsNewObj(res5)) delete arg5;
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
-  if (SWIG_IsNewObj(res8)) delete arg8;
   if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res10)) delete arg10;
   if (SWIG_IsNewObj(res11)) delete arg11;
   return NULL;
 }
@@ -35500,6 +35561,65 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_MarketData_last_sale_date_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:MarketData_last_sale_date_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__MarketData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MarketData_last_sale_date_set" "', argument " "1"" of type '" "OTDB::MarketData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::MarketData * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "MarketData_last_sale_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "MarketData_last_sale_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->last_sale_date = *arg2;
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_MarketData_last_sale_date_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:MarketData_last_sale_date_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__MarketData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MarketData_last_sale_date_get" "', argument " "1"" of type '" "OTDB::MarketData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::MarketData * >(argp1);
+  result = (std::string *) & ((arg1)->last_sale_date);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_MarketData_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -36013,6 +36133,65 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OfferDataMarket_date_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OfferDataMarket_date_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__OfferDataMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataMarket_date_set" "', argument " "1"" of type '" "OTDB::OfferDataMarket *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataMarket * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OfferDataMarket_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OfferDataMarket_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->date = *arg2;
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OfferDataMarket_date_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OfferDataMarket_date_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__OfferDataMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataMarket_date_get" "', argument " "1"" of type '" "OTDB::OfferDataMarket *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataMarket * >(argp1);
+  result = (std::string *) & ((arg1)->date);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OfferDataMarket_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -36358,6 +36537,65 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_BidData_date_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:BidData_date_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__BidData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BidData_date_set" "', argument " "1"" of type '" "OTDB::BidData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::BidData * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "BidData_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BidData_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->date = *arg2;
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BidData_date_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:BidData_date_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__BidData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BidData_date_get" "', argument " "1"" of type '" "OTDB::BidData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::BidData * >(argp1);
+  result = (std::string *) & ((arg1)->date);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_BidData_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -36696,6 +36934,65 @@ SWIGINTERN PyObject *_wrap_AskData_minimum_increment_get(PyObject *SWIGUNUSEDPAR
   }
   arg1 = reinterpret_cast< OTDB::AskData * >(argp1);
   result = (std::string *) & ((arg1)->minimum_increment);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_AskData_date_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:AskData_date_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__AskData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AskData_date_set" "', argument " "1"" of type '" "OTDB::AskData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::AskData * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "AskData_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "AskData_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->date = *arg2;
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_AskData_date_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:AskData_date_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__AskData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AskData_date_get" "', argument " "1"" of type '" "OTDB::AskData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::AskData * >(argp1);
+  result = (std::string *) & ((arg1)->date);
   resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
   return resultobj;
 fail:
@@ -38548,6 +38845,65 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OfferDataNym_date_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OfferDataNym_date_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__OfferDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataNym_date_set" "', argument " "1"" of type '" "OTDB::OfferDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OfferDataNym_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OfferDataNym_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->date = *arg2;
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OfferDataNym_date_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OfferDataNym_date_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__OfferDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataNym_date_get" "', argument " "1"" of type '" "OTDB::OfferDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->date);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OfferDataNym_ot_dynamic_cast(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
@@ -39113,6 +39469,360 @@ SWIGINTERN PyObject *_wrap_TradeDataNym_amount_sold_get(PyObject *SWIGUNUSEDPARM
   }
   arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
   result = (std::string *) & ((arg1)->amount_sold);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeDataNym_updated_id_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:TradeDataNym_updated_id_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_updated_id_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_updated_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_updated_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->updated_id = *arg2;
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeDataNym_updated_id_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TradeDataNym_updated_id_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_updated_id_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->updated_id);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeDataNym_offer_price_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:TradeDataNym_offer_price_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_offer_price_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_offer_price_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_offer_price_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->offer_price = *arg2;
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeDataNym_offer_price_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TradeDataNym_offer_price_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_offer_price_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->offer_price);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeDataNym_finished_so_far_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:TradeDataNym_finished_so_far_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_finished_so_far_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_finished_so_far_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_finished_so_far_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->finished_so_far = *arg2;
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeDataNym_finished_so_far_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TradeDataNym_finished_so_far_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_finished_so_far_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->finished_so_far);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeDataNym_asset_id_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:TradeDataNym_asset_id_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_asset_id_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_asset_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_asset_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->asset_id = *arg2;
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeDataNym_asset_id_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TradeDataNym_asset_id_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_asset_id_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->asset_id);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeDataNym_currency_id_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:TradeDataNym_currency_id_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_currency_id_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_currency_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_currency_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->currency_id = *arg2;
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeDataNym_currency_id_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TradeDataNym_currency_id_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_currency_id_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->currency_id);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeDataNym_currency_paid_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:TradeDataNym_currency_paid_set",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_currency_paid_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_currency_paid_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_currency_paid_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->currency_paid = *arg2;
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TradeDataNym_currency_paid_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TradeDataNym_currency_paid_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_currency_paid_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->currency_paid);
   resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
   return resultobj;
 fail:
@@ -44515,6 +45225,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OTAPI_Basic_getMint", _wrap_OTAPI_Basic_getMint, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_createAssetAccount", _wrap_OTAPI_Basic_createAssetAccount, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_getAccount", _wrap_OTAPI_Basic_getAccount, METH_VARARGS, NULL},
+	 { (char *)"OTAPI_Basic_getAccountFiles", _wrap_OTAPI_Basic_getAccountFiles, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_GenerateBasketCreation", _wrap_OTAPI_Basic_GenerateBasketCreation, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_AddBasketCreationItem", _wrap_OTAPI_Basic_AddBasketCreationItem, METH_VARARGS, NULL},
 	 { (char *)"OTAPI_Basic_issueBasket", _wrap_OTAPI_Basic_issueBasket, METH_VARARGS, NULL},
@@ -44722,6 +45433,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"MarketData_recent_highest_bid_get", _wrap_MarketData_recent_highest_bid_get, METH_VARARGS, NULL},
 	 { (char *)"MarketData_recent_lowest_ask_set", _wrap_MarketData_recent_lowest_ask_set, METH_VARARGS, NULL},
 	 { (char *)"MarketData_recent_lowest_ask_get", _wrap_MarketData_recent_lowest_ask_get, METH_VARARGS, NULL},
+	 { (char *)"MarketData_last_sale_date_set", _wrap_MarketData_last_sale_date_set, METH_VARARGS, NULL},
+	 { (char *)"MarketData_last_sale_date_get", _wrap_MarketData_last_sale_date_get, METH_VARARGS, NULL},
 	 { (char *)"MarketData_ot_dynamic_cast", _wrap_MarketData_ot_dynamic_cast, METH_VARARGS, NULL},
 	 { (char *)"MarketData_swigregister", MarketData_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_MarketList", _wrap_delete_MarketList, METH_VARARGS, NULL},
@@ -44742,6 +45455,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OfferDataMarket_available_assets_get", _wrap_OfferDataMarket_available_assets_get, METH_VARARGS, NULL},
 	 { (char *)"OfferDataMarket_minimum_increment_set", _wrap_OfferDataMarket_minimum_increment_set, METH_VARARGS, NULL},
 	 { (char *)"OfferDataMarket_minimum_increment_get", _wrap_OfferDataMarket_minimum_increment_get, METH_VARARGS, NULL},
+	 { (char *)"OfferDataMarket_date_set", _wrap_OfferDataMarket_date_set, METH_VARARGS, NULL},
+	 { (char *)"OfferDataMarket_date_get", _wrap_OfferDataMarket_date_get, METH_VARARGS, NULL},
 	 { (char *)"OfferDataMarket_ot_dynamic_cast", _wrap_OfferDataMarket_ot_dynamic_cast, METH_VARARGS, NULL},
 	 { (char *)"OfferDataMarket_swigregister", OfferDataMarket_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_BidData", _wrap_delete_BidData, METH_VARARGS, NULL},
@@ -44755,6 +45470,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"BidData_available_assets_get", _wrap_BidData_available_assets_get, METH_VARARGS, NULL},
 	 { (char *)"BidData_minimum_increment_set", _wrap_BidData_minimum_increment_set, METH_VARARGS, NULL},
 	 { (char *)"BidData_minimum_increment_get", _wrap_BidData_minimum_increment_get, METH_VARARGS, NULL},
+	 { (char *)"BidData_date_set", _wrap_BidData_date_set, METH_VARARGS, NULL},
+	 { (char *)"BidData_date_get", _wrap_BidData_date_get, METH_VARARGS, NULL},
 	 { (char *)"BidData_ot_dynamic_cast", _wrap_BidData_ot_dynamic_cast, METH_VARARGS, NULL},
 	 { (char *)"BidData_swigregister", BidData_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_AskData", _wrap_delete_AskData, METH_VARARGS, NULL},
@@ -44768,6 +45485,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"AskData_available_assets_get", _wrap_AskData_available_assets_get, METH_VARARGS, NULL},
 	 { (char *)"AskData_minimum_increment_set", _wrap_AskData_minimum_increment_set, METH_VARARGS, NULL},
 	 { (char *)"AskData_minimum_increment_get", _wrap_AskData_minimum_increment_get, METH_VARARGS, NULL},
+	 { (char *)"AskData_date_set", _wrap_AskData_date_set, METH_VARARGS, NULL},
+	 { (char *)"AskData_date_get", _wrap_AskData_date_get, METH_VARARGS, NULL},
 	 { (char *)"AskData_ot_dynamic_cast", _wrap_AskData_ot_dynamic_cast, METH_VARARGS, NULL},
 	 { (char *)"AskData_swigregister", AskData_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_OfferListMarket", _wrap_delete_OfferListMarket, METH_VARARGS, NULL},
@@ -44836,6 +45555,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OfferDataNym_stop_sign_get", _wrap_OfferDataNym_stop_sign_get, METH_VARARGS, NULL},
 	 { (char *)"OfferDataNym_stop_price_set", _wrap_OfferDataNym_stop_price_set, METH_VARARGS, NULL},
 	 { (char *)"OfferDataNym_stop_price_get", _wrap_OfferDataNym_stop_price_get, METH_VARARGS, NULL},
+	 { (char *)"OfferDataNym_date_set", _wrap_OfferDataNym_date_set, METH_VARARGS, NULL},
+	 { (char *)"OfferDataNym_date_get", _wrap_OfferDataNym_date_get, METH_VARARGS, NULL},
 	 { (char *)"OfferDataNym_ot_dynamic_cast", _wrap_OfferDataNym_ot_dynamic_cast, METH_VARARGS, NULL},
 	 { (char *)"OfferDataNym_swigregister", OfferDataNym_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_OfferListNym", _wrap_delete_OfferListNym, METH_VARARGS, NULL},
@@ -44858,6 +45579,18 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"TradeDataNym_price_get", _wrap_TradeDataNym_price_get, METH_VARARGS, NULL},
 	 { (char *)"TradeDataNym_amount_sold_set", _wrap_TradeDataNym_amount_sold_set, METH_VARARGS, NULL},
 	 { (char *)"TradeDataNym_amount_sold_get", _wrap_TradeDataNym_amount_sold_get, METH_VARARGS, NULL},
+	 { (char *)"TradeDataNym_updated_id_set", _wrap_TradeDataNym_updated_id_set, METH_VARARGS, NULL},
+	 { (char *)"TradeDataNym_updated_id_get", _wrap_TradeDataNym_updated_id_get, METH_VARARGS, NULL},
+	 { (char *)"TradeDataNym_offer_price_set", _wrap_TradeDataNym_offer_price_set, METH_VARARGS, NULL},
+	 { (char *)"TradeDataNym_offer_price_get", _wrap_TradeDataNym_offer_price_get, METH_VARARGS, NULL},
+	 { (char *)"TradeDataNym_finished_so_far_set", _wrap_TradeDataNym_finished_so_far_set, METH_VARARGS, NULL},
+	 { (char *)"TradeDataNym_finished_so_far_get", _wrap_TradeDataNym_finished_so_far_get, METH_VARARGS, NULL},
+	 { (char *)"TradeDataNym_asset_id_set", _wrap_TradeDataNym_asset_id_set, METH_VARARGS, NULL},
+	 { (char *)"TradeDataNym_asset_id_get", _wrap_TradeDataNym_asset_id_get, METH_VARARGS, NULL},
+	 { (char *)"TradeDataNym_currency_id_set", _wrap_TradeDataNym_currency_id_set, METH_VARARGS, NULL},
+	 { (char *)"TradeDataNym_currency_id_get", _wrap_TradeDataNym_currency_id_get, METH_VARARGS, NULL},
+	 { (char *)"TradeDataNym_currency_paid_set", _wrap_TradeDataNym_currency_paid_set, METH_VARARGS, NULL},
+	 { (char *)"TradeDataNym_currency_paid_get", _wrap_TradeDataNym_currency_paid_get, METH_VARARGS, NULL},
 	 { (char *)"TradeDataNym_ot_dynamic_cast", _wrap_TradeDataNym_ot_dynamic_cast, METH_VARARGS, NULL},
 	 { (char *)"TradeDataNym_swigregister", TradeDataNym_swigregister, METH_VARARGS, NULL},
 	 { (char *)"delete_TradeListNym", _wrap_delete_TradeListNym, METH_VARARGS, NULL},

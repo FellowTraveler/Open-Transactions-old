@@ -476,27 +476,27 @@ std::string OTMadeEasy::query_asset_types(const std::string  & SERVER_ID,
 }
 
 
-std::string OTMadeEasy::create_market_offer(const std::string  & SERVER_ID,
-                                            const std::string  & NYM_ID,
-                                            const std::string  & ASSET_ACCT_ID,
+std::string OTMadeEasy::create_market_offer(const std::string  & ASSET_ACCT_ID,
                                             const std::string  & CURRENCY_ACCT_ID,
                                             const std::string  & scale,
                                             const std::string  & minIncrement,
                                             const std::string  & quantity,
                                             const std::string  & price,
                                             const bool           bSelling,
-                                            const std::string  & LIFESPAN_IN_SECONDS)
+                                            const std::string  & LIFESPAN_IN_SECONDS,
+                                            const std::string  & STOP_SIGN,
+                                            const std::string  & ACTIVATION_PRICE)
 {
-    return m_pME->create_market_offer(SERVER_ID,
-                                      NYM_ID,
-                                      ASSET_ACCT_ID,
+    return m_pME->create_market_offer(ASSET_ACCT_ID,
                                       CURRENCY_ACCT_ID,
                                       OTAPI_Wrap::StringToLong(scale),
                                       OTAPI_Wrap::StringToLong(minIncrement),
                                       OTAPI_Wrap::StringToLong(quantity),
                                       OTAPI_Wrap::StringToLong(price),
                                       bSelling,
-                                      OTAPI_Wrap::StringToLong(LIFESPAN_IN_SECONDS)
+                                      OTAPI_Wrap::StringToLong(LIFESPAN_IN_SECONDS),
+                                      STOP_SIGN,
+                                      OTAPI_Wrap::StringToLong(ACTIVATION_PRICE)
                                       );
 }
 

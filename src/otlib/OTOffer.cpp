@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTOffer.cpp
  *  
@@ -229,6 +229,16 @@ void OTOffer::GetIdentifier(OTIdentifier & theIdentifier)
 
 
 
+bool OTOffer::IsMarketOrder() const
+{
+    return (0 == GetPriceLimit());
+}
+
+bool OTOffer::IsLimitOrder () const
+{
+    return (0 != GetPriceLimit());
+}
+
 
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTOffer::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
@@ -283,11 +293,14 @@ int OTOffer::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		else
 			SetScale(lScale);
 		// ------------------------------------
-		const OTString strPriceLimit	= xml->getAttributeValue("priceLimit");
-		const long lPriceLimit			= strPriceLimit.Exists() ? atol(strPriceLimit.Get()) : 0; // if it doesn't exist, the 0 here causes the below error to fire.
-		if (lPriceLimit < 1)
+		const OTString strPriceLimit = xml->getAttributeValue("priceLimit");
+		const long lPriceLimit       = strPriceLimit.Exists() ? atol(strPriceLimit.Get()) : 0; // if it doesn't exist, the 0 here causes the below error to fire.
+        
+        // NOTE: Market Orders (new) have a 0 price, so this error condition was changed.
+		if (!strPriceLimit.Exists())
+//      if (lPriceLimit < 1)
 		{
-			OTLog::vOutput(0, "OTOffer::ProcessXMLNode: Failure: priceLimit *must* be larger than 0. Instead I got: %ld.\n",
+			OTLog::vOutput(0, "OTOffer::ProcessXMLNode: Failure: priceLimit *must* be provided.\n",
 						   lPriceLimit);
 			return (-1);
 		}
@@ -333,40 +346,37 @@ int OTOffer::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		SetTransactionNum(lTransNum);
 		// ----------------------------------------------------------------
-		const OTString strValidFrom	= xml->getAttributeValue("validFrom");
-		const OTString strValidTo	= xml->getAttributeValue("validTo");
-		
-		time_t tValidFrom	=	strValidFrom.Exists() ? atoi(strValidFrom.Get()) : 0;
-		time_t tValidTo		=	strValidTo.Exists() ? atoi(strValidTo.Get()) : 0;
-
+        const OTString str_valid_from = xml->getAttributeValue("validFrom");
+        const OTString str_valid_to   = xml->getAttributeValue("validTo");
+        
+        int64_t tValidFrom  = str_valid_from.Exists() ? str_valid_from.ToLong() : 0;
+		int64_t tValidTo    = str_valid_to.Exists  () ? str_valid_to.ToLong()   : 0;
+        
 		if ((tValidTo < tValidFrom) && (tValidTo != 0))
 		{
-			long nFrom= static_cast<long> (tValidFrom), nTo= static_cast<long> (tValidTo);
-			OTLog::vOutput(0, "OTOffer::ProcessXMLNode: Failure: validTo date (%ld) cannot be earlier than validFrom date (%ld).\n",
-						   nFrom, nTo);
+			OTLog::vOutput(0, "OTOffer::%s: Failure: validTo date (%" PRId64") cannot be earlier than "
+                           "validFrom date (%" PRId64").\n", __FUNCTION__, tValidFrom, tValidTo);
 			return (-1);
 		}
-		
-		SetValidFrom(tValidFrom);
-		SetValidTo(tValidTo);
-		
-		// ---------------------
-		
+        // ----------------------------------------------------------------
+		SetValidFrom(static_cast<time_t>(tValidFrom));
+		SetValidTo  (static_cast<time_t>(tValidTo));
+		// ----------------------------------------------------------------
 		OTLog::vOutput(4,
-					   "\n\nOffer. Transaction Number: %ld\n Valid From: %d\n Valid To: %d\n"
+					   "\n\nOffer. Transaction Number: %ld\n Valid From: %" PRId64"\n Valid To: %" PRId64"\n"
 					   " AssetTypeID: %s\n  CurrencyTypeID: %s\n ServerID: %s\n"
 					   " Price Limit: %ld,  Total Assets on Offer: %ld,  %s so far: %ld\n "
 					   " Scale: %ld.   Minimum Increment: %ld.  This offer is a%s.\n", 
-					   m_lTransactionNum, m_VALID_FROM, m_VALID_TO,
+					   m_lTransactionNum, tValidFrom, tValidTo,
 					   strAssetTypeID.Get(), strCurrencyTypeID.Get(), strServerID.Get(),
 					   GetPriceLimit(), GetTotalAssetsOnOffer(),  (m_bSelling ? "sold" : "bought"), 
 					   GetFinishedSoFar(), GetScale(), GetMinimumIncrement(), 
 					   (m_bSelling ? "n ASK" : " BID"));
-		
+        // ----------------------------------------------------------------
 		nReturnVal = 1;
 	}
-		
-	return nReturnVal;	
+    // ----------------
+	return nReturnVal;
 }
 
 
@@ -377,14 +387,14 @@ void OTOffer::UpdateContents()
 	const OTString	SERVER_ID(GetServerID()), ASSET_TYPE_ID(GetAssetID()), 
 					CURRENCY_TYPE_ID(GetCurrencyID());
 	
-	const long	lFrom				= static_cast<long> (GetValidFrom()), 
-				lTo					= static_cast<long> (GetValidTo()),
-				lPriceLimit			= GetPriceLimit(),
-				lTotalAssetsOnOffer = GetTotalAssetsOnOffer(),
-				lFinishedSoFar		= GetFinishedSoFar(),
-				lScale				= GetScale(),
-				lMinimumIncrement	= GetMinimumIncrement(),
-				lTransactionNum		= GetTransactionNum();
+    const int64_t lFrom                 = static_cast<int64_t> (GetValidFrom()),
+                  lTo                   = static_cast<int64_t> (GetValidTo());
+	const long    lPriceLimit           = GetPriceLimit(),
+                  lTotalAssetsOnOffer   = GetTotalAssetsOnOffer(),
+                  lFinishedSoFar        = GetFinishedSoFar(),
+                  lScale                = GetScale(),
+                  lMinimumIncrement     = GetMinimumIncrement(),
+                  lTransactionNum       = GetTransactionNum();
 	
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
@@ -402,8 +412,8 @@ void OTOffer::UpdateContents()
 							  " marketScale=\"%ld\"\n"
 							  " minimumIncrement=\"%ld\"\n"
 							  " transactionNum=\"%ld\"\n"
-							  " validFrom=\"%ld\"\n"
-							  " validTo=\"%ld\""							  
+							  " validFrom=\"%" PRId64"\"\n"
+							  " validTo=\"%" PRId64"\""
 							  " />\n\n", //  <=== the tag ends here.
 							  m_strVersion.Get(),
 							  (IsBid() ? "false" : "true"),
@@ -418,19 +428,19 @@ void OTOffer::UpdateContents()
 							  lTransactionNum,
 							  lFrom, lTo );	
 	
-//	m_xmlUnsigned.Concatenate("</marketOffer>\n");				
+//	m_xmlUnsigned.Concatenate("</marketOffer>\n");	// ^^^ Tag already ended above.
 }
 
 
 
 
-bool OTOffer::MakeOffer(bool bBuyingOrSelling,		// True == SELLING, False == BUYING
-				  const long & lPriceLimit,			// Per Minimum Increment...
-				  const long & lTotalAssetsOffer,	// Total assets available for sale or purchase.
-				  const long & lMinimumIncrement,	// The minimum increment that must be bought or sold for each transaction
-				  const long & lTransactionNum,		// The transaction number authorizing this trade.
-				  const time_t & VALID_FROM/*=0*/,	// defaults to RIGHT NOW
-				  const time_t & VALID_TO/*=0*/)	// defaults to 24 hours (a "Day Order")
+bool OTOffer::MakeOffer(bool   bBuyingOrSelling,    // True == SELLING, False == BUYING
+				  const long & lPriceLimit,         // Per Minimum Increment... (Zero price means it's a market order.)
+				  const long & lTotalAssetsOffer,   // Total assets available for sale or purchase.
+				  const long & lMinimumIncrement,   // The minimum increment that must be bought or sold for each transaction
+				  const long & lTransactionNum,     // The transaction number authorizing this trade.
+				  const time_t & VALID_FROM/*=0*/,  // defaults to RIGHT NOW
+				  const time_t & VALID_TO/*=0*/)    // defaults to 24 hours (a "Day Order")
 {
 	m_bSelling				= bBuyingOrSelling;		// Bid or Ask?
 	SetTransactionNum		(lTransactionNum);

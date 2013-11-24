@@ -3405,19 +3405,18 @@ public:
 	// ===> In 99% of cases, this LAST option is what actually happens!!
 	//
 	EXPORT static long issueMarketOffer(
-		const std::string & SERVER_ID,
-		const std::string & USER_ID,
+		const std::string & ASSET_ACCT_ID,          // Perhaps this is the wheat market.
+		const std::string & CURRENCY_ACCT_ID,       // Perhaps I'm buying the wheat with rubles.
 		// -------------------------------------------
-		const std::string & ASSET_ACCT_ID, // Perhaps this is the wheat market.
-		// -------------------------------------------
-		const std::string & CURRENCY_ACCT_ID, // Perhaps I'm buying the wheat with rubles.
-		// -------------------------------------------
-		const std::string & MARKET_SCALE,	// Defaults to minimum of 1. Market granularity.
-		const std::string & MINIMUM_INCREMENT,	// This will be multiplied by the Scale. Min 1.
+		const std::string & MARKET_SCALE,           // Defaults to minimum of 1. Market granularity.
+		const std::string & MINIMUM_INCREMENT,      // This will be multiplied by the Scale. Min 1.
 		const std::string & TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
-		const std::string & PRICE_LIMIT,	// Per Minimum Increment...
-		const bool        & bBuyingOrSelling, // SELLING == true, BUYING == false.
-        const std::string & LIFESPAN_IN_SECONDS // if string is empty "", or "0", default is 86400 seconds == 1 day.
+		const std::string & PRICE_LIMIT,            // Per Minimum Increment...
+		const bool        & bBuyingOrSelling,       // SELLING == true, BUYING == false.
+        const std::string & LIFESPAN_IN_SECONDS,    // if string is empty "", or "0", default is 86400 seconds == 1 day.
+        // -------------------------------------------
+        const std::string & STOP_SIGN,              // Must be "" (for market/limit orders) or "<" or ">"  (for stop orders.)
+        const std::string & ACTIVATION_PRICE        // Must be provided if STOP_SIGN is also set. Determines the price threshold for stop orders.
 		);
 
 

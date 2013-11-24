@@ -1213,7 +1213,6 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                                   const OTString		& THE_PAYMENT_PLAN);
 	
     // ------------------------------------------------------------------------
-
 	EXPORT int issueMarketOffer(const OTIdentifier	& SERVER_ID,
                                 const OTIdentifier	& USER_ID,
                                 // -------------------------------------------
@@ -1226,8 +1225,12 @@ EXPORT	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
                                 const long			& PRICE_LIMIT,               // Per Minimum Increment...
                                 const bool			  bBuyingOrSelling,          // BUYING == false, SELLING == true.
                                 // -------------------------------------------
-                                const time_t          tLifespanInSeconds=86400); // 86400 seconds == 1 day.
-	
+                                const time_t          tLifespanInSeconds=86400,  // 86400 seconds == 1 day.
+                                // -------------------------------------------
+                                const char            STOP_SIGN=0,               // For stop orders, set to '<' or '>'
+                                const long            ACTIVATION_PRICE=0);       // For stop orders, set the threshold price here.
+    // ------------------------------------------------------------------------
+
 	EXPORT int getMarketList(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID);
 	EXPORT int getMarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID,
                                const OTIdentifier & MARKET_ID, const long & lDepth);

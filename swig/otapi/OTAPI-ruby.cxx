@@ -18674,6 +18674,67 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTAPI_Basic_getAccountFiles(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  long result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::getAccountFiles", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::getAccountFiles", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::getAccountFiles", 2, argv[1] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::getAccountFiles", 2, argv[1])); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(argv[2], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::getAccountFiles", 3, argv[2] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::getAccountFiles", 3, argv[2])); 
+    }
+    arg3 = ptr;
+  }
+  result = (long)OTAPI_Basic::getAccountFiles((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  vresult = SWIG_From_long(static_cast< long >(result));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return vresult;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTAPI_Basic_GenerateBasketCreation(int argc, VALUE *argv, VALUE self) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -20410,9 +20471,9 @@ _wrap_OTAPI_Basic_issueMarketOffer(int argc, VALUE *argv, VALUE self) {
   std::string *arg4 = 0 ;
   std::string *arg5 = 0 ;
   std::string *arg6 = 0 ;
-  std::string *arg7 = 0 ;
+  bool *arg7 = 0 ;
   std::string *arg8 = 0 ;
-  bool *arg9 = 0 ;
+  std::string *arg9 = 0 ;
   std::string *arg10 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   int res2 = SWIG_OLDOBJ ;
@@ -20420,11 +20481,11 @@ _wrap_OTAPI_Basic_issueMarketOffer(int argc, VALUE *argv, VALUE self) {
   int res4 = SWIG_OLDOBJ ;
   int res5 = SWIG_OLDOBJ ;
   int res6 = SWIG_OLDOBJ ;
-  int res7 = SWIG_OLDOBJ ;
+  bool temp7 ;
+  bool val7 ;
+  int ecode7 = 0 ;
   int res8 = SWIG_OLDOBJ ;
-  bool temp9 ;
-  bool val9 ;
-  int ecode9 = 0 ;
+  int res9 = SWIG_OLDOBJ ;
   int res10 = SWIG_OLDOBJ ;
   long result;
   VALUE vresult = Qnil;
@@ -20498,17 +20559,12 @@ _wrap_OTAPI_Basic_issueMarketOffer(int argc, VALUE *argv, VALUE self) {
     }
     arg6 = ptr;
   }
-  {
-    std::string *ptr = (std::string *)0;
-    res7 = SWIG_AsPtr_std_string(argv[6], &ptr);
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::issueMarketOffer", 7, argv[6] )); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::issueMarketOffer", 7, argv[6])); 
-    }
-    arg7 = ptr;
-  }
+  ecode7 = SWIG_AsVal_bool(argv[6], &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), Ruby_Format_TypeError( "", "bool","OTAPI_Basic::issueMarketOffer", 7, argv[6] ));
+  } 
+  temp7 = static_cast< bool >(val7);
+  arg7 = &temp7;
   {
     std::string *ptr = (std::string *)0;
     res8 = SWIG_AsPtr_std_string(argv[7], &ptr);
@@ -20520,12 +20576,17 @@ _wrap_OTAPI_Basic_issueMarketOffer(int argc, VALUE *argv, VALUE self) {
     }
     arg8 = ptr;
   }
-  ecode9 = SWIG_AsVal_bool(argv[8], &val9);
-  if (!SWIG_IsOK(ecode9)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode9), Ruby_Format_TypeError( "", "bool","OTAPI_Basic::issueMarketOffer", 9, argv[8] ));
-  } 
-  temp9 = static_cast< bool >(val9);
-  arg9 = &temp9;
+  {
+    std::string *ptr = (std::string *)0;
+    res9 = SWIG_AsPtr_std_string(argv[8], &ptr);
+    if (!SWIG_IsOK(res9)) {
+      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "std::string const &","OTAPI_Basic::issueMarketOffer", 9, argv[8] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTAPI_Basic::issueMarketOffer", 9, argv[8])); 
+    }
+    arg9 = ptr;
+  }
   {
     std::string *ptr = (std::string *)0;
     res10 = SWIG_AsPtr_std_string(argv[9], &ptr);
@@ -20537,7 +20598,7 @@ _wrap_OTAPI_Basic_issueMarketOffer(int argc, VALUE *argv, VALUE self) {
     }
     arg10 = ptr;
   }
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(bool const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10);
   vresult = SWIG_From_long(static_cast< long >(result));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -20545,8 +20606,8 @@ _wrap_OTAPI_Basic_issueMarketOffer(int argc, VALUE *argv, VALUE self) {
   if (SWIG_IsNewObj(res4)) delete arg4;
   if (SWIG_IsNewObj(res5)) delete arg5;
   if (SWIG_IsNewObj(res6)) delete arg6;
-  if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res9)) delete arg9;
   if (SWIG_IsNewObj(res10)) delete arg10;
   return vresult;
 fail:
@@ -20556,8 +20617,8 @@ fail:
   if (SWIG_IsNewObj(res4)) delete arg4;
   if (SWIG_IsNewObj(res5)) delete arg5;
   if (SWIG_IsNewObj(res6)) delete arg6;
-  if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res9)) delete arg9;
   if (SWIG_IsNewObj(res10)) delete arg10;
   return Qnil;
 }
@@ -25005,9 +25066,9 @@ _wrap_OTMadeEasy_create_market_offer(int argc, VALUE *argv, VALUE self) {
   std::string *arg5 = 0 ;
   std::string *arg6 = 0 ;
   std::string *arg7 = 0 ;
-  std::string *arg8 = 0 ;
+  bool arg8 ;
   std::string *arg9 = 0 ;
-  bool arg10 ;
+  std::string *arg10 = 0 ;
   std::string *arg11 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -25017,10 +25078,10 @@ _wrap_OTMadeEasy_create_market_offer(int argc, VALUE *argv, VALUE self) {
   int res5 = SWIG_OLDOBJ ;
   int res6 = SWIG_OLDOBJ ;
   int res7 = SWIG_OLDOBJ ;
-  int res8 = SWIG_OLDOBJ ;
+  bool val8 ;
+  int ecode8 = 0 ;
   int res9 = SWIG_OLDOBJ ;
-  bool val10 ;
-  int ecode10 = 0 ;
+  int res10 = SWIG_OLDOBJ ;
   int res11 = SWIG_OLDOBJ ;
   std::string result;
   VALUE vresult = Qnil;
@@ -25099,17 +25160,11 @@ _wrap_OTMadeEasy_create_market_offer(int argc, VALUE *argv, VALUE self) {
     }
     arg7 = ptr;
   }
-  {
-    std::string *ptr = (std::string *)0;
-    res8 = SWIG_AsPtr_std_string(argv[6], &ptr);
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "std::string const &","create_market_offer", 8, argv[6] )); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","create_market_offer", 8, argv[6])); 
-    }
-    arg8 = ptr;
-  }
+  ecode8 = SWIG_AsVal_bool(argv[6], &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), Ruby_Format_TypeError( "", "bool","create_market_offer", 8, argv[6] ));
+  } 
+  arg8 = static_cast< bool >(val8);
   {
     std::string *ptr = (std::string *)0;
     res9 = SWIG_AsPtr_std_string(argv[7], &ptr);
@@ -25121,11 +25176,17 @@ _wrap_OTMadeEasy_create_market_offer(int argc, VALUE *argv, VALUE self) {
     }
     arg9 = ptr;
   }
-  ecode10 = SWIG_AsVal_bool(argv[8], &val10);
-  if (!SWIG_IsOK(ecode10)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode10), Ruby_Format_TypeError( "", "bool","create_market_offer", 10, argv[8] ));
-  } 
-  arg10 = static_cast< bool >(val10);
+  {
+    std::string *ptr = (std::string *)0;
+    res10 = SWIG_AsPtr_std_string(argv[8], &ptr);
+    if (!SWIG_IsOK(res10)) {
+      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "std::string const &","create_market_offer", 10, argv[8] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","create_market_offer", 10, argv[8])); 
+    }
+    arg10 = ptr;
+  }
   {
     std::string *ptr = (std::string *)0;
     res11 = SWIG_AsPtr_std_string(argv[9], &ptr);
@@ -25137,7 +25198,7 @@ _wrap_OTMadeEasy_create_market_offer(int argc, VALUE *argv, VALUE self) {
     }
     arg11 = ptr;
   }
-  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
+  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,arg8,(std::string const &)*arg9,(std::string const &)*arg10,(std::string const &)*arg11);
   vresult = SWIG_From_std_string(static_cast< std::string >(result));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -25145,8 +25206,8 @@ _wrap_OTMadeEasy_create_market_offer(int argc, VALUE *argv, VALUE self) {
   if (SWIG_IsNewObj(res5)) delete arg5;
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
-  if (SWIG_IsNewObj(res8)) delete arg8;
   if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res10)) delete arg10;
   if (SWIG_IsNewObj(res11)) delete arg11;
   return vresult;
 fail:
@@ -25156,8 +25217,8 @@ fail:
   if (SWIG_IsNewObj(res5)) delete arg5;
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
-  if (SWIG_IsNewObj(res8)) delete arg8;
   if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res10)) delete arg10;
   if (SWIG_IsNewObj(res11)) delete arg11;
   return Qnil;
 }
@@ -33993,6 +34054,66 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_MarketData_last_sale_date_set(int argc, VALUE *argv, VALUE self) {
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__MarketData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::MarketData *","last_sale_date", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::MarketData * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","last_sale_date", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","last_sale_date", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->last_sale_date = *arg2;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_MarketData_last_sale_date_get(int argc, VALUE *argv, VALUE self) {
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__MarketData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::MarketData *","last_sale_date", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::MarketData * >(argp1);
+  result = (std::string *) & ((arg1)->last_sale_date);
+  vresult = SWIG_From_std_string(static_cast< std::string >(*result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_MarketData_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   void *argp1 = 0 ;
@@ -34478,6 +34599,66 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OfferDataMarket_date_set(int argc, VALUE *argv, VALUE self) {
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__OfferDataMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::OfferDataMarket *","date", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataMarket * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","date", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","date", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->date = *arg2;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OfferDataMarket_date_get(int argc, VALUE *argv, VALUE self) {
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__OfferDataMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::OfferDataMarket *","date", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataMarket * >(argp1);
+  result = (std::string *) & ((arg1)->date);
+  vresult = SWIG_From_std_string(static_cast< std::string >(*result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OfferDataMarket_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   void *argp1 = 0 ;
@@ -34809,6 +34990,66 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_BidData_date_set(int argc, VALUE *argv, VALUE self) {
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__BidData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::BidData *","date", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::BidData * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","date", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","date", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->date = *arg2;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_BidData_date_get(int argc, VALUE *argv, VALUE self) {
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__BidData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::BidData *","date", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::BidData * >(argp1);
+  result = (std::string *) & ((arg1)->date);
+  vresult = SWIG_From_std_string(static_cast< std::string >(*result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_BidData_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   void *argp1 = 0 ;
@@ -35132,6 +35373,66 @@ _wrap_AskData_minimum_increment_get(int argc, VALUE *argv, VALUE self) {
   }
   arg1 = reinterpret_cast< OTDB::AskData * >(argp1);
   result = (std::string *) & ((arg1)->minimum_increment);
+  vresult = SWIG_From_std_string(static_cast< std::string >(*result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_AskData_date_set(int argc, VALUE *argv, VALUE self) {
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__AskData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::AskData *","date", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::AskData * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","date", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","date", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->date = *arg2;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_AskData_date_get(int argc, VALUE *argv, VALUE self) {
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__AskData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::AskData *","date", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::AskData * >(argp1);
+  result = (std::string *) & ((arg1)->date);
   vresult = SWIG_From_std_string(static_cast< std::string >(*result));
   return vresult;
 fail:
@@ -36946,6 +37247,66 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OfferDataNym_date_set(int argc, VALUE *argv, VALUE self) {
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__OfferDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::OfferDataNym *","date", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","date", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","date", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->date = *arg2;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OfferDataNym_date_get(int argc, VALUE *argv, VALUE self) {
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__OfferDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::OfferDataNym *","date", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->date);
+  vresult = SWIG_From_std_string(static_cast< std::string >(*result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OfferDataNym_ot_dynamic_cast(int argc, VALUE *argv, VALUE self) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   void *argp1 = 0 ;
@@ -37483,6 +37844,366 @@ _wrap_TradeDataNym_amount_sold_get(int argc, VALUE *argv, VALUE self) {
   }
   arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
   result = (std::string *) & ((arg1)->amount_sold);
+  vresult = SWIG_From_std_string(static_cast< std::string >(*result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeDataNym_updated_id_set(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataNym *","updated_id", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","updated_id", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","updated_id", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->updated_id = *arg2;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeDataNym_updated_id_get(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataNym *","updated_id", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->updated_id);
+  vresult = SWIG_From_std_string(static_cast< std::string >(*result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeDataNym_offer_price_set(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataNym *","offer_price", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","offer_price", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","offer_price", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->offer_price = *arg2;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeDataNym_offer_price_get(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataNym *","offer_price", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->offer_price);
+  vresult = SWIG_From_std_string(static_cast< std::string >(*result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeDataNym_finished_so_far_set(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataNym *","finished_so_far", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","finished_so_far", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","finished_so_far", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->finished_so_far = *arg2;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeDataNym_finished_so_far_get(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataNym *","finished_so_far", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->finished_so_far);
+  vresult = SWIG_From_std_string(static_cast< std::string >(*result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeDataNym_asset_id_set(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataNym *","asset_id", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","asset_id", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","asset_id", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->asset_id = *arg2;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeDataNym_asset_id_get(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataNym *","asset_id", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->asset_id);
+  vresult = SWIG_From_std_string(static_cast< std::string >(*result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeDataNym_currency_id_set(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataNym *","currency_id", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","currency_id", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","currency_id", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->currency_id = *arg2;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeDataNym_currency_id_get(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataNym *","currency_id", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->currency_id);
+  vresult = SWIG_From_std_string(static_cast< std::string >(*result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeDataNym_currency_paid_set(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataNym *","currency_paid", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "std::string const &","currency_paid", 2, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","currency_paid", 2, argv[0])); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->currency_paid = *arg2;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_TradeDataNym_currency_paid_get(int argc, VALUE *argv, VALUE self) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::TradeDataNym *","currency_paid", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->currency_paid);
   vresult = SWIG_From_std_string(static_cast< std::string >(*result));
   return vresult;
 fail:
@@ -43369,6 +44090,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "getMint", VALUEFUNC(_wrap_OTAPI_Basic_getMint), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "createAssetAccount", VALUEFUNC(_wrap_OTAPI_Basic_createAssetAccount), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "getAccount", VALUEFUNC(_wrap_OTAPI_Basic_getAccount), -1);
+  rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "getAccountFiles", VALUEFUNC(_wrap_OTAPI_Basic_getAccountFiles), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "GenerateBasketCreation", VALUEFUNC(_wrap_OTAPI_Basic_GenerateBasketCreation), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "AddBasketCreationItem", VALUEFUNC(_wrap_OTAPI_Basic_AddBasketCreationItem), -1);
   rb_define_singleton_method(SwigClassOTAPI_Basic.klass, "issueBasket", VALUEFUNC(_wrap_OTAPI_Basic_issueBasket), -1);
@@ -43646,6 +44368,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassMarketData.klass, "recent_highest_bid", VALUEFUNC(_wrap_MarketData_recent_highest_bid_get), -1);
   rb_define_method(SwigClassMarketData.klass, "recent_lowest_ask=", VALUEFUNC(_wrap_MarketData_recent_lowest_ask_set), -1);
   rb_define_method(SwigClassMarketData.klass, "recent_lowest_ask", VALUEFUNC(_wrap_MarketData_recent_lowest_ask_get), -1);
+  rb_define_method(SwigClassMarketData.klass, "last_sale_date=", VALUEFUNC(_wrap_MarketData_last_sale_date_set), -1);
+  rb_define_method(SwigClassMarketData.klass, "last_sale_date", VALUEFUNC(_wrap_MarketData_last_sale_date_get), -1);
   rb_define_singleton_method(SwigClassMarketData.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_MarketData_ot_dynamic_cast), -1);
   SwigClassMarketData.mark = 0;
   SwigClassMarketData.destroy = (void (*)(void *)) free_OTDB_MarketData;
@@ -43676,6 +44400,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassOfferDataMarket.klass, "available_assets", VALUEFUNC(_wrap_OfferDataMarket_available_assets_get), -1);
   rb_define_method(SwigClassOfferDataMarket.klass, "minimum_increment=", VALUEFUNC(_wrap_OfferDataMarket_minimum_increment_set), -1);
   rb_define_method(SwigClassOfferDataMarket.klass, "minimum_increment", VALUEFUNC(_wrap_OfferDataMarket_minimum_increment_get), -1);
+  rb_define_method(SwigClassOfferDataMarket.klass, "date=", VALUEFUNC(_wrap_OfferDataMarket_date_set), -1);
+  rb_define_method(SwigClassOfferDataMarket.klass, "date", VALUEFUNC(_wrap_OfferDataMarket_date_get), -1);
   rb_define_singleton_method(SwigClassOfferDataMarket.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_OfferDataMarket_ot_dynamic_cast), -1);
   SwigClassOfferDataMarket.mark = 0;
   SwigClassOfferDataMarket.destroy = (void (*)(void *)) free_OTDB_OfferDataMarket;
@@ -43694,6 +44420,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassBidData.klass, "available_assets", VALUEFUNC(_wrap_BidData_available_assets_get), -1);
   rb_define_method(SwigClassBidData.klass, "minimum_increment=", VALUEFUNC(_wrap_BidData_minimum_increment_set), -1);
   rb_define_method(SwigClassBidData.klass, "minimum_increment", VALUEFUNC(_wrap_BidData_minimum_increment_get), -1);
+  rb_define_method(SwigClassBidData.klass, "date=", VALUEFUNC(_wrap_BidData_date_set), -1);
+  rb_define_method(SwigClassBidData.klass, "date", VALUEFUNC(_wrap_BidData_date_get), -1);
   rb_define_singleton_method(SwigClassBidData.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_BidData_ot_dynamic_cast), -1);
   SwigClassBidData.mark = 0;
   SwigClassBidData.destroy = (void (*)(void *)) free_OTDB_BidData;
@@ -43712,6 +44440,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassAskData.klass, "available_assets", VALUEFUNC(_wrap_AskData_available_assets_get), -1);
   rb_define_method(SwigClassAskData.klass, "minimum_increment=", VALUEFUNC(_wrap_AskData_minimum_increment_set), -1);
   rb_define_method(SwigClassAskData.klass, "minimum_increment", VALUEFUNC(_wrap_AskData_minimum_increment_get), -1);
+  rb_define_method(SwigClassAskData.klass, "date=", VALUEFUNC(_wrap_AskData_date_set), -1);
+  rb_define_method(SwigClassAskData.klass, "date", VALUEFUNC(_wrap_AskData_date_get), -1);
   rb_define_singleton_method(SwigClassAskData.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_AskData_ot_dynamic_cast), -1);
   SwigClassAskData.mark = 0;
   SwigClassAskData.destroy = (void (*)(void *)) free_OTDB_AskData;
@@ -43800,6 +44530,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassOfferDataNym.klass, "stop_sign", VALUEFUNC(_wrap_OfferDataNym_stop_sign_get), -1);
   rb_define_method(SwigClassOfferDataNym.klass, "stop_price=", VALUEFUNC(_wrap_OfferDataNym_stop_price_set), -1);
   rb_define_method(SwigClassOfferDataNym.klass, "stop_price", VALUEFUNC(_wrap_OfferDataNym_stop_price_get), -1);
+  rb_define_method(SwigClassOfferDataNym.klass, "date=", VALUEFUNC(_wrap_OfferDataNym_date_set), -1);
+  rb_define_method(SwigClassOfferDataNym.klass, "date", VALUEFUNC(_wrap_OfferDataNym_date_get), -1);
   rb_define_singleton_method(SwigClassOfferDataNym.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_OfferDataNym_ot_dynamic_cast), -1);
   SwigClassOfferDataNym.mark = 0;
   SwigClassOfferDataNym.destroy = (void (*)(void *)) free_OTDB_OfferDataNym;
@@ -43832,6 +44564,18 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassTradeDataNym.klass, "price", VALUEFUNC(_wrap_TradeDataNym_price_get), -1);
   rb_define_method(SwigClassTradeDataNym.klass, "amount_sold=", VALUEFUNC(_wrap_TradeDataNym_amount_sold_set), -1);
   rb_define_method(SwigClassTradeDataNym.klass, "amount_sold", VALUEFUNC(_wrap_TradeDataNym_amount_sold_get), -1);
+  rb_define_method(SwigClassTradeDataNym.klass, "updated_id=", VALUEFUNC(_wrap_TradeDataNym_updated_id_set), -1);
+  rb_define_method(SwigClassTradeDataNym.klass, "updated_id", VALUEFUNC(_wrap_TradeDataNym_updated_id_get), -1);
+  rb_define_method(SwigClassTradeDataNym.klass, "offer_price=", VALUEFUNC(_wrap_TradeDataNym_offer_price_set), -1);
+  rb_define_method(SwigClassTradeDataNym.klass, "offer_price", VALUEFUNC(_wrap_TradeDataNym_offer_price_get), -1);
+  rb_define_method(SwigClassTradeDataNym.klass, "finished_so_far=", VALUEFUNC(_wrap_TradeDataNym_finished_so_far_set), -1);
+  rb_define_method(SwigClassTradeDataNym.klass, "finished_so_far", VALUEFUNC(_wrap_TradeDataNym_finished_so_far_get), -1);
+  rb_define_method(SwigClassTradeDataNym.klass, "asset_id=", VALUEFUNC(_wrap_TradeDataNym_asset_id_set), -1);
+  rb_define_method(SwigClassTradeDataNym.klass, "asset_id", VALUEFUNC(_wrap_TradeDataNym_asset_id_get), -1);
+  rb_define_method(SwigClassTradeDataNym.klass, "currency_id=", VALUEFUNC(_wrap_TradeDataNym_currency_id_set), -1);
+  rb_define_method(SwigClassTradeDataNym.klass, "currency_id", VALUEFUNC(_wrap_TradeDataNym_currency_id_get), -1);
+  rb_define_method(SwigClassTradeDataNym.klass, "currency_paid=", VALUEFUNC(_wrap_TradeDataNym_currency_paid_set), -1);
+  rb_define_method(SwigClassTradeDataNym.klass, "currency_paid", VALUEFUNC(_wrap_TradeDataNym_currency_paid_get), -1);
   rb_define_singleton_method(SwigClassTradeDataNym.klass, "ot_dynamic_cast", VALUEFUNC(_wrap_TradeDataNym_ot_dynamic_cast), -1);
   SwigClassTradeDataNym.mark = 0;
   SwigClassTradeDataNym.destroy = (void (*)(void *)) free_OTDB_TradeDataNym;

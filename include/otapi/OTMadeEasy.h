@@ -298,16 +298,16 @@ public:
     EXPORT  std::string query_asset_types(const std::string  & SERVER_ID,
                                           const std::string  & NYM_ID,
                                           const std::string  & ENCODED_MAP);
-    EXPORT  std::string create_market_offer(const std::string  & SERVER_ID,
-                                            const std::string  & NYM_ID,
-                                            const std::string  & ASSET_ACCT_ID,
+    EXPORT  std::string create_market_offer(const std::string  & ASSET_ACCT_ID,
                                             const std::string  & CURRENCY_ACCT_ID,
                                             const std::string  & scale,
                                             const std::string  & minIncrement,
                                             const std::string  & quantity,
                                             const std::string  & price,
                                             const bool           bSelling,
-                                            const std::string  & LIFESPAN_IN_SECONDS);
+                                            const std::string  & LIFESPAN_IN_SECONDS,
+                                            const std::string  & STOP_SIGN,
+                                            const std::string  & ACTIVATION_PRICE);
     EXPORT  std::string kill_market_offer(const std::string  & SERVER_ID,
                                           const std::string  & NYM_ID,
                                           const std::string  & ASSET_ACCT_ID,

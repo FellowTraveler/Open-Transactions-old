@@ -668,24 +668,33 @@
 // -----------------------------------------------------------------------------------------------
 	// CREATE MARKET OFFER  -- TRANSACTION
 
-    def OT_ME::create_market_offer(SERVER_ID, NYM_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling, strLifespanInSeconds)
+    def OT_ME::create_market_offer(ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling, strLifespanInSeconds, strStopSign, strActivationPrice)
 	{
 		var ot_Msg := OTAPI_Func()
 		// -------------------------
-//def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, assetTypeID, assetAccountID, currencyTypeID, currencyAcctID,
-//								scale, minIncrement, quantity, price, bSelling)		// 12 args
-
-		var theRequest := OTAPI_Func(ot_Msg.CREATE_MARKET_OFFER, SERVER_ID, NYM_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling)
-        
+        var strServerID = OT_API_GetAccountWallet_ServerID(ASSET_ACCT_ID)
+        var strUserID   = OT_API_GetAccountWallet_NymID(ASSET_ACCT_ID)
+		// -------------------------
+		var theRequest := OTAPI_Func(ot_Msg.CREATE_MARKET_OFFER, strServerID, strUserID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling)
         
         // Cannot have more than 10 parameters in a function call, in this script.
-        // So I am forced to set the final parameter by hand, before sending the transaction:
+        // So I am forced to set the final parameters by hand, before sending the transaction:
         //
         if (VerifyStringVal(strLifespanInSeconds))
         {
             theRequest.tData = strLifespanInSeconds.to_int()            
         }
-
+        // ---------------------------------------------------
+        if (VerifyStringVal(strStopSign))
+        {
+            theRequest.strData5 = strStopSign
+        }
+        // ---------------------------------------------------
+        if (VerifyStringVal(strActivationPrice))
+        {
+            theRequest.lData = int64_t(strActivationPrice.to_int())
+        }
+        // ---------------------------------------------------
 		var	strResponse = theRequest.SendTransaction(theRequest, "CREATE_MARKET_OFFER")
 
 		return strResponse

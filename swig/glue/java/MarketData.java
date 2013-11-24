@@ -180,6 +180,14 @@ public class MarketData extends Displayable {
     return otapiJNI.MarketData_recent_lowest_ask_get(swigCPtr, this);
   }
 
+  public void setLast_sale_date(String value) {
+    otapiJNI.MarketData_last_sale_date_set(swigCPtr, this, value);
+  }
+
+  public String getLast_sale_date() {
+    return otapiJNI.MarketData_last_sale_date_get(swigCPtr, this);
+  }
+
   public static MarketData ot_dynamic_cast(Storable pObject) {
     long cPtr = otapiJNI.MarketData_ot_dynamic_cast(Storable.getCPtr(pObject), pObject);
     return (cPtr == 0) ? null : new MarketData(cPtr, false);

@@ -84,6 +84,14 @@ public class BidData extends OfferDataMarket {
     return otapiJNI.BidData_minimum_increment_get(swigCPtr, this);
   }
 
+  public void setDate(String value) {
+    otapiJNI.BidData_date_set(swigCPtr, this, value);
+  }
+
+  public String getDate() {
+    return otapiJNI.BidData_date_get(swigCPtr, this);
+  }
+
   public static BidData ot_dynamic_cast(Storable pObject) {
     long cPtr = otapiJNI.BidData_ot_dynamic_cast(Storable.getCPtr(pObject), pObject);
     return (cPtr == 0) ? null : new BidData(cPtr, false);

@@ -17011,6 +17011,64 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OTAPI_Basic_getAccountFiles(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  std::string *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  long result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooo:OTAPI_Basic_getAccountFiles SERVER_ID USER_ID ACCT_ID ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_getAccountFiles" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  result = (long)OTAPI_Basic::getAccountFiles((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  Tcl_SetObjResult(interp,SWIG_From_long(static_cast< long >(result)));
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OTAPI_Basic_GenerateBasketCreation(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   std::string *arg1 = 0 ;
   std::string *arg2 = 0 ;
@@ -18675,9 +18733,9 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
   std::string *arg4 = 0 ;
   std::string *arg5 = 0 ;
   std::string *arg6 = 0 ;
-  std::string *arg7 = 0 ;
+  bool *arg7 = 0 ;
   std::string *arg8 = 0 ;
-  bool *arg9 = 0 ;
+  std::string *arg9 = 0 ;
   std::string *arg10 = 0 ;
   int res1 = SWIG_OLDOBJ ;
   int res2 = SWIG_OLDOBJ ;
@@ -18685,15 +18743,15 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
   int res4 = SWIG_OLDOBJ ;
   int res5 = SWIG_OLDOBJ ;
   int res6 = SWIG_OLDOBJ ;
-  int res7 = SWIG_OLDOBJ ;
+  bool temp7 ;
+  bool val7 ;
+  int ecode7 = 0 ;
   int res8 = SWIG_OLDOBJ ;
-  bool temp9 ;
-  bool val9 ;
-  int ecode9 = 0 ;
+  int res9 = SWIG_OLDOBJ ;
   int res10 = SWIG_OLDOBJ ;
   long result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"oooooooooo:OTAPI_Basic_issueMarketOffer SERVER_ID USER_ID ASSET_ACCT_ID CURRENCY_ACCT_ID MARKET_SCALE MINIMUM_INCREMENT TOTAL_ASSETS_ON_OFFER PRICE_LIMIT bBuyingOrSelling LIFESPAN_IN_SECONDS ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"oooooooooo:OTAPI_Basic_issueMarketOffer ASSET_ACCT_ID CURRENCY_ACCT_ID MARKET_SCALE MINIMUM_INCREMENT TOTAL_ASSETS_ON_OFFER PRICE_LIMIT bBuyingOrSelling LIFESPAN_IN_SECONDS STOP_SIGN ACTIVATION_PRICE ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     res1 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[1], &ptr);
@@ -18760,17 +18818,12 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
     }
     arg6 = ptr;
   }
-  {
-    std::string *ptr = (std::string *)0;
-    res7 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[7], &ptr);
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "7"" of type '" "std::string const &""'"); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "7"" of type '" "std::string const &""'"); 
-    }
-    arg7 = ptr;
-  }
+  ecode7 = SWIG_AsVal_bool SWIG_TCL_CALL_ARGS_2(objv[7], &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "7"" of type '" "bool""'");
+  } 
+  temp7 = static_cast< bool >(val7);
+  arg7 = &temp7;
   {
     std::string *ptr = (std::string *)0;
     res8 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[8], &ptr);
@@ -18782,12 +18835,17 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
     }
     arg8 = ptr;
   }
-  ecode9 = SWIG_AsVal_bool SWIG_TCL_CALL_ARGS_2(objv[9], &val9);
-  if (!SWIG_IsOK(ecode9)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode9), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "9"" of type '" "bool""'");
-  } 
-  temp9 = static_cast< bool >(val9);
-  arg9 = &temp9;
+  {
+    std::string *ptr = (std::string *)0;
+    res9 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[9], &ptr);
+    if (!SWIG_IsOK(res9)) {
+      SWIG_exception_fail(SWIG_ArgError(res9), "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "9"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTAPI_Basic_issueMarketOffer" "', argument " "9"" of type '" "std::string const &""'"); 
+    }
+    arg9 = ptr;
+  }
   {
     std::string *ptr = (std::string *)0;
     res10 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[10], &ptr);
@@ -18799,7 +18857,7 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
     }
     arg10 = ptr;
   }
-  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(bool const &)*arg9,(std::string const &)*arg10);
+  result = (long)OTAPI_Basic::issueMarketOffer((std::string const &)*arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(bool const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,(std::string const &)*arg10);
   Tcl_SetObjResult(interp,SWIG_From_long(static_cast< long >(result)));
   if (SWIG_IsNewObj(res1)) delete arg1;
   if (SWIG_IsNewObj(res2)) delete arg2;
@@ -18807,8 +18865,8 @@ _wrap_OTAPI_Basic_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp 
   if (SWIG_IsNewObj(res4)) delete arg4;
   if (SWIG_IsNewObj(res5)) delete arg5;
   if (SWIG_IsNewObj(res6)) delete arg6;
-  if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res9)) delete arg9;
   if (SWIG_IsNewObj(res10)) delete arg10;
   return TCL_OK;
 fail:
@@ -18818,8 +18876,8 @@ fail:
   if (SWIG_IsNewObj(res4)) delete arg4;
   if (SWIG_IsNewObj(res5)) delete arg5;
   if (SWIG_IsNewObj(res6)) delete arg6;
-  if (SWIG_IsNewObj(res7)) delete arg7;
   if (SWIG_IsNewObj(res8)) delete arg8;
+  if (SWIG_IsNewObj(res9)) delete arg9;
   if (SWIG_IsNewObj(res10)) delete arg10;
   return TCL_ERROR;
 }
@@ -23057,9 +23115,9 @@ _wrap_OTMadeEasy_create_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
   std::string *arg5 = 0 ;
   std::string *arg6 = 0 ;
   std::string *arg7 = 0 ;
-  std::string *arg8 = 0 ;
+  bool arg8 ;
   std::string *arg9 = 0 ;
-  bool arg10 ;
+  std::string *arg10 = 0 ;
   std::string *arg11 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -23069,14 +23127,14 @@ _wrap_OTMadeEasy_create_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
   int res5 = SWIG_OLDOBJ ;
   int res6 = SWIG_OLDOBJ ;
   int res7 = SWIG_OLDOBJ ;
-  int res8 = SWIG_OLDOBJ ;
+  bool val8 ;
+  int ecode8 = 0 ;
   int res9 = SWIG_OLDOBJ ;
-  bool val10 ;
-  int ecode10 = 0 ;
+  int res10 = SWIG_OLDOBJ ;
   int res11 = SWIG_OLDOBJ ;
   std::string result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"ooooooooooo:OTMadeEasy_create_market_offer self SERVER_ID NYM_ID ASSET_ACCT_ID CURRENCY_ACCT_ID scale minIncrement quantity price bSelling LIFESPAN_IN_SECONDS ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"ooooooooooo:OTMadeEasy_create_market_offer self ASSET_ACCT_ID CURRENCY_ACCT_ID scale minIncrement quantity price bSelling LIFESPAN_IN_SECONDS STOP_SIGN ACTIVATION_PRICE ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTMadeEasy, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTMadeEasy_create_market_offer" "', argument " "1"" of type '" "OTMadeEasy *""'"); 
@@ -23148,17 +23206,11 @@ _wrap_OTMadeEasy_create_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
     }
     arg7 = ptr;
   }
-  {
-    std::string *ptr = (std::string *)0;
-    res8 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[8], &ptr);
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), "in method '" "OTMadeEasy_create_market_offer" "', argument " "8"" of type '" "std::string const &""'"); 
-    }
-    if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_create_market_offer" "', argument " "8"" of type '" "std::string const &""'"); 
-    }
-    arg8 = ptr;
-  }
+  ecode8 = SWIG_AsVal_bool SWIG_TCL_CALL_ARGS_2(objv[8], &val8);
+  if (!SWIG_IsOK(ecode8)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode8), "in method '" "OTMadeEasy_create_market_offer" "', argument " "8"" of type '" "bool""'");
+  } 
+  arg8 = static_cast< bool >(val8);
   {
     std::string *ptr = (std::string *)0;
     res9 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[9], &ptr);
@@ -23170,11 +23222,17 @@ _wrap_OTMadeEasy_create_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
     }
     arg9 = ptr;
   }
-  ecode10 = SWIG_AsVal_bool SWIG_TCL_CALL_ARGS_2(objv[10], &val10);
-  if (!SWIG_IsOK(ecode10)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode10), "in method '" "OTMadeEasy_create_market_offer" "', argument " "10"" of type '" "bool""'");
-  } 
-  arg10 = static_cast< bool >(val10);
+  {
+    std::string *ptr = (std::string *)0;
+    res10 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[10], &ptr);
+    if (!SWIG_IsOK(res10)) {
+      SWIG_exception_fail(SWIG_ArgError(res10), "in method '" "OTMadeEasy_create_market_offer" "', argument " "10"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTMadeEasy_create_market_offer" "', argument " "10"" of type '" "std::string const &""'"); 
+    }
+    arg10 = ptr;
+  }
   {
     std::string *ptr = (std::string *)0;
     res11 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[11], &ptr);
@@ -23186,7 +23244,7 @@ _wrap_OTMadeEasy_create_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
     }
     arg11 = ptr;
   }
-  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,(std::string const &)*arg8,(std::string const &)*arg9,arg10,(std::string const &)*arg11);
+  result = (arg1)->create_market_offer((std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,(std::string const &)*arg6,(std::string const &)*arg7,arg8,(std::string const &)*arg9,(std::string const &)*arg10,(std::string const &)*arg11);
   Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
   if (SWIG_IsNewObj(res2)) delete arg2;
   if (SWIG_IsNewObj(res3)) delete arg3;
@@ -23194,8 +23252,8 @@ _wrap_OTMadeEasy_create_market_offer(ClientData clientData SWIGUNUSED, Tcl_Inter
   if (SWIG_IsNewObj(res5)) delete arg5;
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
-  if (SWIG_IsNewObj(res8)) delete arg8;
   if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res10)) delete arg10;
   if (SWIG_IsNewObj(res11)) delete arg11;
   return TCL_OK;
 fail:
@@ -23205,8 +23263,8 @@ fail:
   if (SWIG_IsNewObj(res5)) delete arg5;
   if (SWIG_IsNewObj(res6)) delete arg6;
   if (SWIG_IsNewObj(res7)) delete arg7;
-  if (SWIG_IsNewObj(res8)) delete arg8;
   if (SWIG_IsNewObj(res9)) delete arg9;
+  if (SWIG_IsNewObj(res10)) delete arg10;
   if (SWIG_IsNewObj(res11)) delete arg11;
   return TCL_ERROR;
 }
@@ -31747,6 +31805,62 @@ fail:
 
 
 SWIGINTERN int
+_wrap_MarketData_last_sale_date_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:MarketData_last_sale_date_set self last_sale_date ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__MarketData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MarketData_last_sale_date_set" "', argument " "1"" of type '" "OTDB::MarketData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::MarketData * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "MarketData_last_sale_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "MarketData_last_sale_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->last_sale_date = *arg2;
+  
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_MarketData_last_sale_date_get(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::MarketData *arg1 = (OTDB::MarketData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:MarketData_last_sale_date_get self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__MarketData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MarketData_last_sale_date_get" "', argument " "1"" of type '" "OTDB::MarketData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::MarketData * >(argp1);
+  result = (std::string *) & ((arg1)->last_sale_date);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(*result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_MarketData_ot_dynamic_cast(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   void *argp1 = 0 ;
@@ -31792,6 +31906,7 @@ static swig_attribute swig_OTDB_MarketData_attributes[] = {
     { "-volume_currency",_wrap_MarketData_volume_currency_get, _wrap_MarketData_volume_currency_set},
     { "-recent_highest_bid",_wrap_MarketData_recent_highest_bid_get, _wrap_MarketData_recent_highest_bid_set},
     { "-recent_lowest_ask",_wrap_MarketData_recent_lowest_ask_get, _wrap_MarketData_recent_lowest_ask_set},
+    { "-last_sale_date",_wrap_MarketData_last_sale_date_get, _wrap_MarketData_last_sale_date_set},
     {0,0,0}
 };
 static swig_class *swig_OTDB_MarketData_bases[] = {0,0};
@@ -32267,6 +32382,62 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OfferDataMarket_date_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OfferDataMarket_date_set self date ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__OfferDataMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataMarket_date_set" "', argument " "1"" of type '" "OTDB::OfferDataMarket *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataMarket * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OfferDataMarket_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OfferDataMarket_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->date = *arg2;
+  
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OfferDataMarket_date_get(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::OfferDataMarket *arg1 = (OTDB::OfferDataMarket *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OfferDataMarket_date_get self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__OfferDataMarket, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataMarket_date_get" "', argument " "1"" of type '" "OTDB::OfferDataMarket *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataMarket * >(argp1);
+  result = (std::string *) & ((arg1)->date);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(*result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OfferDataMarket_ot_dynamic_cast(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   void *argp1 = 0 ;
@@ -32300,6 +32471,7 @@ static swig_attribute swig_OTDB_OfferDataMarket_attributes[] = {
     { "-price_per_scale",_wrap_OfferDataMarket_price_per_scale_get, _wrap_OfferDataMarket_price_per_scale_set},
     { "-available_assets",_wrap_OfferDataMarket_available_assets_get, _wrap_OfferDataMarket_available_assets_set},
     { "-minimum_increment",_wrap_OfferDataMarket_minimum_increment_get, _wrap_OfferDataMarket_minimum_increment_set},
+    { "-date",_wrap_OfferDataMarket_date_get, _wrap_OfferDataMarket_date_set},
     {0,0,0}
 };
 static swig_class *swig_OTDB_OfferDataMarket_bases[] = {0,0};
@@ -32606,6 +32778,62 @@ fail:
 
 
 SWIGINTERN int
+_wrap_BidData_date_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:BidData_date_set self date ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__BidData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BidData_date_set" "', argument " "1"" of type '" "OTDB::BidData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::BidData * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "BidData_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "BidData_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->date = *arg2;
+  
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_BidData_date_get(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::BidData *arg1 = (OTDB::BidData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:BidData_date_get self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__BidData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BidData_date_get" "', argument " "1"" of type '" "OTDB::BidData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::BidData * >(argp1);
+  result = (std::string *) & ((arg1)->date);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(*result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_BidData_ot_dynamic_cast(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   void *argp1 = 0 ;
@@ -32639,6 +32867,7 @@ static swig_attribute swig_OTDB_BidData_attributes[] = {
     { "-price_per_scale",_wrap_BidData_price_per_scale_get, _wrap_BidData_price_per_scale_set},
     { "-available_assets",_wrap_BidData_available_assets_get, _wrap_BidData_available_assets_set},
     { "-minimum_increment",_wrap_BidData_minimum_increment_get, _wrap_BidData_minimum_increment_set},
+    { "-date",_wrap_BidData_date_get, _wrap_BidData_date_set},
     {0,0,0}
 };
 static swig_class *swig_OTDB_BidData_bases[] = {0,0};
@@ -32945,6 +33174,62 @@ fail:
 
 
 SWIGINTERN int
+_wrap_AskData_date_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:AskData_date_set self date ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__AskData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AskData_date_set" "', argument " "1"" of type '" "OTDB::AskData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::AskData * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "AskData_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "AskData_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->date = *arg2;
+  
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_AskData_date_get(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::AskData *arg1 = (OTDB::AskData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:AskData_date_get self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__AskData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "AskData_date_get" "', argument " "1"" of type '" "OTDB::AskData *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::AskData * >(argp1);
+  result = (std::string *) & ((arg1)->date);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(*result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_AskData_ot_dynamic_cast(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   void *argp1 = 0 ;
@@ -32978,6 +33263,7 @@ static swig_attribute swig_OTDB_AskData_attributes[] = {
     { "-price_per_scale",_wrap_AskData_price_per_scale_get, _wrap_AskData_price_per_scale_set},
     { "-available_assets",_wrap_AskData_available_assets_get, _wrap_AskData_available_assets_set},
     { "-minimum_increment",_wrap_AskData_minimum_increment_get, _wrap_AskData_minimum_increment_set},
+    { "-date",_wrap_AskData_date_get, _wrap_AskData_date_set},
     {0,0,0}
 };
 static swig_class *swig_OTDB_AskData_bases[] = {0,0};
@@ -34741,6 +35027,62 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OfferDataNym_date_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OfferDataNym_date_set self date ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__OfferDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataNym_date_set" "', argument " "1"" of type '" "OTDB::OfferDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OfferDataNym_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OfferDataNym_date_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->date = *arg2;
+  
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OfferDataNym_date_get(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::OfferDataNym *arg1 = (OTDB::OfferDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OfferDataNym_date_get self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__OfferDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OfferDataNym_date_get" "', argument " "1"" of type '" "OTDB::OfferDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::OfferDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->date);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(*result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OfferDataNym_ot_dynamic_cast(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   void *argp1 = 0 ;
@@ -34786,6 +35128,7 @@ static swig_attribute swig_OTDB_OfferDataNym_attributes[] = {
     { "-minimum_increment",_wrap_OfferDataNym_minimum_increment_get, _wrap_OfferDataNym_minimum_increment_set},
     { "-stop_sign",_wrap_OfferDataNym_stop_sign_get, _wrap_OfferDataNym_stop_sign_set},
     { "-stop_price",_wrap_OfferDataNym_stop_price_get, _wrap_OfferDataNym_stop_price_set},
+    { "-date",_wrap_OfferDataNym_date_get, _wrap_OfferDataNym_date_set},
     {0,0,0}
 };
 static swig_class *swig_OTDB_OfferDataNym_bases[] = {0,0};
@@ -35317,6 +35660,342 @@ fail:
 
 
 SWIGINTERN int
+_wrap_TradeDataNym_updated_id_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:TradeDataNym_updated_id_set self updated_id ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_updated_id_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_updated_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_updated_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->updated_id = *arg2;
+  
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_TradeDataNym_updated_id_get(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:TradeDataNym_updated_id_get self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_updated_id_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->updated_id);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(*result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_TradeDataNym_offer_price_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:TradeDataNym_offer_price_set self offer_price ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_offer_price_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_offer_price_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_offer_price_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->offer_price = *arg2;
+  
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_TradeDataNym_offer_price_get(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:TradeDataNym_offer_price_get self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_offer_price_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->offer_price);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(*result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_TradeDataNym_finished_so_far_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:TradeDataNym_finished_so_far_set self finished_so_far ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_finished_so_far_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_finished_so_far_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_finished_so_far_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->finished_so_far = *arg2;
+  
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_TradeDataNym_finished_so_far_get(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:TradeDataNym_finished_so_far_get self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_finished_so_far_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->finished_so_far);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(*result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_TradeDataNym_asset_id_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:TradeDataNym_asset_id_set self asset_id ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_asset_id_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_asset_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_asset_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->asset_id = *arg2;
+  
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_TradeDataNym_asset_id_get(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:TradeDataNym_asset_id_get self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_asset_id_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->asset_id);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(*result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_TradeDataNym_currency_id_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:TradeDataNym_currency_id_set self currency_id ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_currency_id_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_currency_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_currency_id_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->currency_id = *arg2;
+  
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_TradeDataNym_currency_id_get(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:TradeDataNym_currency_id_get self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_currency_id_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->currency_id);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(*result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_TradeDataNym_currency_paid_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:TradeDataNym_currency_paid_set self currency_paid ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_currency_paid_set" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TradeDataNym_currency_paid_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TradeDataNym_currency_paid_set" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  if (arg1) (arg1)->currency_paid = *arg2;
+  
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_OK;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_TradeDataNym_currency_paid_get(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::TradeDataNym *arg1 = (OTDB::TradeDataNym *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:TradeDataNym_currency_paid_get self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__TradeDataNym, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TradeDataNym_currency_paid_get" "', argument " "1"" of type '" "OTDB::TradeDataNym *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::TradeDataNym * >(argp1);
+  result = (std::string *) & ((arg1)->currency_paid);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(*result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_TradeDataNym_ot_dynamic_cast(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTDB::Storable *arg1 = (OTDB::Storable *) 0 ;
   void *argp1 = 0 ;
@@ -35351,6 +36030,12 @@ static swig_attribute swig_OTDB_TradeDataNym_attributes[] = {
     { "-date",_wrap_TradeDataNym_date_get, _wrap_TradeDataNym_date_set},
     { "-price",_wrap_TradeDataNym_price_get, _wrap_TradeDataNym_price_set},
     { "-amount_sold",_wrap_TradeDataNym_amount_sold_get, _wrap_TradeDataNym_amount_sold_set},
+    { "-updated_id",_wrap_TradeDataNym_updated_id_get, _wrap_TradeDataNym_updated_id_set},
+    { "-offer_price",_wrap_TradeDataNym_offer_price_get, _wrap_TradeDataNym_offer_price_set},
+    { "-finished_so_far",_wrap_TradeDataNym_finished_so_far_get, _wrap_TradeDataNym_finished_so_far_set},
+    { "-asset_id",_wrap_TradeDataNym_asset_id_get, _wrap_TradeDataNym_asset_id_set},
+    { "-currency_id",_wrap_TradeDataNym_currency_id_get, _wrap_TradeDataNym_currency_id_set},
+    { "-currency_paid",_wrap_TradeDataNym_currency_paid_get, _wrap_TradeDataNym_currency_paid_set},
     {0,0,0}
 };
 static swig_class *swig_OTDB_TradeDataNym_bases[] = {0,0};
@@ -40633,6 +41318,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTAPI_Basic_getMint", (swig_wrapper_func) _wrap_OTAPI_Basic_getMint, NULL},
     { SWIG_prefix "OTAPI_Basic_createAssetAccount", (swig_wrapper_func) _wrap_OTAPI_Basic_createAssetAccount, NULL},
     { SWIG_prefix "OTAPI_Basic_getAccount", (swig_wrapper_func) _wrap_OTAPI_Basic_getAccount, NULL},
+    { SWIG_prefix "OTAPI_Basic_getAccountFiles", (swig_wrapper_func) _wrap_OTAPI_Basic_getAccountFiles, NULL},
     { SWIG_prefix "OTAPI_Basic_GenerateBasketCreation", (swig_wrapper_func) _wrap_OTAPI_Basic_GenerateBasketCreation, NULL},
     { SWIG_prefix "OTAPI_Basic_AddBasketCreationItem", (swig_wrapper_func) _wrap_OTAPI_Basic_AddBasketCreationItem, NULL},
     { SWIG_prefix "OTAPI_Basic_issueBasket", (swig_wrapper_func) _wrap_OTAPI_Basic_issueBasket, NULL},
@@ -40840,6 +41526,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "MarketData_recent_highest_bid_get", (swig_wrapper_func) _wrap_MarketData_recent_highest_bid_get, NULL},
     { SWIG_prefix "MarketData_recent_lowest_ask_set", (swig_wrapper_func) _wrap_MarketData_recent_lowest_ask_set, NULL},
     { SWIG_prefix "MarketData_recent_lowest_ask_get", (swig_wrapper_func) _wrap_MarketData_recent_lowest_ask_get, NULL},
+    { SWIG_prefix "MarketData_last_sale_date_set", (swig_wrapper_func) _wrap_MarketData_last_sale_date_set, NULL},
+    { SWIG_prefix "MarketData_last_sale_date_get", (swig_wrapper_func) _wrap_MarketData_last_sale_date_get, NULL},
     { SWIG_prefix "MarketData_ot_dynamic_cast", (swig_wrapper_func) _wrap_MarketData_ot_dynamic_cast, NULL},
     { SWIG_prefix "MarketData", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_OTDB_MarketData},
     { SWIG_prefix "delete_MarketList", (swig_wrapper_func) _wrap_delete_MarketList, NULL},
@@ -40860,6 +41548,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OfferDataMarket_available_assets_get", (swig_wrapper_func) _wrap_OfferDataMarket_available_assets_get, NULL},
     { SWIG_prefix "OfferDataMarket_minimum_increment_set", (swig_wrapper_func) _wrap_OfferDataMarket_minimum_increment_set, NULL},
     { SWIG_prefix "OfferDataMarket_minimum_increment_get", (swig_wrapper_func) _wrap_OfferDataMarket_minimum_increment_get, NULL},
+    { SWIG_prefix "OfferDataMarket_date_set", (swig_wrapper_func) _wrap_OfferDataMarket_date_set, NULL},
+    { SWIG_prefix "OfferDataMarket_date_get", (swig_wrapper_func) _wrap_OfferDataMarket_date_get, NULL},
     { SWIG_prefix "OfferDataMarket_ot_dynamic_cast", (swig_wrapper_func) _wrap_OfferDataMarket_ot_dynamic_cast, NULL},
     { SWIG_prefix "OfferDataMarket", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_OTDB_OfferDataMarket},
     { SWIG_prefix "delete_BidData", (swig_wrapper_func) _wrap_delete_BidData, NULL},
@@ -40873,6 +41563,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "BidData_available_assets_get", (swig_wrapper_func) _wrap_BidData_available_assets_get, NULL},
     { SWIG_prefix "BidData_minimum_increment_set", (swig_wrapper_func) _wrap_BidData_minimum_increment_set, NULL},
     { SWIG_prefix "BidData_minimum_increment_get", (swig_wrapper_func) _wrap_BidData_minimum_increment_get, NULL},
+    { SWIG_prefix "BidData_date_set", (swig_wrapper_func) _wrap_BidData_date_set, NULL},
+    { SWIG_prefix "BidData_date_get", (swig_wrapper_func) _wrap_BidData_date_get, NULL},
     { SWIG_prefix "BidData_ot_dynamic_cast", (swig_wrapper_func) _wrap_BidData_ot_dynamic_cast, NULL},
     { SWIG_prefix "BidData", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_OTDB_BidData},
     { SWIG_prefix "delete_AskData", (swig_wrapper_func) _wrap_delete_AskData, NULL},
@@ -40886,6 +41578,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "AskData_available_assets_get", (swig_wrapper_func) _wrap_AskData_available_assets_get, NULL},
     { SWIG_prefix "AskData_minimum_increment_set", (swig_wrapper_func) _wrap_AskData_minimum_increment_set, NULL},
     { SWIG_prefix "AskData_minimum_increment_get", (swig_wrapper_func) _wrap_AskData_minimum_increment_get, NULL},
+    { SWIG_prefix "AskData_date_set", (swig_wrapper_func) _wrap_AskData_date_set, NULL},
+    { SWIG_prefix "AskData_date_get", (swig_wrapper_func) _wrap_AskData_date_get, NULL},
     { SWIG_prefix "AskData_ot_dynamic_cast", (swig_wrapper_func) _wrap_AskData_ot_dynamic_cast, NULL},
     { SWIG_prefix "AskData", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_OTDB_AskData},
     { SWIG_prefix "delete_OfferListMarket", (swig_wrapper_func) _wrap_delete_OfferListMarket, NULL},
@@ -40954,6 +41648,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OfferDataNym_stop_sign_get", (swig_wrapper_func) _wrap_OfferDataNym_stop_sign_get, NULL},
     { SWIG_prefix "OfferDataNym_stop_price_set", (swig_wrapper_func) _wrap_OfferDataNym_stop_price_set, NULL},
     { SWIG_prefix "OfferDataNym_stop_price_get", (swig_wrapper_func) _wrap_OfferDataNym_stop_price_get, NULL},
+    { SWIG_prefix "OfferDataNym_date_set", (swig_wrapper_func) _wrap_OfferDataNym_date_set, NULL},
+    { SWIG_prefix "OfferDataNym_date_get", (swig_wrapper_func) _wrap_OfferDataNym_date_get, NULL},
     { SWIG_prefix "OfferDataNym_ot_dynamic_cast", (swig_wrapper_func) _wrap_OfferDataNym_ot_dynamic_cast, NULL},
     { SWIG_prefix "OfferDataNym", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_OTDB_OfferDataNym},
     { SWIG_prefix "delete_OfferListNym", (swig_wrapper_func) _wrap_delete_OfferListNym, NULL},
@@ -40976,6 +41672,18 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "TradeDataNym_price_get", (swig_wrapper_func) _wrap_TradeDataNym_price_get, NULL},
     { SWIG_prefix "TradeDataNym_amount_sold_set", (swig_wrapper_func) _wrap_TradeDataNym_amount_sold_set, NULL},
     { SWIG_prefix "TradeDataNym_amount_sold_get", (swig_wrapper_func) _wrap_TradeDataNym_amount_sold_get, NULL},
+    { SWIG_prefix "TradeDataNym_updated_id_set", (swig_wrapper_func) _wrap_TradeDataNym_updated_id_set, NULL},
+    { SWIG_prefix "TradeDataNym_updated_id_get", (swig_wrapper_func) _wrap_TradeDataNym_updated_id_get, NULL},
+    { SWIG_prefix "TradeDataNym_offer_price_set", (swig_wrapper_func) _wrap_TradeDataNym_offer_price_set, NULL},
+    { SWIG_prefix "TradeDataNym_offer_price_get", (swig_wrapper_func) _wrap_TradeDataNym_offer_price_get, NULL},
+    { SWIG_prefix "TradeDataNym_finished_so_far_set", (swig_wrapper_func) _wrap_TradeDataNym_finished_so_far_set, NULL},
+    { SWIG_prefix "TradeDataNym_finished_so_far_get", (swig_wrapper_func) _wrap_TradeDataNym_finished_so_far_get, NULL},
+    { SWIG_prefix "TradeDataNym_asset_id_set", (swig_wrapper_func) _wrap_TradeDataNym_asset_id_set, NULL},
+    { SWIG_prefix "TradeDataNym_asset_id_get", (swig_wrapper_func) _wrap_TradeDataNym_asset_id_get, NULL},
+    { SWIG_prefix "TradeDataNym_currency_id_set", (swig_wrapper_func) _wrap_TradeDataNym_currency_id_set, NULL},
+    { SWIG_prefix "TradeDataNym_currency_id_get", (swig_wrapper_func) _wrap_TradeDataNym_currency_id_get, NULL},
+    { SWIG_prefix "TradeDataNym_currency_paid_set", (swig_wrapper_func) _wrap_TradeDataNym_currency_paid_set, NULL},
+    { SWIG_prefix "TradeDataNym_currency_paid_get", (swig_wrapper_func) _wrap_TradeDataNym_currency_paid_get, NULL},
     { SWIG_prefix "TradeDataNym_ot_dynamic_cast", (swig_wrapper_func) _wrap_TradeDataNym_ot_dynamic_cast, NULL},
     { SWIG_prefix "TradeDataNym", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_OTDB_TradeDataNym},
     { SWIG_prefix "delete_TradeListNym", (swig_wrapper_func) _wrap_delete_TradeListNym, NULL},

@@ -623,6 +623,53 @@ bool OTString::TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & ma
 // ----------------------------------------------------------------------
 
 
+//static
+int64_t OTString::StringToLong(const std::string & strNumber)
+{
+    if(strNumber.size() == 0 )
+        return 0;
+    
+    int64_t v = 0;
+    size_t  i = 0;
+    
+    char sign = (strNumber[0] == '-' || strNumber[0] == '+') ? (++i, strNumber[0]) : '+';
+    
+    for( ; i < strNumber.size(); ++i)
+    {
+        if ( strNumber[i] < '0' || strNumber[i] > '9' )
+            break;
+        v = ( (v * 10) + (strNumber[i] - '0'));
+    }
+    return ((0 == v) ? 0 : ((sign == '-') ? -v : v));
+}
+
+// ----------------------------------------------------------------------
+
+int64_t OTString::ToLong() const
+{
+    const std::string str_number(this->Get());
+    
+    return OTString::StringToLong(str_number);
+}
+
+
+// ----------------------------------------------------------------------
+
+/*
+ int64_t OTString::StringToLong(const std::string & strNumber)
+ {
+    char* end;
+    int64_t lNumber = strtol(strNumber.c_str(), &end, 10);
+ 
+    if (!*end) return lNumber;
+    else
+    {
+        OTLog::sError("Conversion error (str to int64_t), non-convertible part: %s",end);
+        OT_FAIL;
+        return -1;
+    }
+ }
+ */
 // 
 /*
  WCHAR szPassword[MAX_PATH];

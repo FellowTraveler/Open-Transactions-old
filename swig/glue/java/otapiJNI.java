@@ -356,6 +356,7 @@ public class otapiJNI {
   public final static native int OTAPI_Basic_getMint(String jarg1, String jarg2, String jarg3);
   public final static native int OTAPI_Basic_createAssetAccount(String jarg1, String jarg2, String jarg3);
   public final static native int OTAPI_Basic_getAccount(String jarg1, String jarg2, String jarg3);
+  public final static native int OTAPI_Basic_getAccountFiles(String jarg1, String jarg2, String jarg3);
   public final static native String OTAPI_Basic_GenerateBasketCreation(String jarg1, String jarg2);
   public final static native String OTAPI_Basic_AddBasketCreationItem(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OTAPI_Basic_issueBasket(String jarg1, String jarg2, String jarg3);
@@ -380,7 +381,7 @@ public class otapiJNI {
   public final static native int OTAPI_Basic_payDividend(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native int OTAPI_Basic_depositCheque(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OTAPI_Basic_depositPaymentPlan(String jarg1, String jarg2, String jarg3);
-  public final static native int OTAPI_Basic_issueMarketOffer(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, boolean jarg9, String jarg10);
+  public final static native int OTAPI_Basic_issueMarketOffer(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, boolean jarg7, String jarg8, String jarg9, String jarg10);
   public final static native int OTAPI_Basic_getMarketList(String jarg1, String jarg2);
   public final static native int OTAPI_Basic_getMarketOffers(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OTAPI_Basic_getMarketRecentTrades(String jarg1, String jarg2, String jarg3);
@@ -449,7 +450,7 @@ public class otapiJNI {
   public final static native String OTMadeEasy_retrieve_mint(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_load_or_retrieve_mint(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native String OTMadeEasy_query_asset_types(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
-  public final static native String OTMadeEasy_create_market_offer(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, String jarg9, boolean jarg10, String jarg11);
+  public final static native String OTMadeEasy_create_market_offer(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, boolean jarg8, String jarg9, String jarg10, String jarg11);
   public final static native String OTMadeEasy_kill_market_offer(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTMadeEasy_kill_payment_plan(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OTMadeEasy_cancel_payment_plan(long jarg1, OTMadeEasy jarg1_, String jarg2, String jarg3, String jarg4);
@@ -639,6 +640,8 @@ public class otapiJNI {
   public final static native String MarketData_recent_highest_bid_get(long jarg1, MarketData jarg1_);
   public final static native void MarketData_recent_lowest_ask_set(long jarg1, MarketData jarg1_, String jarg2);
   public final static native String MarketData_recent_lowest_ask_get(long jarg1, MarketData jarg1_);
+  public final static native void MarketData_last_sale_date_set(long jarg1, MarketData jarg1_, String jarg2);
+  public final static native String MarketData_last_sale_date_get(long jarg1, MarketData jarg1_);
   public final static native long MarketData_ot_dynamic_cast(long jarg1, Storable jarg1_);
   public final static native void delete_MarketList(long jarg1);
   public final static native long MarketList_GetMarketDataCount(long jarg1, MarketList jarg1_);
@@ -657,6 +660,8 @@ public class otapiJNI {
   public final static native String OfferDataMarket_available_assets_get(long jarg1, OfferDataMarket jarg1_);
   public final static native void OfferDataMarket_minimum_increment_set(long jarg1, OfferDataMarket jarg1_, String jarg2);
   public final static native String OfferDataMarket_minimum_increment_get(long jarg1, OfferDataMarket jarg1_);
+  public final static native void OfferDataMarket_date_set(long jarg1, OfferDataMarket jarg1_, String jarg2);
+  public final static native String OfferDataMarket_date_get(long jarg1, OfferDataMarket jarg1_);
   public final static native long OfferDataMarket_ot_dynamic_cast(long jarg1, Storable jarg1_);
   public final static native void delete_BidData(long jarg1);
   public final static native void BidData_gui_label_set(long jarg1, BidData jarg1_, String jarg2);
@@ -669,6 +674,8 @@ public class otapiJNI {
   public final static native String BidData_available_assets_get(long jarg1, BidData jarg1_);
   public final static native void BidData_minimum_increment_set(long jarg1, BidData jarg1_, String jarg2);
   public final static native String BidData_minimum_increment_get(long jarg1, BidData jarg1_);
+  public final static native void BidData_date_set(long jarg1, BidData jarg1_, String jarg2);
+  public final static native String BidData_date_get(long jarg1, BidData jarg1_);
   public final static native long BidData_ot_dynamic_cast(long jarg1, Storable jarg1_);
   public final static native void delete_AskData(long jarg1);
   public final static native void AskData_gui_label_set(long jarg1, AskData jarg1_, String jarg2);
@@ -681,6 +688,8 @@ public class otapiJNI {
   public final static native String AskData_available_assets_get(long jarg1, AskData jarg1_);
   public final static native void AskData_minimum_increment_set(long jarg1, AskData jarg1_, String jarg2);
   public final static native String AskData_minimum_increment_get(long jarg1, AskData jarg1_);
+  public final static native void AskData_date_set(long jarg1, AskData jarg1_, String jarg2);
+  public final static native String AskData_date_get(long jarg1, AskData jarg1_);
   public final static native long AskData_ot_dynamic_cast(long jarg1, Storable jarg1_);
   public final static native void delete_OfferListMarket(long jarg1);
   public final static native long OfferListMarket_GetBidDataCount(long jarg1, OfferListMarket jarg1_);
@@ -745,6 +754,8 @@ public class otapiJNI {
   public final static native String OfferDataNym_stop_sign_get(long jarg1, OfferDataNym jarg1_);
   public final static native void OfferDataNym_stop_price_set(long jarg1, OfferDataNym jarg1_, String jarg2);
   public final static native String OfferDataNym_stop_price_get(long jarg1, OfferDataNym jarg1_);
+  public final static native void OfferDataNym_date_set(long jarg1, OfferDataNym jarg1_, String jarg2);
+  public final static native String OfferDataNym_date_get(long jarg1, OfferDataNym jarg1_);
   public final static native long OfferDataNym_ot_dynamic_cast(long jarg1, Storable jarg1_);
   public final static native void delete_OfferListNym(long jarg1);
   public final static native long OfferListNym_GetOfferDataNymCount(long jarg1, OfferListNym jarg1_);
@@ -765,6 +776,18 @@ public class otapiJNI {
   public final static native String TradeDataNym_price_get(long jarg1, TradeDataNym jarg1_);
   public final static native void TradeDataNym_amount_sold_set(long jarg1, TradeDataNym jarg1_, String jarg2);
   public final static native String TradeDataNym_amount_sold_get(long jarg1, TradeDataNym jarg1_);
+  public final static native void TradeDataNym_updated_id_set(long jarg1, TradeDataNym jarg1_, String jarg2);
+  public final static native String TradeDataNym_updated_id_get(long jarg1, TradeDataNym jarg1_);
+  public final static native void TradeDataNym_offer_price_set(long jarg1, TradeDataNym jarg1_, String jarg2);
+  public final static native String TradeDataNym_offer_price_get(long jarg1, TradeDataNym jarg1_);
+  public final static native void TradeDataNym_finished_so_far_set(long jarg1, TradeDataNym jarg1_, String jarg2);
+  public final static native String TradeDataNym_finished_so_far_get(long jarg1, TradeDataNym jarg1_);
+  public final static native void TradeDataNym_asset_id_set(long jarg1, TradeDataNym jarg1_, String jarg2);
+  public final static native String TradeDataNym_asset_id_get(long jarg1, TradeDataNym jarg1_);
+  public final static native void TradeDataNym_currency_id_set(long jarg1, TradeDataNym jarg1_, String jarg2);
+  public final static native String TradeDataNym_currency_id_get(long jarg1, TradeDataNym jarg1_);
+  public final static native void TradeDataNym_currency_paid_set(long jarg1, TradeDataNym jarg1_, String jarg2);
+  public final static native String TradeDataNym_currency_paid_get(long jarg1, TradeDataNym jarg1_);
   public final static native long TradeDataNym_ot_dynamic_cast(long jarg1, Storable jarg1_);
   public final static native void delete_TradeListNym(long jarg1);
   public final static native long TradeListNym_GetTradeDataNymCount(long jarg1, TradeListNym jarg1_);

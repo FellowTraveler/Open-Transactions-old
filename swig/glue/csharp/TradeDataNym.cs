@@ -112,6 +112,78 @@ public class TradeDataNym : Displayable {
     } 
   }
 
+  public string updated_id {
+    set {
+      otapiPINVOKE.TradeDataNym_updated_id_set(swigCPtr, value);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    } 
+    get {
+      string ret = otapiPINVOKE.TradeDataNym_updated_id_get(swigCPtr);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+      return ret;
+    } 
+  }
+
+  public string offer_price {
+    set {
+      otapiPINVOKE.TradeDataNym_offer_price_set(swigCPtr, value);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    } 
+    get {
+      string ret = otapiPINVOKE.TradeDataNym_offer_price_get(swigCPtr);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+      return ret;
+    } 
+  }
+
+  public string finished_so_far {
+    set {
+      otapiPINVOKE.TradeDataNym_finished_so_far_set(swigCPtr, value);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    } 
+    get {
+      string ret = otapiPINVOKE.TradeDataNym_finished_so_far_get(swigCPtr);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+      return ret;
+    } 
+  }
+
+  public string asset_id {
+    set {
+      otapiPINVOKE.TradeDataNym_asset_id_set(swigCPtr, value);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    } 
+    get {
+      string ret = otapiPINVOKE.TradeDataNym_asset_id_get(swigCPtr);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+      return ret;
+    } 
+  }
+
+  public string currency_id {
+    set {
+      otapiPINVOKE.TradeDataNym_currency_id_set(swigCPtr, value);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    } 
+    get {
+      string ret = otapiPINVOKE.TradeDataNym_currency_id_get(swigCPtr);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+      return ret;
+    } 
+  }
+
+  public string currency_paid {
+    set {
+      otapiPINVOKE.TradeDataNym_currency_paid_set(swigCPtr, value);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    } 
+    get {
+      string ret = otapiPINVOKE.TradeDataNym_currency_paid_get(swigCPtr);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+      return ret;
+    } 
+  }
+
   public new static TradeDataNym ot_dynamic_cast(Storable pObject) {
     IntPtr cPtr = otapiPINVOKE.TradeDataNym_ot_dynamic_cast(Storable.getCPtr(pObject));
     TradeDataNym ret = (cPtr == IntPtr.Zero) ? null : new TradeDataNym(cPtr, false);

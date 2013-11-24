@@ -970,6 +970,7 @@ func OTAPI_BasicGetContract(string, string, string) int32
 func OTAPI_BasicGetMint(string, string, string) int32
 func OTAPI_BasicCreateAssetAccount(string, string, string) int32
 func OTAPI_BasicGetAccount(string, string, string) int32
+func OTAPI_BasicGetAccountFiles(string, string, string) int32
 func OTAPI_BasicGenerateBasketCreation(string, string) string
 func OTAPI_BasicAddBasketCreationItem(string, string, string, string) string
 func OTAPI_BasicIssueBasket(string, string, string) int32
@@ -994,7 +995,7 @@ func OTAPI_BasicWithdrawVoucher(string, string, string, string, string, string) 
 func OTAPI_BasicPayDividend(string, string, string, string, string, string) int32
 func OTAPI_BasicDepositCheque(string, string, string, string) int32
 func OTAPI_BasicDepositPaymentPlan(string, string, string) int32
-func OTAPI_BasicIssueMarketOffer(string, string, string, string, string, string, string, string, bool, string) int32
+func OTAPI_BasicIssueMarketOffer(string, string, string, string, string, string, bool, string, string, string) int32
 func OTAPI_BasicGetMarketList(string, string) int32
 func OTAPI_BasicGetMarketOffers(string, string, string, string) int32
 func OTAPI_BasicGetMarketRecentTrades(string, string, string) int32
@@ -1325,9 +1326,9 @@ func (arg1 SwigcptrOTMadeEasy) Query_asset_types(arg2 string, arg3 string, arg4 
 	return _swig_wrap_OTMadeEasy_query_asset_types(arg1, arg2, arg3, arg4)
 }
 
-func _swig_wrap_OTMadeEasy_create_market_offer(SwigcptrOTMadeEasy, string, string, string, string, string, string, string, string, bool, string) string
+func _swig_wrap_OTMadeEasy_create_market_offer(SwigcptrOTMadeEasy, string, string, string, string, string, string, bool, string, string, string) string
 
-func (arg1 SwigcptrOTMadeEasy) Create_market_offer(arg2 string, arg3 string, arg4 string, arg5 string, arg6 string, arg7 string, arg8 string, arg9 string, arg10 bool, arg11 string) string {
+func (arg1 SwigcptrOTMadeEasy) Create_market_offer(arg2 string, arg3 string, arg4 string, arg5 string, arg6 string, arg7 string, arg8 bool, arg9 string, arg10 string, arg11 string) string {
 	return _swig_wrap_OTMadeEasy_create_market_offer(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
 }
 
@@ -1501,7 +1502,7 @@ type OTMadeEasy interface {
 	Retrieve_mint(arg2 string, arg3 string, arg4 string) string
 	Load_or_retrieve_mint(arg2 string, arg3 string, arg4 string) string
 	Query_asset_types(arg2 string, arg3 string, arg4 string) string
-	Create_market_offer(arg2 string, arg3 string, arg4 string, arg5 string, arg6 string, arg7 string, arg8 string, arg9 string, arg10 bool, arg11 string) string
+	Create_market_offer(arg2 string, arg3 string, arg4 string, arg5 string, arg6 string, arg7 string, arg8 bool, arg9 string, arg10 string, arg11 string) string
 	Kill_market_offer(arg2 string, arg3 string, arg4 string, arg5 string) string
 	Kill_payment_plan(arg2 string, arg3 string, arg4 string, arg5 string) string
 	Cancel_payment_plan(arg2 string, arg3 string, arg4 string) string
@@ -2757,6 +2758,18 @@ func (arg1 SwigcptrMarketData) GetRecent_lowest_ask() string {
 	return _swig_wrap_MarketData_recent_lowest_ask_get(arg1)
 }
 
+func _swig_wrap_MarketData_last_sale_date_set(SwigcptrMarketData, string)
+
+func (arg1 SwigcptrMarketData) SetLast_sale_date(arg2 string) {
+	_swig_wrap_MarketData_last_sale_date_set(arg1, arg2)
+}
+
+func _swig_wrap_MarketData_last_sale_date_get(SwigcptrMarketData) string
+
+func (arg1 SwigcptrMarketData) GetLast_sale_date() string {
+	return _swig_wrap_MarketData_last_sale_date_get(arg1)
+}
+
 func _swig_wrap_MarketData_ot_dynamic_cast(uintptr) SwigcptrMarketData
 
 func MarketDataOt_dynamic_cast(arg1 Storable) MarketData {
@@ -2820,6 +2833,8 @@ type MarketData interface {
 	GetRecent_highest_bid() string
 	SetRecent_lowest_ask(arg2 string)
 	GetRecent_lowest_ask() string
+	SetLast_sale_date(arg2 string)
+	GetLast_sale_date() string
 	SwigIsDisplayable()
 	SwigGetDisplayable() Displayable
 	SwigIsStorable()
@@ -2970,6 +2985,18 @@ func (arg1 SwigcptrOfferDataMarket) GetMinimum_increment() string {
 	return _swig_wrap_OfferDataMarket_minimum_increment_get(arg1)
 }
 
+func _swig_wrap_OfferDataMarket_date_set(SwigcptrOfferDataMarket, string)
+
+func (arg1 SwigcptrOfferDataMarket) SetDate(arg2 string) {
+	_swig_wrap_OfferDataMarket_date_set(arg1, arg2)
+}
+
+func _swig_wrap_OfferDataMarket_date_get(SwigcptrOfferDataMarket) string
+
+func (arg1 SwigcptrOfferDataMarket) GetDate() string {
+	return _swig_wrap_OfferDataMarket_date_get(arg1)
+}
+
 func _swig_wrap_OfferDataMarket_ot_dynamic_cast(uintptr) SwigcptrOfferDataMarket
 
 func OfferDataMarketOt_dynamic_cast(arg1 Storable) OfferDataMarket {
@@ -3009,6 +3036,8 @@ type OfferDataMarket interface {
 	GetAvailable_assets() string
 	SetMinimum_increment(arg2 string)
 	GetMinimum_increment() string
+	SetDate(arg2 string)
+	GetDate() string
 	SwigIsDisplayable()
 	SwigGetDisplayable() Displayable
 	SwigIsStorable()
@@ -3090,6 +3119,18 @@ func (arg1 SwigcptrBidData) GetMinimum_increment() string {
 	return _swig_wrap_BidData_minimum_increment_get(arg1)
 }
 
+func _swig_wrap_BidData_date_set(SwigcptrBidData, string)
+
+func (arg1 SwigcptrBidData) SetDate(arg2 string) {
+	_swig_wrap_BidData_date_set(arg1, arg2)
+}
+
+func _swig_wrap_BidData_date_get(SwigcptrBidData) string
+
+func (arg1 SwigcptrBidData) GetDate() string {
+	return _swig_wrap_BidData_date_get(arg1)
+}
+
 func _swig_wrap_BidData_ot_dynamic_cast(uintptr) SwigcptrBidData
 
 func BidDataOt_dynamic_cast(arg1 Storable) BidData {
@@ -3136,6 +3177,8 @@ type BidData interface {
 	GetAvailable_assets() string
 	SetMinimum_increment(arg2 string)
 	GetMinimum_increment() string
+	SetDate(arg2 string)
+	GetDate() string
 	SwigIsOfferDataMarket()
 	SwigGetOfferDataMarket() OfferDataMarket
 	SwigIsDisplayable()
@@ -3219,6 +3262,18 @@ func (arg1 SwigcptrAskData) GetMinimum_increment() string {
 	return _swig_wrap_AskData_minimum_increment_get(arg1)
 }
 
+func _swig_wrap_AskData_date_set(SwigcptrAskData, string)
+
+func (arg1 SwigcptrAskData) SetDate(arg2 string) {
+	_swig_wrap_AskData_date_set(arg1, arg2)
+}
+
+func _swig_wrap_AskData_date_get(SwigcptrAskData) string
+
+func (arg1 SwigcptrAskData) GetDate() string {
+	return _swig_wrap_AskData_date_get(arg1)
+}
+
 func _swig_wrap_AskData_ot_dynamic_cast(uintptr) SwigcptrAskData
 
 func AskDataOt_dynamic_cast(arg1 Storable) AskData {
@@ -3265,6 +3320,8 @@ type AskData interface {
 	GetAvailable_assets() string
 	SetMinimum_increment(arg2 string)
 	GetMinimum_increment() string
+	SetDate(arg2 string)
+	GetDate() string
 	SwigIsOfferDataMarket()
 	SwigGetOfferDataMarket() OfferDataMarket
 	SwigIsDisplayable()
@@ -3778,6 +3835,18 @@ func (arg1 SwigcptrOfferDataNym) GetStop_price() string {
 	return _swig_wrap_OfferDataNym_stop_price_get(arg1)
 }
 
+func _swig_wrap_OfferDataNym_date_set(SwigcptrOfferDataNym, string)
+
+func (arg1 SwigcptrOfferDataNym) SetDate(arg2 string) {
+	_swig_wrap_OfferDataNym_date_set(arg1, arg2)
+}
+
+func _swig_wrap_OfferDataNym_date_get(SwigcptrOfferDataNym) string
+
+func (arg1 SwigcptrOfferDataNym) GetDate() string {
+	return _swig_wrap_OfferDataNym_date_get(arg1)
+}
+
 func _swig_wrap_OfferDataNym_ot_dynamic_cast(uintptr) SwigcptrOfferDataNym
 
 func OfferDataNymOt_dynamic_cast(arg1 Storable) OfferDataNym {
@@ -3841,6 +3910,8 @@ type OfferDataNym interface {
 	GetStop_sign() string
 	SetStop_price(arg2 string)
 	GetStop_price() string
+	SetDate(arg2 string)
+	GetDate() string
 	SwigIsDisplayable()
 	SwigGetDisplayable() Displayable
 	SwigIsStorable()
@@ -4003,6 +4074,78 @@ func (arg1 SwigcptrTradeDataNym) GetAmount_sold() string {
 	return _swig_wrap_TradeDataNym_amount_sold_get(arg1)
 }
 
+func _swig_wrap_TradeDataNym_updated_id_set(SwigcptrTradeDataNym, string)
+
+func (arg1 SwigcptrTradeDataNym) SetUpdated_id(arg2 string) {
+	_swig_wrap_TradeDataNym_updated_id_set(arg1, arg2)
+}
+
+func _swig_wrap_TradeDataNym_updated_id_get(SwigcptrTradeDataNym) string
+
+func (arg1 SwigcptrTradeDataNym) GetUpdated_id() string {
+	return _swig_wrap_TradeDataNym_updated_id_get(arg1)
+}
+
+func _swig_wrap_TradeDataNym_offer_price_set(SwigcptrTradeDataNym, string)
+
+func (arg1 SwigcptrTradeDataNym) SetOffer_price(arg2 string) {
+	_swig_wrap_TradeDataNym_offer_price_set(arg1, arg2)
+}
+
+func _swig_wrap_TradeDataNym_offer_price_get(SwigcptrTradeDataNym) string
+
+func (arg1 SwigcptrTradeDataNym) GetOffer_price() string {
+	return _swig_wrap_TradeDataNym_offer_price_get(arg1)
+}
+
+func _swig_wrap_TradeDataNym_finished_so_far_set(SwigcptrTradeDataNym, string)
+
+func (arg1 SwigcptrTradeDataNym) SetFinished_so_far(arg2 string) {
+	_swig_wrap_TradeDataNym_finished_so_far_set(arg1, arg2)
+}
+
+func _swig_wrap_TradeDataNym_finished_so_far_get(SwigcptrTradeDataNym) string
+
+func (arg1 SwigcptrTradeDataNym) GetFinished_so_far() string {
+	return _swig_wrap_TradeDataNym_finished_so_far_get(arg1)
+}
+
+func _swig_wrap_TradeDataNym_asset_id_set(SwigcptrTradeDataNym, string)
+
+func (arg1 SwigcptrTradeDataNym) SetAsset_id(arg2 string) {
+	_swig_wrap_TradeDataNym_asset_id_set(arg1, arg2)
+}
+
+func _swig_wrap_TradeDataNym_asset_id_get(SwigcptrTradeDataNym) string
+
+func (arg1 SwigcptrTradeDataNym) GetAsset_id() string {
+	return _swig_wrap_TradeDataNym_asset_id_get(arg1)
+}
+
+func _swig_wrap_TradeDataNym_currency_id_set(SwigcptrTradeDataNym, string)
+
+func (arg1 SwigcptrTradeDataNym) SetCurrency_id(arg2 string) {
+	_swig_wrap_TradeDataNym_currency_id_set(arg1, arg2)
+}
+
+func _swig_wrap_TradeDataNym_currency_id_get(SwigcptrTradeDataNym) string
+
+func (arg1 SwigcptrTradeDataNym) GetCurrency_id() string {
+	return _swig_wrap_TradeDataNym_currency_id_get(arg1)
+}
+
+func _swig_wrap_TradeDataNym_currency_paid_set(SwigcptrTradeDataNym, string)
+
+func (arg1 SwigcptrTradeDataNym) SetCurrency_paid(arg2 string) {
+	_swig_wrap_TradeDataNym_currency_paid_set(arg1, arg2)
+}
+
+func _swig_wrap_TradeDataNym_currency_paid_get(SwigcptrTradeDataNym) string
+
+func (arg1 SwigcptrTradeDataNym) GetCurrency_paid() string {
+	return _swig_wrap_TradeDataNym_currency_paid_get(arg1)
+}
+
 func _swig_wrap_TradeDataNym_ot_dynamic_cast(uintptr) SwigcptrTradeDataNym
 
 func TradeDataNymOt_dynamic_cast(arg1 Storable) TradeDataNym {
@@ -4044,6 +4187,18 @@ type TradeDataNym interface {
 	GetPrice() string
 	SetAmount_sold(arg2 string)
 	GetAmount_sold() string
+	SetUpdated_id(arg2 string)
+	GetUpdated_id() string
+	SetOffer_price(arg2 string)
+	GetOffer_price() string
+	SetFinished_so_far(arg2 string)
+	GetFinished_so_far() string
+	SetAsset_id(arg2 string)
+	GetAsset_id() string
+	SetCurrency_id(arg2 string)
+	GetCurrency_id() string
+	SetCurrency_paid(arg2 string)
+	GetCurrency_paid() string
 	SwigIsDisplayable()
 	SwigGetDisplayable() Displayable
 	SwigIsStorable()

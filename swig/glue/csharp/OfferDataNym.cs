@@ -242,6 +242,18 @@ public class OfferDataNym : Displayable {
     } 
   }
 
+  public string date {
+    set {
+      otapiPINVOKE.OfferDataNym_date_set(swigCPtr, value);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    } 
+    get {
+      string ret = otapiPINVOKE.OfferDataNym_date_get(swigCPtr);
+      if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+      return ret;
+    } 
+  }
+
   public new static OfferDataNym ot_dynamic_cast(Storable pObject) {
     IntPtr cPtr = otapiPINVOKE.OfferDataNym_ot_dynamic_cast(Storable.getCPtr(pObject));
     OfferDataNym ret = (cPtr == IntPtr.Zero) ? null : new OfferDataNym(cPtr, false);

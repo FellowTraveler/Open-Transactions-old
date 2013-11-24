@@ -1221,6 +1221,9 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_getAccount")]
   public static extern int OTAPI_Basic_getAccount(string jarg1, string jarg2, string jarg3);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_getAccountFiles")]
+  public static extern int OTAPI_Basic_getAccountFiles(string jarg1, string jarg2, string jarg3);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_GenerateBasketCreation")]
   public static extern string OTAPI_Basic_GenerateBasketCreation(string jarg1, string jarg2);
 
@@ -1294,7 +1297,7 @@ class otapiPINVOKE {
   public static extern int OTAPI_Basic_depositPaymentPlan(string jarg1, string jarg2, string jarg3);
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_issueMarketOffer")]
-  public static extern int OTAPI_Basic_issueMarketOffer(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8, bool jarg9, string jarg10);
+  public static extern int OTAPI_Basic_issueMarketOffer(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, bool jarg7, string jarg8, string jarg9, string jarg10);
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTAPI_Basic_getMarketList")]
   public static extern int OTAPI_Basic_getMarketList(string jarg1, string jarg2);
@@ -1501,7 +1504,7 @@ class otapiPINVOKE {
   public static extern string OTMadeEasy_query_asset_types(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_create_market_offer")]
-  public static extern string OTMadeEasy_create_market_offer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8, string jarg9, bool jarg10, string jarg11);
+  public static extern string OTMadeEasy_create_market_offer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, bool jarg8, string jarg9, string jarg10, string jarg11);
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_OTMadeEasy_kill_market_offer")]
   public static extern string OTMadeEasy_kill_market_offer(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
@@ -1980,6 +1983,12 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_MarketData_recent_lowest_ask_get")]
   public static extern string MarketData_recent_lowest_ask_get(HandleRef jarg1);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_MarketData_last_sale_date_set")]
+  public static extern void MarketData_last_sale_date_set(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_MarketData_last_sale_date_get")]
+  public static extern string MarketData_last_sale_date_get(HandleRef jarg1);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_MarketData_ot_dynamic_cast")]
   public static extern IntPtr MarketData_ot_dynamic_cast(HandleRef jarg1);
 
@@ -2034,6 +2043,12 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OfferDataMarket_minimum_increment_get")]
   public static extern string OfferDataMarket_minimum_increment_get(HandleRef jarg1);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OfferDataMarket_date_set")]
+  public static extern void OfferDataMarket_date_set(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OfferDataMarket_date_get")]
+  public static extern string OfferDataMarket_date_get(HandleRef jarg1);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OfferDataMarket_ot_dynamic_cast")]
   public static extern IntPtr OfferDataMarket_ot_dynamic_cast(HandleRef jarg1);
 
@@ -2070,6 +2085,12 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_BidData_minimum_increment_get")]
   public static extern string BidData_minimum_increment_get(HandleRef jarg1);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_BidData_date_set")]
+  public static extern void BidData_date_set(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_BidData_date_get")]
+  public static extern string BidData_date_get(HandleRef jarg1);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_BidData_ot_dynamic_cast")]
   public static extern IntPtr BidData_ot_dynamic_cast(HandleRef jarg1);
 
@@ -2105,6 +2126,12 @@ class otapiPINVOKE {
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_AskData_minimum_increment_get")]
   public static extern string AskData_minimum_increment_get(HandleRef jarg1);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_AskData_date_set")]
+  public static extern void AskData_date_set(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_AskData_date_get")]
+  public static extern string AskData_date_get(HandleRef jarg1);
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_AskData_ot_dynamic_cast")]
   public static extern IntPtr AskData_ot_dynamic_cast(HandleRef jarg1);
@@ -2298,6 +2325,12 @@ class otapiPINVOKE {
   [DllImport("otapi-csharp", EntryPoint="CSharp_OfferDataNym_stop_price_get")]
   public static extern string OfferDataNym_stop_price_get(HandleRef jarg1);
 
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OfferDataNym_date_set")]
+  public static extern void OfferDataNym_date_set(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_OfferDataNym_date_get")]
+  public static extern string OfferDataNym_date_get(HandleRef jarg1);
+
   [DllImport("otapi-csharp", EntryPoint="CSharp_OfferDataNym_ot_dynamic_cast")]
   public static extern IntPtr OfferDataNym_ot_dynamic_cast(HandleRef jarg1);
 
@@ -2357,6 +2390,42 @@ class otapiPINVOKE {
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_amount_sold_get")]
   public static extern string TradeDataNym_amount_sold_get(HandleRef jarg1);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_updated_id_set")]
+  public static extern void TradeDataNym_updated_id_set(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_updated_id_get")]
+  public static extern string TradeDataNym_updated_id_get(HandleRef jarg1);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_offer_price_set")]
+  public static extern void TradeDataNym_offer_price_set(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_offer_price_get")]
+  public static extern string TradeDataNym_offer_price_get(HandleRef jarg1);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_finished_so_far_set")]
+  public static extern void TradeDataNym_finished_so_far_set(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_finished_so_far_get")]
+  public static extern string TradeDataNym_finished_so_far_get(HandleRef jarg1);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_asset_id_set")]
+  public static extern void TradeDataNym_asset_id_set(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_asset_id_get")]
+  public static extern string TradeDataNym_asset_id_get(HandleRef jarg1);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_currency_id_set")]
+  public static extern void TradeDataNym_currency_id_set(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_currency_id_get")]
+  public static extern string TradeDataNym_currency_id_get(HandleRef jarg1);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_currency_paid_set")]
+  public static extern void TradeDataNym_currency_paid_set(HandleRef jarg1, string jarg2);
+
+  [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_currency_paid_get")]
+  public static extern string TradeDataNym_currency_paid_get(HandleRef jarg1);
 
   [DllImport("otapi-csharp", EntryPoint="CSharp_TradeDataNym_ot_dynamic_cast")]
   public static extern IntPtr TradeDataNym_ot_dynamic_cast(HandleRef jarg1);

@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTPaymentPlan.cpp
  *  
@@ -182,27 +182,30 @@ int OTPaymentPlan::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		// Yes, there IS apparently an initial payment. We can set the bool to true.
 		m_bInitialPayment	= true; 
 		
-		SetInitialPaymentDate(			atoi(xml->getAttributeValue("date")));
-		SetInitialPaymentCompletedDate(	atoi(xml->getAttributeValue("dateCompleted")));
-		SetLastFailedInitialPaymentDate(atoi(xml->getAttributeValue("dateOfLastAttempt")));
+        const OTString str_date         = xml->getAttributeValue("date");
+        const OTString str_completed    = xml->getAttributeValue("dateCompleted");
+        const OTString str_last_attempt = xml->getAttributeValue("dateOfLastAttempt");
+
+        int64_t tDate            = str_date.ToLong();
+        int64_t tDateCompleted   = str_completed.ToLong();
+        int64_t tDateLastAttempt = str_last_attempt.ToLong();
+        
+		SetInitialPaymentDate          (static_cast<time_t>(tDate));
+		SetInitialPaymentCompletedDate (static_cast<time_t>(tDateCompleted));
+		SetLastFailedInitialPaymentDate(static_cast<time_t>(tDateLastAttempt));
+        
 		SetNoInitialFailures(			atoi(xml->getAttributeValue("numberOfAttempts")));
 		SetInitialPaymentAmount(		atol(xml->getAttributeValue("amount")));
-		
+		// --------------------------------------------------------------------------
 		OTString strCompleted(xml->getAttributeValue("completed"));
-		
-		if (strCompleted.Compare("true"))
-			m_bInitialPaymentDone = true;
-		else
-			m_bInitialPaymentDone = false;
-		
-		// ---------------------
-		
+        m_bInitialPaymentDone = strCompleted.Compare("true");
+		// --------------------------------------------------------------------------
 		OTLog::vOutput(1,
-					   "\n\nInitial Payment. Amount: %ld.   Date: %d.   Completed Date: %d\n"
-					   " Number of failed attempts: %d.   Date of last failed attempt: %d\n"
+					   "\n\nInitial Payment. Amount: %ld.   Date: %" PRId64".   Completed Date: %" PRId64"\n"
+					   " Number of failed attempts: %d.   Date of last failed attempt: %" PRId64"\n"
 					   " Payment %s.\n",
-					   m_lInitialPaymentAmount, m_tInitialPaymentDate, m_tInitialPaymentCompletedDate,
-					   m_nNumberInitialFailures, m_tFailedInitialPaymentDate,
+					   m_lInitialPaymentAmount, tDate, tDateCompleted,
+					   m_nNumberInitialFailures, tDateLastAttempt,
 					   (m_bInitialPaymentDone ? "COMPLETED" : "NOT completed"));
 		
 		nReturnVal = 1;
@@ -212,30 +215,39 @@ int OTPaymentPlan::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	{
 		// Yes, there IS apparently a payment plan. We can set the bool to true.
 		m_bPaymentPlan	= true; 
-		
-		SetPaymentPlanAmount(		atol(xml->getAttributeValue("amountPerPayment")));
-		SetTimeBetweenPayments(		atoi(xml->getAttributeValue("timeBetweenPayments")));
-		SetPaymentPlanStartDate(	atoi(xml->getAttributeValue("planStartDate")));
-		SetPaymentPlanLength(		atoi(xml->getAttributeValue("planLength")));
-		SetMaximumNoPayments(		atoi(xml->getAttributeValue("maxNoPayments")));
-		
-		SetDateOfLastPayment(		atoi(xml->getAttributeValue("dateOfLastPayment")));
-		SetDateOfLastFailedPayment(	atoi(xml->getAttributeValue("dateOfLastFailedPayment")));
-		
-		SetNoPaymentsDone(			atoi(xml->getAttributeValue("completedNoPayments")));
-		SetNoFailedPayments(		atoi(xml->getAttributeValue("failedNoPayments")));
-		
-		// ---------------------
-		
+		// ---------------------------------------------------------------
+		SetPaymentPlanAmount(atol(xml->getAttributeValue("amountPerPayment")));
+        SetMaximumNoPayments(atoi(xml->getAttributeValue("maxNoPayments")));
+		SetNoPaymentsDone   (atoi(xml->getAttributeValue("completedNoPayments")));
+		SetNoFailedPayments (atoi(xml->getAttributeValue("failedNoPayments")));
+		// ---------------------------------------------------------------
+        const OTString str_between      = xml->getAttributeValue("timeBetweenPayments");
+        const OTString str_start        = xml->getAttributeValue("planStartDate");
+        const OTString str_length       = xml->getAttributeValue("planLength");
+        const OTString str_last         = xml->getAttributeValue("dateOfLastPayment");
+        const OTString str_last_attempt = xml->getAttributeValue("dateOfLastFailedPayment");
+
+        int64_t tBetween     = str_between.ToLong();
+        int64_t tStart       = str_start.ToLong();
+        int64_t tLength      = str_length.ToLong();
+        int64_t tLast        = str_last.ToLong();
+        int64_t tLastAttempt = str_last_attempt.ToLong();
+        
+		SetTimeBetweenPayments    (static_cast<time_t>(tBetween));
+		SetPaymentPlanStartDate   (static_cast<time_t>(tStart));
+		SetPaymentPlanLength      (static_cast<time_t>(tLength));
+        SetDateOfLastPayment      (static_cast<time_t>(tLast));
+		SetDateOfLastFailedPayment(static_cast<time_t>(tLastAttempt));
+		// ---------------------------------------------------------------
 		OTLog::vOutput(1,
-					   "\n\nPayment Plan. Amount per payment: %ld.  Time between payments: %d.\n"
-					   " Payment plan Start Date: %d.  Length: %d.   Maximum No. of Payments: %d.\n"
+					   "\n\nPayment Plan. Amount per payment: %ld.  Time between payments: %" PRId64".\n"
+					   " Payment plan Start Date: %" PRId64".  Length: %" PRId64".   Maximum No. of Payments: %d.\n"
 					   " Completed No. of Payments: %d.  Failed No. of Payments: %d\n"
-					   " Date of last payment: %d        Date of last failed payment: %d\n",
-					   m_lPaymentPlanAmount,	m_tTimeBetweenPayments,
-					   m_tPaymentPlanStartDate,	m_tPaymentPlanLength, m_nMaximumNoPayments,
+					   " Date of last payment: %" PRId64"        Date of last failed payment: %" PRId64"\n",
+					   m_lPaymentPlanAmount,	tBetween,
+					   tStart,	tLength, m_nMaximumNoPayments,
 					   m_nNoPaymentsDone,		m_nNoFailedPayments,
-					   m_tDateOfLastPayment,	m_tDateOfLastFailedPayment);
+					   tLast,	tLastAttempt);
 		
 		nReturnVal = 1;
 	}
@@ -253,17 +265,16 @@ void OTPaymentPlan::UpdateContents()
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
 	
-	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");		
-	
+	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");
 	// -------------------------------------------------------------
-
-	const OTString	SERVER_ID(GetServerID()),					ASSET_TYPE_ID(GetAssetID()), 
-					SENDER_ACCT_ID(GetSenderAcctID()),			SENDER_USER_ID(GetSenderUserID()),
-					RECIPIENT_ACCT_ID(GetRecipientAcctID()),	RECIPIENT_USER_ID(GetRecipientUserID());
+	const OTString  SERVER_ID(GetServerID()),                ASSET_TYPE_ID(GetAssetID()),
+                    SENDER_ACCT_ID(GetSenderAcctID()),       SENDER_USER_ID(GetSenderUserID()),
+                    RECIPIENT_ACCT_ID(GetRecipientAcctID()), RECIPIENT_USER_ID(GetRecipientUserID());
 	
     OT_ASSERT(NULL != m_pCancelerNymID);
-    
+    // -------------------------------------------------------------
     OTString strCanceler;
+    
     if (m_bCanceled)
         m_pCancelerNymID->GetString(strCanceler);
     
@@ -278,9 +289,9 @@ void OTPaymentPlan::UpdateContents()
 							  " canceled=\"%s\"\n"
 							  " cancelerUserID=\"%s\"\n"
 							  " transactionNum=\"%ld\"\n"
-							  " creationDate=\"%d\"\n"
-							  " validFrom=\"%d\"\n"
-							  " validTo=\"%d\""							  
+							  " creationDate=\"%" PRId64"\"\n"
+							  " validFrom=\"%" PRId64"\"\n"
+							  " validTo=\"%" PRId64"\""
 							  " >\n\n", 
 							  m_strVersion.Get(),
 							  SERVER_ID.Get(),
@@ -292,7 +303,9 @@ void OTPaymentPlan::UpdateContents()
                               m_bCanceled ? "true" : "false",
                               m_bCanceled ? strCanceler.Get() : "",
 							  m_lTransactionNum,
-							  GetCreationDate(), GetValidFrom(), GetValidTo() );	
+							  static_cast<int64_t>(GetCreationDate()),
+                              static_cast<int64_t>(GetValidFrom()),
+                              static_cast<int64_t>(GetValidTo()) );
     
 	// -------------------------------------------------------------
     
@@ -330,25 +343,25 @@ void OTPaymentPlan::UpdateContents()
     
 	if (HasInitialPayment())
 	{
-		const time_t	tInitialPaymentDate			= GetInitialPaymentDate();
-		const long		lAmount						= GetInitialPaymentAmount();
-		const int		nNumberOfFailedAttempts		= GetNoInitialFailures();
-		const time_t	tFailedInitialPaymentDate	= GetLastFailedInitialPaymentDate();
-		const time_t	tCompletedInitialPaymentDate= GetInitialPaymentCompletedDate();
+		const time_t	tInitialPaymentDate			 = GetInitialPaymentDate();
+		const long		lAmount						 = GetInitialPaymentAmount();
+		const int		nNumberOfFailedAttempts		 = GetNoInitialFailures();
+		const time_t	tFailedInitialPaymentDate	 = GetLastFailedInitialPaymentDate();
+		const time_t	tCompletedInitialPaymentDate = GetInitialPaymentCompletedDate();
 		
 		m_xmlUnsigned.Concatenate("<initialPayment\n"
-								  " date=\"%d\"\n"
+								  " date=\"%" PRId64"\"\n"
 								  " amount=\"%ld\"\n"
 								  " numberOfAttempts=\"%d\"\n"
-								  " dateOfLastAttempt=\"%d\"\n"
-								  " dateCompleted=\"%d\"\n"
+								  " dateOfLastAttempt=\"%" PRId64"\"\n"
+								  " dateCompleted=\"%" PRId64"\"\n"
 								  " completed=\"%s\""
 								  " />\n\n", 
-								  tInitialPaymentDate, 
+								  static_cast<int64_t>(tInitialPaymentDate),
 								  lAmount,
 								  nNumberOfFailedAttempts,
-								  tFailedInitialPaymentDate,
-								  tCompletedInitialPaymentDate,
+								  static_cast<int64_t>(tFailedInitialPaymentDate),
+								  static_cast<int64_t>(tCompletedInitialPaymentDate),
 								  (IsInitialPaymentDone() ? "true" : "false"));								  		
 	}
 	
@@ -358,12 +371,12 @@ void OTPaymentPlan::UpdateContents()
 		
 	if (HasPaymentPlan())
 	{
-		const long	lAmountPerPayment		= GetPaymentPlanAmount(),
-					lTimeBetween			= static_cast<long> (GetTimeBetweenPayments()),
-					lPlanStartDate			= static_cast<long> (GetPaymentPlanStartDate()),
-					lPlanLength				= static_cast<long> (GetPaymentPlanLength()),
-					lDateOfLastPayment		= static_cast<long> (GetDateOfLastPayment()),
-					lDateOfLastFailedPayment= static_cast<long> (GetDateOfLastPayment());
+		const long	  lAmountPerPayment        = GetPaymentPlanAmount();
+		const int64_t lTimeBetween             = static_cast<int64_t> (GetTimeBetweenPayments()),
+                      lPlanStartDate           = static_cast<int64_t> (GetPaymentPlanStartDate()),
+                      lPlanLength              = static_cast<int64_t> (GetPaymentPlanLength()),
+                      lDateOfLastPayment       = static_cast<int64_t> (GetDateOfLastPayment()),
+                      lDateOfLastFailedPayment = static_cast<int64_t> (GetDateOfLastPayment());
 		
 		const int	nMaxNoPayments		= GetMaximumNoPayments(),
 					nNoPaymentsComplete	= GetNoPaymentsDone(),
@@ -371,14 +384,14 @@ void OTPaymentPlan::UpdateContents()
 		
 		m_xmlUnsigned.Concatenate("<paymentPlan\n"
 								  " amountPerPayment=\"%ld\"\n"
-								  " timeBetweenPayments=\"%ld\"\n"
-								  " planStartDate=\"%ld\"\n"
-								  " planLength=\"%ld\"\n"
+								  " timeBetweenPayments=\"%" PRId64"\"\n"
+								  " planStartDate=\"%" PRId64"\"\n"
+								  " planLength=\"%" PRId64"\"\n"
 								  " maxNoPayments=\"%d\"\n"
 								  " completedNoPayments=\"%d\"\n"
 								  " failedNoPayments=\"%d\"\n"
-								  " dateOfLastPayment=\"%ld\"\n"							  
-								  " dateOfLastFailedPayment=\"%ld\""							  
+								  " dateOfLastPayment=\"%" PRId64"\"\n"
+								  " dateOfLastFailedPayment=\"%" PRId64"\""
 								  " />\n\n", 
 								  lAmountPerPayment,
 								  lTimeBetween,
@@ -391,7 +404,6 @@ void OTPaymentPlan::UpdateContents()
 								  lDateOfLastFailedPayment
 								  );
 	}
-		
 	// -------------------------------------------------------------
     // OTAgreement
 	
@@ -1436,11 +1448,11 @@ bool OTPaymentPlan::ProcessCron()
 	
 	// -----------------------------------------------------------------------------
 
-	
 	// Next, process the payment plan...
-	OTLog::vOutput(3, "(payment plan): Flagged/Removal: %s Has Plan: %s Current time: %d Start Date: %d\n",
+	OTLog::vOutput(3, "(payment plan): Flagged/Removal: %s Has Plan: %s Current time: %" PRId64" Start Date: %" PRId64"\n",
 				   (IsFlaggedForRemoval() ? "TRUE" : "FALSE"), (HasPaymentPlan() ? "TRUE" : "FALSE"), 
-				   GetCurrentTime(), GetPaymentPlanStartDate());
+				   static_cast<int64_t>(GetCurrentTime()), static_cast<int64_t>(GetPaymentPlanStartDate()));
+    
 	if (!IsFlaggedForRemoval() && HasPaymentPlan() &&		// This object COULD have gotten flagged for removal during the ProcessInitialPayment()
 		(GetCurrentTime() > GetPaymentPlanStartDate()))		// call. Therefore, I am sure to check that it's NOT IsFlaggedForRemoval() before calling
 	{														// this block of code.

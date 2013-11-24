@@ -154,8 +154,8 @@ void OTCheque::UpdateContents()
              REMITTER_USER_ID(GetRemitterUserID()),
              REMITTER_ACCT_ID(GetRemitterAcctID());
 		
-	long	lFrom	= static_cast<long> (GetValidFrom()),
-			lTo		= static_cast<long> (GetValidTo());
+	int64_t lFrom   = static_cast<int64_t> (GetValidFrom()),
+            lTo     = static_cast<int64_t> (GetValidTo());
 	
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
@@ -174,8 +174,8 @@ void OTCheque::UpdateContents()
 							  " hasRemitter=\"%s\"\n"
 							  " remitterUserID=\"%s\"\n"
 							  " remitterAcctID=\"%s\"\n"
-							  " validFrom=\"%ld\"\n"
-							  " validTo=\"%ld\""							  
+							  " validFrom=\"%" PRId64"\"\n"
+							  " validTo=\"%" PRId64"\""
 							  " >\n\n", 
 							  m_strVersion.Get(),
 							  m_lAmount,
@@ -220,27 +220,22 @@ int OTCheque::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	if (!strcmp("cheque", xml->getNodeName())) 
 	{
-		OTString strHasRecipient;
-		strHasRecipient		= xml->getAttributeValue("hasRecipient");
-		if (strHasRecipient.Compare("true"))
-			m_bHasRecipient = true;
-		else
-			m_bHasRecipient = false;
+		OTString strHasRecipient = xml->getAttributeValue("hasRecipient");
+        m_bHasRecipient = strHasRecipient.Compare("true");
         // ---------------------------------
-        OTString strHasRemitter;
-        strHasRemitter		= xml->getAttributeValue("hasRemitter");
-		if (strHasRemitter.Compare("true"))
-			m_bHasRemitter = true;
-		else
-			m_bHasRemitter = false;
+        OTString strHasRemitter = xml->getAttributeValue("hasRemitter");
+        m_bHasRemitter = strHasRemitter.Compare("true");
         // ---------------------------------
-		m_strVersion		= xml->getAttributeValue("version");					
-		m_lAmount			= atol(xml->getAttributeValue("amount"));
+		m_strVersion   = xml->getAttributeValue("version");
+		m_lAmount      = atol(xml->getAttributeValue("amount"));
         // ---------------------------------
 		SetTransactionNum( atol(xml->getAttributeValue("transactionNum")) );
         // ---------------------------------
-		SetValidFrom(atol(xml->getAttributeValue("validFrom")));
-		SetValidTo  (atol(xml->getAttributeValue("validTo")));
+        const OTString str_valid_from = xml->getAttributeValue("validFrom");
+        const OTString str_valid_to   = xml->getAttributeValue("validTo");
+
+		SetValidFrom(static_cast<time_t>(str_valid_from.ToLong()));
+		SetValidTo  (static_cast<time_t>(str_valid_to.ToLong()));
         // ---------------------------------
 		OTString	strAssetTypeID     (xml->getAttributeValue("assetTypeID")),
 					strServerID        (xml->getAttributeValue("serverID")),
@@ -278,12 +273,12 @@ int OTCheque::ProcessXMLNode(IrrXMLReader*& xml)
 		// ---------------------
 		
 		OTLog::vOutput(2,
-                       "\n\nCheque Amount: %ld.  Transaction Number: %ld\n Valid From: %d\n Valid To: %d\n"
+                       "\n\nCheque Amount: %ld.  Transaction Number: %ld\n Valid From: %" PRId64"\n Valid To: %" PRId64"\n"
                        " AssetTypeID: %s\n ServerID: %s\n"
                        " senderAcctID: %s\n senderUserID: %s\n "
                        " Has Recipient? %s. If yes, UserID of Recipient: %s\n"
                        " Has Remitter? %s. If yes, UserID/Acct of Remitter: %s / %s\n",
-                       m_lAmount, m_lTransactionNum, m_VALID_FROM, m_VALID_TO,
+                       m_lAmount, m_lTransactionNum, str_valid_from.ToLong(), str_valid_to.ToLong(),
                        strAssetTypeID.Get(), strServerID.Get(),
                        strSenderAcctID.Get(), strSenderUserID.Get(), 
                        (m_bHasRecipient ? "Yes" : "No"),

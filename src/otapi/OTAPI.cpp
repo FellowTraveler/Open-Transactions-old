@@ -341,38 +341,8 @@ OT_API * OTAPI_Wrap::OTAPI()
 
 int64_t OTAPI_Wrap::StringToLong(const std::string &strNumber)
 {
-    if(strNumber.size() == 0 )
-        return 0;
-    
-    int64_t v = 0;
-    size_t  i = 0;
-    
-    char sign = (strNumber[0] == '-' || strNumber[0] == '+') ? (++i, strNumber[0]) : '+';
-    
-    for( ; i < strNumber.size(); ++i)
-    {
-        if ( strNumber[i] < '0' || strNumber[i] > '9' )
-           break;
-        v = ( (v * 10) + (strNumber[i] - '0'));
-    }
-    return ((0 == v) ? 0 : ((sign == '-') ? -v : v));
+    return OTString::StringToLong(strNumber);
 }
-
-/*
-int64_t OTAPI_Wrap::StringToLong(const std::string & strNumber)
-{
-	char* end;
-	int64_t lNumber = strtol(strNumber.c_str(), &end, 10);
-
-	if (!*end) return lNumber;
-	else
-	{
-		OTLog::sError("Conversion error (str to int64_t), non-convertible part: %s",end);
-		OT_FAIL;
-		return -1;
-	}
-}
-*/
 
 
 std::string OTAPI_Wrap::LongToString(const int64_t & lNumber)
@@ -4662,7 +4632,6 @@ std::string OTAPI_Wrap::GetAccountWallet_ServerID(const std::string & THE_ID)
 	if (THE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "THE_ID" ); OT_FAIL; }
 
 	OTIdentifier	theID(THE_ID);
-
 	// -------------------------
 	OTAccount * pAccount = OTAPI_Wrap::OTAPI()->GetAccount(theID, __FUNCTION__);
 	if (NULL == pAccount) return "";
@@ -11112,9 +11081,9 @@ std::string OTAPI_Wrap::LoadPurse(const std::string & SERVER_ID,
 							 const std::string & ASSET_TYPE_ID,
 							 const std::string & USER_ID) // returns "", or a purse.
 {
-	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_FAIL; }
-	if (ASSET_TYPE_ID.empty())		{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID"		); OT_FAIL; }
-	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_FAIL; }
+	if (SERVER_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"     ); OT_FAIL; }
+	if (ASSET_TYPE_ID.empty()) { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_TYPE_ID" ); OT_FAIL; }
+	if (USER_ID.empty())       { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"       ); OT_FAIL; }
 	// -----------------------------------------------------------------
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theAssetID(ASSET_TYPE_ID);
@@ -11122,7 +11091,8 @@ std::string OTAPI_Wrap::LoadPurse(const std::string & SERVER_ID,
 	// -----------------------------------------------------------------
 	// There is an OT_ASSERT in here for memory failure,
 	// but it still might return "" if various verification fails.
-	OTPurse * pPurse = OTAPI_Wrap::OTAPI()->LoadPurse(theServerID, theAssetID, theUserID); 
+    
+	OTPurse * pPurse = OTAPI_Wrap::OTAPI()->LoadPurse(theServerID, theAssetID, theUserID);
 
 	// Make sure it gets cleaned up when this goes out of scope.
 	OTCleanup<OTPurse>	thePurseAngel(pPurse); // I pass the pointer, in case it's "".
@@ -12827,11 +12797,12 @@ std::string OTAPI_Wrap::AddBasketExchangeItem(const std::string & SERVER_ID,
 //  ...and in fact the requestNum IS the return value!
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
+
 int32_t OTAPI_Wrap::exchangeBasket(const std::string & SERVER_ID,
-						 const std::string & USER_ID,
-						 const std::string & BASKET_ASSET_ID,
-						 const std::string & THE_BASKET,
-						  const bool & BOOL_EXCHANGE_IN_OR_OUT) // exchanging in == true (1), out == false (0).
+                                   const std::string & USER_ID,
+                                   const std::string & BASKET_ASSET_ID,
+                                   const std::string & THE_BASKET,
+                                   const bool & BOOL_EXCHANGE_IN_OR_OUT) // exchanging in == true (1), out == false (0).
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_FAIL; }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_FAIL; }
@@ -13279,10 +13250,7 @@ int32_t OTAPI_Wrap::killPaymentPlan(const std::string & SERVER_ID,
 //  ...and in fact the requestNum IS the return value!
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
-int32_t OTAPI_Wrap::issueMarketOffer(const std::string & SERVER_ID,
-                                     const std::string & USER_ID,
-                                     // -------------------------------------------
-                                     const std::string & ASSET_ACCT_ID,     // Perhaps this is the wheat market.
+int32_t OTAPI_Wrap::issueMarketOffer(const std::string & ASSET_ACCT_ID,     // Perhaps this is the wheat market.
                                      const std::string & CURRENCY_ACCT_ID,  // Perhaps I'm buying the wheat with rubles.
                                      // -------------------------------------------
                                      const int64_t     & MARKET_SCALE,			// Defaults to minimum of 1. Market granularity.
@@ -13290,29 +13258,60 @@ int32_t OTAPI_Wrap::issueMarketOffer(const std::string & SERVER_ID,
                                      const int64_t     & TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
                                      const int64_t     & PRICE_LIMIT,			// Per Minimum Increment...
                                      const bool        & bBuyingOrSelling,      // SELLING == true, BUYING == false.
-                                     const time_t      & LIFESPAN_IN_SECONDS)   // Pass 0 for the default behavior: 86400 seconds aka 1 day.
+                                     const time_t      & LIFESPAN_IN_SECONDS,   // Pass 0 for the default behavior: 86400 seconds aka 1 day.
+                                     // -------------------------------------------
+                                     const std::string & STOP_SIGN,             // Must be "" (for market/limit orders) or "<" or ">"  (for stop orders.)
+                                     const int64_t     & ACTIVATION_PRICE)      // Must be provided if STOP_SIGN is also set. Determines the price threshold for stop orders.
 {
-	if (SERVER_ID.empty())         { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"       ); OT_FAIL; }
-	if (USER_ID.empty())           { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"         ); OT_FAIL; }
-	if (ASSET_ACCT_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "ASSET_ACCT_ID"   ); OT_FAIL; }
-	if (CURRENCY_ACCT_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "CURRENCY_ACCT_ID"); OT_FAIL; }
+	if (ASSET_ACCT_ID.empty())     { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "ASSET_ACCT_ID"   ); OT_FAIL; }
+	if (CURRENCY_ACCT_ID.empty())  { OTLog::vError("%s: Null: %s passed in!\n",     __FUNCTION__, "CURRENCY_ACCT_ID"); OT_FAIL; }
 	// -------------------------------------------
 	if (0 > MARKET_SCALE)          { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "MARKET_SCALE"         ); OT_FAIL; }
 	if (0 > MINIMUM_INCREMENT)     { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "MINIMUM_INCREMENT"    ); OT_FAIL; }
 	if (0 > TOTAL_ASSETS_ON_OFFER) { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "TOTAL_ASSETS_ON_OFFER"); OT_FAIL; }
 	if (0 > PRICE_LIMIT)           { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "PRICE_LIMIT"          ); OT_FAIL; }
+	if (0 > ACTIVATION_PRICE)      { OTLog::vError("%s: Negative: %s passed in!\n", __FUNCTION__, "ACTIVATION_PRICE"     ); OT_FAIL; }
 	// -------------------------------------------
-	const OTIdentifier	theServerID(SERVER_ID),         theUserID(USER_ID),
-                        theAssetAcctID(ASSET_ACCT_ID),  theCurrencyAcctID(CURRENCY_ACCT_ID);
+    char cStopSign = 0;
+    
+    if (0 == STOP_SIGN.compare("<"))
+        cStopSign = '<';
+    else if (0 == STOP_SIGN.compare(">"))
+        cStopSign = '>';
+	// -------------------------------------------
+    if (!STOP_SIGN.empty() &&
+        (
+        (ACTIVATION_PRICE == 0) ||
+        ((cStopSign != '<') && (cStopSign != '>'))
+        )) { OTLog::vError("%s: If STOP_SIGN is provided, it must be \"<\" or \">\", and in that case ACTIVATION_PRICE must be non-zero.\n", __FUNCTION__); OT_FAIL; }
+	// -------------------------------------------
+	const OTIdentifier	theAssetAcctID(ASSET_ACCT_ID),  theCurrencyAcctID(CURRENCY_ACCT_ID);
+	// -------------------------------------------
+    const std::string str_asset_server_id    = OTAPI_Wrap::GetAccountWallet_ServerID(ASSET_ACCT_ID);
+    const std::string str_currency_server_id = OTAPI_Wrap::GetAccountWallet_ServerID(CURRENCY_ACCT_ID);
+	// -------------------------------------------
+    const std::string str_asset_nym_id       = OTAPI_Wrap::GetAccountWallet_NymID(ASSET_ACCT_ID);
+    const std::string str_currency_nym_id    = OTAPI_Wrap::GetAccountWallet_NymID(CURRENCY_ACCT_ID);
+	// -------------------------------------------
+    if (str_asset_server_id.empty() || str_currency_server_id.empty() || str_asset_nym_id.empty() || str_currency_nym_id.empty())
+    { OTLog::vError("%s: Failed determining server or nym ID for either asset or currency account.\n", __FUNCTION__); OT_FAIL; }
+	// -------------------------------------------
+    const OTIdentifier	theAssetServerID    (str_asset_server_id),
+                        theAssetUserID      (str_asset_nym_id),
+                        theCurrencyServerID (str_currency_server_id),
+                        theCurrencyUserID   (str_currency_nym_id);
+	// -------------------------------------------
+    if (theAssetServerID != theCurrencyServerID) { OTLog::vError("%s: The accounts provided are on two different servers.\n",    __FUNCTION__); OT_FAIL; }
+    if (theAssetUserID   != theCurrencyUserID)   { OTLog::vError("%s: The accounts provided are owned by two different nyms.\n", __FUNCTION__); OT_FAIL; }
 	// -------------------------------------------
     // 1 is the minimum value here.
     //
-	int64_t lMarketScale		= (0 == MARKET_SCALE)			? 1 : MARKET_SCALE;
-	int64_t lMinIncrement		= (0 == MINIMUM_INCREMENT)		? 1 : MINIMUM_INCREMENT;
-	int64_t lTotalAssetsOnOffer	= (0 == TOTAL_ASSETS_ON_OFFER)	? 1 : TOTAL_ASSETS_ON_OFFER;
-	int64_t lPriceLimit			= (0 == PRICE_LIMIT)			? 1 : PRICE_LIMIT;
+	int64_t lMarketScale		= (0 == MARKET_SCALE)           ? 1 : MARKET_SCALE;
+	int64_t lMinIncrement		= (0 == MINIMUM_INCREMENT)      ? 1 : MINIMUM_INCREMENT;
+	int64_t lTotalAssetsOnOffer	= (0 == TOTAL_ASSETS_ON_OFFER)  ? 1 : TOTAL_ASSETS_ON_OFFER;
+	int64_t lPriceLimit			=                                     PRICE_LIMIT; // 0 is allowed now, for market orders.
 	// -------------------------------------------
-	return OTAPI_Wrap::OTAPI()->issueMarketOffer(theServerID, theUserID,
+	return OTAPI_Wrap::OTAPI()->issueMarketOffer(theAssetServerID, theAssetUserID,
                                                  // -------------------------------------------
                                                  theAssetAcctID,
                                                  theCurrencyAcctID,
@@ -13322,7 +13321,9 @@ int32_t OTAPI_Wrap::issueMarketOffer(const std::string & SERVER_ID,
                                                  static_cast<long>(lTotalAssetsOnOffer),
                                                  static_cast<long>(lPriceLimit),
                                                  bBuyingOrSelling,
-                                                 LIFESPAN_IN_SECONDS);
+                                                 LIFESPAN_IN_SECONDS,
+                                                 cStopSign,
+                                                 static_cast<long>(ACTIVATION_PRICE));
 }
 
 
@@ -13339,7 +13340,7 @@ int32_t OTAPI_Wrap::issueMarketOffer(const std::string & SERVER_ID,
 //  ===> In 99% of cases, this LAST option is what actually happens!!
 //
 int32_t OTAPI_Wrap::getMarketList(const std::string & SERVER_ID,
-						const std::string & USER_ID) 
+                                  const std::string & USER_ID)
 {
 	if (SERVER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "SERVER_ID"			); OT_FAIL; }
 	if (USER_ID.empty())			{ OTLog::vError("%s: Null: %s passed in!\n", __FUNCTION__, "USER_ID"			); OT_FAIL; }

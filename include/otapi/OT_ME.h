@@ -337,16 +337,16 @@ public:
     EXPORT  std::string query_asset_types(const std::string  & SERVER_ID,
                                           const std::string  & NYM_ID,
                                           const std::string  & ENCODED_MAP);
-    EXPORT  std::string create_market_offer(const std::string  & SERVER_ID,
-                                            const std::string  & NYM_ID,
-                                            const std::string  & ASSET_ACCT_ID,
+    EXPORT  std::string create_market_offer(const std::string  & ASSET_ACCT_ID,
                                             const std::string  & CURRENCY_ACCT_ID,
                                             const int64_t  scale,
                                             const int64_t  minIncrement,
                                             const int64_t  quantity,
                                             const int64_t  price,
                                             const bool      bSelling,
-                                            const int64_t  lLifespanInSeconds); // 0 does default of 86400 == 1 day.
+                                            const int64_t  lLifespanInSeconds,  // 0 does default of 86400 == 1 day.
+                                            const std::string STOP_SIGN, // If a stop order, must be "<" or ">"
+                                            const int64_t ACTIVATION_PRICE); // If a stop order, must be non-zero.
     EXPORT  std::string kill_market_offer(const std::string  & SERVER_ID,
                                           const std::string  & NYM_ID,
                                           const std::string  & ASSET_ACCT_ID,

@@ -1475,15 +1475,23 @@ int OTAgreement::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
     
     if (!strcmp("agreement", xml->getNodeName())) 
 	{		
-		m_strVersion		= xml->getAttributeValue("version");
-		
+		m_strVersion		   = xml->getAttributeValue("version");
 		SetTransactionNum(	atol(xml->getAttributeValue("transactionNum")) );
-		SetCreationDate(	atoi(xml->getAttributeValue("creationDate")));
-		SetValidFrom(		atoi(xml->getAttributeValue("validFrom")));
-		SetValidTo(			atoi(xml->getAttributeValue("validTo")));
-		
-		// ---------------------
+        // -------------------------------------------------------------------
+        const OTString strCreation = xml->getAttributeValue("creationDate");
+        int64_t tCreation = strCreation.ToLong();
         
+		SetCreationDate(static_cast<time_t>(tCreation));
+        // -------------------------------------------------------------------
+        const OTString str_valid_from = xml->getAttributeValue("validFrom");
+        const OTString str_valid_to   = xml->getAttributeValue("validTo");
+        
+        int64_t tValidFrom = str_valid_from.ToLong();
+        int64_t tValidTo   = str_valid_to.ToLong();
+        
+		SetValidFrom(static_cast<time_t>(tValidFrom));
+		SetValidTo  (static_cast<time_t>(tValidTo));
+		// ---------------------
 		const OTString	strServerID       (xml->getAttributeValue("serverID")),
                         strAssetTypeID    (xml->getAttributeValue("assetTypeID")),
                         strSenderAcctID   (xml->getAttributeValue("senderAcctID")),
@@ -1492,7 +1500,6 @@ int OTAgreement::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                         strRecipientUserID(xml->getAttributeValue("recipientUserID")),
                         strCanceled       (xml->getAttributeValue("canceled")),
                         strCancelerUserID (xml->getAttributeValue("cancelerUserID"));
-		
         // ----------------------
         if (strCanceled.Exists() && strCanceled.Compare("true"))
         {
@@ -1508,7 +1515,6 @@ int OTAgreement::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
             m_pCancelerNymID->Release();
         }
         // ----------------------
-        
 		const OTIdentifier	SERVER_ID(strServerID),					ASSET_ID(strAssetTypeID),
                             SENDER_ACCT_ID(strSenderAcctID),		SENDER_USER_ID(strSenderUserID),
                             RECIPIENT_ACCT_ID(strRecipientAcctID),	RECIPIENT_USER_ID(strRecipientUserID);
@@ -1519,18 +1525,16 @@ int OTAgreement::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		SetSenderUserID(SENDER_USER_ID);
 		SetRecipientAcctID(RECIPIENT_ACCT_ID);
 		SetRecipientUserID(RECIPIENT_USER_ID);
-		
 		// ---------------------
-        
 		OTLog::vOutput(1, "\n\n%sgreement. Transaction Number: %ld\n",
                        m_bCanceled ? "Canceled a" : "A", m_lTransactionNum);
 		
 		OTLog::vOutput(2,
-					   " Creation Date: %d   Valid From: %d\n Valid To: %d\n"
+					   " Creation Date: %" PRId64"   Valid From: %" PRId64"\n Valid To: %" PRId64"\n"
 					   " AssetTypeID: %s\n ServerID: %s\n"
 					   " senderAcctID: %s\n senderUserID: %s\n "
 					   " recipientAcctID: %s\n recipientUserID: %s\n ", 
-					   GetCreationDate(), GetValidFrom(), GetValidTo(),
+					   tCreation, tValidFrom, tValidTo,
 					   strAssetTypeID.Get(), strServerID.Get(),
 					   strSenderAcctID.Get(), strSenderUserID.Get(), 
 					   strRecipientAcctID.Get(), strRecipientUserID.Get());

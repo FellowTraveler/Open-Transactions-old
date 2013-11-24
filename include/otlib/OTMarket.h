@@ -182,9 +182,10 @@ private:
 	
 	// Each Offer on the market must have a minimum increment that this divides equally into.
 	// (There is a "gold for dollars, minimum 1 oz" market, a "gold for dollars, min 500 oz" market, etc.)
-	long			m_lScale;
+	long            m_lScale;
 	
-	long			m_lLastSalePrice;
+	long            m_lLastSalePrice;
+    std::string     m_strLastSaleDate;
 	
 	// The server stores a map of markets, one for each unique combination of asset types.
 	// That's what this market class represents: one asset type being traded and priced in another.
@@ -225,12 +226,12 @@ EXPORT	bool GetRecentTradeList(OTASCIIArmor & ascOutput, int & nTradeCount);
 
 	mapOfOffers::size_type GetBidCount() { return m_mapBids.size(); }
 	mapOfOffers::size_type GetAskCount() { return m_mapAsks.size(); }
-	
+    
 	// -----------------------------------------------------
 	
-	void SetAssetID(const OTIdentifier &	ASSET_ID)		{ m_ASSET_TYPE_ID		= ASSET_ID; }
-	void SetCurrencyID(const OTIdentifier &	CURRENCY_ID)	{ m_CURRENCY_TYPE_ID	= CURRENCY_ID; }
-	void SetServerID(const OTIdentifier &	SERVER_ID)		{ m_SERVER_ID			= SERVER_ID; }
+    void SetAssetID    (const OTIdentifier    & ASSET_ID) { m_ASSET_TYPE_ID    = ASSET_ID;    }
+	void SetCurrencyID (const OTIdentifier & CURRENCY_ID) { m_CURRENCY_TYPE_ID = CURRENCY_ID; }
+	void SetServerID   (const OTIdentifier   & SERVER_ID) { m_SERVER_ID        = SERVER_ID;   }
 	
 	inline const OTIdentifier & GetAssetID()	const { return m_ASSET_TYPE_ID; }
 	inline const OTIdentifier & GetCurrencyID()	const { return m_CURRENCY_TYPE_ID; }
@@ -246,6 +247,8 @@ EXPORT	bool GetRecentTradeList(OTASCIIArmor & ascOutput, int & nTradeCount);
 	inline void SetLastSalePrice(const long & lLastSalePrice) 
 		{ m_lLastSalePrice = lLastSalePrice; if (m_lLastSalePrice < 1) m_lLastSalePrice = 1; }
 	
+    const std::string & GetLastSaleDate() { return m_strLastSaleDate; }
+    
 	// -----------------------------
 	
 	long GetTotalAvailableAssets();

@@ -1117,9 +1117,10 @@ bool OTCronItem::SetDateRange(const time_t VALID_FROM/*=0*/,  const time_t VALID
 	{
 		if (VALID_TO < VALID_FROM) // If Valid-To date is EARLIER than Valid-From date...
 		{
-			long lValidTo = static_cast<long> (VALID_TO), lValidFrom = static_cast<long> (VALID_FROM);
-			OTLog::vError("OTCronItem::SetDateRange: VALID_TO (%ld) is earlier than VALID_FROM (%ld)\n", 
-                          lValidTo, lValidFrom);
+			int64_t lValidTo   = static_cast<int64_t> (VALID_TO),
+                    lValidFrom = static_cast<int64_t> (VALID_FROM);
+			OTLog::vError("OTCronItem::%s: VALID_TO (%" PRId64") is earlier than VALID_FROM (%" PRId64")\n",
+                          __FUNCTION__, lValidTo, lValidFrom);
 			return false;
 		}
 		
@@ -1127,8 +1128,9 @@ bool OTCronItem::SetDateRange(const time_t VALID_FROM/*=0*/,  const time_t VALID
 	}
 	else // VALID_TO is a NEGATIVE number... Error.
 	{
-		long lValidTo = static_cast<long> (VALID_TO);
-		OTLog::vError("OTCronItem::SetDateRange: Negative value for valid_to: %ld\n", lValidTo);
+		int64_t lValidTo = static_cast<int64_t> (VALID_TO);
+		OTLog::vError("OTCronItem::%s: Negative value for valid_to: %" PRId64"\n",
+                      __FUNCTION__, lValidTo);
         
 		return false;
 	}

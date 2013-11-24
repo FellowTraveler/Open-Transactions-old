@@ -1658,6 +1658,12 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
+  public static int getAccountFiles(string SERVER_ID, string USER_ID, string ACCT_ID) {
+    int ret = otapiPINVOKE.OTAPI_Basic_getAccountFiles(SERVER_ID, USER_ID, ACCT_ID);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public static string GenerateBasketCreation(string USER_ID, string MINIMUM_TRANSFER) {
     string ret = otapiPINVOKE.OTAPI_Basic_GenerateBasketCreation(USER_ID, MINIMUM_TRANSFER);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
@@ -1802,8 +1808,8 @@ public class OTAPI_Basic : IDisposable {
     return ret;
   }
 
-  public static int issueMarketOffer(string SERVER_ID, string USER_ID, string ASSET_ACCT_ID, string CURRENCY_ACCT_ID, string MARKET_SCALE, string MINIMUM_INCREMENT, string TOTAL_ASSETS_ON_OFFER, string PRICE_LIMIT, bool bBuyingOrSelling, string LIFESPAN_IN_SECONDS) {
-    int ret = otapiPINVOKE.OTAPI_Basic_issueMarketOffer(SERVER_ID, USER_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, MARKET_SCALE, MINIMUM_INCREMENT, TOTAL_ASSETS_ON_OFFER, PRICE_LIMIT, bBuyingOrSelling, LIFESPAN_IN_SECONDS);
+  public static int issueMarketOffer(string ASSET_ACCT_ID, string CURRENCY_ACCT_ID, string MARKET_SCALE, string MINIMUM_INCREMENT, string TOTAL_ASSETS_ON_OFFER, string PRICE_LIMIT, bool bBuyingOrSelling, string LIFESPAN_IN_SECONDS, string STOP_SIGN, string ACTIVATION_PRICE) {
+    int ret = otapiPINVOKE.OTAPI_Basic_issueMarketOffer(ASSET_ACCT_ID, CURRENCY_ACCT_ID, MARKET_SCALE, MINIMUM_INCREMENT, TOTAL_ASSETS_ON_OFFER, PRICE_LIMIT, bBuyingOrSelling, LIFESPAN_IN_SECONDS, STOP_SIGN, ACTIVATION_PRICE);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }

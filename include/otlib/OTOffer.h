@@ -221,42 +221,43 @@ protected:
 	{ m_lScale = lScale; if (m_lScale < 1) m_lScale = 1; }
 
 public:
-EXPORT		bool	MakeOffer(bool bBuyingOrSelling,			// True == SELLING, False == BUYING
-						  const long & lPriceLimit,			// Per Scale...
-						  const long & lTotalAssetsOffer,	// Total assets available for sale or purchase.
-						  const long & lMinimumIncrement,	// The minimum increment that must be bought or sold for each transaction
-						  const long & lTransactionNum,		// The transaction number authorizing this trade.
-						  const time_t & VALID_FROM	= 0,	// defaults to RIGHT NOW
-						  const time_t & VALID_TO	= 0);	// defaults to 24 hours (a "Day Order")
+EXPORT bool MakeOffer(      bool   bBuyingOrSelling,    // True == SELLING, False == BUYING
+                      const long & lPriceLimit,         // Per Scale...
+                      const long & lTotalAssetsOffer,   // Total assets available for sale or purchase.
+                      const long & lMinimumIncrement,   // The minimum increment that must be bought or sold for each transaction
+                      const long & lTransactionNum,     // The transaction number authorizing this trade.
+                      const time_t & VALID_FROM	= 0,    // defaults to RIGHT NOW
+                      const time_t & VALID_TO	= 0);   // defaults to 24 hours (a "Day Order")
 	
 	// ---------------------------------------------------------
 	
 	inline void IncrementFinishedSoFar(const long & lFinishedSoFar) { m_lFinishedSoFar += lFinishedSoFar; }
 	
-	inline long			GetAmountAvailable() const { return GetTotalAssetsOnOffer() - GetFinishedSoFar(); }
-	inline const long & GetTransactionNum() const { return m_lTransactionNum; }
+	inline long			GetAmountAvailable()    const { return GetTotalAssetsOnOffer() - GetFinishedSoFar(); }
+	inline const long & GetTransactionNum()     const { return m_lTransactionNum; }
 
-	inline const long & GetPriceLimit() const { return m_lPriceLimit; }
+	inline const long & GetPriceLimit()         const { return m_lPriceLimit; }
 	inline const long & GetTotalAssetsOnOffer() const { return m_lTotalAssetsOffer; }
-	inline const long & GetFinishedSoFar() const { return m_lFinishedSoFar; }
+	inline const long & GetFinishedSoFar()      const { return m_lFinishedSoFar; }
 	inline const long & GetMinimumIncrement() 
-	{ if (m_lMinimumIncrement < 1) m_lMinimumIncrement = 1; return m_lMinimumIncrement; }
+        { if (m_lMinimumIncrement < 1) m_lMinimumIncrement = 1; return m_lMinimumIncrement; }
 	inline const long & GetScale() 
-	{ if (m_lScale < 1) m_lScale = 1; return m_lScale; }
+        { if (m_lScale < 1) m_lScale = 1; return m_lScale; }
 	
 	inline const OTIdentifier & GetCurrencyID() const { return m_CURRENCY_TYPE_ID; }
 	inline void SetCurrencyID(const OTIdentifier & CURRENCY_ID) { m_CURRENCY_TYPE_ID = CURRENCY_ID; }	
 
 	// Buying or selling?
 	inline bool IsBid() { return !m_bSelling; }
-	inline bool IsAsk() { return m_bSelling; }
+	inline bool IsAsk() { return  m_bSelling; }
 	
+    bool IsMarketOrder() const;
+    bool IsLimitOrder () const;
+    
 	// Stores a pointer to theTrade for later use. (Not responsible to clean up, just convenient.)
 	inline OTTrade * GetTrade() { return m_pTrade; }
 	inline void SetTrade(const OTTrade & theTrade) { m_pTrade = &((OTTrade &)theTrade); }
-	
 	// ----------------------------------------------------------
-	
 EXPORT	OTOffer();		// The constructor contains the 3 variables needed to identify any market.
 EXPORT	OTOffer(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTIdentifier & CURRENCY_ID, const long & MARKET_SCALE);
 EXPORT	virtual ~OTOffer();

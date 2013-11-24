@@ -141,6 +141,8 @@
 #endif
 #include <ExportWrapper.h>
 
+#include <ctime>
+
 #include <map>
 #include <list>
 
@@ -154,18 +156,22 @@ class OTPseudonym;
 class OTMarket;
 
 
+// ------------------------------------------------------------------
+// mapOfCronItems:      Mapped (uniquely) to transaction number.
+// multimapOfCronItems: Mapped to date the item was added to Cron.
+//
+// (Any given CronItem will be found on BOTH lists.)
 
-// Mapped (uniquely) to transaction number.
-typedef std::map  <long, OTCronItem *>	mapOfCronItems;
-
+typedef std::map      <long,   OTCronItem *> mapOfCronItems;
+typedef std::multimap <time_t, OTCronItem *> multimapOfCronItems;
+// ------------------------------------------------------------------
 // Mapped (uniquely) to market ID.
 typedef std::map  <std::string, OTMarket *>	mapOfMarkets;
-
-
-// Cron stores a bunch of these on this list, 
+// ------------------------------------------------------------------
+// Cron stores a bunch of these on this list,
 // which the server refreshes from time to time.
 typedef std::list<long> listOfLongNumbers;
-
+// ------------------------------------------------------------------
 
 
 class OTCron : public OTContract
@@ -175,7 +181,10 @@ private:  // Private prevents erroneous use by other classes.
     
 private:
 	mapOfMarkets        m_mapMarkets;       // A list of all valid markets.
-	mapOfCronItems      m_mapCronItems;
+    // ---------------------------------------
+	mapOfCronItems      m_mapCronItems;     // Cron Items are found on both lists.
+	multimapOfCronItems m_multimapCronItems;
+    // ---------------------------------------
 	OTIdentifier        m_SERVER_ID;        // Always store this in any object that's associated with a specific server.
 
 	OTPseudonym *       m_pServerNym;       // I'll need this for later.
@@ -183,42 +192,47 @@ private:
 	listOfLongNumbers	m_listTransactionNumbers; // I can't put receipts in people's inboxes without a supply of these.
    
 	bool                m_bIsActivated;     // I don't want to start Cron processing until everything else is all loaded up and ready to go.
-	
 	// ---------------------------------------
-	static int			__trans_refill_amount;		// The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
-	static int			__cron_ms_between_process;	// The number of milliseconds (ideally) between each "Cron Process" event.
+	static int  __trans_refill_amount;		// Number of transaction numbers Cron will grab for itself, when it gets low, before each round.
+	static int  __cron_ms_between_process;	// Number of milliseconds (ideally) between each "Cron Process" event.
     
-    static int 			__cron_max_items_per_nym;   // Int. The maximum number of cron items any given Nym can have active at the same time.
+    static int  __cron_max_items_per_nym;   // Int. The maximum number of cron items any given Nym can have active at the same time.
 	
 public:
-	static int		GetCronMsBetweenProcess() { return __cron_ms_between_process; }
-	static void		SetCronMsBetweenProcess(long lMS) { __cron_ms_between_process = lMS; }
-	
-	static int		GetCronRefillAmount() { return __trans_refill_amount; }
-	static void		SetCronRefillAmount(int nAmount) { __trans_refill_amount = nAmount; }	
-	// ---------------------------------------
-	static int		GetCronMaxItemsPerNym() { return __cron_max_items_per_nym; }
-	static void		SetCronMaxItemsPerNym(int nMax) { __cron_max_items_per_nym = nMax; }	
-	// ---------------------------------------
-    
-	inline bool		IsActivated() const { return m_bIsActivated; }
-	inline bool		ActivateCron() { if (!m_bIsActivated) return m_bIsActivated = true; else return false; }
-    
+    static int      GetCronMsBetweenProcess() { return __cron_ms_between_process; }
+    static void     SetCronMsBetweenProcess(long lMS) { __cron_ms_between_process = lMS; }
+
+    static int      GetCronRefillAmount() { return __trans_refill_amount; }
+    static void     SetCronRefillAmount(int nAmount) { __trans_refill_amount = nAmount; }
+    // ---------------------------------------
+    static int      GetCronMaxItemsPerNym() { return __cron_max_items_per_nym; }
+    static void     SetCronMaxItemsPerNym(int nMax) { __cron_max_items_per_nym = nMax; }
+    // ---------------------------------------
+    inline bool     IsActivated() const { return m_bIsActivated; }
+    inline bool     ActivateCron() { if (!m_bIsActivated) return m_bIsActivated = true; else return false; }
     // ---------------------------------------
     // RECURRING TRANSACTIONS
     //
-EXPORT	bool			AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator=NULL, bool bSaveReceipt=true);
-EXPORT	bool			RemoveCronItem(long lTransactionNum, OTPseudonym & theRemover); // if returns false, CronItem wasn't found.
+EXPORT	bool  AddCronItem(OTCronItem  & theItem,
+                          OTPseudonym * pActivator,
+                          bool          bSaveReceipt,
+                          time_t        tDateAdded); // Date it was FIRST added to Cron.
+EXPORT	bool  RemoveCronItem(long lTransactionNum, OTPseudonym & theRemover); // if returns false, item wasn't found.
 	// ---------------------------------------
-EXPORT	OTCronItem *	GetCronItem(long lTransactionNum);
+EXPORT  OTCronItem * GetItemByOfficialNum    (long lTransactionNum);
+EXPORT	OTCronItem * GetItemByValidOpeningNum(long lOpeningNum);
+	// ---------------------------------------
+EXPORT       mapOfCronItems::iterator FindItemOnMap     (long lTransactionNum);
+EXPORT  multimapOfCronItems::iterator FindItemOnMultimap(long lTransactionNum);
 	// ---------------------------------------
     // MARKETS
     //
-	bool AddMarket(OTMarket & theMarket, bool bSaveMarketFile=true);
-	bool RemoveMarket(const OTIdentifier & MARKET_ID); // if returns false, market wasn't found.
-EXPORT	OTMarket * GetMarket(const OTIdentifier & MARKET_ID);
-	OTMarket * GetOrCreateMarket(const OTIdentifier & ASSET_ID, 
-								 const OTIdentifier & CURRENCY_ID, const long & lScale);
+    bool AddMarket(OTMarket & theMarket, bool bSaveMarketFile=true);
+    bool RemoveMarket(const OTIdentifier & MARKET_ID); // if returns false, market wasn't found.
+    
+EXPORT   OTMarket * GetMarket(const OTIdentifier & MARKET_ID);
+         OTMarket * GetOrCreateMarket(const OTIdentifier & ASSET_ID,
+                                      const OTIdentifier & CURRENCY_ID, const long & lScale);
     // ---------------------------------------
 	// This is informational only. It returns OTStorage-type data objects, packed in a string.
 	//
@@ -234,7 +248,7 @@ EXPORT	bool GetNym_OfferList(OTASCIIArmor & ascOutput, const OTIdentifier & NYM_
 	// as to call AddTransactionNumber() regularly, in order to keep GetTransactionCount()
 	// at some minimum threshold.
 EXPORT	void	AddTransactionNumber(const long & lTransactionNum);
-	long	GetNextTransactionNumber();
+        long	GetNextTransactionNumber();
 EXPORT	int		GetTransactionCount() const; // How many numbers do I currently have on the list?
 	// ---------------------------------------
 
@@ -260,8 +274,8 @@ EXPORT	bool SaveCron();
 	// -----------------------------------------------------
 	
 EXPORT	OTCron();
-	OTCron(const OTIdentifier & SERVER_ID);
-	OTCron(const char * szFilename);
+        OTCron(const OTIdentifier & SERVER_ID);
+        OTCron(const char * szFilename);
     
 EXPORT	virtual ~OTCron();
     
