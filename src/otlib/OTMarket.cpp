@@ -531,13 +531,17 @@ bool OTMarket::GetOfferList(OTASCIIArmor & ascOutput, long lDepth, int & nOfferC
 		// --------------------------------------------
 		OTOffer * pOffer = (*it).second;
 		OT_ASSERT(NULL != pOffer);
-		
+		// --------------------------------------------
+        const long & lPriceLimit		= pOffer->GetPriceLimit();
+
+        if (0 == lPriceLimit) // Skipping any market orders.
+            continue;
+		// --------------------------------------------
 		// OfferDataMarket
 		OTDB::BidData * pOfferData  = dynamic_cast<OTDB::BidData *>(OTDB::CreateObject(OTDB::STORED_OBJ_BID_DATA));
 		OTCleanup<OTDB::BidData> theDataAngel(*pOfferData);
 		// --------------------------------------------
 		const long & lTransactionNum	= pOffer->GetTransactionNum();
-		const long & lPriceLimit		= pOffer->GetPriceLimit();
 		const long	 lAvailableAssets	= pOffer->GetAmountAvailable();
 		const long & lMinimumIncrement	= pOffer->GetMinimumIncrement();
         const time_t tDateAddedToMarket = pOffer->GetDateAddedToMarket();
