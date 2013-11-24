@@ -513,16 +513,12 @@ int OTCron::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	
 	if (!strcmp("cron", xml->getNodeName())) 
 	{		
-		m_strVersion		= xml->getAttributeValue("version");
-		
+		m_strVersion = xml->getAttributeValue("version");
 		// ---------------------
-		
 		const OTString	strServerID(xml->getAttributeValue("serverID"));
 		
 		m_SERVER_ID.SetString(strServerID);
-		
 		// ---------------------
-		
 		OTLog::vOutput(0, "\n\nLoading OTCron for ServerID: %s\n", 
 					   strServerID.Get());
 				

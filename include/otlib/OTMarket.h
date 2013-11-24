@@ -200,11 +200,9 @@ public:
 	bool ValidateOfferForMarket(OTOffer & theOffer);
 	
 	OTOffer *	GetOffer(const long & lTransactionNum);
-	bool		AddOffer(OTOffer & theOffer, bool bSaveFile=true);
+	bool		AddOffer(OTOffer & theOffer, bool bSaveFile=true, time_t tDateAddedToMarket=0);
 	bool		RemoveOffer(const long & lTransactionNum);
-	
 	// -----------------------------------------------------
-
 	// returns general information about offers on the market
 EXPORT	bool GetOfferList(OTASCIIArmor & ascOutput, long lDepth, int & nOfferCount);
 EXPORT	bool GetRecentTradeList(OTASCIIArmor & ascOutput, int & nTradeCount);
@@ -226,9 +224,7 @@ EXPORT	bool GetRecentTradeList(OTASCIIArmor & ascOutput, int & nTradeCount);
 
 	mapOfOffers::size_type GetBidCount() { return m_mapBids.size(); }
 	mapOfOffers::size_type GetAskCount() { return m_mapAsks.size(); }
-    
 	// -----------------------------------------------------
-	
     void SetAssetID    (const OTIdentifier    & ASSET_ID) { m_ASSET_TYPE_ID    = ASSET_ID;    }
 	void SetCurrencyID (const OTIdentifier & CURRENCY_ID) { m_CURRENCY_TYPE_ID = CURRENCY_ID; }
 	void SetServerID   (const OTIdentifier   & SERVER_ID) { m_SERVER_ID        = SERVER_ID;   }
@@ -248,13 +244,9 @@ EXPORT	bool GetRecentTradeList(OTASCIIArmor & ascOutput, int & nTradeCount);
 		{ m_lLastSalePrice = lLastSalePrice; if (m_lLastSalePrice < 1) m_lLastSalePrice = 1; }
 	
     const std::string & GetLastSaleDate() { return m_strLastSaleDate; }
-    
 	// -----------------------------
-	
 	long GetTotalAvailableAssets();
-	
 	// -----------------------------------------------------
-	
 	OTMarket();
 	OTMarket(const char * szFilename);
 	OTMarket(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_TYPE_ID,
@@ -268,9 +260,7 @@ EXPORT	bool GetRecentTradeList(OTASCIIArmor & ascOutput, int & nTradeCount);
 	
 	inline void SetCronPointer(OTCron & theCron) { m_pCron = &theCron; }	
 	inline OTCron * GetCron() { return m_pCron; }
-	
 	// -----------------------------------------------------
-
 	bool LoadMarket();
 	bool SaveMarket();
 	

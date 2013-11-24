@@ -3962,9 +3962,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 
                                             bool bLoadOfferFromString = theOffer.LoadContractFromString(strOffer);
                                             bool bLoadTradeFromString = theTrade.LoadContractFromString(strTrade);
-
                                             // --------------------------------------------------
-
                                             if (bLoadOfferFromString && bLoadTradeFromString)
                                             {
                                                 OTDB::TradeDataNym * pData = dynamic_cast<OTDB::TradeDataNym *>(OTDB::CreateObject(OTDB::STORED_OBJ_TRADE_DATA_NYM));
@@ -4004,6 +4002,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                     pData->currency_id      = strCurrencyID.Get();
                                                     pData->currency_paid    = to_string<long>(lCurrencyThisTrade);
                                                 }
+                                                // --------------------------------------------------
+                                                const time_t & tProcessDate = theTrade.GetLastProcessDate();
+                                                pData->date = to_string<time_t>(tProcessDate);
                                                 // --------------------------------------------------
                                                 // The original offer price. (Might be 0, if it's a market order.)
                                                 //

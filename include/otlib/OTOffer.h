@@ -188,13 +188,15 @@ public:
 	 inline void SetServerID(const OTIdentifier & SERVER_ID) { m_ServerID	= SERVER_ID; }
 	 
 	 bool VerifyCurrentDate(); // Verify the current date against the VALID FROM / TO dates.
-	 */	
+	 */
+    time_t          m_tDateAddedToMarket;
+// ---------------------------------------------------------
 protected:
 	OTTrade		*	m_pTrade;		// If this offer is actually connected to a trade, it will have a pointer.
 	
 	OTIdentifier	m_CURRENCY_TYPE_ID;	// GOLD (Asset) is trading for DOLLARS (Currency).
 	bool			m_bSelling;			// true = ask. false = bid.
-
+	// ---------------------------------------------------------
 	// If a bid, this is the most I will pay. If an ask, this is the least I will sell for. My limit.
 	// (Normally the price I get is whatever is the best one on the market right now.)
 	long	m_lPriceLimit;			// Denominated in CURRENCY TYPE, and priced per SCALE. 
@@ -210,7 +212,7 @@ protected:
 									// Minimum Increment must be evenly divisible by m_lScale. 
 	// (This effectively becomes a "FILL OR KILL" order if set to the same value as m_lTotalAssetsOffer. Also, MUST be 1
 	// or great. CANNOT be zero. Enforce this at class level. You cannot sell something in minimum increments of 0.)
-	
+    // ---------------------------------------------------------
 	inline void SetTransactionNum(const long & lTransactionNum) { m_lTransactionNum = lTransactionNum; }
 	inline void SetPriceLimit(const long & lPriceLimit) { m_lPriceLimit = lPriceLimit; }
 	inline void SetTotalAssetsOnOffer(const long & lTotalAssets) { m_lTotalAssetsOffer = lTotalAssets; }
@@ -219,7 +221,7 @@ protected:
 	{ m_lMinimumIncrement = lMinIncrement; if (m_lMinimumIncrement < 1) m_lMinimumIncrement = 1; }
 	inline void SetScale(const long & lScale) 
 	{ m_lScale = lScale; if (m_lScale < 1) m_lScale = 1; }
-
+// ---------------------------------------------------------
 public:
 EXPORT bool MakeOffer(      bool   bBuyingOrSelling,    // True == SELLING, False == BUYING
                       const long & lPriceLimit,         // Per Scale...
@@ -228,9 +230,7 @@ EXPORT bool MakeOffer(      bool   bBuyingOrSelling,    // True == SELLING, Fals
                       const long & lTransactionNum,     // The transaction number authorizing this trade.
                       const time_t & VALID_FROM	= 0,    // defaults to RIGHT NOW
                       const time_t & VALID_TO	= 0);   // defaults to 24 hours (a "Day Order")
-	
 	// ---------------------------------------------------------
-	
 	inline void IncrementFinishedSoFar(const long & lFinishedSoFar) { m_lFinishedSoFar += lFinishedSoFar; }
 	
 	inline long			GetAmountAvailable()    const { return GetTotalAssetsOnOffer() - GetFinishedSoFar(); }
@@ -257,9 +257,15 @@ EXPORT bool MakeOffer(      bool   bBuyingOrSelling,    // True == SELLING, Fals
 	// Stores a pointer to theTrade for later use. (Not responsible to clean up, just convenient.)
 	inline OTTrade * GetTrade() { return m_pTrade; }
 	inline void SetTrade(const OTTrade & theTrade) { m_pTrade = &((OTTrade &)theTrade); }
+    // ---------------------------------------------------------
+    // Note: m_tDateAddedToMarket is not saved in the Offer Contract, but OTMarket sets/saves/loads it.
+    //
+EXPORT    time_t GetDateAddedToMarket() const;       // Used in OTMarket::GetOfferList and GetNymOfferList.
+EXPORT    void   SetDateAddedToMarket(time_t tDate); // Used in OTCron when adding/loading offers.
 	// ----------------------------------------------------------
 EXPORT	OTOffer();		// The constructor contains the 3 variables needed to identify any market.
-EXPORT	OTOffer(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTIdentifier & CURRENCY_ID, const long & MARKET_SCALE);
+EXPORT	OTOffer(const OTIdentifier & SERVER_ID,
+                const OTIdentifier & ASSET_ID, const OTIdentifier & CURRENCY_ID, const long & MARKET_SCALE);
 EXPORT	virtual ~OTOffer();
 
 	// Overridden from OTContract.

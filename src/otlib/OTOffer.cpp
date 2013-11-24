@@ -479,8 +479,22 @@ bool OTOffer::MakeOffer(bool   bBuyingOrSelling,    // True == SELLING, False ==
 	return true;
 }
 
-OTOffer::OTOffer() 
-: ot_super(), m_pTrade(NULL),    // No need to free m_pTrade, not responsible. Only here for convenience.
+
+// Note: m_tDateAddedToMarket is not saved in the Offer Contract, but OTMarket sets/saves/loads it.
+//
+time_t OTOffer::GetDateAddedToMarket() const      // Used in OTMarket::GetOfferList and GetNymOfferList.
+{
+    return m_tDateAddedToMarket;
+}
+
+void OTOffer::SetDateAddedToMarket(time_t tDate) // Used in OTCron when adding/loading offers.
+{
+    m_tDateAddedToMarket = tDate;
+}
+
+
+OTOffer::OTOffer()
+: ot_super(), m_tDateAddedToMarket(0), m_pTrade(NULL),    // No need to free m_pTrade, not responsible. Only here for convenience.
     m_bSelling			(false),
     m_lPriceLimit		(0),
     m_lTransactionNum	(0),
@@ -495,7 +509,7 @@ OTOffer::OTOffer()
 
 
 OTOffer::OTOffer(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTIdentifier & CURRENCY_ID, const long & lScale) 
-: ot_super(SERVER_ID, ASSET_ID), m_pTrade(NULL), // No need to free m_pTrade, not responsible. Only here for convenience.
+: ot_super(SERVER_ID, ASSET_ID), m_tDateAddedToMarket(0), m_pTrade(NULL), // No need to free m_pTrade, not responsible. Only here for convenience.
     m_bSelling			(false),
     m_lPriceLimit		(0),
     m_lTransactionNum	(0),
