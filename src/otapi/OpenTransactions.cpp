@@ -11536,8 +11536,10 @@ int OT_API::issueMarketOffer( const OTIdentifier	& SERVER_ID,
         // ------------------------------------
         char cStopSign        = 0;
         
-        if ((ACTIVATION_PRICE > 0) &&
-            ('<' == STOP_SIGN) || ('>' == STOP_SIGN))
+        if (
+            (ACTIVATION_PRICE > 0) &&
+            (('<' == STOP_SIGN) || ('>' == STOP_SIGN))
+        )
         {
             cStopSign        = STOP_SIGN;
             lActivationPrice = ACTIVATION_PRICE;
