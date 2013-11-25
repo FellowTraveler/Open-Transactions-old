@@ -25,7 +25,11 @@
 
     def VerifyExists(theObjectNameAsStr, bDisplayError)
     {
-        if (get_objects().count(theObjectNameAsStr) == 0)
+        var objs = get_objects()
+        
+        if (0 >= objs.size()) { return false }
+        
+        if (objs.count(theObjectNameAsStr) == 0)
         {
             var strDefault = ""
             
