@@ -197,10 +197,10 @@ private:
 	// interchangeable.
 	
 public: 
-	bool ValidateOfferForMarket(OTOffer & theOffer);
+	bool ValidateOfferForMarket(OTOffer & theOffer, OTString * pReason=NULL);
 	
 	OTOffer *	GetOffer(const long & lTransactionNum);
-	bool		AddOffer(OTOffer & theOffer, bool bSaveFile=true, time_t tDateAddedToMarket=0);
+	bool		AddOffer(OTTrade * pTrade, OTOffer & theOffer, bool bSaveFile=true, time_t tDateAddedToMarket=0);
 	bool		RemoveOffer(const long & lTransactionNum);
 	// -----------------------------------------------------
 	// returns general information about offers on the market

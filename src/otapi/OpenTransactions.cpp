@@ -11548,6 +11548,41 @@ int OT_API::issueMarketOffer( const OTIdentifier	& SERVER_ID,
 		lMinimumIncrement   *= lMarketScale;       // minimum increment is PER SCALE.
 //		lTotalAssetsOnOffer *= lMinimumIncrement;  // This was a bug. (Left as a warning.)
 		// -------------------------------------------------------------------
+        
+        OTString strOfferType("market order");
+        
+        if (lPriceLimit > 0)
+            strOfferType = "limit order";
+        
+        if (0 != cStopSign)
+        {
+            if (lPriceLimit > 0)
+                strOfferType.Format("stop limit order, at threshhold: %c%ld", cStopSign, lActivationPrice);
+            else
+                strOfferType.Format("stop order, at threshhold: %c%ld", cStopSign, lActivationPrice);
+        }
+        
+        OTString strPrice("");
+        
+        if (lPriceLimit > 0)
+            strPrice.Format("Price: %ld\n", lPriceLimit);
+        
+        OTLog::vOutput(0, "Placing market offer %ld, type: %s, %s\n"
+                       "%s"
+                       "Assets for sale/purchase: %ld\n"
+                       "In minimum increments of: %ld\n"
+                       "At market of scale: %ld\n"
+                       "Valid From: %ld  To: %ld\n",
+                       lStoredTransactionNumber,
+                       bBuyingOrSelling ? "selling" : "buying", strOfferType.Get(),
+                       strPrice.Get(),
+                       lTotalAssetsOnOffer,
+                       lMinimumIncrement,
+                       lMarketScale,
+                       static_cast<long>(VALID_FROM), static_cast<long>(VALID_TO)
+                       );
+        
+		// -------------------------------------------------------------------
 		OTOffer theOffer(SERVER_ID, ASSET_TYPE_ID, CURRENCY_TYPE_ID, lMarketScale);
 		// -------------------------------------------------------------------		
 		OTTrade theTrade(SERVER_ID, 

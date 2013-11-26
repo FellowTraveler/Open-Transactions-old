@@ -231,7 +231,7 @@ int OTMarket::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			OT_ASSERT(NULL != pOffer);
 			
 			if (pOffer->LoadContractFromString(strData) && 
-				AddOffer(*pOffer, false, tDateAdded)) // bSaveMarket = false (Don't SAVE -- we're loading right now!)
+				AddOffer(NULL, *pOffer, false, tDateAdded)) // bSaveMarket = false (Don't SAVE -- we're loading right now!)
 			{
 				OTLog::Output(1, "Successfully loaded offer and added to market.\n");
 			}
@@ -437,7 +437,7 @@ bool OTMarket::GetRecentTradeList(OTASCIIArmor & ascOutput, int & nTradeCount)
     
 	if (NULL == m_pTradeList)
     {
-//        OTLog::Error("OTMarket::GetRecentTradeList: m_pTradeList is NULL. \n");
+//      OTLog::Error("OTMarket::GetRecentTradeList: m_pTradeList is NULL. \n");
 		return true;
         // Returning true, since it's normal for this to be NULL when the list is empty.
 	}
@@ -770,15 +770,22 @@ bool OTMarket::RemoveOffer(const long & lTransactionNum) // if false, offer wasn
 // 
 // If NOT successful adding, caller must clear up his own memory.
 //
-bool OTMarket::AddOffer(OTOffer & theOffer, bool bSaveFile/*=true*/, time_t tDateAddedToMarket/*=0*/)
+bool OTMarket::AddOffer(OTTrade * pTrade, OTOffer & theOffer, bool bSaveFile/*=true*/, time_t tDateAddedToMarket/*=0*/)
 {
 	const long	lTransactionNum	= theOffer.GetTransactionNum(),
 				lPriceLimit		= theOffer.GetPriceLimit();
 		
 	// Make sure the offer is even appropriate for this market...
-	if (ValidateOfferForMarket(theOffer))
+	if (!ValidateOfferForMarket(theOffer))
+    {
+        OTLog::Error("Failed attempt to add invalid offer to market.\n");
+        
+        if (NULL != pTrade)
+            pTrade->FlagForRemoval();
+    }
+    else
 	{
-		// I store duplicate lists of offer pointers. Two multimaps ordered by price, 
+		// I store duplicate lists of offer pointers. Two multimaps ordered by price,
 		// (for buyers and sellers) and one map ordered by transaction number.
 		// ------------------------------------------------------------------------------
 		// See if there's something else already there with the same transaction number.
@@ -840,11 +847,8 @@ bool OTMarket::AddOffer(OTOffer & theOffer, bool bSaveFile/*=true*/, time_t tDat
 			return true;
         }
 	}
-	else
-	{
-		OTLog::Error("Attempt to add Invalid Offer to market.\n");
-		return false;
-	}
+    // ---------------------
+    return false;
 }
 
 
@@ -2334,28 +2338,78 @@ bool OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer)
 
 
 // Make sure the offer is for the right asset type, the right currency, etc.
-bool OTMarket::ValidateOfferForMarket(OTOffer & theOffer)
-{	
-	if ((GetServerID()					==	theOffer.GetServerID())			&&
-		(GetAssetID()					==	theOffer.GetAssetID())			&&
-		(GetCurrencyID()				==	theOffer.GetCurrencyID())		&&  // These four items must match in order
-		(GetScale()						==	theOffer.GetScale())			&&	// for it to even be the same MARKET.
-		// -----------------------------------------------------------------------------------------------------------
-//      (theOffer.GetPriceLimit()		> 0)								&&	// Commented out since adding Market Orders (which have 0 price.)
-        (theOffer.GetMinimumIncrement()	> 0)								&&	// Offer min increment larger than 0.
-        (theOffer.GetMinimumIncrement()	>=	GetScale())						&&	// Offer min increment is at least market scale.
-        ((theOffer.GetMinimumIncrement() %	GetScale()) == 0)				&&	// Offer min evenly divisible by market scale.
-        (theOffer.GetMinimumIncrement()	<= theOffer.GetAmountAvailable()))		// Amount available on the offer is at least as much as its own minimum.
-	{		
-		OTLog::Output(4, "Offer is valid for market.\n");
-		return true;
-	}
-	else
-	{
-		OTLog::Output(4, "Offer is invalid for this market.\n");
-	}
-
-	return false;
+bool OTMarket::ValidateOfferForMarket(OTOffer & theOffer, OTString * pReason/*=NULL*/)
+{
+    bool     bValidOffer = true;
+    OTString strReason("");
+    // -----------------------------------------------------------------------
+    if (GetServerID() != theOffer.GetServerID())
+    {
+        bValidOffer = false;
+        const OTString strID(GetServerID()), strOtherID(theOffer.GetServerID());
+        strReason.Format("Wrong Server ID on offer. Expected %s, but found %s", strID.Get(), strOtherID.Get());
+    }
+    // -----------------------------------------------------------------------
+    else if (GetAssetID() != theOffer.GetAssetID())
+    {
+        bValidOffer = false;
+        const OTString strID(GetAssetID()), strOtherID(theOffer.GetAssetID());
+        strReason.Format("Wrong Asset ID on offer. Expected %s, but found %s", strID.Get(), strOtherID.Get());
+    }
+    // -----------------------------------------------------------------------
+    else if (GetCurrencyID() != theOffer.GetCurrencyID())
+    {
+        bValidOffer = false;
+        const OTString strID(GetCurrencyID()), strOtherID(theOffer.GetCurrencyID());
+        strReason.Format("Wrong Currency ID on offer. Expected %s, but found %s", strID.Get(), strOtherID.Get());
+    }
+    // -----------------------------------------------------------------------
+    else if (GetScale() != theOffer.GetScale())
+    {
+        bValidOffer = false;
+        strReason.Format("Wrong Market Scale on offer. Expected %ld, but found %ld", GetScale(), theOffer.GetScale());
+    }
+    // -----------------------------------------------------------------------
+    // The above four items must match in order for it to even be the same MARKET.
+    // -----------------------------------------------------------------------
+    else if (theOffer.GetMinimumIncrement()	<= 0)
+    {
+        bValidOffer = false;
+        strReason.Format("Minimum Increment on offer is <= 0: %ld", theOffer.GetMinimumIncrement());
+    }
+    // -----------------------------------------------------------------------
+    else if (theOffer.GetMinimumIncrement()	< GetScale())
+    {
+        bValidOffer = false;
+        strReason.Format("Minimum Increment on offer (%ld) is less than market scale (%ld).",
+                         theOffer.GetMinimumIncrement(), GetScale());
+    }
+    // -----------------------------------------------------------------------
+    else if ((theOffer.GetMinimumIncrement() % GetScale()) != 0)
+    {
+        bValidOffer = false;
+        strReason.Format("Minimum Increment on offer (%ld) Mod market scale (%ld) is not equal to zero.",
+                         theOffer.GetMinimumIncrement(), GetScale());
+    }
+    // -----------------------------------------------------------------------
+    else if (theOffer.GetMinimumIncrement()	> theOffer.GetAmountAvailable())
+    {
+        bValidOffer = false;
+        strReason.Format("Minimum Increment on offer (%ld) is more than the amount of assets available for trade on that same offer (%ld).",
+                         theOffer.GetMinimumIncrement(), theOffer.GetAmountAvailable());
+    }
+    // -----------------------------------------------------------------------
+    if (bValidOffer)
+        OTLog::Output(4, "Offer is valid for market.\n");
+    else
+    {
+        OTLog::vOutput(0, "%s: Offer is invalid for this market: %s\n", __FUNCTION__, strReason.Get());
+        
+        if (NULL != pReason)
+            *pReason = strReason;
+    }
+    // -----------------------------------------
+	return bValidOffer;
 }
 
 

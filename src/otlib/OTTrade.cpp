@@ -604,9 +604,9 @@ OTOffer	* OTTrade::GetOffer(OTIdentifier * pOFFER_MARKET_ID/*=NULL*/, OTMarket *
 			// Error -- how has the trade already activated, yet not on the market and null in my pointer?
 			OTLog::Error("How has the trade already activated, yet not on the market and null in my pointer?\n");			
 		}
-		else if (!pMarket->AddOffer(*pOffer, true))	// Since we're actually adding an offer to the market (not just
-		{											// loading from disk) the we actually want to save the market. bSaveFile=true.
-			
+		else if (!pMarket->AddOffer(this, *pOffer, true))   // Since we're actually adding an offer to the market (not just
+		{                                                   // loading from disk) the we actually want to save the market.
+                                                            // bSaveFile=true.
 			// Error adding the offer to the market!
 			OTLog::Error("Error adding the offer to the market! (Even though supposedly the right market.)\n");
 		}
@@ -662,9 +662,9 @@ OTOffer	* OTTrade::GetOffer(OTIdentifier * pOFFER_MARKET_ID/*=NULL*/, OTMarket *
 			(IsLessThan()    && (lRelevantPrice < GetStopPrice())))
 		{
 			// Activate the stop order!
-			if (!pMarket->AddOffer(*pOffer, true))	// Since we're actually adding an offer to the market (not just
-			{										// loading from disk) the we actually want to save the market. bSaveFile=true.
-				// Error adding the offer to the market!
+			if (!pMarket->AddOffer(this, *pOffer, true))    // Since we're actually adding an offer to the market (not just
+			{                                               // loading from disk) the we actually want to save the market.
+				// Error adding the offer to the market!    // bSaveFile=true.
 				OTLog::Error("Error adding the stop order to the market! (Even though supposedly the right market.)\n");
 			}
 			else 
