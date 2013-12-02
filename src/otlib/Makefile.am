@@ -130,6 +130,7 @@ otlib_headers		=	$(otlib_headers_dir)/constants.h		\
 
 otlib_headers_ext	=	$(otlib_headers_dir)/ExportWrapper.h		\
 				$(otlib_headers_dir)/stacktrace.h		\
+				$(otlib_headers_dir)/stdafx.h		\
 				$(otlib_headers_dir)/OTAccount.h		\
 				$(otlib_headers_dir)/OTAgreement.h		\
 				$(otlib_headers_dir)/OTASCIIArmor.h		\
