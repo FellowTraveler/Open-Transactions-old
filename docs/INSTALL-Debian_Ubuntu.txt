@@ -141,9 +141,9 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 # fetch O-T and prepare your copy for build
 
 # 'stable' (alpha) source tar ball method
-$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.89.q.tar.gz
-$ tar -zxvf opentxs-0.89.q.tar.gz
-$ cd opentxs-0.89.q
+$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.90.b.tar.gz
+$ tar -zxvf opentxs-0.90.b.tar.gz
+$ cd opentxs-0.90.b
 $ autoreconf -vif -Wall
 
 ### OR ###

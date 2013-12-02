@@ -1,5 +1,5 @@
-opentxs (0.89.q) UNRELEASED; urgency=low
+opentxs (0.90.b) UNRELEASED; urgency=low
 
   * Initial release. (Closes: #XXXXXX)
 
- -- randy-waterhouse <noone@yodasan>  Tue, 20 Aug 2013 12:34:56 +1300
+ -- randy-waterhouse <noone@yodasan>  Tue, 3 Dec 2013 12:34:56 +1300

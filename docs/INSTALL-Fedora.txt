@@ -60,7 +60,7 @@ $ rpmbuild --rebuild msgpack-0.5.7-1.fc16.src.rpm
 $ sudo yum install ~/rpmbuild/RPMS/i686/msgpack-*
 
 
-# if youa re on fedora 16 or 17
+# if you are on fedora 16 or 17
 $ sudo yum install protobuf-devel
 
 # else you are using fedora 15 or before (we need to compile a src-prm)
@@ -80,7 +80,6 @@ $ sudo yum install ~/rpmbuild/RPMS/i686/protobuf-*
 # setenv variable PKG_CONFIG_PATH
 $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 
-
 # now chaiscript  (for now we are using the development version)
 
 $ git clone git://github.com/ChaiScript/ChaiScript.git
@@ -95,9 +94,9 @@ $ cd ..
 # fetch O-T and prepare your copy for build
 
 # 'stable' source tar ball method
-$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.89.q.tar.gz
-$ tar -zxvf opentxs-0.89.q.tar.gz
-$ cd opentxs-0.89.q
+$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.90.b.tar.gz
+$ tar -zxvf opentxs-0.90.b.tar.gz
+$ cd opentxs-0.90.b
 $ autoreconf -vif -Wall
 
 ### OR ###

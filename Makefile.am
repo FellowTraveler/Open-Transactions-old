@@ -8,9 +8,10 @@ SUBDIRS			=	src
 
 ## Open-Transactions Installs        ##
 
-#### opentxs script CLI utility
+#### autogen.sh, opentxs script CLI utility
 
-dist_bin_SCRIPTS		=	scripts/opentxs
+dist_bin_SCRIPTS		=	autogen.sh			\
+					scripts/opentxs
 
 #### OT SCRIPTS (headers)
 
