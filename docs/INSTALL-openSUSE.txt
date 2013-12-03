@@ -69,17 +69,17 @@ $ cd ..
 # fetch O-T and prepare your copy for build
 
 # 'stable' source tar ball method
-$ wget http://sourceforge.net/projects/opentxs/files/opentxs-0.90.b.tar.gz
-$ tar -zxvf opentxs-0.90.b.tar.gz
-$ cd opentxs-0.90.b
-$ autoreconf -vif -Wall
+$ wget -c http://sourceforge.net/projects/opentxs/files/latest/download
+$ tar -zxvf opentxs-*
+$ cd opentxs-*
+$ ./autogen.sh
 
 ### OR ###
 
 # git pull latest development source method
 $ git clone git://github.com/FellowTraveler/Open-Transactions.git
 $ cd Open-Transactions
-$ autoreconf -vif -Wall
+$ ./autogen.sh
 
 ########################################
 

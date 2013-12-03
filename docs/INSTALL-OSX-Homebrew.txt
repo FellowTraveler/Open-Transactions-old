@@ -125,7 +125,7 @@ $ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
 $ git clone git://github.com/FellowTraveler/Open-Transactions.git
 $ cd Open-Transactions
 
-$ autoreconf -vif -Wall
+$ ./autogen.sh
 
 ########################################
 
