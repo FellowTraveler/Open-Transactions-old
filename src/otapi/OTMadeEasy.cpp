@@ -143,8 +143,6 @@ This is a wrapper for OT_ME
 
 #include <string>
 
-#include <memory>
-
 
 
 #include "OTMadeEasy.h"

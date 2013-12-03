@@ -2,12 +2,10 @@ noinst_LTLIBRARIES = libirrxml.la
 
 ## For now we build locally and statically link to this library as a convenience library
 
-AM_CPPFLAGS		= 	$(AC_CXXFLAGS)
-AM_CXXFLAGS		=	$(AC_CXXFLAGS)
 
 
 libirrxml_la_SOURCES	=	$(irrxml_sources) $(irrxml_headers)
-libirrxml_la_CXXFLAGS	=	-I$(irrxml_headers_dir) $(DEPS_CFLAGS)
+libirrxml_la_CXXFLAGS	=	$(AM_CXXFLAGS) -I$(irrxml_headers_dir)
 libirrxml_la_LDFLAGS	=	-static
 
 irrxml_sources		=	irrXML.cpp

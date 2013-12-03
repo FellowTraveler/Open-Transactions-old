@@ -977,7 +977,7 @@ bool OTCachedKey::GetMasterPassword(OTPassword & theOutput,
 
 		OTLog::vOutput(2, "%s: Starting thread for Master Key...\n", szFunc);
 
-		m_pThread = new thread(OTCachedKey::ThreadTimeout, static_cast<void *>(this));
+		m_pThread = new tthread::thread(OTCachedKey::ThreadTimeout, static_cast<void *>(this));
 
 #else
 		// no thread support
@@ -1052,7 +1052,7 @@ void OTCachedKey::ThreadTimeout(void * pArg)
     int nTimeoutSeconds = pMyself->GetTimeoutSeconds(); // locks mutex internally.
     
     if (nTimeoutSeconds > 0)
-        this_thread::sleep_for(chrono::seconds( nTimeoutSeconds )); // <===== ASLEEP!
+		tthread::this_thread::sleep_for(tthread::chrono::seconds(nTimeoutSeconds)); // <===== ASLEEP!
     // --------------------------------------
 
     if (nTimeoutSeconds != (-1))

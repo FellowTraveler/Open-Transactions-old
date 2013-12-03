@@ -3256,6 +3256,10 @@ namespace OTDB
 		
 		if ((-1) == ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr))
 		{
+			OTLog::sError("Error: %s: Failed calling ConstructAndConfirmPath with:\n"
+				"strOutput: %s | strFolder: %s | oneStr: %s | twoStr: %s | threeStr: %s \n",
+				__FUNCTION__, strOutput, strFolder, oneStr, twoStr, threeStr);
+
 			OTLog::vError("StorageFS::%s: Failed in ConstructAndConfirmPath: %s.\n",
                           __FUNCTION__, strOutput.c_str());
 			return false;

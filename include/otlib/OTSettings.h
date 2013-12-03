@@ -146,7 +146,6 @@
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #endif
 
-#include <memory>
 
 #ifndef EXPORT
 #define EXPORT

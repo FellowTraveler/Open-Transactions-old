@@ -3,6 +3,11 @@
 
 #pragma once
 
+#ifdef _MSC_VER
+//#include <ot_msvc.h>
+#else
+#include <ot_config.h>
+#endif
 
 #ifndef EXPORT
 #define EXPORT
@@ -23,10 +28,17 @@
 #include <stack>
 #include <deque>
 #include <vector>
+#include <locale>
 
-#ifdef _WIN32
-#include <memory>
-#elif __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
+// if we are not compiling with C++11, lets use the tr1.
+#ifdef OT_USE_TR1
+#undef OT_USE_TR1
+#endif
+#if !defined(_MSC_VER) && !defined(OPENTXS_HAVE_CXX11)
+#define OT_USE_TR1
+#endif
+
+#ifndef OT_USE_TR1
 #include <memory>
 #else
 #include <tr1/memory>

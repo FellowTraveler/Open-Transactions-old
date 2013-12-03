@@ -19,6 +19,10 @@
 #   PHP_VERSION
 #
 #
+#   Original found in the zarafa project.  However I have cleaned it up a bit.
+#   I think that this is a small piece of code and we shouldn't worry to much about it.
+#   todo: confirm if the  AGPL  exception already applies for this piece of code.
+#
 #
 
 #   Version 0.1

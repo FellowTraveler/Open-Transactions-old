@@ -134,16 +134,6 @@
 
 #include <algorithm>
 
-#ifdef _WIN32
-#include <memory>
-#elif __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
-#include <memory>
-#else
-#include <tr1/memory>
-#endif
-
-//#include <boost/shared_ptr.hpp>
-
 
 // -------------------
 #include "OTString.h"
@@ -735,35 +725,54 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
 }
 
 
+#ifdef OPENTXS_HAVE_BOOST
 
 OTScriptChai::OTScriptChai() : OTScript()
 {
-    
 }
 
 OTScriptChai::OTScriptChai(const OTString & strValue) : OTScript(strValue)
 {
-    
 }
 
 OTScriptChai::OTScriptChai(const char * new_string) : OTScript(new_string)
 {
-    
 }
 
 OTScriptChai::OTScriptChai(const char * new_string, size_t sizeLength) : OTScript(new_string, sizeLength)
 {
-    
 }
 
 OTScriptChai::OTScriptChai(const std::string & new_string) : OTScript(new_string)
 {
-    
 }
+
+#else
+
+OTScriptChai::OTScriptChai() : OTScript(), chai(chaiscript::Std_Lib::library())
+{
+}
+
+OTScriptChai::OTScriptChai(const OTString & strValue) : OTScript(strValue), chai(chaiscript::Std_Lib::library())
+{
+}
+
+OTScriptChai::OTScriptChai(const char * new_string) : OTScript(new_string), chai(chaiscript::Std_Lib::library())
+{
+}
+
+OTScriptChai::OTScriptChai(const char * new_string, size_t sizeLength) : OTScript(new_string, sizeLength), chai(chaiscript::Std_Lib::library())
+{
+}
+
+OTScriptChai::OTScriptChai(const std::string & new_string) : OTScript(new_string), chai(chaiscript::Std_Lib::library())
+{
+}
+
+#endif
 	
 OTScriptChai::~OTScriptChai()
 {
-    
 }
 
 

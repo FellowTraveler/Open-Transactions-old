@@ -148,15 +148,13 @@
 
 #include <string>
 
-#ifdef _WIN32
-#include <memory>
-#elif __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
-#include <memory>
-#else
-#include <tr1/memory>
-#endif
+
 
 #include <chaiscript/chaiscript.hpp>
+
+#ifndef OPENTXS_HAVE_BOOST
+#include <chaiscript/chaiscript_stdlib.hpp>
+#endif
 
 
 #include "OTBylaw.h"
@@ -236,13 +234,17 @@ EXPORT  void RemoveVariable (OTVariable & theVar);
 };
 
 
-#if __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
-typedef std::shared_ptr<OTScript>  OTScript_SharedPtr;
+
+#ifndef OT_USE_TR1
+typedef std::shared_ptr	<OTScript>         OTScript_SharedPtr;
+typedef std::weak_ptr   <OTScript>         OTScript_WeakPtr;
 #else
-typedef std::tr1::shared_ptr<OTScript>  OTScript_SharedPtr;
+typedef std::tr1::shared_ptr <OTScript>    OTScript_SharedPtr;
+typedef std::tr1::weak_ptr   <OTScript>    OTScript_WeakPtr;
 #endif
 
-typedef std::auto_ptr<OTScript>         OTScript_AutoPtr;
+typedef std::auto_ptr<OTScript>            OTScript_AutoPtr;
+
 
 // -----------------------------------
 
@@ -279,47 +281,16 @@ public:
     chaiscript::ChaiScript chai;
 };
 
-#if __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
-typedef std::shared_ptr<OTScriptChai>  OTScriptChai_SharedPtr;
+
+#ifndef OT_USE_TR1
+typedef std::shared_ptr	<OTScriptChai>         OTScriptChai_SharedPtr;
+typedef std::weak_ptr   <OTScriptChai>         OTScriptChai_WeakPtr;
 #else
-typedef std::tr1::shared_ptr<OTScriptChai>  OTScriptChai_SharedPtr;
+typedef std::tr1::shared_ptr <OTScriptChai>    OTScriptChai_SharedPtr;
+typedef std::tr1::weak_ptr   <OTScriptChai>    OTScriptChai_WeakPtr;
 #endif
 
-typedef std::auto_ptr<OTScriptChai>         OTScriptChai_AutoPtr;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+typedef std::auto_ptr<OTScriptChai>            OTScriptChai_AutoPtr;
 
 
 

@@ -407,9 +407,6 @@
     <ClCompile Include="..\..\src\otlib\otext\easyzlib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\otlib\otext\mkcert.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\otlib\otext\anyoption.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -420,6 +417,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\otlib\otext\mkcert.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

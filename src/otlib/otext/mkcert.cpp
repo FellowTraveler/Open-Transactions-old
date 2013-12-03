@@ -2,13 +2,16 @@
 * operations.
 */
 
-
-#include <stdio.h>
-#include <stdlib.h>
-
 #ifdef _WIN32
 #include <WinsockWrapper.h>
 #endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <openssl/crypto.h>
 #include <openssl/ssl.h>
@@ -192,4 +195,9 @@ int add_ext(X509 *cert, int nid, char *value)
         X509_EXTENSION_free(ex);
         return 1;
         }
-        
+    
+#ifdef __cplusplus
+} // closing brace for extern "C"
+#endif
+
+

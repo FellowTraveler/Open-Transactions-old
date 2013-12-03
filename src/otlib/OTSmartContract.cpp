@@ -2212,7 +2212,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 	
 	if (!pStashAccount)
 	{
-		OT_ASSERT_MSG(pStashAccount, "ASSERT in OTSmartContract::StashFunds: returned NULL pointer (should never happen.)\n");
+		OT_ASSERT_MSG((NULL != pStashAccount), "ASSERT in OTSmartContract::StashFunds: returned NULL pointer (should never happen.)\n");
 	}
 															
 	if (bWasAcctCreated)
@@ -2228,7 +2228,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 		// to successfully do the transfer, AND I will already save at the end of this call, since funds are
 		// being moved.
 	}
-	OT_ASSERT_MSG(pStashAccount, "This should never happen, but pStashAccount was somehow NULL.");
+	OT_ASSERT_MSG((NULL != pStashAccount), "This should never happen, but pStashAccount was somehow NULL.");
 	// ------------------------------------------------------------
 	//
 	// This code is similar to above, but it checks the stash ACCT itself instead of the stash entry.

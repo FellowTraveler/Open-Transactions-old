@@ -33,9 +33,9 @@ public:
 	typedef BigUnsigned::Index Index;
 	typedef BigUnsigned::CmpRes CmpRes;
 	static const CmpRes
-		less    = BigUnsigned::less   ,
-		equal   = BigUnsigned::equal  ,
-		greater = BigUnsigned::greater;
+		bigless    = BigUnsigned::less   ,
+		bigequal   = BigUnsigned::equal  ,
+		biggreater = BigUnsigned::greater;
 	// Enumeration for the sign of a BigInteger.
 	enum Sign { negative = -1, zero = 0, positive = 1 };
 
@@ -113,10 +113,10 @@ public:
 		return sign == x.sign && mag == x.mag;
 	}
 	bool operator !=(const BigInteger &x) const { return !operator ==(x); };
-	bool operator < (const BigInteger &x) const { return compareTo(x) == less   ; }
-	bool operator <=(const BigInteger &x) const { return compareTo(x) != greater; }
-	bool operator >=(const BigInteger &x) const { return compareTo(x) != less   ; }
-	bool operator > (const BigInteger &x) const { return compareTo(x) == greater; }
+	bool operator < (const BigInteger &x) const { return compareTo(x) == bigless; }
+	bool operator <=(const BigInteger &x) const { return compareTo(x) != biggreater; }
+	bool operator >=(const BigInteger &x) const { return compareTo(x) != bigless; }
+	bool operator > (const BigInteger &x) const { return compareTo(x) == biggreater; }
 
 	// OPERATORS -- See the discussion in BigUnsigned.hh.
 	void add     (const BigInteger &a, const BigInteger &b);

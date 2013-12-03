@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* easyzlib.c implementation
 
   easyzlib release 1.0
@@ -8079,3 +8083,7 @@ int ezuncompress( unsigned char* pDest, long* pnDestLen, const unsigned char* pS
     return nExtraChunks ? Z_BUF_ERROR : Z_OK;
 }
 
+#ifdef __cplusplus
+            } // closing brace for extern "C"
+#endif
+            

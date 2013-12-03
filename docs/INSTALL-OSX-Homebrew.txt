@@ -1,10 +1,10 @@
-﻿#########################################################################
-#									#
-#									#
-#		##	INSTALL - OSX Homebrew		##		#
-#									#
-#									#
-#########################################################################
+##########################################################################
+#                                                                        #
+#                                                                        #
+#                   ##    INSTALL - OSX Homebrew    ##                   #
+#                                                                        #
+#                                                                        #
+##########################################################################
 
 
 
@@ -39,16 +39,11 @@ $ brew update
 $ echo 'export CPP=cpp; export CC=clang; export CXX=clang++' >> ~/.profile
 $ source ~/.profile
 
-# We use branch 2.xx for zmq so need an older formula:
+$ brew install --use-clang cmake automake autoconf libtool
+$ brew install --use-clang protobuf msgpack zeromq22 openssl
 
-$ cd $HOMEBREW_PREFIX
-$ git checkout 6a2e6ef Library/Formula/zeromq.rb
-$ cd ~
-
-$ brew install --use-clang git cmake boost libtool automake autoconf
-$ brew link --force automake
-$ brew link --force autoconf
-$ brew install --use-clang protobuf msgpack zeromq
+## If you are NOT on Mavericks !!
+$ brew install --use-clang boost
 
 
 #############
@@ -74,45 +69,26 @@ $ export PATH=$HOMEBREW_PREFIX/bin:$PATH
 
 #############
 
-##   ALL   ##
-
-## OPENSSL ##
-
-# homebrew doesn't pack openssl 1.0 yet
-$ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
-$ curl -O http://www.openssl.org/source/openssl-1.0.1e.tar.gz
-$ tar xf openssl-1.0.1e.tar.gz
-$ cd openssl-1.0.1e
-
-(for a x64)
-$ ./Configure darwin64-x86_64-cc shared -DPURIFY --prefix=$HOMEBREW_PREFIX
-
-(for a x32)
-$ ./Configure shared -DPURIFY --prefix=$HOMEBREW_PREFIX
-
-(Using DPURIFY so that we don't get false positives in Valgrind, from OpenSSL.)
-
-$ make
-$ make tests
-# may need root, depending on where $HOMEBREW_PREFIX points
-$ make install
-
-
 ## CHAISCRIPT ##
 
 # fetch chaiscript
 $ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
 $ git clone git://github.com/ChaiScript/ChaiScript.git
 
-# build chaiscript  (Notice the git checkout 241ca below, because the latest ChaiScript has a compile error)
+# build chaiscript  (Now using non-boost version)
 $ cd ChaiScript
-$ git checkout 241ca
-$ cmake . -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$HOMEBREW_PREFIX
-$ make
+
+### Only if you are using Mavericks !!
+# git checkout origin/ChaiScript_5_0_CPP_11
+###
+
+$ cmake . -DCMAKE_INSTALL_PREFIX=$HOMEBREW_PREFIX
+$ make -j2
 $ make test
 $ make install
 $ cd ..
 
+########################################
 
 
 ## OPEN TRANSACTIONS ##
@@ -127,63 +103,43 @@ $ cd Open-Transactions
 
 $ ./autogen.sh
 
-########################################
-
-# if we are using java... test-run java (it will be installed if missing)
-$ javac
+## If you are NOT on Mavericks !!
+## include "--disable-cxx11" in your configure options.
 
 (for a x64)
-$ ./configure --build=x86_64-apple-darwin11 --host=x86_64-apple-darwin11 --target=x86_64-apple-darwin11 \
---prefix=$HOMEBREW_PREFIX --with-java
+$ ./configure --prefix=$HOMEBREW_PREFIX --disable-boost --with-openssl=/usr/local/opt/openssl
 
 (for a x32)
-$ ./configure --build=i686-apple-darwin11 --host=i686-apple-darwin11 --target=i686-apple-darwin11 \
---prefix=$HOMEBREW_PREFIX --with-java
+$ ./configure --target=i686-apple-darwin11 --prefix=$HOMEBREW_PREFIX --disable-boost --with-openssl=/usr/local/opt/openssl
 
 (NB: Default without the "--prefix=$HOMEBREW_PREFIX" installs sytem-wide  
-and will require admin privileges for "$ sudo make install" step below.
-Also, for MoneyChanger support "--with-java" flag is needed)
+and will require admin privileges for "$ sudo make install" step below)
 
 
 #########   Configure Options:   #########
-Enable Configuration in Release Mode:
---enable-release
 
-Enable extra (noisy) warnings with compile:
---enable-warnings
+Debug Mode:      --enable-debug
+Signal Handling: --enable-sighandler
+Warnings:        --enable-warnings
 
-Enable the signal handling for catching segmentation fault's (debug only):
---enable-sighandler
+Release Mode:    --enable-release
 
-Enable system keyring storage of OT passwords:
---with-keyring=ARG
-(ARG can be one of gnome, kwallet, windows, mac.)
+No Boost:        --disable-boost
+No C++11:        --disable-cxx11
 
-# Swig API support options: #
+(Optional)
+System Keyring:  --with-keyring=ARG
+Arguments:       gnome, kwallet, windows or mac
 
-Enable Configuration for SWIG Java Support:
---with-java
-
-Enable Configuration for SWIG Perl 5 Support:
---with-perl5
-
-Enable Configuration for SWIG PHP Support:
---with-php
-
-Enable Configuration for SWIG Python Support:
---with-python
-
-Enable Configuration for SWIG Ruby Support:
---with-ruby
-
-Enable Configuration for SWIG TCL Support:
---with-tcl
-
-Enable Configuration for SWIG CSHARP Support:
---with-csharp
-
-Enable Configuration for SWIG D Support:
---with-d
+Enable SWIG Support for:
+       Java:     --with-java
+       Perl 5:   --with-perl5
+       PHP:      --with-php
+       Python:   --with-python
+       Ruby:     --with-ruby
+       TCL:      --with-tcl
+       CSHARP:   --with-csharp
+       D:        --with-d
 
 ##########################################
 

@@ -2,8 +2,6 @@ noinst_LTLIBRARIES = libbigint.la
 
 ## For now we build locally and statically link to this library as a convenience library
 
-AM_CPPFLAGS		= 	$(AC_CXXFLAGS)
-AM_CXXFLAGS		=	$(AC_CXXFLAGS)
 
 bigint_headers_dir	=	$(top_srcdir)/include/bigint
 
@@ -23,6 +21,6 @@ bigint_sources		=	BigInteger.cc			\
 
 
 libbigint_la_SOURCES	=	$(bigint_sources) $(bigint_headers)
-libbigint_la_CXXFLAGS	=	-I$(bigint_headers_dir) $(DEPS_CFLAGS)
+libbigint_la_CXXFLAGS	=	$(AM_CXXFLAGS) -I$(bigint_headers_dir)
 libbigint_la_LDFLAGS	=	-static
 
