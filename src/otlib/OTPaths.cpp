@@ -160,7 +160,6 @@
 #define S_ISREG(mode)  (((mode) & S_IFMT) == S_IFREG)
 #endif
 
-#include <memory>
 #include <string> // The C++ one 
 #include <vector>
 

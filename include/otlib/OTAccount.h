@@ -143,8 +143,6 @@
 #include <string>
 
 
-#include <memory>
-
 
 #include "OTTransactionType.h"
 #include "OTString.h"
@@ -281,8 +279,16 @@ typedef std::list <OTAccount *> listOfAccounts;
 
 // -------------------------------------------------------------
 
-typedef std::shared_ptr	<OTAccount>			OTAccount_SharedPtr;
-typedef std::weak_ptr	<OTAccount>         OTAccount_WeakPtr;
+#ifndef OT_USE_TR1
+typedef std::shared_ptr	<OTAccount>         OTAccount_SharedPtr;
+typedef std::weak_ptr   <OTAccount>         OTAccount_WeakPtr;
+#else
+typedef std::tr1::shared_ptr <OTAccount>    OTAccount_SharedPtr;
+typedef std::tr1::weak_ptr   <OTAccount>    OTAccount_WeakPtr;
+#endif
+
+typedef std::auto_ptr<OTAccount>            OTAccount_AutoPtr;
+
 
 typedef std::map<std::string, OTAccount_WeakPtr>	mapOfWeakAccounts; // mapped by ACCT ID
 

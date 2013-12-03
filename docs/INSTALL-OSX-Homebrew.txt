@@ -42,6 +42,9 @@ $ source ~/.profile
 $ brew install --use-clang cmake automake autoconf libtool
 $ brew install --use-clang protobuf msgpack zeromq22 openssl
 
+## If you are NOT on Mavericks !!
+$ brew install --use-clang boost
+
 
 #############
 
@@ -74,7 +77,11 @@ $ git clone git://github.com/ChaiScript/ChaiScript.git
 
 # build chaiscript  (Now using non-boost version)
 $ cd ChaiScript
+
+### Only if you are using Mavericks !!
 # git checkout origin/ChaiScript_5_0_CPP_11
+###
+
 $ cmake . -DCMAKE_INSTALL_PREFIX=$HOMEBREW_PREFIX
 $ make -j2
 $ make test
@@ -96,6 +103,8 @@ $ cd Open-Transactions
 
 $ autoreconf -vif -Wall
 
+## If you are NOT on Mavericks !!
+## include "--disable-cxx11" in your configure options.
 
 (for a x64)
 $ ./configure --prefix=$HOMEBREW_PREFIX --disable-boost --with-openssl=/usr/local/opt/openssl

@@ -30,7 +30,19 @@
 #include <vector>
 #include <locale>
 
+// if we are not compiling with C++11, lets use the tr1.
+#ifdef OT_USE_TR1
+#undef OT_USE_TR1
+#endif
+#if !defined(_MSC_VER) && !defined(OPENTXS_HAVE_CXX11)
+#define OT_USE_TR1
+#endif
+
+#ifndef OT_USE_TR1
 #include <memory>
+#else
+#include <tr1/memory>
+#endif
 
 #ifdef _WIN32
 #ifndef NO_OT_PCH

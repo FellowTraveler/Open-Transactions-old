@@ -169,7 +169,6 @@
 #include <set>
 #include <list>
 #include <vector>
-#include <memory>
 
 // credit:stlplus library.
 //#include "containers/simple_ptr.hpp"

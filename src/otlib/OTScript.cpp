@@ -134,16 +134,6 @@
 
 #include <algorithm>
 
-#ifdef _WIN32
-#include <memory>
-#elif __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
-#include <memory>
-#else
-#include <tr1/memory>
-#endif
-
-//#include <boost/shared_ptr.hpp>
-
 
 // -------------------
 #include "OTString.h"
