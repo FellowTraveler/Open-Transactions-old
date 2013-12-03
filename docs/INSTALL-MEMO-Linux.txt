@@ -18,12 +18,12 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 # fetch OT and prepare your copy for build
 
 # 'stable' (alpha) source tar ball method
-# (Replace wildcard * with appropriate version number)
 #
 # Download latest tarball from https://sourceforge.net/projects/opentxs/files/
-$ tar -zxvf opentxs.*.tar.gz
-$ cd opentxs.*
-$ autoreconf -vif -Wall
+$ wget -c http://sourceforge.net/projects/opentxs/files/latest/download
+$ tar -zxvf opentxs-*
+$ cd opentxs-*
+$ ./autogen.sh
 $ mkdir build && cd build
 
 
@@ -31,7 +31,7 @@ $ mkdir build && cd build
 #
 $ git clone git://github.com/FellowTraveler/Open-Transactions.git
 $ cd Open-Transactions
-$ autoreconf -i -f
+$ ./autogen.sh
 $ mkdir -p build && cd build
 
 $ make uninstall (to cleanup anything in your ~/.local dir)
@@ -84,7 +84,7 @@ $ java -jar $HOME/.local/jar/*.jar
 $ cd ~/Open-Transactions
 $ git clean -xfd
 $ git pull
-$ autoreconf -vif -Wall
+$ ./autogen.sh
 $ ./configure --prefix=$HOME/.local --with-java
 $ make
 $ make install
@@ -98,7 +98,7 @@ $ make install
 $ sudo apt-get debuild cdbs autotools-dev dh-autoreconf
 $ git clone https://github.com/randy-waterhouse/opentxs.git
 $ cd opentxs
-$ autoreconf -vif -Wall
+$ ./autogen.sh
 $ ./configure
 $ sudo make distcheck
 $ mv opentxs-0.90.b.tar.gz opentxs_0.90.b.orig.tar.gz
