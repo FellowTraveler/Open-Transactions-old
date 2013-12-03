@@ -2861,207 +2861,140 @@ namespace OTDB
 	 
 	 */
 	long StorageFS::ConstructAndCreatePath(       std::string & strOutput,
-		const std::string & strFolder,      const std::string & oneStr/*=""*/,  
-		const std::string & twoStr/*=""*/,  const std::string & threeStr/*=""*/)
+		const std::string strFolder,      const std::string oneStr/*=""*/,  
+		const std::string twoStr/*=""*/,  const std::string threeStr/*=""*/)
 	{
-		OTString zero, one, two, three, path, temp;
-		long lFileLength=0;
-
-		strOutput = "";  // set output path.
-
-		// Do we have anytihng at all?  Now check ing strFolder
-		if (strFolder.empty())
-			return -1;  // error no folder string.
-		else
-        {   
-			if (3 < strFolder.length())
-				zero = OTString(strFolder); // Two or more characher, that's a name!
-			else
-            {
-				OTString strZeroTemp = strFolder.c_str();
-				if (strZeroTemp.Compare("."))
-					zero = strZeroTemp;   // Single Dot, lets catch that and pass it throogh.
-				else return -1;  //we have nothing of use.
-			}
-		}
-
-		if (3 < oneStr.length())   one   = oneStr.c_str(); 
-		if (3 < twoStr.length())   two   = twoStr.c_str();
-		if (3 < threeStr.length()) three = threeStr.c_str();
-
-		// Must have consecutive paths
-		if ((!one.Exists()) && (two.Exists() || three.Exists())) return -1;  
-		if ((!two.Exists()) && (three.Exists())) return -1; // must have consetive paths
-
-		// Log...
-		OTLog::vOutput(2,"StorageFS::%s: zero: %s", __FUNCTION__, zero.Get());
-		if (one.Exists()) 
-        { 
-            
-            OTLog::vOutput(2," one: %s", one.Get());
-            
-			if (two.Exists()) 
-            { 
-                OTLog::vOutput(2," two: %s", two.Get());
-                
-				if (three.Exists()) 
-                    OTLog::vOutput(2," three: %s", three.Get());
-			}
-		}
-        OTLog::vOutput(2, "\n");
-
-		bool bFolderExists=false, bFolderAlreadyExists=false;
-        // ---------------------------------------------------------
-		// Zero...
-		if (zero.Compare(".")) { path = m_strDataPath; }
-		else
-		{
-			if (!OTPaths::AppendFolder(path, m_strDataPath, zero)) { return -1; }
-		}
-
-		bool bFolderCreated=false;
-		if(!OTPaths::BuildFolderPath(path, bFolderCreated)) { return -1; }
-		
-		if (!one.Exists()) { strOutput = path.Get(); return 0; }
-        // ---------------------------------------------------------
-		// One...
-		if (!two.Exists()) // one is a file
-		{
-			if(!OTPaths::AppendFile(path, path, one)) { return -1; } // unable to append file
-            // ------------------------------------------------
-			if (OTPaths::FileExists(path, lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
-			else { strOutput = path.Get(); return 0; } // file not found
-		}
-		else // one is a folder
-		{
-			if(!OTPaths::AppendFolder(path, path, one)) { return -1; } // unable to append folder
-            // ------------------------------------------------
-			if(!OTPaths::ConfirmCreateFolder(path, bFolderExists, bFolderAlreadyExists)) { return -1; } // failed to create folder
-		}
-        // ---------------------------------------------------------
-		// Two...
-		if (!three.Exists()) // two is a file
-		{
-			if(!OTPaths::AppendFile(path, path, two)) { return -1; } // unable to append file
-            // ------------------------------------------------
-			if (OTPaths::FileExists(path, lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
-			else { strOutput = path.Get(); return 0; }  // file found
-		}
-		else // two is a folder
-		{
-			if(!OTPaths::AppendFolder(path, path, two)) { return -1; }; // unable to append folder
-            // ------------------------------------------------
-			if(!OTPaths::ConfirmCreateFolder(path, bFolderExists, bFolderAlreadyExists)) { return -1; } // failed to create folder
-		}
-        // ---------------------------------------------------------
-		// Three...
-        if(!OTPaths::AppendFile(path, path, three)) { return -1; }; // unable to append file
-        // ------------------------------------------------
-        if (OTPaths::FileExists(path, lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
-        else { strOutput = path.Get(); return 0; }  // file not found
+		return this->ConstructAndConfirmPathImp(true, strOutput, strFolder, oneStr, twoStr, threeStr);
 	}
     
     // ----------------------------------------------------------------------
     
     long StorageFS::ConstructAndConfirmPath(      std::string & strOutput, 
-		const std::string & strFolder,      const std::string & oneStr/*=""*/,  
-		const std::string & twoStr/*=""*/,  const std::string & threeStr/*=""*/)
+		const std::string strFolder,      const std::string oneStr/*=""*/,  
+		const std::string twoStr/*=""*/,  const std::string threeStr/*=""*/)
 	{
-		OTString zero, one, two, three, path, temp;
-		long lFileLength=0;
-
-		strOutput = "";  // set output path.
-
-		// Do we have anytihng at all?  Now check ing strFolder
-		if (strFolder.empty())
-			return -1;  // error no folder string.
-		else
-        {   
-			if (3 < strFolder.length())
-				zero = OTString(strFolder); // Two or more characher, that's a name!
-			else
-            {
-				OTString strZeroTemp = strFolder.c_str();
-				if (strZeroTemp.Compare("."))
-					zero = strZeroTemp;   // Single Dot, lets catch that and pass it throogh.
-				else return -1;  //we have nothing of use.
-			}
-		}
-
-		if (3 < oneStr.length())   one   = oneStr.c_str(); 
-		if (3 < twoStr.length())   two   = twoStr.c_str();
-		if (3 < threeStr.length()) three = threeStr.c_str();
-
-		// Must have consecutive paths
-		if ((!one.Exists()) && (two.Exists() || three.Exists())) return -1;  
-		if ((!two.Exists()) && (three.Exists())) return -1; // must have consetive paths
-
-		// Log...
-		OTLog::vOutput(2,"StorageFS::%s: zero: %s", __FUNCTION__, zero.Get());
-		if (one.Exists()) 
-        { 
-            
-            OTLog::vOutput(2," one: %s", one.Get());
-            
-			if (two.Exists()) 
-            { 
-                OTLog::vOutput(2," two: %s", two.Get());
-                
-				if (three.Exists()) 
-                    OTLog::vOutput(2," three: %s", three.Get());
-			}
-		}
-        OTLog::vOutput(2, "\n");
-
-        // ---------------------------------------------------------
-		// Zero...
-		if (zero.Compare(".")) { path = m_strDataPath; }
-		else
-		{
-			if (!OTPaths::AppendFolder(path, m_strDataPath, zero)) { return -1; }
-		}
-
-		bool bFolderCreated=false;
-		if(!OTPaths::BuildFolderPath(path, bFolderCreated)) { return -1; }
-		
-		if (!one.Exists()) { strOutput = path.Get(); return 0; }
-        // ---------------------------------------------------------
-		// One...
-		if (!two.Exists()) // one is a file
-		{
-			if(!OTPaths::AppendFile(path, path, one)) { return -1; } // unable to append file
-            // ------------------------------------------------
-			if (OTPaths::FileExists(path, lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
-			else { strOutput = path.Get(); return 0; } // file not found
-		}
-		else // one is a folder
-		{
-			if(!OTPaths::AppendFolder(path, path, one)) { return -1; } // unable to append folder
-            // ------------------------------------------------
-			if(!OTPaths::FolderExists(path)) { return -1; } // failed to create folder
-		}
-        // ---------------------------------------------------------
-		// Two...
-		if (!three.Exists()) // two is a file
-		{
-			if(!OTPaths::AppendFile(path, path, two)) { return -1; } // unable to append file
-            // ------------------------------------------------
-			if (OTPaths::FileExists(path, lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
-			else { strOutput = path.Get(); return 0; }  // file found
-		}
-		else // two is a folder
-		{
-			if(!OTPaths::AppendFolder(path, path, two)) { return -1; }; // unable to append folder
-            // ------------------------------------------------
-			if(!OTPaths::FolderExists(path)) { return -1; } // failed to create folder
-		}
-        // ---------------------------------------------------------
-		// Three...
-        if(!OTPaths::AppendFile(path, path, three)) { return -1; }; // unable to append file
-        // ------------------------------------------------
-        if (OTPaths::FileExists(path, lFileLength)) { strOutput = path.Get(); return lFileLength; } // file found
-        else { strOutput = path.Get(); return 0; }  // file not found
+		return this->ConstructAndConfirmPathImp(false, strOutput, strFolder, oneStr, twoStr, threeStr);
 	}
+
+
+    long StorageFS::ConstructAndConfirmPathImp(
+        const bool bMakePath,
+        std::string & strOutput,
+        const std::string zeroStr,
+        const std::string oneStr,
+        const std::string twoStr,
+        const std::string threeStr
+        )
+    {
+        const std::string strRoot(m_strDataPath.c_str());
+
+        const std::string strZero(3 > zeroStr.length() ? "" : zeroStr);
+        const std::string strOne(3 > oneStr.length() ? "" : oneStr);
+        const std::string strTwo(3 > twoStr.length() ? "" : twoStr);
+        const std::string strThree(3 > threeStr.length() ? "" : threeStr);
+
+        // must be 3chars in length, or equal to "."
+        if (strZero.empty() && (0 != zeroStr.compare("."))) {
+            OTLog::sError("%s: Empty: %s is too short (and not \".\").!\n"
+                "zeroStr was: \"%s\"\n", __FUNCTION__, "zeroStr", zeroStr.c_str());
+            return -1;
+        }
+
+        // the first string must not be empty
+        if (strOne.empty()) {
+            OTLog::sError("%s: Empty: %s passed in!\n", __FUNCTION__, "oneStr");
+            return -2;
+        }
+
+        // if the second string is empty, so must the third.
+        if (strTwo.empty() && !strThree.empty()) {
+            OTLog::sError("%s: Error: strThree passed in: %s while strTwo is empty!\n", __FUNCTION__, strThree.c_str());
+            return -3;
+        }
+
+        const bool bHaveZero = !strZero.empty();
+        const bool bOneIsLast = strTwo.empty();
+        const bool bTwoIsLast = !bOneIsLast && strThree.empty();
+        const bool bThreeIsLast = !bOneIsLast && !bTwoIsLast;
+
+        // main vairables;
+        std::string strBufFolder("");
+        std::string strBufPath("");
+
+        // main block
+        {
+            // root (either way)
+            strBufFolder += strRoot;
+
+            // Zero
+            if (bHaveZero) {
+                strBufFolder += strZero;
+                strBufFolder += "/";
+            }
+
+            // One
+            if (bOneIsLast) {
+                strBufPath = strBufFolder;
+                strBufPath += strOne;
+                goto ot_exit_block;
+            }
+
+            strBufFolder += strOne;
+            strBufFolder += "/";
+
+            // Two
+            if (bTwoIsLast) {
+                strBufPath = strBufFolder;
+                strBufPath += strTwo;
+                goto ot_exit_block;
+            }
+
+            strBufFolder += strTwo;
+            strBufFolder += "/";
+
+            // Three
+            if (bThreeIsLast) {
+                strBufPath = strBufFolder;
+                strBufPath += threeStr;
+                goto ot_exit_block;
+            }
+            // should never get here.
+            OT_FAIL;
+        }
+    ot_exit_block:
+
+        // set as constants. (no more changing).
+        const std::string strFolder(strBufFolder);
+        const std::string strPath(strBufPath);
+        strOutput = strPath;
+
+
+        if (bMakePath) {
+            bool bFolderCreated = false;
+            OTPaths::BuildFolderPath(strFolder.c_str(), bFolderCreated);
+        }
+
+        {
+            const bool bFolderExists = OTPaths::PathExists(strFolder.c_str());
+
+            if (bMakePath && !bFolderExists) {
+                OTLog::sError("%s: Error: was told to make path, however cannot confirm the path!\n", __FUNCTION__);
+                return -4;
+            }
+            if (!bMakePath && !bFolderExists) {
+                OTLog::sOutput(0,"%s: Warning! Cannot confirm the path!\n", __FUNCTION__);
+            }
+        }
+
+        {
+            long lFileLength = 0;
+            const bool bFileExists = OTPaths::FileExists(strPath.c_str(), lFileLength);
+
+            if (bFileExists) return lFileLength;
+            else return 0;
+        }
+	}
+
 
 
     // ----------------------------------------------------------------------
@@ -3072,7 +3005,7 @@ namespace OTDB
 	{
 		std::string strOutput;
         
-		if (-1 == ConstructAndCreatePath(strOutput, strFolder, oneStr, twoStr, threeStr))
+		if (0 > ConstructAndCreatePath(strOutput, strFolder, oneStr, twoStr, threeStr))
 		{
 			OTLog::vError("%s: Error writing to %s.\n", __FUNCTION__, strOutput.c_str());
 			return false;
@@ -3110,7 +3043,7 @@ namespace OTDB
 		
 		long lRet = ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr);
 		
-		if (-1 == lRet)
+		if (0 > lRet)
 		{
 			OTLog::vError("StorageFS::%s: Error with %s.\n", __FUNCTION__, strOutput.c_str());
 			return false;
@@ -3150,7 +3083,7 @@ namespace OTDB
 	{
 		std::string strOutput;
 		
-		if (-1 == ConstructAndCreatePath(strOutput, strFolder, oneStr, twoStr, threeStr))
+		if (0 > ConstructAndCreatePath(strOutput, strFolder, oneStr, twoStr, threeStr))
 		{
 			OTLog::vError("StorageFS::%s: Error writing to %s.\n",
                           __FUNCTION__, strOutput.c_str());
@@ -3196,7 +3129,7 @@ namespace OTDB
 		
 		long lRet = ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr);
 		
-		if (-1 == lRet)
+        if (0 > lRet)
 		{
 			OTLog::vError("StorageFS::%s: Error with %s.\n",
                           __FUNCTION__, strOutput.c_str());
@@ -3254,14 +3187,12 @@ namespace OTDB
 	{
 		std::string strOutput;
 		
-		if ((-1) == ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr))
+		if (0 > ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr))
 		{
 			OTLog::sError("Error: %s: Failed calling ConstructAndConfirmPath with:\n"
 				"strOutput: %s | strFolder: %s | oneStr: %s | twoStr: %s | threeStr: %s \n",
 				__FUNCTION__, strOutput, strFolder, oneStr, twoStr, threeStr);
 
-			OTLog::vError("StorageFS::%s: Failed in ConstructAndConfirmPath: %s.\n",
-                          __FUNCTION__, strOutput.c_str());
 			return false;
 		}
 		
@@ -3335,7 +3266,7 @@ namespace OTDB
 	{
 		std::string strOutput;
 		
-		return (ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr) > 0);
+		return (0 < ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr));
 	}
 
 	
