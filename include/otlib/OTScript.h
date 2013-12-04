@@ -148,12 +148,19 @@
 
 #include <string>
 
-
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4702 )  // warning C4702: unreachable code	
+#endif
 
 #include <chaiscript/chaiscript.hpp>
 
 #ifndef OPENTXS_HAVE_BOOST
 #include <chaiscript/chaiscript_stdlib.hpp>
+#endif
+
+#ifdef _MSC_VER
+#pragma warning( pop )
 #endif
 
 
