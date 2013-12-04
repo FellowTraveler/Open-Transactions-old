@@ -135,7 +135,7 @@ if test "x$boost" = xtrue; then
     AX_BOOST_THREAD
     AX_BOOST_DATE_TIME
     AX_BOOST_SYSTEM
-    AC_SUBST([BOOST_LIB_INCLUDE],["$BOOST_LDFLAGS $BOOST_THREAD_LIB $BOOST_DATE_TIME_LIB $BOOST_SYSTEM_LIB"])
+    AC_SUBST([BOOST_LIB_INCLUDE],["$BOOST_THREAD_LIB $BOOST_DATE_TIME_LIB $BOOST_SYSTEM_LIB"])
     AC_DEFINE([HAVE_BOOST], [1], [We have boost])
 fi
 
@@ -277,7 +277,7 @@ AM_CONDITIONAL(ENABLE_WARNINGS, test x"$warnings" = x"true")
 if (test "x$warnings" == x"true"); then
 
 	AC_SUBST([WARN_CXXFLAGS],
-	["-Waddress -Woverloaded-virtual -Wshadow -Wconversion"])
+	["-Wall -Waddress -Woverloaded-virtual -Wshadow -Wconversion"])
 fi
 
 ## (Option) Build In Release Mode ##
@@ -302,8 +302,14 @@ AC_ARG_ENABLE([release],
         esac],[release=false])
 AM_CONDITIONAL([ENABLE_RELEASE], [test x$release = xtrue])
 
-if test "x$debug" = xtrue -a "x$release" = xtrue; then
+if (test "x$debug" == x"true" -a "x$release" == x"true"); then
     AC_MSG_ERROR([must not have both release and debug set!])
+fi
+
+if (test "x$debug" == x"false" -a "x$release" == x"false"); then
+    AC_MSG_RESULT([defaulting to RELEASE mode!])
+    release=true
+    AM_CONDITIONAL([ENABLE_RELEASE], [test x$release = xtrue])
 fi
 
 if (test "x$debug" == x"true"); then
@@ -311,15 +317,18 @@ if (test "x$debug" == x"true"); then
     if (test "x$acv_ot_clang" == "xyes"); then
         AC_SUBST([DBG_CXXFLAGS],["-g3 -O0 -fPIC"])
     else
-        AC_SUBST([DBG_CXXFLAGS],["-g3 -O0 -fPIC -fPIC -DPIC --param ssp-buffer-size=4"])
+        AC_SUBST([DBG_CXXFLAGS],["-g3 -O0 -fPIC -DPIC --param ssp-buffer-size=4"])
     fi
     AC_DEFINE([DEBUG], [1], [Building in Debug Mode])
 fi
 
 if (test "x$release" == x"true"); then
 
-	AC_SUBST([REL_CXXFLAGS],
-	["-Wall -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector"])
+    if (test "x$acv_ot_clang" == "xyes"); then
+        AC_SUBST([REL_CXXFLAGS],["-g0 -O3 -fPIC -D_FORTIFY_SOURCE=2 -fstack-protector-all -Wstack-protector"])
+    else
+        AC_SUBST([REL_CXXFLAGS],["-g0 -O3 -fPIC -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector"])
+    fi
     AC_DEFINE([RELEASE], [1], [Building in Release Mode])
 fi
 
@@ -481,7 +490,7 @@ AC_SUBST([AM_CXXFLAGS],["$DBG_CXXFLAGS $REL_CXXFLAGS $CXX11_FLAGS $WARN_CXXFLAGS
 
 AC_SUBST([AM_CPPFLAGS],["$BOOST_CPPFLAGS"])
 
-AC_SUBST([AM_LDFLAGS],["$OPENSSL_LDFLAGS $PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS  $OPENSSL_LIBS -ldl $PTHREAD_LIBS"])
+AC_SUBST([AM_LDFLAGS],["$OPENSSL_LDFLAGS $PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS $BOOST_LDFLAGS $OPENSSL_LIBS -ldl $PTHREAD_LIBS"])
 
 AC_CONFIG_FILES([Makefile
 			src/otlib/otprotob/Makefile
