@@ -9490,7 +9490,7 @@ void OTServer::NotarizeMarketOffer(OTPseudonym & theNym, OTAccount & theAssetAcc
 				OTLog::vOutput(0, "OTServer::NotarizeMarketOffer: FAILED verifying Offer, SCALE: %ld. (Minimum is %ld.) \n",
 							   theOffer.GetScale(), this->GetMinMarketScale());	
 			}
-			else if ((theNym.GetSetOpenCronItems().size() / 3) >= OTCron::GetCronMaxItemsPerNym())
+            else if (static_cast<int64_t>((theNym.GetSetOpenCronItems().size() / 3)) >= OTCron::GetCronMaxItemsPerNym())
 			{
                 // NOTE:
                 // We divided by 3 since this set contains THREE numbers for each active market offer.

@@ -421,13 +421,13 @@ EXPORT static std::string  ws2s(const std::wstring & s);
         {
             if (empties == split::no_empties)
             {
-                next = s.find_first_not_of( delimiters, next + 1 );
+                next = s.find_first_not_of(delimiters, static_cast<unsigned int>(next)+1);
                 if (next == Container::value_type::npos) break;
                 next -= 1;
             }
-            current = next + 1;
+            current = static_cast<size_t>(next + 1);
             next = s.find_first_of( delimiters, current );
-            result.push_back( s.substr( current, next - current ) );
+            result.push_back(s.substr(current, static_cast<unsigned int>(next) - current));
         }
         while (next != Container::value_type::npos);
         return result;

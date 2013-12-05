@@ -1196,7 +1196,7 @@ bool OTPaths::BuildFolderPath(const OTString & strFolderPath, bool & out_bFolder
 
     const bool bLog(OTLog::IsInitialized());
 
-    for (int i = 0; i < nSize; i++)
+    for (size_t i = 0; i < nSize; i++)
     {
 #ifndef _WIN32  // aka UNIX
         if(0 == i) l_strPathPart += "/"; //add annother / for root.
@@ -1241,7 +1241,7 @@ bool OTPaths::BuildFilePath(const OTString & strFolderPath, bool & out_bFolderCr
 
     const bool bLog(OTLog::IsInitialized());
 
-    for (int i = 0; i < nSize; i++)
+    for (size_t i = 0; i < nSize; i++)
     {
 #ifndef _WIN32  // aka UNIX
         if(0 == i) l_strPathPart += "/"; //add annother / for root.

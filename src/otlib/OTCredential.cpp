@@ -951,7 +951,7 @@ int OTSubcredential::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                 }
             } // while
             // --------------------------------
-            if (mapPublic.size() != nCount)
+            if (static_cast<int64_t>(mapPublic.size()) != nCount)
             {
                 OTLog::vError("%s, %s, %d: Subcredential expected to load %d publicInfo objects, "
                               "but actually loaded %d. (Mismatch, failure loading.)\n",
@@ -1042,7 +1042,7 @@ int OTSubcredential::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                 }
             } // while
             // --------------------------------
-            if (mapPrivate.size() != nCount)
+            if (static_cast<int64_t>(mapPrivate.size()) != nCount)
             {
                 OTLog::vError("%s, %s, %d: Subcredential expected to load %d privateInfo objects, "
                               "but actually loaded %d. (Mismatch, failure loading.)\n",
@@ -3435,7 +3435,7 @@ const OTSubcredential * OTCredential::GetSubcredential(const OTString & strSubID
 
 const OTSubcredential * OTCredential::GetSubcredentialByIndex(int nIndex) const
 {
-    if ((nIndex < 0) || (nIndex >= m_mapSubcredentials.size()))
+    if ((nIndex < 0) || (nIndex >= static_cast<int64_t>(m_mapSubcredentials.size())))
     {
         OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
     }
@@ -3479,7 +3479,7 @@ const std::string OTCredential::GetSubcredentialIDByIndex(size_t nIndex) const
             // ------------------------
             ++nLoopIndex; // 0 on first iteration.
             // ------------------------
-            if (nIndex == nLoopIndex)
+            if (static_cast<int64_t>(nIndex) == nLoopIndex)
                 return str_cred_id;
         }
     }
