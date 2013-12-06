@@ -209,7 +209,7 @@ extern "C"
 //
 
 #ifndef _WIN32 // Until I get it working on Windows.
-#define OTDB_MESSAGE_PACK   0 // Note: deactivating MsgPack for now, since we don't use it, and since I don't want to have to add it to the Android NDK build.
+//#define OTDB_MESSAGE_PACK   1 // Note: deactivating MsgPack for now, since we don't use it, and since I don't want to have to add it to the Android NDK build.
 #endif
 
 #define OTDB_PROTOCOL_BUFFERS 1
