@@ -2982,7 +2982,7 @@ namespace OTDB
                 return -4;
             }
             if (!bMakePath && !bFolderExists) {
-                OTLog::sOutput(0,"%s: Warning! Cannot confirm the path!\n", __FUNCTION__);
+                OTLog::sOutput(0, "%s: Debug: Cannot find Folder: %s \n", __FUNCTION__, strFolder.c_str());
             }
         }
 
