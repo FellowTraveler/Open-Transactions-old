@@ -22,7 +22,6 @@
     <ClInclude Include="..\..\include\otlib\anyoption.h" />
     <ClInclude Include="..\..\include\otlib\Bitcoin.pb.h" />
     <ClInclude Include="..\..\include\otlib\constants.h" />
-    <ClInclude Include="..\..\include\otlib\easyzlib.h" />
     <ClInclude Include="..\..\include\otlib\ExportWrapper.h" />
     <ClInclude Include="..\..\include\otlib\fast_mutex.h" />
     <ClInclude Include="..\..\include\otlib\Generics.pb.h" />
@@ -250,12 +249,6 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">_UNICODE;UNICODE; _CRT_SECURE_NO_WARNINGS; %(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_UNICODE;UNICODE; _CRT_SECURE_NO_WARNINGS; _DEBUG;DEBUG;_WIN64;_AMD64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_UNICODE;UNICODE; _CRT_SECURE_NO_WARNINGS; _WIN64;_AMD64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="..\..\src\otlib\otext\easyzlib.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\src\otlib\otext\mkcert.cpp" />
     <ClCompile Include="..\..\src\otlib\otext\Timer.cpp">

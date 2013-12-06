@@ -707,7 +707,7 @@ EXCLUDE_SYMLINKS       = NO
 # against the file with absolute path, so to exclude all test directories
 # for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = *.pb.* tinythread.* fast_mutex.* anyoption.* stacktrace.* */simpleini/* easyzlib.* ExportWrapper.* WinsockWrapper.* otapicli.* test*.* irrXML.* 
+EXCLUDE_PATTERNS       = *.pb.* tinythread.* fast_mutex.* anyoption.* stacktrace.* */simpleini/* ExportWrapper.* WinsockWrapper.* otapicli.* test*.* irrXML.* 
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the

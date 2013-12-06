@@ -21,9 +21,6 @@
     <ClInclude Include="..\..\include\otlib\Bitcoin.pb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\otlib\easyzlib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\otlib\Generics.pb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -402,9 +399,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\otlib\Moneychanger.pb.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\otlib\otext\easyzlib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\otlib\otext\anyoption.cpp">

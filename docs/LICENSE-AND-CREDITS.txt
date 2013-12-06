@@ -827,29 +827,14 @@ Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
 */
 
 
-
-/*********************************************************************
- *  easyzlib release 1.0 --- (Compression)
- *  
- *  Copyright (C) 2008 First Objective Software, Inc. (Used with
- *  permission.)
- *  
- *  This entire notice must be retained in this source code
- *  Redistributing this source code requires written permission
- *  This software is provided "as is", with no warranty.
- *
- *  Latest fixes enhancements and documentation at www.firstobject.com
- **********************************************************************/
- 
-
  
  
 /***********************************************************************
  *   ZLIB
  *
  * (Open Transactions does not actually contain the zlib code, but
- * merely links to it via easyzlib. Nevertheless, these credits are 
- * provided in respect of the people who worked on the project.)
+ * merely links to it. Nevertheless, these credits are provided in
+ * respect of the people who worked on the project.)
  *
  *
  *  'zlib' general purpose compression library

@@ -5,14 +5,12 @@ noinst_LTLIBRARIES = libotext.la
 otext_headers_dir	=	$(top_srcdir)/include/otlib
 
 
-otext_sources     =		easyzlib.c			\
-				mkcert.cpp			\
+otext_sources     =	mkcert.cpp			\
 				anyoption.cpp			\
 				tinythread.cpp			\
 				Timer.cpp
 
-otext_headers		=	$(otext_headers_dir)/easyzlib.h	\
-				$(otext_headers_dir)/anyoption.h	\
+otext_headers		=	$(otext_headers_dir)/anyoption.h	\
 				$(otext_headers_dir)/tinythread.h	\
 				$(otext_headers_dir)/Timer.h
 

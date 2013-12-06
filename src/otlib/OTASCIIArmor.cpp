@@ -146,13 +146,15 @@ extern "C"
 #include <stdint.h>  //uint8_t
 }
 
-// I use ezcompress once and ezuncompress once.
-// Basically I compress the strings before they
-// are ascii-armored, to save space.
-// If it turns out I can't use this lib, then I'll
-// just do the same thing using zlib instead of easyzlib.
-// I'm avoiding that since it won't be as easy. Ha.
-#include "easyzlib.h"
+
+#include <string>
+#include <stdexcept>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+
+#include <zlib.h>
+
 
 
 #include "OTStorage.h"
@@ -330,10 +332,94 @@ OTASCIIArmor & OTASCIIArmor::operator=(const OTASCIIArmor & strValue)
 
 
 
-// easyzlib knows, if the result buffer isn't big enough to 
-// store the results, 
-#define DEFAULT_BUFFER_SIZE_EASYZLIB	16384
 
+
+// Source for these two functions:  http://panthema.net/2007/0328-ZLibString.html
+
+/** Compress a STL string using zlib with given compression level and return
+ * the binary data. */
+std::string compress_string(const std::string& str,
+                            int compressionlevel = Z_BEST_COMPRESSION)
+{
+    z_stream zs;                        // z_stream is zlib's control structure
+    memset(&zs, 0, sizeof(zs));
+    
+    if (deflateInit(&zs, compressionlevel) != Z_OK)
+        throw(std::runtime_error("deflateInit failed while compressing."));
+    
+    zs.next_in = (Bytef*)str.data();
+    zs.avail_in = str.size();           // set the z_stream's input
+    
+    int ret;
+    char outbuffer[32768];
+    std::string outstring;
+    
+    // retrieve the compressed bytes blockwise
+    do {
+        zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
+        zs.avail_out = sizeof(outbuffer);
+        
+        ret = deflate(&zs, Z_FINISH);
+        
+        if (outstring.size() < zs.total_out) {
+            // append the block to the output string
+            outstring.append(outbuffer,
+                             zs.total_out - outstring.size());
+        }
+    } while (ret == Z_OK);
+    
+    deflateEnd(&zs);
+    
+    if (ret != Z_STREAM_END) {          // an error occurred that was not EOF
+        std::ostringstream oss;
+        oss << "Exception during zlib compression: (" << ret << ") " << zs.msg;
+        throw(std::runtime_error(oss.str()));
+    }
+    
+    return outstring;
+}
+
+/** Decompress an STL string using zlib and return the original data. */
+std::string decompress_string(const std::string& str)
+{
+    z_stream zs;                        // z_stream is zlib's control structure
+    memset(&zs, 0, sizeof(zs));
+    
+    if (inflateInit(&zs) != Z_OK)
+        throw(std::runtime_error("inflateInit failed while decompressing."));
+    
+    zs.next_in = (Bytef*)str.data();
+    zs.avail_in = str.size();
+    
+    int ret;
+    char outbuffer[32768];
+    std::string outstring;
+    
+    // get the decompressed bytes blockwise using repeated calls to inflate
+    do {
+        zs.next_out = reinterpret_cast<Bytef*>(outbuffer);
+        zs.avail_out = sizeof(outbuffer);
+        
+        ret = inflate(&zs, 0);
+        
+        if (outstring.size() < zs.total_out) {
+            outstring.append(outbuffer,
+                             zs.total_out - outstring.size());
+        }
+        
+    } while (ret == Z_OK);
+    
+    inflateEnd(&zs);
+    
+    if (ret != Z_STREAM_END) {          // an error occurred that was not EOF
+        std::ostringstream oss;
+        oss << "Exception during zlib decompression: (" << ret << ") "
+        << zs.msg;
+        throw(std::runtime_error(oss.str()));
+    }
+    
+    return outstring;
+}
 
 
 
@@ -363,57 +449,12 @@ bool OTASCIIArmor::GetAndUnpackString(OTString & strData, bool bLineBreaks) cons
 	
 	if (pData)
 	{
-		// -------------------------------------------
-		// EASY ZLIB
-		//
-		long nDestLen = DEFAULT_BUFFER_SIZE_EASYZLIB; // todo stop hardcoding numbers (but this one is OK I think.)
-		unsigned char* pDest = new unsigned char [nDestLen+10]; // For safety.
-		
-		OT_ASSERT(NULL != pDest);
-		
-		int nErr = ezuncompress( pDest, &nDestLen, pData, static_cast<long> (outSize) );
-		if ( nErr == EZ_BUF_ERROR )
-		{
-			delete [] pDest;
-			pDest = new unsigned char [nDestLen]; // enough room now
-			
-			OT_ASSERT(NULL != pDest);
-			
-			nErr = ezuncompress( pDest, &nDestLen, pData, static_cast<long> (outSize) );
-		}
-		
-		// Now we're done with this memory, let's free it.
-		delete [] pData; pData=NULL;
-		// ----------------------------------------
-		if ( nErr == EZ_BUF_ERROR )
-		{
-			delete [] pDest;
-			pDest = NULL;
-			
-			OT_FAIL_MSG("Buffer error in OTASCIIArmor::GetAndUnpackString\n");
-		}
-		else if ( nErr == EZ_STREAM_ERROR )
-		{
-			delete [] pDest;
-			pDest = NULL;
-			
-			OT_FAIL_MSG("pDest is NULL in OTASCIIArmor::GetAndUnpackString\n");
-		}
-		else if ( nErr == EZ_DATA_ERROR )
-		{
-			delete [] pDest;
-			pDest = NULL;
-			
-			OTLog::vError("corrupted pSrc passed to ezuncompress OTASCIIArmor::GetAndUnpackString, size: %d\n", outSize);
-			OT_FAIL;
-		}
-		else if ( nErr == EZ_MEM_ERROR )
-		{
-			delete [] pDest;
-			pDest = NULL;
-			
-			OT_FAIL_MSG("Out of memory in OTASCIIArmor::GetAndUnpackString\n");
-		}
+        
+        std::string str_decoded( pData, pData+outSize );
+        
+        delete [] pData; pData=NULL;
+
+        std::string str_uncompressed = decompress_string( str_decoded );
 		// ---------------------------------------
 		// PUT THE PACKED BUFFER HERE, AND UNPACK INTO strData
 		// --------------------------------------------------------
@@ -422,13 +463,8 @@ bool OTASCIIArmor::GetAndUnpackString(OTString & strData, bool bLineBreaks) cons
 		OTDB::PackedBuffer * pBuffer = pPacker->CreateBuffer(); // Need to clean this up.
 		OT_ASSERT(NULL != pBuffer);
 		OTCleanup<OTDB::PackedBuffer> theBufferAngel(*pBuffer); // This will make sure buffer is deleted later.
-		
-		const size_t theDestLen = nDestLen;
-		
-		pBuffer->SetData(pDest, // const unsigned char *
-						 theDestLen);
-
-		delete [] pDest; pDest=NULL; 
+		      
+        pBuffer->SetData(reinterpret_cast<const unsigned char *>(str_uncompressed.data()), str_uncompressed.size());
 		// -----------------------------
 		OTDB::OTDBString * pOTDBString = dynamic_cast<OTDB::OTDBString *>(OTDB::CreateObject(OTDB::STORED_OBJ_STRING));
 		OT_ASSERT(NULL != pOTDBString);
@@ -462,7 +498,7 @@ bool OTASCIIArmor::GetAndUnpackString(OTString & strData, bool bLineBreaks) cons
 // On the other way, UNPACK, THEN Uncompress.
 //
 // Right now I'm doing packing before compression, and unpacking after uncompression.
-// Basically if that doesn't work (even though easyzlib appears to care about endian/platform)
+// Basically if that doesn't work (even though zlib appears to care about endian/platform)
 // then switch the, (though that seems to make less logical sense to me.)
 // Maybe have to pack before both? Seems crazy.
 
@@ -490,7 +526,6 @@ bool OTASCIIArmor::GetAndUnpackStringMap(std::map<std::string, std::string> & th
 		return true;
 	// --------------------------------------------------------------
     pData = OTCrypto::It()->Base64Decode(this->Get(), &outSize, bLineBreaks);
-//	pData = OT_base64_decode(Get(), &outSize, (bLineBreaks ? 1 : 0));
 	
 	if (pData)
 	{
@@ -772,95 +807,16 @@ bool OTASCIIArmor::SetAndPackString(const OTString & strData, bool bLineBreaks) 
 	}
 	
 	OTCleanup<OTDB::PackedBuffer> theBufferAngel(*pBuffer); // make sure memory is cleaned up.
-	// --------------------------------------------------------	
-	const uint8_t* pUint = static_cast<const uint8_t*>(pBuffer->GetData());
-	const size_t theSize = pBuffer->GetSize();
 	// --------------------------------------------------------
-	char *	pString	= NULL;
-	
-	// Set up source buffer and destination buffer
-	long nDestLen	= DEFAULT_BUFFER_SIZE_EASYZLIB; // todo stop hardcoding numbers (but this one is OK I think.)
-	const long lSourcelen	= static_cast<long> (theSize);
-	
-	unsigned char* pSource	= new unsigned char[lSourcelen+10]; // for safety
-	unsigned char* pDest	= new unsigned char[nDestLen  +10]; // for safety
-	
-	OT_ASSERT(NULL != pSource);
-	OT_ASSERT(NULL != pDest);
-	
-    OTPassword::zeroMemory(pSource, lSourcelen+10);
-    OTPassword::zeroMemory(pDest,   nDestLen  +10);
+    std::string str_packed(reinterpret_cast<const char *>(pBuffer->GetData()), pBuffer->GetSize());
     
-//    void * OTPassword::safe_memcpy(void   * dest,
-//                                   uint32_t dest_size,
-//                                   const
-//                                   void   * src,
-//                                   uint32_t src_length,
-//                                   bool     bZeroSource/*=false*/) // if true, sets the source buffer to zero after copying is done.
-
-    OTPassword::safe_memcpy(pSource, lSourcelen, pUint, static_cast<uint32_t>(theSize));
-	
-	// Now we are compressing first before base64-encoding (for strings, anyway)	
-	int nErr = ezcompress( pDest, &nDestLen, pSource, lSourcelen );
-	
-	// If the destination buffer wasn't the right size the first time around,
-	// then we re-allocate it to the right size (which we now know) and try again...
-	if ( nErr == EZ_BUF_ERROR )
-	{
-		delete [] pDest;
-		pDest = new unsigned char [nDestLen+10]; // enough room now
-		OT_ASSERT(NULL != pDest);
-        
-        OTPassword::zeroMemory(pDest, nDestLen+10);
-		
-		nErr = ezcompress( pDest, &nDestLen, pSource, lSourcelen );
-	}
-	
-	// Clean this up...
-	delete [] pSource;
-	pSource = NULL;
-	
-	// Still errors?
-	if ( nErr == EZ_BUF_ERROR )
-	{
-		delete [] pDest;
-		pDest = NULL;	
-		
-		OT_FAIL_MSG("Error allocating memory in OTASCIIArmor::SetAndPackString\n");
-	}
-	else if ( nErr == EZ_STREAM_ERROR )
-	{
-		delete [] pDest;
-		pDest = NULL;	
-		
-		OT_FAIL_MSG( "pDest is NULL in OTASCIIArmor::SetAndPackString\n");
-	}
-	else if ( nErr == EZ_DATA_ERROR )
-	{
-		delete [] pDest;
-		pDest = NULL;	
-		
-		OT_FAIL_MSG("corrupted pSrc passed to ezuncompress OTASCIIArmor::SetAndPackString\n");
-	}
-	else if ( nErr == EZ_MEM_ERROR )
-	{
-		delete [] pDest;	
-		pDest = NULL;
-		
-		OT_FAIL_MSG("Out of memory in OTASCIIArmor::SetAndPackString\n");
-	}
-	
-	OT_ASSERT_MSG(pDest != NULL, "pDest NULL in OTASCIIArmor::SetAndPackString\n");
-	
+    std::string str_compressed = compress_string( str_packed );
+    
 	// Success
-	if (0 < nDestLen)
+    if (str_compressed.size())
 	{
 		// Now let's base-64 encode it...
-        pString = OTCrypto::It()->Base64Encode((const uint8_t*)pDest, nDestLen, bLineBreaks);
-//		pString = OT_base64_encode((const uint8_t*)pDest, nDestLen, (bLineBreaks ? 1 : 0));
-		
-		delete [] pDest;
-		pDest = NULL;
+        char * pString = OTCrypto::It()->Base64Encode((const uint8_t*)(str_compressed.data()), str_compressed.size(), bLineBreaks);
 		
 		if (pString)
 		{
@@ -870,19 +826,14 @@ bool OTASCIIArmor::SetAndPackString(const OTString & strData, bool bLineBreaks) 
 		}
 		else 
 		{
-			OTLog::Error("pString NULL in OTASCIIArmor::SetAndPackString\n");
+			OTLog::vError("OTASCIIArmor::%s: pString NULL.\n", __FUNCTION__);
 		}
 	}
 	else 
 	{
-		OTLog::Error("nDestLen 0 in OTASCIIArmor::SetAndPackString\n");
+		OTLog::vError("OTASCIIArmor::%s: nDestLen 0.\n", __FUNCTION__);
 	}
-	
-	if (pDest)
-		delete [] pDest;
-	
-	pDest = NULL;
-	
+		
 	return false;	
 }
  
