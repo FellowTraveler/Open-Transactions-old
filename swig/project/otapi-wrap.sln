@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2013 for Windows Desktop
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otapi-csharp", "otapi-csharp\otapi-csharp.vcxproj", "{714475A4-B7C2-455F-BFD1-DE8EE71240E9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otapi-perl5", "otapi-perl5\otapi-perl5.vcxproj", "{08926EA6-3903-4217-B562-ECCFE8191F0A}"
@@ -16,6 +18,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otapi-java", "otapi-java\otapi-java.vcxproj", "{E8139EBB-BFA3-4B1B-96CF-733A7922CD7F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otapi-d", "otapi-d\otapi-d.vcxproj", "{CBC12C18-FF5E-4B7F-8C26-FDA2FCD226F8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otapi-go", "otapi-go\otapi-go.vcxproj", "{9AF32343-6B52-4876-87AA-97855C4CCC50}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +93,14 @@ Global
 		{CBC12C18-FF5E-4B7F-8C26-FDA2FCD226F8}.Release|Win32.Build.0 = Release|Win32
 		{CBC12C18-FF5E-4B7F-8C26-FDA2FCD226F8}.Release|x64.ActiveCfg = Release|x64
 		{CBC12C18-FF5E-4B7F-8C26-FDA2FCD226F8}.Release|x64.Build.0 = Release|x64
+		{9AF32343-6B52-4876-87AA-97855C4CCC50}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9AF32343-6B52-4876-87AA-97855C4CCC50}.Debug|Win32.Build.0 = Debug|Win32
+		{9AF32343-6B52-4876-87AA-97855C4CCC50}.Debug|x64.ActiveCfg = Debug|x64
+		{9AF32343-6B52-4876-87AA-97855C4CCC50}.Debug|x64.Build.0 = Debug|x64
+		{9AF32343-6B52-4876-87AA-97855C4CCC50}.Release|Win32.ActiveCfg = Release|Win32
+		{9AF32343-6B52-4876-87AA-97855C4CCC50}.Release|Win32.Build.0 = Release|Win32
+		{9AF32343-6B52-4876-87AA-97855C4CCC50}.Release|x64.ActiveCfg = Release|x64
+		{9AF32343-6B52-4876-87AA-97855C4CCC50}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

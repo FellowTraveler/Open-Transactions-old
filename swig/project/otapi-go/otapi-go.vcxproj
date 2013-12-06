@@ -19,14 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\otapi\OTAPI-ruby.cxx" />
+    <ClCompile Include="..\..\otapi\OTAPI-go.cxx" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\otapi\OTAPI-ruby.h" />
+    <ClInclude Include="..\..\otapi\OTAPI-go.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{C7F61F18-3D7F-4B24-9A92-B67EBC22F49A}</ProjectGuid>
-    <RootNamespace>otapiruby</RootNamespace>
+    <ProjectGuid>{9AF32343-6B52-4876-87AA-97855C4CCC50}</ProjectGuid>
+    <RootNamespace>otapitcl</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

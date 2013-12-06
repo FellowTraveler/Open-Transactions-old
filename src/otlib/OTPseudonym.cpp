@@ -3726,7 +3726,7 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
     const size_t nMasterCredCount = this->GetMasterCredentialCount();
     if (nMasterCredCount > 0)
     {
-        for (int iii = 0; iii < nMasterCredCount; ++iii)
+        for (int iii = 0; iii < static_cast<int64_t>(nMasterCredCount); ++iii)
         {
             const OTCredential * pCredential = this->GetMasterCredentialByIndex(iii);
             if (NULL != pCredential)
@@ -4624,7 +4624,7 @@ OTCredential * OTPseudonym::GetRevokedCredential(const OTString & strID)
 
 const OTCredential * OTPseudonym::GetMasterCredentialByIndex(int nIndex) const
 {
-    if ((nIndex < 0) || (nIndex >= m_mapCredentials.size()))
+    if ((nIndex < 0) || (nIndex >= static_cast<int64_t>(m_mapCredentials.size())))
     {
         OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
     }
@@ -4650,7 +4650,7 @@ const OTCredential * OTPseudonym::GetMasterCredentialByIndex(int nIndex) const
 
 const OTCredential * OTPseudonym::GetRevokedCredentialByIndex(int nIndex) const
 {
-    if ((nIndex < 0) || (nIndex >= m_mapRevoked.size()))
+    if ((nIndex < 0) || (nIndex >= static_cast<int64_t>(m_mapRevoked.size())))
     {
         OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
     }

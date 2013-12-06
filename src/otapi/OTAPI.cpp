@@ -6434,7 +6434,7 @@ std::string OTAPI_Wrap::Hook_GetClauseAtIndex(const std::string & THE_CONTRACT,
             
             if (pBylaw->GetHooks(HOOK_NAME, theResults)) // Look up all clauses matching a specific hook.
             {
-                if ((nIndex >= 0) && (nIndex < theResults.size()))
+                if ((nIndex >= 0) && (nIndex < static_cast<int64_t>(theResults.size())))
                 {
                     int32_t nLoopIndex = -1;
                     

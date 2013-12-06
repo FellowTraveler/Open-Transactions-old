@@ -1372,7 +1372,7 @@ OTAgent * OTParty::GetAgent(const std::string & str_agent_name)
 ///
 OTAgent * OTParty::GetAgentByIndex(int nIndex)
 {
-    if (false == ((nIndex >= 0) && (nIndex < m_mapAgents.size())))
+    if (false == ((nIndex >= 0) && (nIndex < static_cast<int64_t>(m_mapAgents.size()))))
     {
         OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
     }
@@ -1443,7 +1443,7 @@ OTPartyAccount * OTParty::GetAccount(const std::string & str_acct_name) const
 ///
 OTPartyAccount * OTParty::GetAccountByIndex(int nIndex)
 {
-    if (false == ((nIndex >= 0) && (nIndex < m_mapPartyAccounts.size())))
+    if (false == ((nIndex >= 0) && (nIndex < static_cast<int64_t>(m_mapPartyAccounts.size()))))
     {
         OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
     }
@@ -4293,7 +4293,7 @@ bool OTParty::CopyAcctsToConfirmingParty(OTParty & theParty) const
 
 const std::string OTBylaw::GetCallbackNameByIndex(int nIndex)
 {
-    if ((nIndex < 0) || (nIndex >= m_mapCallbacks.size()))
+    if ((nIndex < 0) || (nIndex >= static_cast<int64_t>(m_mapCallbacks.size())))
     {
         OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
     }
@@ -4440,7 +4440,7 @@ OTVariable * OTBylaw::GetVariable(const std::string str_var_name) // not a refer
 ///
 OTVariable * OTBylaw::GetVariableByIndex(int nIndex)
 {
-    if (false == ((nIndex >= 0) && (nIndex < m_mapVariables.size())))
+    if (false == ((nIndex >= 0) && (nIndex < static_cast<int64_t>(m_mapVariables.size()))))
     {
         OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
     }
@@ -4488,7 +4488,7 @@ OTClause * OTBylaw::GetClause(const std::string str_clause_name)
 ///
 OTClause * OTBylaw::GetClauseByIndex(int nIndex)
 {
-    if (false == ((nIndex >= 0) && (nIndex < m_mapClauses.size())))
+    if (false == ((nIndex >= 0) && (nIndex < static_cast<int64_t>(m_mapClauses.size()))))
     {
         OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
     }
@@ -4513,7 +4513,7 @@ OTClause * OTBylaw::GetClauseByIndex(int nIndex)
 
 const std::string OTBylaw::GetHookNameByIndex(int nIndex)
 {
-    if ((nIndex < 0) || (nIndex >= m_mapHooks.size()))
+    if ((nIndex < 0) || (nIndex >= static_cast<int64_t>(m_mapHooks.size())))
     {
         OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
     }

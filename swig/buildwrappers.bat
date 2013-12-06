@@ -86,7 +86,7 @@ IF EXIST "%OT_API_BASE%-wrap.%%a" DEL "%OT_API_BASE%-wrap.%%a"
 IF EXIST "%OT_API_BASE%_wrap.%%a" DEL "%OT_API_BASE%_wrap.%%a"
 )
 
-for %%b IN (csharp java perl5 php python ruby tcl d) DO (
+for %%b IN (csharp java perl5 php python ruby tcl d go) DO (
 	for %%c IN (cpp cxx h) DO (
 		IF EXIST "%OT_API_BASE%-%%b.%%c" DEL "%OT_API_BASE%-%%b.%%c"
 	)
@@ -95,13 +95,13 @@ echo done!
 goto :core
 
 :core
-FOR %%x IN (csharp java perl5 php python ruby tcl d) DO (
+FOR %%x IN (csharp java perl5 php python ruby tcl d go) DO (
 	echo:
 	echo Generating for %%x ...
 	
 	MKDIR "%OT_GLUE_PATH%\%%x"
 
-	IF NOT %%x == csharp IF NOT %%x == java (
+	IF NOT %%x == csharp IF NOT %%x == java IF NOT %%x == go (
 		ECHO "%SWIG_EXE_PATH%" -c++ -%%x -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
 		"%SWIG_EXE_PATH%" -c++ -%%x -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
 	)
@@ -114,6 +114,11 @@ FOR %%x IN (csharp java perl5 php python ruby tcl d) DO (
 	IF %%x == java (
 		ECHO "%SWIG_EXE_PATH%" -c++ -%%x -package %JAVA_PACKAGE_NAME% -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
 		"%SWIG_EXE_PATH%" -c++ -%%x -package %JAVA_PACKAGE_NAME% -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
+	)
+
+	IF %%x == go (
+		ECHO "%SWIG_EXE_PATH%" -c++ -%%x -intgosize 64 -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
+		"%SWIG_EXE_PATH%" -c++ -%%x -intgosize 64 -outdir "%OT_GLUE_PATH%\%%x" "%OT_API_BASE%.i"
 	)
 	
 	for %%y IN (cpp cxx) DO (

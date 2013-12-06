@@ -1803,7 +1803,7 @@ OTParty * OTScriptable::GetParty(const std::string str_party_name)
 
 OTParty * OTScriptable::GetPartyByIndex(int nIndex)
 {
-    if ((nIndex < 0) || (nIndex >= m_mapParties.size()))
+    if ((nIndex < 0) || (nIndex >= static_cast<int64_t>(m_mapParties.size())))
     {
         OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
     }
@@ -1829,7 +1829,7 @@ OTParty * OTScriptable::GetPartyByIndex(int nIndex)
 
 OTBylaw * OTScriptable::GetBylawByIndex(int nIndex)
 {
-    if ((nIndex < 0) || (nIndex >= m_mapBylaws.size()))
+    if ((nIndex < 0) || (nIndex >= static_cast<int64_t>(m_mapBylaws.size())))
     {
         OTLog::vError("%s: Index out of bounds: %d\n", __FUNCTION__, nIndex);
     }
