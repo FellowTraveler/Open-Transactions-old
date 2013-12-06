@@ -8,6 +8,7 @@ opentxs_source_dir =		$(top_srcdir)/src
 ## COMMON FLAGS ###
 
 common_includes		=	$(AM_CXXFLAGS)			\
+                -I$(top_builddir)/include/otlib \
                 -I$(opentxs_include_dir)		\
 				-I$(opentxs_include_dir)/otlib	\
 				-I$(opentxs_include_dir)/containers	\
@@ -124,7 +125,7 @@ otlib_headers		=	$(otlib_headers_dir)/constants.h		\
 				$(otlib_headers_dir)/Timer.h			\
 				$(otlib_headers_ext)
 
-otlib_headers_ext	=	$(otlib_headers_dir)/ot_config.h    \
+otlib_headers_ext	=	$(top_builddir)/include/otlib/ot_config.h    \
                 $(otlib_headers_dir)/ExportWrapper.h		\
 				$(otlib_headers_dir)/stacktrace.h		\
 				$(otlib_headers_dir)/stdafx.h		\
