@@ -11,7 +11,7 @@
 #ifndef _WIN32 // Not Windows
 // ------------------------
 #ifdef ANDROID
-#include <utils/CallStack.h>
+//#include <utils/CallStack.h>  // Android can't find this while building, for some reason.
 // ------------------------
 #else // not Android
 #include <execinfo.h>
@@ -28,8 +28,9 @@ static inline void print_stacktrace(FILE *out = stderr, unsigned int max_frames 
 	//TODO: Write Winodws Code
     
 #elif defined(ANDROID)
-    CallStack cs;
-    cs.dump();
+//    android::CallStack cs;
+//    cs.update();
+//    cs.dump();
 #else
 
     fprintf(out, "stack trace:\n");
