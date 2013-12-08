@@ -1,4 +1,4 @@
-/************************************************************************************
+/************************************************************
  *    
  *  OTString.cpp
  *  
@@ -143,11 +143,11 @@
 #include <sstream>
 
 #include <cstdarg>
-
-#ifndef _WIN32
+// -------------------------------------------
+#if !defined(_WIN32) && !defined(ANDROID)
 #include <wordexp.h>
 #endif
-
+// -------------------------------------------
 #include "OTStorage.h"
 
 #include "OTString.h"
@@ -575,7 +575,7 @@ void fwrite_string(FILE *fl, const char *str)
 //
 bool OTString::TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & mapOutput) const
 {
-#if !(_WIN32 || __IPHONE_7_0)
+#if !(_WIN32 || __IPHONE_7_0 || ANDROID)
 	if (!Exists())
 		return true;
 	// --------------
