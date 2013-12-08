@@ -216,6 +216,7 @@ extern "C"
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+    
 #ifndef __USE_GNU
 #define __USE_GNU
 #endif
@@ -229,19 +230,37 @@ extern "C"
 		int eip;
 	};
 #endif // defined __APPLE__
-	//#define __APPLE_API_OBSOLETE
-	//#include <sys/signal.h>
-	//#include <sys/ucontext.h>
-	//#else
+    
+// ----------------------------------------
+#if defined (ANDROID)
+    
+#ifndef ucontext_h_seen
+#define ucontext_h_seen
+    
+#include <asm/sigcontext.h>       /* for sigcontext */
+#include <asm/signal.h>           /* for stack_t */
+    
+    typedef struct ucontext {
+        unsigned long uc_flags;
+        struct ucontext *uc_link;
+        stack_t uc_stack;
+        struct sigcontext uc_mcontext;
+        unsigned long uc_sigmask;
+    } ucontext_t;
+    
+#endif // ucontext_h_seen
+// -------------------
+#else // Not ANDROID
 #include <signal.h>
 #include <ucontext.h>
-	//#endif
-
 #include <wordexp.h>
+#include <execinfo.h>
+#endif
+// ----------------------------------------
+    
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#include <execinfo.h>
 	//#endif
 	// ----------------------------------------
 
@@ -907,7 +926,7 @@ void  OTLog::Errno(const char * szLocation/*=NULL*/) // stderr
 
 	//#if((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !defined(_GNU_SOURCE))
 
-#if defined(_GNU_SOURCE) && defined(__linux__)
+#if defined(_GNU_SOURCE) && defined(__linux__) && !defined(ANDROID)
 	szErrString = strerror_r(errnum, buf, 127);
 #elif (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600)
 	nstrerr = strerror_r(errnum, buf, 127); // (strerror_r is threadsafe version of strerror)
@@ -1064,7 +1083,7 @@ void ot_terminate()
 
 	// UNIX
 
-#ifndef _WIN32 // we don't have to deal with mangled_names on windows. (well I'm not going to atempt to).
+#if !defined(_WIN32) && !defined(ANDROID) // we don't have to deal with mangled_names on windows. (well I'm not going to attempt to.)
 
 	void * array[50];
 	int size = backtrace(array, 50);
@@ -1518,9 +1537,9 @@ void crit_err_hdlr(int sig_num, siginfo_t * info, void * ucontext)
 }
 */
 
-void
-	crit_err_hdlr(int sig_num, siginfo_t *info, void *v)
+void crit_err_hdlr(int sig_num, siginfo_t *info, void *v)
 {
+#ifndef ANDROID
 	static tthread::mutex the_Mutex;
 
 	tthread::lock_guard<tthread::mutex> lock(the_Mutex);
@@ -1692,7 +1711,7 @@ void
 	std::cerr << std::endl;
 
 	free(messages);
-
+#endif // #ifndef ANDROID
 	_exit(0); 
 }
 
