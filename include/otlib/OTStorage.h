@@ -2156,10 +2156,24 @@ namespace OTDB
 #pragma warning( disable : 4267 )
 #endif
 
+
+// -----------------------------------------------
+#ifdef ANDROID
+#include "Generics-lite.pb.h"
+#include "Markets-lite.pb.h"
+#include "Bitcoin-lite.pb.h"
+#include "Moneychanger-lite.pb.h"
+#else
+// -----------------------------------------------
+// (NOT Android.)
+//
 #include "Generics.pb.h"
 #include "Markets.pb.h"
 #include "Bitcoin.pb.h"
 #include "Moneychanger.pb.h"
+#endif
+// -----------------------------------------------
+
 
 #ifdef _WIN32
 #pragma warning( pop )
@@ -2184,7 +2198,7 @@ theInternalType __pb_obj; \
 protected: \
 theType() : theBaseType() { } \
 public: \
-::google::protobuf::Message & getPBMessage() { return dynamic_cast<::google::protobuf::Message>(__pb_obj); } \
+::google::protobuf::MessageLite & getPBMessage() { return dynamic_cast<::google::protobuf::MessageLite>(__pb_obj); } \
 static Storable * Instantiate() { return dynamic_cast<Storable *>(new theType()); } \
 virtual ~theType() { } \
 virtual void hookBeforePack(); \
@@ -2221,7 +2235,7 @@ namespace OTDB
 	// Interface:    IStorablePB
 	//
 	DeclareBasedInterface(IStorablePB, IStorable)
-		virtual ::google::protobuf::Message * getPBMessage();
+		virtual ::google::protobuf::MessageLite * getPBMessage();
 	virtual bool onPack(PackedBuffer& theBuffer, Storable& inObj);
 	virtual bool onUnpack(PackedBuffer& theBuffer, Storable& outObj);
 	OT_USING_ISTORABLE_HOOKS;
@@ -2276,10 +2290,10 @@ namespace OTDB
 			if (NULL != pBuffer) { delete pBuffer; pBuffer = NULL; }
 		}
 
-		virtual ::google::protobuf::Message * getPBMessage(); 
+		virtual ::google::protobuf::MessageLite * getPBMessage(); 
 
-		//		IStorable * clone(void) const 
-		//			{return dynamic_cast<IStorable *>(new ProtobufSubclass<theBaseType, theInternalType, theObjectType>(*this));}
+//		IStorable * clone(void) const
+//			{return dynamic_cast<IStorable *>(new ProtobufSubclass<theBaseType, theInternalType, theObjectType>(*this));}
 
 		virtual theBaseType * clone(void) const 
 		{  /*std::cout << "Cloning a " << m_Type.c_str() << std::endl;*/ return dynamic_cast<theBaseType *>(do_clone()); }

@@ -1581,20 +1581,20 @@ namespace OTDB
 #if defined (OTDB_PROTOCOL_BUFFERS)
 	
 	
-	::google::protobuf::Message * IStorablePB::getPBMessage() // This is really only here so it can be overridden. Only subclasses of IStorablePB will actually exist.
+	::google::protobuf::MessageLite * IStorablePB::getPBMessage() // This is really only here so it can be overridden. Only subclasses of IStorablePB will actually exist.
 	{ 
 		return NULL; 
 	}
 	
 	template<class theBaseType, class theInternalType, StoredObjectType theObjectType>
-	::google::protobuf::Message * ProtobufSubclass<theBaseType, theInternalType, theObjectType>::getPBMessage() 
+	::google::protobuf::MessageLite * ProtobufSubclass<theBaseType, theInternalType, theObjectType>::getPBMessage() 
 	{ 
 		return (&__pb_obj); 
 	}
 	
 	
 	//	if (false == makeTStorable(*pStorable).pack(*pBuffer))
-	//::google::protobuf::Message	&	IStorablePB::getPBMessage() 
+	//::google::protobuf::MessageLite	&	IStorablePB::getPBMessage() 
 	//{
 	//	return makeTStorablePB(*this).getPBMessage();
 	//}
@@ -1607,7 +1607,7 @@ namespace OTDB
 		if (NULL == pBuffer) // Buffer is wrong type!!
 			return false;
 		
-		::google::protobuf::Message * pMessage = getPBMessage();
+		::google::protobuf::MessageLite * pMessage = getPBMessage();
 		
 		if (NULL == pMessage)
 			return false;
@@ -1626,7 +1626,7 @@ namespace OTDB
 		if (NULL == pBuffer) // Buffer is wrong type!!
 			return false;
 		
-		::google::protobuf::Message * pMessage = getPBMessage();
+		::google::protobuf::MessageLite * pMessage = getPBMessage();
 		
 		if (NULL == pMessage)
 			return false;
@@ -1651,7 +1651,7 @@ namespace OTDB
 	{
 		StringPB theWrapper;
 		
-		::google::protobuf::Message * pMessage = theWrapper.getPBMessage();
+		::google::protobuf::MessageLite * pMessage = theWrapper.getPBMessage();
 		
 		if (NULL == pMessage)
 			return false;
@@ -1673,7 +1673,7 @@ namespace OTDB
 	{
 		StringPB theWrapper;
 		
-		::google::protobuf::Message * pMessage = theWrapper.getPBMessage();
+		::google::protobuf::MessageLite * pMessage = theWrapper.getPBMessage();
 		
 		if (NULL == pMessage)
 			return false;
@@ -1772,7 +1772,7 @@ namespace OTDB
 		PointerTo##element_type thePtr = (*ii); \
 		element_type##PB * pObject = dynamic_cast<element_type##PB *>(thePtr.pointer()); \
 			OT_ASSERT (NULL != pObject); \
-		::google::protobuf::Message * pMessage = pObject->getPBMessage(); \
+		::google::protobuf::MessageLite * pMessage = pObject->getPBMessage(); \
 			OT_ASSERT (NULL != pMessage); \
 		element_type##_InternalPB * pInternal = dynamic_cast<element_type##_InternalPB *>(pMessage); \
 			OT_ASSERT (NULL != pInternal); \
@@ -1791,7 +1791,7 @@ namespace OTDB
 		const element_type##_InternalPB & theInternal = __pb_obj.pb_name(i); \
 		element_type##PB * pNewWrapper = dynamic_cast<element_type##PB *>(Storable::Create(ELEMENT_ENUM, PACK_PROTOCOL_BUFFERS)); \
 			OT_ASSERT(NULL != pNewWrapper); \
-		::google::protobuf::Message * pMessage = pNewWrapper->getPBMessage(); \
+		::google::protobuf::MessageLite * pMessage = pNewWrapper->getPBMessage(); \
 			OT_ASSERT (NULL != pMessage); \
 		element_type##_InternalPB * pInternal = dynamic_cast< element_type##_InternalPB *>(pMessage); \
 			OT_ASSERT (NULL != pInternal); \
